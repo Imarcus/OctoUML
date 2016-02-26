@@ -1,0 +1,21 @@
+*.class
+.idea/workspace.xml
+src/META-INF/
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+/bin/
+/.settings/
+/.idea/*
+/.idea/
+/FS/
+/JetUML-0.9/*
+/JetUML-0.9/.idea/workspace.xml
+

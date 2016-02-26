@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="cmmt.jnlp">
+  <information>
+    <title>Penguin</title>
+    <vendor>Chalmers</vendor>
+    <description>cmmt</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="Jama-1.0.2.jar" size="32775" download="eager" />
+    <jar href="cmmt.jar" size="86880" download="eager" />
+    <jar href="ecologylabFundamental.jar" size="3332559" download="eager" />
+    <jar href="junit-4.12.jar" size="314932" download="eager" />
+    <jar href="log4j-1.2.15.jar" size="391834" download="eager" />
+    <jar href="paleo.jar" size="7920101" download="eager" />
+    <jar href="weka.jar" size="5248023" download="eager" />
+  </resources>
+  <jfx:javafx-desc  width="1280" height="800" main-class="controller.Launcher"  name="cmmt" />
+  <update check="background"/>
+</jnlp>

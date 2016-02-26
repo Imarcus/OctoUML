@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: ecologylabFundamental.jar weka.jar Jama-1.0.2.jar paleo.ja
+ r junit-4.12.jar log4j-1.2.15.jar
+Main-Class: ca.mcgill.cs.stg.jetuml.UMLEditor
+

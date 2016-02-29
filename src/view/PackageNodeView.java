@@ -5,6 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.layout.StackPane;
@@ -15,6 +16,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import model.AbstractNode;
+import model.Node;
 import model.PackageNode;
 
 /**
@@ -22,6 +24,7 @@ import model.PackageNode;
  */
 public class PackageNodeView extends AbstractNodeView {
 
+    private PackageNode refNode;
     private Text title;
     private VBox container;
     private StackPane topStackPane;
@@ -33,6 +36,7 @@ public class PackageNodeView extends AbstractNodeView {
 
     public PackageNodeView(PackageNode node) {
         super(node);
+        refNode = node;
         setChangeListeners();
         title = new Text(node.getTitle());
         //title.setTextAlignment(TextAlignment.CENTER);
@@ -80,6 +84,15 @@ public class PackageNodeView extends AbstractNodeView {
         body.setFill(Color.LIGHTSKYBLUE);
         body.setStroke(Color.BLACK);
 
+    }
+
+    @Override
+    public boolean contains(double x, double y) {
+        //If there is a childNode inside this PackageNode, we should return false.
+        if (refNode.findNode(new Point2D(x, y)) != null) {
+            return false;
+        }
+        return super.contains(x, y);
     }
 
     public void setStrokeWidth(double scale) {

@@ -1,6 +1,7 @@
 package model;
 
 import javafx.geometry.Point2D;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
@@ -17,11 +18,14 @@ public class GraphTest {
 
         Point2D p1 = new Point2D(12, 12);
         Point2D p2 = new Point2D(70, 70);
-
+        Point2D p3 = new Point2D(90, 90);
         graph.addNode(packageNode);
+        packageNode.addChild(c1);
+        packageNode.addChild(c2);
         graph.addNode(c1);
         graph.addNode(c2);
-
-
+        assertEquals(graph.findNode(p1), c1);
+        assertEquals(graph.findNode(p2), c2);
+        assertEquals(graph.findNode(p3), packageNode);
     }
 }

@@ -99,6 +99,7 @@ public class MainController {
 
     }
 
+    
     //TODO FIX SO THAT YOU CAN USE KEYACTIONS
     /*private void initSceneActions(){
         aScene.setOnKeyPressed(new EventHandler<KeyEvent>() {

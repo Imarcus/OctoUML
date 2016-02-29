@@ -18,4 +18,5 @@ hs_err_pid*
 /FS/
 /JetUML-0.9/*
 /JetUML-0.9/.idea/workspace.xml
+*.iml
 

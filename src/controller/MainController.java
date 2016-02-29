@@ -1,5 +1,6 @@
 package controller;
 
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.shape.Path;
 import model.*;
@@ -179,6 +180,9 @@ public class MainController {
                     edgeController.removeDragLine();
 
                     mode = Mode.NO_MODE;
+
+                }
+                else if (tool == ToolEnum.EDGE) {
 
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING)
@@ -384,6 +388,10 @@ public class MainController {
         }
     }
 
+    private void handleOnEventRelease(Event event) {
+
+    }
+
     //TODO THis should take a GraphElement(View?) instead!
     private void initNodeActions(AbstractNodeView nodeView){
         nodeView.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -476,9 +484,20 @@ public class MainController {
                 {
                     nodeController.resizeFinished(nodeMap.get(nodeView), event);
 
-                }else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
+                }
+                else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
                     model.Node startNode = graph.findNode(edgeController.getStartPoint());
                     model.Node endNode = graph.findNode(edgeController.getEndPoint());
+
+                    //If node is a package node.
+                    if (startNode != null && endNode!= null &&
+                            startNode.equals(endNode) && startNode instanceof PackageNode) {
+                        System.out.println("EdgeController.getStartPoint: " + edgeController.getStartPoint());
+                        System.out.println("EdgeController.getEndPoint: " + edgeController.getEndPoint());
+                        startNode = ((PackageNode) startNode).findNode(edgeController.getStartPoint());
+                        endNode = ((PackageNode) endNode).findNode(edgeController.getEndPoint());
+                    }
+
                     AssociationEdge edge = new AssociationEdge(startNode, endNode);
                     //Only add the edge to the graph if it connects two nodes.
                     AbstractNodeView startNodeView = null;
@@ -505,6 +524,15 @@ public class MainController {
                     if (startNodeView != null && endNodeView != null) {
                         allEdgeViews.add(edgeView);
                         undoManager.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, graph, true));
+                        System.out.println("STARTNODE x = " + startNodeView.getX() +
+                                " y = " + startNodeView.getY());
+                        System.out.println("ENDNODE x = " + endNodeView.getX() +
+                                " y = " + endNodeView.getY());
+                        System.out.println("CREATING EDGE: startX = " +
+                                edgeView.getStartX() +
+                                " startY = " + edgeView.getStartY() +
+                                " endX = " + edgeView.getEndX() +
+                                " endY = " + edgeView.getEndY());
                     }
 
                 } /*else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) { //TODO Draw on nodes

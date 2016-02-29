@@ -1,5 +1,6 @@
 package model;
 
+import javafx.geometry.Point2D;
 import view.ClassNodeView;
 
 import java.util.ArrayList;
@@ -24,6 +25,21 @@ public class PackageNode extends AbstractNode
     public void removeChild(AbstractNode childNode){
         childNode.setIsChild(false);
         this.childNodes.remove(childNode);
+    }
+
+    /**
+     * Finds a node in this package from a Point2D.
+     * @param point
+     * @return the node if found, otherwise null.
+     */
+    public AbstractNode findNode(Point2D point) {
+        for (AbstractNode node : childNodes) {
+            if (point.getX() >= node.getX() && point.getX() <= node.getX()+ node.getWidth()
+                    && point.getY() >= node.getY() && point.getY() <= node.getY() + node.getHeight()) {
+                return node;
+            }
+        }
+        return null;
     }
 
     public void addChild(AbstractNode childNode) {

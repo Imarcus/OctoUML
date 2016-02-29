@@ -112,7 +112,12 @@ public class Graph {
         assert point != null;
         for (Node node : nodes){
             if (node.getBounds().contains(point.getX(), point.getY())) {
-                return node;
+                if (node instanceof PackageNode && ((PackageNode) node).findNode(point) != null) {
+                    return ((PackageNode) node).findNode(point);
+                }
+                else {
+                    return node;
+                }
             }
         }
         return null;

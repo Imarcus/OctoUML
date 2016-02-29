@@ -388,10 +388,6 @@ public class MainController {
         }
     }
 
-    private void handleOnEventRelease(Event event) {
-
-    }
-
     //TODO THis should take a GraphElement(View?) instead!
     private void initNodeActions(AbstractNodeView nodeView){
         nodeView.setOnMousePressed(new EventHandler<MouseEvent>() {

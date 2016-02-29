@@ -53,6 +53,7 @@ public class RecognizeController {
                     double width = s.getStroke().getBoundingBox().getWidth();
                     double height = s.getStroke().getBoundingBox().getHeight();
                     s.setRecognizedElement(new ClassNode(x, y, width, height));
+                    System.out.println("New ClassNode: " + s.getRecognizedElement().toString());
                     mainController.getGraphModel().addNode((ClassNode)s.getRecognizedElement());
                     recognizedElements.add(s.getRecognizedElement());
                     sketchesToBeRemoved.add(s);
@@ -75,10 +76,14 @@ public class RecognizeController {
                     //TODO Hmm, quite messy way to create Edges...
                     Point2D startPoint = new Point2D(s.getStroke().getFirstPoint().getX(), s.getStroke().getFirstPoint().getY());
                     Point2D endPoint = new Point2D(s.getStroke().getLastPoint().getX(), s.getStroke().getLastPoint().getY());
+
+                    System.out.println("STARTPOINT: " + startPoint.toString() + " ENDPOINT: " + endPoint.toString());
+
                     Node startNode = mainController.getGraphModel().findNode(startPoint);
                     Node endNode = mainController.getGraphModel().findNode(endPoint);
                     if (startNode != null && endNode != null && !startNode.equals(endNode)) {
                         s.setRecognizedElement(new AssociationEdge(startNode, endNode));
+                        System.out.println("Recognized an Edge: " + s.getRecognizedElement().toString());
                         recognizedElements.add(s.getRecognizedElement());
                         sketchesToBeRemoved.add(s);
                         aDrawPane.getChildren().remove(s.getPath());

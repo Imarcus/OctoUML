@@ -109,6 +109,7 @@ public class CreateNodeController {
     /**
     * Puts the given class node as a child of a package if it is contained in one.
      */
+    //TODO This is maybe not necessary, as the graph now adds the child to the package.
     private boolean putNodeInPackage(AbstractNodeView nodeView, AbstractNode potentialChildModel){
         Map<AbstractNodeView, AbstractNode> nodeMap = aMainController.getNodeMap();
         for(AbstractNodeView potentialParent : aMainController.getAllNodeViews()){

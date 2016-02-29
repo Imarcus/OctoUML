@@ -72,6 +72,9 @@ public class MainController {
         CREATE, SELECT, DRAW, PACKAGE, EDGE, MOVE_SCENE
     }
 
+    private boolean umlVisible = true;
+    private boolean sketchesVisible = true;
+
     @FXML private Pane aDrawPane;
     @FXML private ToolBar aToolBar;
 
@@ -317,7 +320,7 @@ public class MainController {
                     ClassNode node = createNodeController.createClassNode(event);
 
                     //Use CreateController to create ClassNodeView.
-                    ClassNodeView nodeView = (ClassNodeView) createNodeController.onTouchReleased(event, node, currentScale);
+                    ClassNodeView nodeView = (ClassNodeView) createNodeController.onTouchReleased(node, currentScale);
 
                     nodeMap.put(nodeView, node);
                     allNodeViews.add(nodeView);
@@ -330,7 +333,7 @@ public class MainController {
 
                 } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING) { //TODO: combine double code
                     PackageNode node = createNodeController.createPackageNode(event);
-                    PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(event, node, currentScale);
+                    PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node, currentScale);
                     nodeMap.put(nodeView, node);
                     initNodeActions(nodeView);
                     undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
@@ -596,7 +599,7 @@ public class MainController {
                     ClassNode node = createNodeController.createClassNode(event);
 
                     //Use CreateController to create ClassNodeView.
-                    ClassNodeView nodeView = (ClassNodeView) createNodeController.onTouchReleased(event, node, currentScale);
+                    ClassNodeView nodeView = (ClassNodeView) createNodeController.onTouchReleased(node, currentScale);
 
                     nodeMap.put(nodeView, node);
                     allNodeViews.add(nodeView);
@@ -609,7 +612,7 @@ public class MainController {
 
                 } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING) { //TODO: combine double code
                     PackageNode node = createNodeController.createPackageNode(event);
-                    PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(event, node, currentScale);
+                    PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node, currentScale);
                     nodeMap.put(nodeView, node);
                     initNodeActions(nodeView);
                     undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
@@ -807,6 +810,60 @@ public class MainController {
                 });
             }
 
+        }
+    }
+
+    //---------------------- MENU HANDLERS ---------------------------------
+
+    List<String> umlButtonStrings = Arrays.asList("Create", "Package", "Edge");
+
+    public void handleMenuActionUML(){
+        if(umlVisible){
+            for(AbstractNodeView nodeView : allNodeViews){
+                aDrawPane.getChildren().remove(nodeView);
+            }
+            setButtons(true, umlButtonStrings);
+
+            umlVisible = false;
+        } else {
+            for(AbstractNodeView nodeView : allNodeViews){
+                aDrawPane.getChildren().add(nodeView);
+            }
+            setButtons(false, umlButtonStrings);
+
+            umlVisible = true;
+        }
+    }
+
+    public void handleMenuActionSketches(){
+        if(sketchesVisible){
+            for(Sketch sketch : allSketches){
+                aDrawPane.getChildren().remove(sketch.getPath());
+            }
+
+            setButtons(true, Arrays.asList("Draw"));
+
+            sketchesVisible = false;
+        } else {
+            for(Sketch sketch : allSketches){
+                aDrawPane.getChildren().add(sketch.getPath());
+            }
+
+            setButtons(false, Arrays.asList("Draw"));
+
+            sketchesVisible = true;
+        }
+    }
+
+    private void setButtons(boolean disable, List<String> buttonStrings){
+        ObservableList<javafx.scene.Node> buttonList = aToolBar.getItems();
+        for (javafx.scene.Node button : buttonList){
+            if(buttonStrings.contains(((Button) button).getText())){
+                button.setDisable(disable);
+            }
+            if(((Button) button).getText().equals("Select")){
+                ((Button) button).fire();
+            }
         }
     }
 }

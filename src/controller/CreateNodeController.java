@@ -35,47 +35,55 @@ public class CreateNodeController {
     public CreateNodeController(Pane pDrawPane, MainController pMainController){
         aMainController = pMainController;
         aDrawPane = pDrawPane;
-
     }
 
     public void onTouchPressed(TouchEvent event){
         Rectangle dragRectangle = new Rectangle();
         dragRectangle.setFill(null);
         dragRectangle.setStroke(Color.BLACK);
-        dragRectangle.setX(event.getTouchPoint().getSceneX());
-        dragRectangle.setY(event.getTouchPoint().getSceneY());
+
+        if(event.getSource() instanceof AbstractNodeView){
+            dragRectangle.setX(event.getTouchPoint().getX() + ((AbstractNodeView) event.getSource()).getX());
+            dragRectangle.setY(event.getTouchPoint().getY() + ((AbstractNodeView) event.getSource()).getY());
+        } else {
+            dragRectangle.setX(event.getTouchPoint().getX());
+            dragRectangle.setY(event.getTouchPoint().getY());
+        }
         dragRectangles.put(event.getTouchPoint().getId(), dragRectangle);
         aDrawPane.getChildren().add(dragRectangle);
     }
 
     public void onTouchDragged(TouchEvent event){
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        dragRectangle.setWidth(event.getTouchPoint().getSceneX() - dragRectangle.getX());
-        dragRectangle.setHeight(event.getTouchPoint().getSceneY() - dragRectangle.getY());
+        if(event.getSource() instanceof AbstractNodeView){
+            dragRectangle.setWidth(((AbstractNodeView)event.getSource()).getX()+ event.getTouchPoint().getX() - dragRectangle.getX());
+            dragRectangle.setHeight(((AbstractNodeView)event.getSource()).getY() + event.getTouchPoint().getY() - dragRectangle.getY());
+        } else {
+            dragRectangle.setWidth(event.getTouchPoint().getX() - dragRectangle.getX());
+            dragRectangle.setHeight(event.getTouchPoint().getY() - dragRectangle.getY());
+        }
     }
 
     public ClassNode createClassNode(TouchEvent event) {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        return new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
+        ClassNode node = new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
                 event.getTouchPoint().getSceneX() - dragRectangle.getX(),
                 event.getTouchPoint().getSceneY() - dragRectangle.getY());
+        killDragRectangle(event);
+        return node;
     }
 
     public PackageNode createPackageNode(TouchEvent event) {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        return new PackageNode(dragRectangle.getX(), dragRectangle.getY(),
+        PackageNode node = new PackageNode(dragRectangle.getX(), dragRectangle.getY(),
                 event.getTouchPoint().getSceneX() - dragRectangle.getX(),
                 event.getTouchPoint().getSceneY() - dragRectangle.getY());
+        killDragRectangle(event);
+        return node;
     }
 
-    public NodeView onTouchReleased(TouchEvent event, AbstractNode node, Double currentScale)
+    public NodeView onTouchReleased(AbstractNode node, Double currentScale)
     {
-        Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        dragRectangles.remove(event.getTouchPoint().getId());
-        dragRectangle.setWidth(0);
-        dragRectangle.setHeight(0);
-
-        aDrawPane.getChildren().remove(dragRectangle);
         AbstractNodeView nodeView = null;
         if (node instanceof PackageNode){
             nodeView = createPackageFromDrag((PackageNode)node, currentScale);
@@ -85,6 +93,14 @@ public class CreateNodeController {
             nodeView = createClassNodeFromDrag((ClassNode)node, currentScale);
         }
         return nodeView;
+    }
+
+    private void killDragRectangle(TouchEvent event){
+        Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
+        dragRectangle.setWidth(0);
+        dragRectangle.setHeight(0);
+
+        aDrawPane.getChildren().remove(dragRectangle);
     }
 
     //TODO Duplicate code

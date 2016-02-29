@@ -454,7 +454,7 @@ public class MainController {
                 else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
                     edgeController.onMouseDragged(event);
                 }
-                /*else if(mode == Mode.CREATING && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE)) //TODO Create with touch
+                /*else if(mode == Mode.CREATING && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE))
                 {
                     createNodeController.onTouchMoved(event);
 
@@ -485,15 +485,6 @@ public class MainController {
                     model.Node startNode = graph.findNode(edgeController.getStartPoint());
                     model.Node endNode = graph.findNode(edgeController.getEndPoint());
 
-                    //If node is a package node.
-                   /* if (startNode != null && endNode!= null &&
-                            startNode.equals(endNode) && startNode instanceof PackageNode) {
-                        System.out.println("EdgeController.getStartPoint: " + edgeController.getStartPoint());
-                        System.out.println("EdgeController.getEndPoint: " + edgeController.getEndPoint());
-                        startNode = ((PackageNode) startNode).findNode(edgeController.getStartPoint());
-                        endNode = ((PackageNode) endNode).findNode(edgeController.getEndPoint());
-                    }
-                    */
                     AssociationEdge edge = new AssociationEdge(startNode, endNode);
                     //Only add the edge to the graph if it connects two nodes.
                     AbstractNodeView startNodeView = null;

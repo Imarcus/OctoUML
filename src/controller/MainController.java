@@ -642,8 +642,17 @@ public class MainController {
         });
 
         ///////////////////////////////////////////
+    }
 
+    private void deleteSelected(){
+        CompoundCommand command = new CompoundCommand();
+        for(AbstractNodeView node : selectedNodes){
+            getGraphModel().removeNode(nodeMap.get(node));
+            aDrawPane.getChildren().remove(node);
+            command.add(new AddDeleteNodeCommand(aDrawPane, node, nodeMap.get(node), getGraphModel(), false));
+        }
 
+        undoManager.add(command);
     }
 
     protected HashMap<AbstractNodeView, AbstractNode> getNodeMap() {
@@ -742,11 +751,20 @@ public class MainController {
                     }
                 });
             }
-            else if (((Button)button).getText().equals("Recognize"))
+            else if (((Button)button).getText().equals("Delete"))
             {
                 ((Button)button).setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
+                        deleteSelected();
+                    }
+                });
+            }
+            else if (((Button)button).getText().equals("Recognize"))
+            {
+                ((Button)button).setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) { //TODO MOVE THIS SOMEWHERE ELSE
                         ArrayList<GraphElement> list = recognizeController.recognize(allSketches);
                         CompoundCommand recognizeCompoundCommand = new CompoundCommand();
 

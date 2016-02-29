@@ -46,15 +46,16 @@
     </center>
     <right>
         <ToolBar fx:id="aToolBar" orientation="VERTICAL">
-            <Button text="Create"></Button>
-            <Button text="Package"></Button>
-            <Button text="Edge"></Button>
-            <Button text="Select"></Button>
-            <Button text="Draw"></Button>
-            <Button text="Undo"></Button>
-            <Button text="Redo"></Button>
-            <Button text="Move"></Button>
-            <Button text="Recognize"></Button>
+            <Button text="Create"/>
+            <Button text="Package"/>
+            <Button text="Edge"/>
+            <Button text="Select"/>
+            <Button text="Draw"/>
+            <Button text="Undo"/>
+            <Button text="Redo"/>
+            <Button text="Move"/>
+            <Button text="Recognize"/>
+            <Button text="Delete"/>
         </ToolBar>
     </right>
 </BorderPane>

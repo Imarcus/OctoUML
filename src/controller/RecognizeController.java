@@ -35,13 +35,13 @@ public class RecognizeController {
         recognizer.recognize().getBestShape();
     }
 
-    public ArrayList<GraphElement> recognize(List<Sketch> sketches) {
+    public synchronized ArrayList<GraphElement> recognize(List<Sketch> sketches) {
         ArrayList<GraphElement> recognizedElements = new ArrayList<>();
         sketchesToBeRemoved = new ArrayList<>();
 
         //Go through all sketches to find Nodes.
         for (Sketch s : sketches) {
-            if (s.getStroke() != null && s.getStroke().getPoints() != null) {
+            if (s.getStroke() != null && s.getStroke().getPoints() != null && !s.getStroke().getPoints().isEmpty()) {
                 //TODO This sometimes throws IndexOutOfBoundsException...
                 recognizer.setStroke(s.getStroke());
                 Shape bestMatch = recognizer.recognize().getBestShape();

@@ -24,6 +24,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     private StackPane stackPane;
     private Rectangle rectangle;
 
+    private final int STROKE_WIDTH = 1;
+
     public ClassNodeView(ClassNode node) {
         super(node);
         setChangeListeners();
@@ -35,15 +37,15 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         rectangle = new Rectangle(node.getX(), node.getY(), node.getWidth(), node.getHeight());
         stackPane.getChildren().addAll(rectangle, title);
         stackPane.setAlignment(title, Pos.TOP_CENTER);
-        //TODO Hardcoded strokeWidth:
-        rectangle.setStrokeWidth(1);
+        rectangle.setStrokeWidth(STROKE_WIDTH);
         rectangle.setFill(Color.LIGHTSKYBLUE);
         rectangle.setStroke(Color.BLACK);
         //TODO Hardcoded values.
         //stackPane.setMargin(title, new Insets(7, 7, 7, 7));
         this.getChildren().add(stackPane);
-        this.setTranslateX(node.getX());
-        this.setTranslateY(node.getY());
+
+        this.setTranslateX(node.getTranslateX());
+        this.setTranslateY(node.getTranslateY());
     }
 
     public void setStrokeWidth(double scale){

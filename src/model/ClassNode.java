@@ -33,4 +33,26 @@ public class ClassNode extends AbstractNode
         this.aOperations = aOperations;
     }
 
+    @Override
+    public ClassNode copy(){
+        ClassNode newCopy = new ClassNode(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        newCopy.setTranslateX(this.getTranslateX());
+        newCopy.setTranslateY(this.getTranslateY());
+        newCopy.setScaleX(this.getScaleX());
+        newCopy.setScaleY(this.getScaleY());
+
+        if(this.getTitle() != null){
+            newCopy.setTitle(this.getTitle());
+
+        }
+        if(this.getAttributes() != null){
+            newCopy.setAttributes(this.getAttributes());
+        }
+        if(this.getOperations() != null){
+            newCopy.setOperations(getOperations());
+        }
+        newCopy.setTranslateX(this.getTranslateX());
+        newCopy.setTranslateY(this.getTranslateY());
+        return newCopy;
+    }
 }

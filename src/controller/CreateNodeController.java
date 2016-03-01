@@ -7,7 +7,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import model.AbstractNode;
 import model.ClassNode;
-import model.Graph;
 import model.PackageNode;
 import view.AbstractNodeView;
 import view.ClassNodeView;
@@ -15,7 +14,6 @@ import view.NodeView;
 import view.PackageNodeView;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -25,9 +23,9 @@ import java.util.Map;
 public class CreateNodeController {
 
     //For drag-creating rectangles
-    //private double dragStartX, dragStartY;
+    private double mouseDragStartX, mouseDragStartY;
     private HashMap<Integer, Rectangle> dragRectangles = new HashMap<>();
-    //private Rectangle dragRectangle;
+    private Rectangle mouseDragRectangle;
 
     private MainController aMainController;
     private Pane aDrawPane;
@@ -35,47 +33,54 @@ public class CreateNodeController {
     public CreateNodeController(Pane pDrawPane, MainController pMainController){
         aMainController = pMainController;
         aDrawPane = pDrawPane;
-
     }
 
     public void onTouchPressed(TouchEvent event){
         Rectangle dragRectangle = new Rectangle();
         dragRectangle.setFill(null);
         dragRectangle.setStroke(Color.BLACK);
-        dragRectangle.setX(event.getTouchPoint().getSceneX());
-        dragRectangle.setY(event.getTouchPoint().getSceneY());
+
+        if(event.getSource() instanceof AbstractNodeView){
+            dragRectangle.setX(event.getTouchPoint().getX() + ((AbstractNodeView) event.getSource()).getX());
+            dragRectangle.setY(event.getTouchPoint().getY() + ((AbstractNodeView) event.getSource()).getY());
+        } else {
+            dragRectangle.setX(event.getTouchPoint().getX());
+            dragRectangle.setY(event.getTouchPoint().getY());
+        }
         dragRectangles.put(event.getTouchPoint().getId(), dragRectangle);
         aDrawPane.getChildren().add(dragRectangle);
     }
 
     public void onTouchDragged(TouchEvent event){
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        dragRectangle.setWidth(event.getTouchPoint().getSceneX() - dragRectangle.getX());
-        dragRectangle.setHeight(event.getTouchPoint().getSceneY() - dragRectangle.getY());
+        if(event.getSource() instanceof AbstractNodeView){
+            dragRectangle.setWidth(((AbstractNodeView)event.getSource()).getX()+ event.getTouchPoint().getX() - dragRectangle.getX());
+            dragRectangle.setHeight(((AbstractNodeView)event.getSource()).getY() + event.getTouchPoint().getY() - dragRectangle.getY());
+        } else {
+            dragRectangle.setWidth(event.getTouchPoint().getX() - dragRectangle.getX());
+            dragRectangle.setHeight(event.getTouchPoint().getY() - dragRectangle.getY());
+        }
     }
 
     public ClassNode createClassNode(TouchEvent event) {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        return new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
-                event.getTouchPoint().getSceneX() - dragRectangle.getX(),
-                event.getTouchPoint().getSceneY() - dragRectangle.getY());
+        ClassNode node = new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
+                dragRectangle.getWidth(), dragRectangle.getHeight());
+        killDragRectangle(event);
+        return node;
     }
 
     public PackageNode createPackageNode(TouchEvent event) {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        return new PackageNode(dragRectangle.getX(), dragRectangle.getY(),
+        PackageNode node = new PackageNode(dragRectangle.getX(), dragRectangle.getY(),
                 event.getTouchPoint().getSceneX() - dragRectangle.getX(),
                 event.getTouchPoint().getSceneY() - dragRectangle.getY());
+        killDragRectangle(event);
+        return node;
     }
 
-    public NodeView onTouchReleased(TouchEvent event, AbstractNode node, Double currentScale)
+    public NodeView onTouchReleased(AbstractNode node, Double currentScale)
     {
-        Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        dragRectangles.remove(event.getTouchPoint().getId());
-        dragRectangle.setWidth(0);
-        dragRectangle.setHeight(0);
-
-        aDrawPane.getChildren().remove(dragRectangle);
         AbstractNodeView nodeView = null;
         if (node instanceof PackageNode){
             nodeView = createPackageFromDrag((PackageNode)node, currentScale);
@@ -85,6 +90,14 @@ public class CreateNodeController {
             nodeView = createClassNodeFromDrag((ClassNode)node, currentScale);
         }
         return nodeView;
+    }
+
+    private void killDragRectangle(TouchEvent event){
+        Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
+        dragRectangle.setWidth(0);
+        dragRectangle.setHeight(0);
+
+        aDrawPane.getChildren().remove(dragRectangle);
     }
 
     //TODO Duplicate code
@@ -128,4 +141,61 @@ public class CreateNodeController {
     public boolean currentlyCreating(){
         return !dragRectangles.isEmpty();
     }
+
+
+    //--------------------- MOUSE EVENTS FOR DEVELOPING ----------------------------- //TODO
+    public void onMousePressed(MouseEvent event){
+        mouseDragRectangle = new Rectangle();
+        mouseDragRectangle.setFill(null);
+        mouseDragRectangle.setStroke(Color.BLACK);
+        aDrawPane.getChildren().add(mouseDragRectangle);
+
+        if(event.getSource() instanceof AbstractNodeView){
+            mouseDragRectangle.setX(event.getX() + ((AbstractNodeView) event.getSource()).getX());
+            mouseDragRectangle.setY(event.getY() + ((AbstractNodeView) event.getSource()).getY());
+        } else {
+            mouseDragRectangle.setX(event.getX());
+            mouseDragRectangle.setY(event.getY());
+        }
+    }
+
+    public void onMouseDragged(MouseEvent event){
+        if(event.getSource() instanceof AbstractNodeView){
+            mouseDragRectangle.setWidth(((AbstractNodeView)event.getSource()).getX()+ event.getX() - mouseDragRectangle.getX());
+            mouseDragRectangle.setHeight(((AbstractNodeView)event.getSource()).getY() + event.getY() - mouseDragRectangle.getY());
+        } else {
+            mouseDragRectangle.setWidth(event.getX() - mouseDragRectangle.getX());
+            mouseDragRectangle.setHeight(event.getY() - mouseDragRectangle.getY());
+        }
+    }
+
+    public NodeView onMouseReleased(MouseEvent event, AbstractNode node, Double currentScale)
+    {
+        mouseDragRectangle.setWidth(0);
+        mouseDragRectangle.setHeight(0);
+
+        aDrawPane.getChildren().remove(mouseDragRectangle);
+        AbstractNodeView nodeView = null;
+        if (node instanceof PackageNode){
+            nodeView = createPackageFromDrag((PackageNode)node, currentScale);
+        }
+        else if (node instanceof ClassNode)
+        {
+            nodeView = createClassNodeFromDrag((ClassNode)node, currentScale);
+        }
+        return nodeView;
+    }
+
+    public ClassNode createClassNodeMouse(MouseEvent event) {
+        return new ClassNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
+                event.getX() - mouseDragRectangle.getX(),
+                event.getY() - mouseDragRectangle.getY());
+    }
+
+    public PackageNode createPackageNodeMouse(MouseEvent event) {
+        return new PackageNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
+                event.getX() - mouseDragRectangle.getX(),
+                event.getY() - mouseDragRectangle.getY());
+    }
+
 }

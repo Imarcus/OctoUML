@@ -173,6 +173,8 @@ public abstract class AbstractNode implements Node
         scaleY.setValue(y);
     }
 
+    public abstract AbstractNode copy();
+
     @Override
     public String toString() {
         return super.toString() + " x=" + getX() + " y=" + getY() + " height=" + getHeight() + " width=" + getWidth();

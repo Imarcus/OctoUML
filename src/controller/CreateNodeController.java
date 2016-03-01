@@ -146,19 +146,30 @@ public class CreateNodeController {
     }
 
 
-    //--------------------- MOUSE EVENTS FOR DEVELOPING -----------------------------
+    //--------------------- MOUSE EVENTS FOR DEVELOPING ----------------------------- //TODO
     public void onMousePressed(MouseEvent event){
         mouseDragRectangle = new Rectangle();
         mouseDragRectangle.setFill(null);
         mouseDragRectangle.setStroke(Color.BLACK);
-        mouseDragRectangle.setX(event.getSceneX());
-        mouseDragRectangle.setY(event.getSceneY());
         aDrawPane.getChildren().add(mouseDragRectangle);
+
+        if(event.getSource() instanceof AbstractNodeView){
+            mouseDragRectangle.setX(event.getX() + ((AbstractNodeView) event.getSource()).getX());
+            mouseDragRectangle.setY(event.getY() + ((AbstractNodeView) event.getSource()).getY());
+        } else {
+            mouseDragRectangle.setX(event.getX());
+            mouseDragRectangle.setY(event.getY());
+        }
     }
 
     public void onMouseDragged(MouseEvent event){
-        mouseDragRectangle.setWidth(event.getSceneX() - mouseDragRectangle.getX());
-        mouseDragRectangle.setHeight(event.getSceneY() - mouseDragRectangle.getY());
+        if(event.getSource() instanceof AbstractNodeView){
+            mouseDragRectangle.setWidth(((AbstractNodeView)event.getSource()).getX()+ event.getX() - mouseDragRectangle.getX());
+            mouseDragRectangle.setHeight(((AbstractNodeView)event.getSource()).getY() + event.getY() - mouseDragRectangle.getY());
+        } else {
+            mouseDragRectangle.setWidth(event.getX() - mouseDragRectangle.getX());
+            mouseDragRectangle.setHeight(event.getY() - mouseDragRectangle.getY());
+        }
     }
 
     public NodeView onMouseReleased(MouseEvent event, AbstractNode node, Double currentScale)
@@ -180,14 +191,14 @@ public class CreateNodeController {
 
     public ClassNode createClassNodeMouse(MouseEvent event) {
         return new ClassNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
-                event.getSceneX() - mouseDragRectangle.getX(),
-                event.getSceneY() - mouseDragRectangle.getY());
+                event.getX() - mouseDragRectangle.getX(),
+                event.getY() - mouseDragRectangle.getY());
     }
 
     public PackageNode createPackageNodeMouse(MouseEvent event) {
         return new PackageNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
-                event.getSceneX() - mouseDragRectangle.getX(),
-                event.getSceneY() - mouseDragRectangle.getY());
+                event.getX() - mouseDragRectangle.getX(),
+                event.getY() - mouseDragRectangle.getY());
     }
 
 }

@@ -165,7 +165,6 @@ public class MainController {
                             {
                                 selectedNodes.add(nodeView);
                                 selected = true;
-                                System.out.println("THIS HAPPENS WHIWHOFHWIOFPAWJDAWDOPAJWND");
                             }
                         }
 

@@ -172,4 +172,6 @@ public abstract class AbstractNode implements Node
     public void setScaleY(double y) {
         scaleY.setValue(y);
     }
+
+    public abstract AbstractNode copy();
 }

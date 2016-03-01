@@ -1,6 +1,10 @@
 package controller;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Side;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Path;
 import model.*;
 import util.commands.*;
@@ -40,6 +44,8 @@ public class MainController {
 
     private HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
+    private HashMap<AbstractNode, AbstractNodeView> currentlyCopiedNodes = new HashMap<>();
+
 
 
     //For drag-selecting nodes
@@ -78,6 +84,9 @@ public class MainController {
     @FXML private Pane aDrawPane;
     @FXML private ToolBar aToolBar;
 
+    private ContextMenu aContextMenu;
+
+
     @FXML
     public void initialize() {
 
@@ -88,6 +97,7 @@ public class MainController {
         initDrawPaneActions();
         //initSceneActions();
         initToolBarActions();
+        initContextMenu();
 
         graph = new Graph();
 
@@ -394,6 +404,9 @@ public class MainController {
             @Override
             public void handle(MouseEvent event) {
                 //TODO Maybe needs some check here?
+                if(event.getButton() == MouseButton.SECONDARY){
+                    aContextMenu.show(nodeView, Side.BOTTOM, 0, 0);
+                }
                 if (event.getClickCount() == 2) {
                     nodeController.addNodeTitle(nodeMap.get(nodeView));
                 }
@@ -884,4 +897,69 @@ public class MainController {
             }
         }
     }
+
+    private void initContextMenu(){
+        aContextMenu  = new ContextMenu();
+        MenuItem cmItemCopy = new MenuItem("Copy");
+        cmItemCopy.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e) {
+                copy();
+            }
+        });
+
+        MenuItem cmItemPaste = new MenuItem("Paste");
+        cmItemPaste.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e) {
+                paste();
+            }
+        });
+
+        aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste);
+    }
+
+    //TODO Copy edges and sketches as well
+    private void copy(){
+        currentlyCopiedNodes.clear();
+        AbstractNode newCopy;
+        AbstractNode old;
+        System.out.println("COPYING");
+        System.out.println("Nr of Selected: " + selectedNodes.size());
+
+        for(AbstractNodeView nodeView : selectedNodes){
+            old = nodeMap.get(nodeView);
+            if(old instanceof ClassNode){
+                newCopy = old.copy();
+                getGraphModel().addNode(newCopy);
+                ClassNodeView newView = new ClassNodeView((ClassNode)newCopy);
+                aDrawPane.getChildren().add(newView);
+                initNodeActions(newView);
+                //currentlyCopiedNodes.put(newCopy, new ClassNodeView((ClassNode)newCopy));
+            } else if (old instanceof PackageNode){
+                newCopy = old.copy();
+                getGraphModel().addNode(newCopy);
+                PackageNodeView newView = new PackageNodeView((PackageNode)newCopy);
+                aDrawPane.getChildren().add(newView);
+                initNodeActions(newView);
+                //currentlyCopiedNodes.put(newCopy, new PackageNodeView((PackageNode)newCopy));
+            }
+        }
+        System.out.println("Nr copied: " + currentlyCopiedNodes.size());
+    }
+
+    //TODO Paste two times in a row
+    private void paste(){
+        CompoundCommand command = new CompoundCommand();
+        Iterator entries = currentlyCopiedNodes.entrySet().iterator();
+        System.out.println("PASTING");
+        while (entries.hasNext()) {
+            Map.Entry thisEntry = (Map.Entry) entries.next();
+            getGraphModel().addNode((AbstractNode)thisEntry.getKey());
+            initNodeActions((AbstractNodeView)thisEntry.getValue());
+            aDrawPane.getChildren().add((AbstractNodeView)thisEntry.getValue());
+            command.add(new AddDeleteNodeCommand(aDrawPane, (AbstractNodeView)thisEntry.getValue(),
+                    (AbstractNode)thisEntry.getKey(), getGraphModel(), true));
+        }
+        undoManager.add(command);
+    }
+
 }

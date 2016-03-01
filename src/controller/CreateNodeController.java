@@ -67,8 +67,7 @@ public class CreateNodeController {
     public ClassNode createClassNode(TouchEvent event) {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
         ClassNode node = new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
-                event.getTouchPoint().getSceneX() - dragRectangle.getX(),
-                event.getTouchPoint().getSceneY() - dragRectangle.getY());
+                dragRectangle.getWidth(), dragRectangle.getHeight());
         killDragRectangle(event);
         return node;
     }

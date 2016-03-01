@@ -36,7 +36,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         stackPane = new StackPane();
         rectangle = new Rectangle(node.getX(), node.getY(), node.getWidth(), node.getHeight());
         stackPane.getChildren().addAll(rectangle, title);
-        stackPane.setAlignment(title, Pos.TOP_CENTER);
+        StackPane.setAlignment(title, Pos.TOP_CENTER);
         rectangle.setStrokeWidth(STROKE_WIDTH);
         rectangle.setFill(Color.LIGHTSKYBLUE);
         rectangle.setStroke(Color.BLACK);

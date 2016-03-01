@@ -53,8 +53,8 @@ public class PackageNode extends AbstractNode
     @Override
     public PackageNode copy(){
         PackageNode newCopy = new PackageNode(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        newCopy.setTranslateX(this.getTranslateX() + 5);
-        newCopy.setTranslateY(this.getTranslateY() + 5);
+        newCopy.setTranslateX(this.getTranslateX());
+        newCopy.setTranslateY(this.getTranslateY());
         newCopy.setScaleX(this.getScaleX());
         newCopy.setScaleY(this.getScaleY());
 
@@ -62,11 +62,11 @@ public class PackageNode extends AbstractNode
             newCopy.setTitle(this.getTitle());
 
         }
-        if(this.getChildNodes() != null){
+        /*if(this.getChildNodes() != null){
             for(AbstractNode child : this.getChildNodes()){
                 newCopy.addChild(child.copy());
             }
-        }
+        }*/
         return newCopy;
     }
 }

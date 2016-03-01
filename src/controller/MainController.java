@@ -174,7 +174,7 @@ public class MainController {
 
                     }
                     //--------- MOUSE EVENT FOR TESTING ---------- TODO
-                    else if(tool == ToolEnum.CREATE && mouseCreationActivated){
+                    else if((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mouseCreationActivated){
                         mode = Mode.CREATING;
                         createNodeController.onMousePressed(event);
                     }
@@ -276,7 +276,7 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
 
-                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING) { //TODO: combine double code
+                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING && mouseCreationActivated) { //TODO: combine double code
                     PackageNode node = createNodeController.createPackageNodeMouse(event);
                     PackageNodeView nodeView = (PackageNodeView) createNodeController.onMouseReleased(event, node, currentScale);
                     nodeMap.put(nodeView, node);

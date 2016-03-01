@@ -53,16 +53,16 @@ public class NodeController {
 
     public void resizeStart(AbstractNodeView nodeView, MouseEvent event){
         aDrawPane.getChildren().add(dragRectangle);
-        dragRectangle.setX(0);
-        dragRectangle.setY(0);
-        translateDragRectangle(nodeView.getTranslateX(), nodeView.getTranslateY());
-        dragRectangle.setWidth(event.getSceneX() -  nodeView.getTranslateX());
-        dragRectangle.setHeight(event.getSceneY() - nodeView.getTranslateY());
+        dragRectangle.setWidth(nodeView.getWidth());
+        dragRectangle.setHeight(nodeView.getHeight());
+        dragRectangle.setX(nodeView.getTranslateX());
+        dragRectangle.setY(nodeView.getTranslateY());
     }
 
     public void resize(AbstractNodeView nodeView, MouseEvent event){
-        dragRectangle.setWidth(event.getSceneX() - nodeView.getTranslateX());
-        dragRectangle.setHeight(event.getSceneY() - nodeView.getTranslateY());
+        dragRectangle.setWidth(event.getX());
+        dragRectangle.setHeight(event.getY());
+
         //putNodeInPackage(nodeView);
 
         ArrayList<AbstractNodeView> selectedNodes = aMainController.getAllNodeViews();
@@ -74,9 +74,9 @@ public class NodeController {
         }
     }
 
-    public void resizeFinished(AbstractNode node, MouseEvent event){
-        node.setWidth(event.getSceneX() - node.getTranslateX());
-        node.setHeight(event.getSceneY() - node.getTranslateY());
+    public void resizeFinished(AbstractNode node, MouseEvent event){ //TODO event parameter not needed
+        node.setWidth(dragRectangle.getWidth());
+        node.setHeight(dragRectangle.getHeight());
         dragRectangle.setHeight(0);
         dragRectangle.setWidth(0);
         translateDragRectangle(0,0);

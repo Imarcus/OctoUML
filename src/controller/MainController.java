@@ -732,17 +732,40 @@ public class MainController {
         ///////////////////////////////////////////
     }
 
+    /**
+     * Deletes all selected nodes and their associated edges (using deleteNodeEdges)
+     */
     private void deleteSelected(){
         CompoundCommand command = new CompoundCommand();
+        AbstractNode node;
+        for(AbstractNodeView nodeView : selectedNodes){
+            node = nodeMap.get(nodeView);
+            deleteNodeEdges(node, command);
 
-        for(AbstractNodeView node : selectedNodes){
-            getGraphModel().removeNode(nodeMap.get(node));
-            aDrawPane.getChildren().remove(node);
-            command.add(new AddDeleteNodeCommand(aDrawPane, node, nodeMap.get(node), getGraphModel(), false));
+            getGraphModel().removeNode(node);
+            aDrawPane.getChildren().remove(nodeView);
+            allNodeViews.remove(nodeView);
+            command.add(new AddDeleteNodeCommand(aDrawPane, nodeView, node, getGraphModel(), false));
+
         }
 
         selectedNodes.clear();
         undoManager.add(command);
+    }
+
+    private void deleteNodeEdges(AbstractNode node, CompoundCommand command){
+        AbstractEdge edge;
+        ArrayList<AbstractEdgeView> edgeViewsToBeDeleted = new ArrayList<>();
+        for(AbstractEdgeView edgeView : allEdgeViews){
+            edge = edgeView.getRefEdge();
+            if(edge.getEndNode().equals(node) || edge.getStartNode().equals(node)){
+                getGraphModel().removeEdge(edgeView.getRefEdge());
+                aDrawPane.getChildren().remove(edgeView);
+                edgeViewsToBeDeleted.add(edgeView);
+                command.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edgeView.getRefEdge(), getGraphModel(), false));
+            }
+        }
+        allEdgeViews.removeAll(edgeViewsToBeDeleted);
     }
 
     protected HashMap<AbstractNodeView, AbstractNode> getNodeMap() {

@@ -414,7 +414,7 @@ public class MainController {
                     undoManager.add(new AddDeleteSketchCommand(aDrawPane, sketch, true));
 
                     //We only want to move out of drawing mode if there are no other current drawings
-                    if(sketchController.currentlyDrawing()){
+                    if(!sketchController.currentlyDrawing()){
                         mode = Mode.NO_MODE;
                     }
                 }
@@ -642,13 +642,12 @@ public class MainController {
                 {
                     mode = Mode.DRAWING;
                     sketchController.onTouchPressed(event);
-                    event.consume();
                 }
                 else if(event.getTouchCount() > 2 && mode == Mode.NO_MODE && tool == ToolEnum.MOVE_SCENE){ //TODO MORE THAN 2?
                     mode = Mode.MOVING;
                     graphController.movePaneStart(graph.getAllGraphElements(), event);
-                    event.consume();
                 }
+                event.consume();
             }
         });
 
@@ -699,7 +698,7 @@ public class MainController {
                     undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
                     allNodeViews.add(nodeView);
                     //
-                    if(createNodeController.currentlyCreating()){
+                    if(!createNodeController.currentlyCreating()){
                         mode = Mode.NO_MODE;
                     }
                 }
@@ -710,7 +709,7 @@ public class MainController {
                     undoManager.add(new AddDeleteSketchCommand(aDrawPane, sketch, true));
 
                     //We only want to move out of drawing mode if there are no other current drawings
-                    if(sketchController.currentlyDrawing()){
+                    if(!sketchController.currentlyDrawing()){
                         mode = Mode.NO_MODE;
                     }
                 }

@@ -11,6 +11,11 @@ import model.AbstractEdge;
 public abstract class AbstractEdgeView extends Line implements EdgeView{
     private AbstractEdge refEdge;
     private AbstractNodeView startNode;
+
+    public AbstractEdge getRefEdge() {
+        return refEdge;
+    }
+
     private AbstractNodeView endNode;
 
     public AbstractEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {

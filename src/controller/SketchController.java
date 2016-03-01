@@ -14,6 +14,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import model.*;
+import view.AbstractNodeView;
 
 import java.util.HashMap;
 
@@ -42,8 +43,19 @@ public class SketchController {
         //TODO Hardcoded strokeWidth.
         currentSketch.getPath().setStrokeWidth(2);
         currentSketch.getPath().setStroke(Color.BLACK);
+
+        double xPoint;
+        double yPoint;
+        if(event.getSource() instanceof AbstractNodeView){
+            xPoint = ((AbstractNodeView)event.getSource()).getX() + event.getTouchPoint().getX();
+            yPoint = ((AbstractNodeView)event.getSource()).getY() + event.getTouchPoint().getY();
+        } else {
+            xPoint = event.getTouchPoint().getX();
+            yPoint = event.getTouchPoint().getY();
+        }
         currentSketch.getPath().getElements()
-                .add(new MoveTo(event.getTouchPoint().getSceneX(), event.getTouchPoint().getSceneY()));
+                .add(new MoveTo(xPoint, yPoint));
+
         aDrawPane.getChildren().add(currentSketch.getPath());
         currentSketches.put(event.getTouchPoint().getId(), currentSketch);
         currentStrokes.put(event.getTouchPoint().getId(), currentStroke);
@@ -53,9 +65,19 @@ public class SketchController {
     public void onTouchMoved(TouchEvent event) {
         Sketch currentSketch = currentSketches.get(event.getTouchPoint().getId());
         Stroke currentStroke = currentStrokes.get(event.getTouchPoint().getId());
+
+        double xPoint;
+        double yPoint;
+        if(event.getSource() instanceof AbstractNodeView){
+            xPoint = ((AbstractNodeView)event.getSource()).getX() + event.getTouchPoint().getX();
+            yPoint = ((AbstractNodeView)event.getSource()).getY() + event.getTouchPoint().getY();
+        } else {
+            xPoint = event.getTouchPoint().getX();
+            yPoint = event.getTouchPoint().getY();
+        }
         currentSketch.getPath().getElements()
-                .add(new LineTo(event.getTouchPoint().getSceneX(), event.getTouchPoint().getSceneY()));
-        currentStroke.addPoint(new Point(event.getTouchPoint().getSceneX(), event.getTouchPoint().getSceneY()));
+                .add(new LineTo(xPoint, yPoint));
+        currentStroke.addPoint(new Point(xPoint, yPoint));
     }
 
     public Sketch onTouchReleased(TouchEvent event) {

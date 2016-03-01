@@ -31,16 +31,28 @@ public class EdgeController {
 
     public void onMousePressed(MouseEvent event) {
         aDrawPane.getChildren().remove(dragLine);
-        dragStartX = event.getSceneX();
-        dragStartY = event.getSceneY();
+        if(event.getSource() instanceof AbstractNodeView) {
+            dragStartX = event.getX() + ((AbstractNodeView)event.getSource()).getX();
+            dragStartY = event.getY() + ((AbstractNodeView) event.getSource()).getY();
+        } else {
+            dragStartX = event.getX();
+            dragStartY = event.getY();
+        }
+
         aDrawPane.getChildren().add(dragLine);
     }
 
     public void onMouseDragged(MouseEvent event){
         dragLine.setStartX(dragStartX);
         dragLine.setStartY(dragStartY);
-        dragLine.setEndX(event.getSceneX());
-        dragLine.setEndY(event.getSceneY());
+        
+        if(event.getSource() instanceof AbstractNodeView) {
+            dragLine.setEndX(event.getX() + ((AbstractNodeView)event.getSource()).getX());
+            dragLine.setEndY(event.getY() + ((AbstractNodeView) event.getSource()).getY());
+        } else {
+            dragLine.setEndX(event.getX());
+            dragLine.setEndY(event.getY());
+        }
     }
 
     public Point2D getStartPoint() {

@@ -7,7 +7,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import model.AbstractNode;
 import model.ClassNode;
-import model.Graph;
 import model.PackageNode;
 import view.AbstractNodeView;
 import view.ClassNodeView;
@@ -15,7 +14,6 @@ import view.NodeView;
 import view.PackageNodeView;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**

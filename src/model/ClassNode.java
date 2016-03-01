@@ -51,6 +51,8 @@ public class ClassNode extends AbstractNode
         if(this.getOperations() != null){
             newCopy.setOperations(getOperations());
         }
+        newCopy.setTranslateX(this.getTranslateX());
+        newCopy.setTranslateY(this.getTranslateY());
         return newCopy;
     }
 }

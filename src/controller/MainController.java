@@ -1,7 +1,5 @@
 package controller;
 
-import javafx.event.Event;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.control.ContextMenu;
@@ -46,7 +44,10 @@ public class MainController {
 
     private HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
-    private HashMap<AbstractNode, AbstractNodeView> currentlyCopiedNodes = new HashMap<>();
+    //Copy nodes logic
+    private ArrayList<AbstractNode> currentlyCopiedNodes = new ArrayList<>();
+    private HashMap<AbstractNode, double[]> copyDeltas = new HashMap<>();
+    private double[] copyPasteCoords;
 
 
 
@@ -72,7 +73,7 @@ public class MainController {
 
     private Mode mode = Mode.NO_MODE;
     private enum Mode {
-        NO_MODE, SELECTING, DRAGGING, RESIZING, ZOOMING, MOVING, DRAWING, CREATING
+        NO_MODE, SELECTING, DRAGGING, RESIZING, ZOOMING, MOVING, DRAWING, CREATING, CONTEXT_MENU
     }
 
     private ToolEnum tool = ToolEnum.CREATE;
@@ -80,8 +81,12 @@ public class MainController {
         CREATE, SELECT, DRAW, PACKAGE, EDGE, MOVE_SCENE
     }
 
+    //Views
     private boolean umlVisible = true;
     private boolean sketchesVisible = true;
+
+    //Selection logic
+    private boolean nodeWasDragged = true;
 
     @FXML private Pane aDrawPane;
     @FXML private ToolBar aToolBar;
@@ -139,23 +144,30 @@ public class MainController {
             public void handle(MouseEvent event) {
                 if(mode == Mode.NO_MODE)
                 {
-                    if (tool == ToolEnum.EDGE) {
+                    if(event.getButton() == MouseButton.SECONDARY){
+                        mode = Mode.CONTEXT_MENU;
+                        copyPasteCoords = new double[]{event.getX(), event.getY()};
+                        aContextMenu.show(aDrawPane, event.getScreenX(), event.getScreenY());
+                    }
+                    else if (tool == ToolEnum.EDGE)
+                    {
                         mode = Mode.CREATING;
                         edgeController.onMousePressed(event);
                     }
                     else if (tool == ToolEnum.SELECT)
                     {
                         mode = Mode.SELECTING;
-                        if (!event.isShiftDown())
-                        {
-                            selectedNodes.clear();
-                        }
+
                         for(AbstractNodeView nodeView : allNodeViews){
                             if (nodeView.getBoundsInParent().contains(event.getX(), event.getY()))
                             {
                                 selectedNodes.add(nodeView);
                                 selected = true;
+                                System.out.println("THIS HAPPENS WHIWHOFHWIOFPAWJDAWDOPAJWND");
                             }
+                        }
+                        if (!selected)
+                        {
                         }
 
                         selectStartX = event.getX();
@@ -449,7 +461,8 @@ public class MainController {
             public void handle(MouseEvent event) {
                 //TODO Maybe needs some check here?
                 if(event.getButton() == MouseButton.SECONDARY){
-                    aContextMenu.show(nodeView, Side.BOTTOM, 0, 0);
+                    copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
+                    aContextMenu.show(nodeView, event.getScreenX(), event.getScreenY());
                 }
                 if (event.getClickCount() == 2) {
                     nodeController.addNodeTitle(nodeMap.get(nodeView));
@@ -471,10 +484,6 @@ public class MainController {
                     if (mode == Mode.NO_MODE) //Move, any kind of node
                     {
                         mode = Mode.DRAGGING;
-                        if (!event.isShiftDown())
-                        {
-                            selectedNodes.clear();
-                        }
                         if (!selectedNodes.contains(nodeView))
                         {
                             selectedNodes.add(nodeView);
@@ -501,6 +510,7 @@ public class MainController {
                         selected.add(nodeMap.get(n));
                     }
                     nodeController.moveNodes(event);
+                    nodeWasDragged = true;
 
 
                 }
@@ -532,6 +542,11 @@ public class MainController {
                         compoundCommand.add(new MoveNodeCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
                     }
                     undoManager.add(compoundCommand);
+                    if(!nodeWasDragged) {
+                        selectedNodes.remove(nodeView);
+                        drawSelected();
+                        nodeWasDragged = false;
+                    }
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING)
                 {
@@ -714,12 +729,14 @@ public class MainController {
 
     private void deleteSelected(){
         CompoundCommand command = new CompoundCommand();
+
         for(AbstractNodeView node : selectedNodes){
             getGraphModel().removeNode(nodeMap.get(node));
             aDrawPane.getChildren().remove(node);
             command.add(new AddDeleteNodeCommand(aDrawPane, node, nodeMap.get(node), getGraphModel(), false));
         }
 
+        selectedNodes.clear();
         undoManager.add(command);
     }
 
@@ -953,12 +970,15 @@ public class MainController {
         }
     }
 
+
+    //------------------------- COPY-PASTE FEATURE -----------------------------
     private void initContextMenu(){
         aContextMenu  = new ContextMenu();
         MenuItem cmItemCopy = new MenuItem("Copy");
         cmItemCopy.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 copy();
+                mode = Mode.NO_MODE;
             }
         });
 
@@ -966,6 +986,7 @@ public class MainController {
         cmItemPaste.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 paste();
+                mode = Mode.NO_MODE;
             }
         });
 
@@ -975,46 +996,62 @@ public class MainController {
     //TODO Copy edges and sketches as well
     private void copy(){
         currentlyCopiedNodes.clear();
-        AbstractNode newCopy;
-        AbstractNode old;
-        System.out.println("COPYING");
-        System.out.println("Nr of Selected: " + selectedNodes.size());
+        copyDeltas.clear();
 
         for(AbstractNodeView nodeView : selectedNodes){
-            old = nodeMap.get(nodeView);
-            if(old instanceof ClassNode){
-                newCopy = old.copy();
-                getGraphModel().addNode(newCopy);
-                ClassNodeView newView = new ClassNodeView((ClassNode)newCopy);
-                aDrawPane.getChildren().add(newView);
-                initNodeActions(newView);
-                //currentlyCopiedNodes.put(newCopy, new ClassNodeView((ClassNode)newCopy));
-            } else if (old instanceof PackageNode){
-                newCopy = old.copy();
-                getGraphModel().addNode(newCopy);
-                PackageNodeView newView = new PackageNodeView((PackageNode)newCopy);
-                aDrawPane.getChildren().add(newView);
-                initNodeActions(newView);
-                //currentlyCopiedNodes.put(newCopy, new PackageNodeView((PackageNode)newCopy));
+            AbstractNode node = nodeMap.get(nodeView);
+            currentlyCopiedNodes.add(node);
+        }
+        setUpCopyCoords();
+    }
+
+    private void setUpCopyCoords(){
+        double currentClosestToCorner = Double.MAX_VALUE;
+        AbstractNode closest = null;
+        for(AbstractNode node: currentlyCopiedNodes){
+            if((node.getTranslateX() + node.getTranslateY()) < currentClosestToCorner){
+                currentClosestToCorner = node.getTranslateX() + node.getTranslateY();
+                closest = node;
             }
         }
-        System.out.println("Nr copied: " + currentlyCopiedNodes.size());
+
+        for(AbstractNode node : currentlyCopiedNodes){
+            if(node != closest){
+                copyDeltas.put(node, new double[]{node.getTranslateX() - closest.getTranslateX(),
+                         node.getTranslateY() - closest.getTranslateY()});
+            } else {
+                copyDeltas.put(node, new double[]{0,0});
+            }
+        }
     }
 
     //TODO Paste two times in a row
     private void paste(){
         CompoundCommand command = new CompoundCommand();
-        Iterator entries = currentlyCopiedNodes.entrySet().iterator();
-        System.out.println("PASTING");
-        while (entries.hasNext()) {
-            Map.Entry thisEntry = (Map.Entry) entries.next();
-            getGraphModel().addNode((AbstractNode)thisEntry.getKey());
-            initNodeActions((AbstractNodeView)thisEntry.getValue());
-            aDrawPane.getChildren().add((AbstractNodeView)thisEntry.getValue());
-            command.add(new AddDeleteNodeCommand(aDrawPane, (AbstractNodeView)thisEntry.getValue(),
-                    (AbstractNode)thisEntry.getKey(), getGraphModel(), true));
+        for (AbstractNode old : currentlyCopiedNodes) {
+            AbstractNode copy = old.copy();
+            getGraphModel().addNode(copy);
+            copy.setTranslateX(copyPasteCoords[0] + copyDeltas.get(old)[0]);
+            copy.setTranslateY(copyPasteCoords[1] + copyDeltas.get(old)[1]);
+            AbstractNodeView newView = addNodeView(copy);
+            command.add(new AddDeleteNodeCommand(aDrawPane, newView, copy, getGraphModel(), true));
         }
         undoManager.add(command);
+    }
+
+    public AbstractNodeView addNodeView(AbstractNode node){
+        AbstractNodeView newView;
+        if(node instanceof ClassNode){
+            newView = new ClassNodeView((ClassNode)node);
+        } else /*if (node instanceof PackageNode)*/{
+            newView = new PackageNodeView((PackageNode)node);
+        }
+        aDrawPane.getChildren().add(newView);
+        initNodeActions(newView);
+        nodeMap.put(newView, node);
+        allNodeViews.add(newView);
+
+        return newView;
     }
 
 }

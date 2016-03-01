@@ -178,6 +178,14 @@ public class MainController {
                         mode = Mode.CREATING;
                         createNodeController.onMousePressed(event);
                     }
+                } else if (mode == Mode.CONTEXT_MENU)
+                {
+                    if(event.getButton() == MouseButton.SECONDARY){
+                        copyPasteCoords = new double[]{event.getX(), event.getY()};
+                        aContextMenu.show(aDrawPane, event.getScreenX(), event.getScreenY());
+                    } else {
+                        aContextMenu.hide();
+                    }
                 }
                 event.consume();
             }

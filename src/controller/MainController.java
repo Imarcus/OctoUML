@@ -1,7 +1,9 @@
 package controller;
 
 import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
+import javafx.scene.input.TouchPoint;
 import javafx.scene.shape.Path;
 import model.*;
 import util.commands.*;
@@ -149,6 +151,11 @@ public class MainController {
                         aDrawPane.getChildren().add(selectRectangle);
 
                     }
+                    //--------- MOUSE EVENT FOR TESTING ---------- TODO
+                    else if(tool == ToolEnum.CREATE){
+                        mode = Mode.CREATING;
+                        createNodeController.onMousePressed(event);
+                    }
                 }
                 event.consume();
             }
@@ -167,6 +174,10 @@ public class MainController {
                     selectRectangle.setWidth(event.getX() - selectStartX);
                     selectRectangle.setHeight(event.getY() - selectStartY);
                     drawSelected();
+                }
+                //--------- MOUSE EVENT FOR TESTING ---------- TODO
+                else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING) {
+                    createNodeController.onMouseDragged(event);
                 }
                 event.consume();
             }
@@ -216,6 +227,36 @@ public class MainController {
                     aDrawPane.getChildren().remove(selectRectangle);
                     selected = false;
                     mode = Mode.NO_MODE;
+                }
+                // -------------- MOUSE EVENT FOR TESTING ---------------- TODO
+                if (tool == ToolEnum.CREATE && mode == Mode.CREATING)
+                {
+                    //Create ClassNode
+                    ClassNode node = createNodeController.createClassNodeMouse(event);
+
+                    //Use CreateController to create ClassNodeView.
+                    ClassNodeView nodeView = (ClassNodeView) createNodeController.onMouseReleased(event, node, currentScale);
+
+                    nodeMap.put(nodeView, node);
+                    allNodeViews.add(nodeView);
+                    initNodeActions(nodeView);
+
+                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
+                    if(!createNodeController.currentlyCreating()){
+                        mode = Mode.NO_MODE;
+                    }
+
+                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING) { //TODO: combine double code
+                    PackageNode node = createNodeController.createPackageNodeMouse(event);
+                    PackageNodeView nodeView = (PackageNodeView) createNodeController.onMouseReleased(event, node, currentScale);
+                    nodeMap.put(nodeView, node);
+                    initNodeActions(nodeView);
+                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
+                    allNodeViews.add(nodeView);
+                    //
+                    if(!createNodeController.currentlyCreating()){
+                        mode = Mode.NO_MODE;
+                    }
                 }
             }
         });

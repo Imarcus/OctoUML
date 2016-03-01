@@ -1,5 +1,7 @@
 package controller;
 
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.control.ContextMenu;
@@ -161,6 +163,11 @@ public class MainController {
                         aDrawPane.getChildren().add(selectRectangle);
 
                     }
+                    //--------- MOUSE EVENT FOR TESTING ---------- TODO
+                    else if(tool == ToolEnum.CREATE){
+                        mode = Mode.CREATING;
+                        createNodeController.onMousePressed(event);
+                    }
                 }
                 event.consume();
             }
@@ -180,6 +187,10 @@ public class MainController {
                     selectRectangle.setHeight(event.getY() - selectStartY);
                     drawSelected();
                 }
+                //--------- MOUSE EVENT FOR TESTING ---------- TODO
+                else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING) {
+                    createNodeController.onMouseDragged(event);
+                }
                 event.consume();
             }
         });
@@ -193,6 +204,9 @@ public class MainController {
                     edgeController.removeDragLine();
 
                     mode = Mode.NO_MODE;
+
+                }
+                else if (tool == ToolEnum.EDGE) {
 
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING)
@@ -225,6 +239,36 @@ public class MainController {
                     aDrawPane.getChildren().remove(selectRectangle);
                     selected = false;
                     mode = Mode.NO_MODE;
+                }
+                // -------------- MOUSE EVENT FOR TESTING ---------------- TODO
+                if (tool == ToolEnum.CREATE && mode == Mode.CREATING)
+                {
+                    //Create ClassNode
+                    ClassNode node = createNodeController.createClassNodeMouse(event);
+
+                    //Use CreateController to create ClassNodeView.
+                    ClassNodeView nodeView = (ClassNodeView) createNodeController.onMouseReleased(event, node, currentScale);
+
+                    nodeMap.put(nodeView, node);
+                    allNodeViews.add(nodeView);
+                    initNodeActions(nodeView);
+
+                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
+                    if(!createNodeController.currentlyCreating()){
+                        mode = Mode.NO_MODE;
+                    }
+
+                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING) { //TODO: combine double code
+                    PackageNode node = createNodeController.createPackageNodeMouse(event);
+                    PackageNodeView nodeView = (PackageNodeView) createNodeController.onMouseReleased(event, node, currentScale);
+                    nodeMap.put(nodeView, node);
+                    initNodeActions(nodeView);
+                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
+                    allNodeViews.add(nodeView);
+                    //
+                    if(!createNodeController.currentlyCreating()){
+                        mode = Mode.NO_MODE;
+                    }
                 }
             }
         });
@@ -467,7 +511,7 @@ public class MainController {
                 else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
                     edgeController.onMouseDragged(event);
                 }
-                /*else if(mode == Mode.CREATING && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE)) //TODO Create with touch
+                /*else if(mode == Mode.CREATING && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE))
                 {
                     createNodeController.onTouchMoved(event);
 
@@ -493,9 +537,11 @@ public class MainController {
                 {
                     nodeController.resizeFinished(nodeMap.get(nodeView), event);
 
-                }else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
+                }
+                else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
                     model.Node startNode = graph.findNode(edgeController.getStartPoint());
                     model.Node endNode = graph.findNode(edgeController.getEndPoint());
+
                     AssociationEdge edge = new AssociationEdge(startNode, endNode);
                     //Only add the edge to the graph if it connects two nodes.
                     AbstractNodeView startNodeView = null;
@@ -510,7 +556,7 @@ public class MainController {
                         }
 
                         for (AbstractNodeView nView : allNodeViews) {
-                            if (nView.getBoundsInParent().contains(endNode.getX(), endNode.getY())) {
+                            if (nView.contains(endNode.getX(), endNode.getY())) {
                                 endNodeView = nView;
                                 break;
                             }
@@ -522,6 +568,15 @@ public class MainController {
                     if (startNodeView != null && endNodeView != null) {
                         allEdgeViews.add(edgeView);
                         undoManager.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, graph, true));
+                        System.out.println("STARTNODE x = " + startNodeView.getX() +
+                                " y = " + startNodeView.getY());
+                        System.out.println("ENDNODE x = " + endNodeView.getX() +
+                                " y = " + endNodeView.getY());
+                        System.out.println("CREATING EDGE: startX = " +
+                                edgeView.getStartX() +
+                                " startY = " + edgeView.getStartY() +
+                                " endX = " + edgeView.getEndX() +
+                                " endY = " + edgeView.getEndY());
                     }
 
                 } /*else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) { //TODO Draw on nodes

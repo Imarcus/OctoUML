@@ -8,6 +8,7 @@ import javafx.scene.shape.Line;
 import model.AbstractEdge;
 import model.AssociationEdge;
 import model.Node;
+import model.PackageNode;
 import view.AbstractEdgeView;
 import view.AbstractNodeView;
 import view.AssociationEdgeView;

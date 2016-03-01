@@ -33,10 +33,12 @@ public abstract class AbstractNodeView extends Group implements NodeView {
         return refNode;
     }
 
+    //TODO Shouldn't be used, as this should only get changes from model.
     public void setX(double x) {
         this.x = x;
     }
 
+    //TODO Shouldn't be used, as this should only get changes from model.
     public void setY(double y) {
         this.y = y;
     }

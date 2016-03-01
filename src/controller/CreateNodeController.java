@@ -25,9 +25,9 @@ import java.util.Map;
 public class CreateNodeController {
 
     //For drag-creating rectangles
-    //private double dragStartX, dragStartY;
+    private double mouseDragStartX, mouseDragStartY;
     private HashMap<Integer, Rectangle> dragRectangles = new HashMap<>();
-    //private Rectangle dragRectangle;
+    private Rectangle mouseDragRectangle;
 
     private MainController aMainController;
     private Pane aDrawPane;
@@ -124,6 +124,7 @@ public class CreateNodeController {
     /**
     * Puts the given class node as a child of a package if it is contained in one.
      */
+    //TODO This is maybe not necessary, as the graph now adds the child to the package.
     private boolean putNodeInPackage(AbstractNodeView nodeView, AbstractNode potentialChildModel){
         Map<AbstractNodeView, AbstractNode> nodeMap = aMainController.getNodeMap();
         for(AbstractNodeView potentialParent : aMainController.getAllNodeViews()){
@@ -142,4 +143,61 @@ public class CreateNodeController {
     public boolean currentlyCreating(){
         return !dragRectangles.isEmpty();
     }
+
+
+    //--------------------- MOUSE EVENTS FOR DEVELOPING ----------------------------- //TODO
+    public void onMousePressed(MouseEvent event){
+        mouseDragRectangle = new Rectangle();
+        mouseDragRectangle.setFill(null);
+        mouseDragRectangle.setStroke(Color.BLACK);
+        aDrawPane.getChildren().add(mouseDragRectangle);
+
+        if(event.getSource() instanceof AbstractNodeView){
+            mouseDragRectangle.setX(event.getX() + ((AbstractNodeView) event.getSource()).getX());
+            mouseDragRectangle.setY(event.getY() + ((AbstractNodeView) event.getSource()).getY());
+        } else {
+            mouseDragRectangle.setX(event.getX());
+            mouseDragRectangle.setY(event.getY());
+        }
+    }
+
+    public void onMouseDragged(MouseEvent event){
+        if(event.getSource() instanceof AbstractNodeView){
+            mouseDragRectangle.setWidth(((AbstractNodeView)event.getSource()).getX()+ event.getX() - mouseDragRectangle.getX());
+            mouseDragRectangle.setHeight(((AbstractNodeView)event.getSource()).getY() + event.getY() - mouseDragRectangle.getY());
+        } else {
+            mouseDragRectangle.setWidth(event.getX() - mouseDragRectangle.getX());
+            mouseDragRectangle.setHeight(event.getY() - mouseDragRectangle.getY());
+        }
+    }
+
+    public NodeView onMouseReleased(MouseEvent event, AbstractNode node, Double currentScale)
+    {
+        mouseDragRectangle.setWidth(0);
+        mouseDragRectangle.setHeight(0);
+
+        aDrawPane.getChildren().remove(mouseDragRectangle);
+        AbstractNodeView nodeView = null;
+        if (node instanceof PackageNode){
+            nodeView = createPackageFromDrag((PackageNode)node, currentScale);
+        }
+        else if (node instanceof ClassNode)
+        {
+            nodeView = createClassNodeFromDrag((ClassNode)node, currentScale);
+        }
+        return nodeView;
+    }
+
+    public ClassNode createClassNodeMouse(MouseEvent event) {
+        return new ClassNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
+                event.getX() - mouseDragRectangle.getX(),
+                event.getY() - mouseDragRectangle.getY());
+    }
+
+    public PackageNode createPackageNodeMouse(MouseEvent event) {
+        return new PackageNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
+                event.getX() - mouseDragRectangle.getX(),
+                event.getY() - mouseDragRectangle.getY());
+    }
+
 }

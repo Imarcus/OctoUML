@@ -127,8 +127,6 @@ public class PackageNodeView extends AbstractNodeView {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 setX(newValue.doubleValue());
-                //top.setX(newValue.doubleValue());
-                //body.setX(newValue.doubleValue());
             }
         });
 
@@ -136,8 +134,6 @@ public class PackageNodeView extends AbstractNodeView {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 setY(newValue.doubleValue());
-                //top.setY(newValue.doubleValue());
-                //body.setY(newValue.doubleValue());
             }
         });
 

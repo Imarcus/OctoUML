@@ -2,8 +2,7 @@ package controller;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Path;
 import model.*;
@@ -11,8 +10,6 @@ import util.commands.*;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.Pane;
@@ -92,6 +89,9 @@ public class MainController {
 
     @FXML private Pane aDrawPane;
     @FXML private ToolBar aToolBar;
+    @FXML private CheckMenuItem umlMenuItem;
+    @FXML private CheckMenuItem sketchesMenuItem;
+    @FXML private CheckMenuItem mouseMenuItem;
 
     private ContextMenu aContextMenu;
 
@@ -954,14 +954,14 @@ public class MainController {
                 aDrawPane.getChildren().remove(nodeView);
             }
             setButtons(true, umlButtonStrings);
-
+            umlMenuItem.setSelected(false);
             umlVisible = false;
         } else {
             for(AbstractNodeView nodeView : allNodeViews){
                 aDrawPane.getChildren().add(nodeView);
             }
             setButtons(false, umlButtonStrings);
-
+            umlMenuItem.setSelected(true);
             umlVisible = true;
         }
     }
@@ -974,6 +974,7 @@ public class MainController {
 
             setButtons(true, Arrays.asList("Draw"));
 
+            sketchesMenuItem.setSelected(false);
             sketchesVisible = false;
         } else {
             for(Sketch sketch : allSketches){
@@ -981,7 +982,7 @@ public class MainController {
             }
 
             setButtons(false, Arrays.asList("Draw"));
-
+            sketchesMenuItem.setSelected(true);
             sketchesVisible = true;
         }
     }
@@ -1005,6 +1006,7 @@ public class MainController {
 
     public void handleMenuActionMouse(){
         mouseCreationActivated = !mouseCreationActivated;
+        mouseMenuItem.setSelected(mouseCreationActivated);
     }
 
 

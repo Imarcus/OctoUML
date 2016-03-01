@@ -9,6 +9,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.CheckMenuItem?>
 <BorderPane fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
     <top>
         <MenuBar fx:id="menuBar">
@@ -20,7 +21,7 @@
                         <MenuItem text="Save"/>
                         <MenuItem text="Save As"/>
                         <SeparatorMenuItem/>
-                        <MenuItem text="Activate Mouse" onAction="#handleMenuActionMouse"/>
+                        <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
                         <SeparatorMenuItem/>
                         <MenuItem text="Exit"/>
                     </items>
@@ -34,8 +35,8 @@
                 </Menu>
                 <Menu text="View">
                     <items>
-                        <MenuItem text="UML" onAction="#handleMenuActionUML"/>
-                        <MenuItem text="Sketches" onAction="#handleMenuActionSketches"/>
+                        <CheckMenuItem fx:id="umlMenuItem" text="UML" onAction="#handleMenuActionUML" selected="true"/>
+                        <CheckMenuItem fx:id="sketchesMenuItem" text="Sketches" onAction="#handleMenuActionSketches" selected="true"/>
                     </items>
                 </Menu>
             </menus>

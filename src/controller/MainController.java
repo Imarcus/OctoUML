@@ -28,6 +28,8 @@ import java.util.*;
  */
 public class MainController {
 
+    private boolean mouseCreationActivated = false;
+
     private CreateNodeController createNodeController;
     private NodeController nodeController;
     private EdgeController edgeController;
@@ -166,9 +168,6 @@ public class MainController {
                                 System.out.println("THIS HAPPENS WHIWHOFHWIOFPAWJDAWDOPAJWND");
                             }
                         }
-                        if (!selected)
-                        {
-                        }
 
                         selectStartX = event.getX();
                         selectStartY = event.getY();
@@ -176,7 +175,7 @@ public class MainController {
 
                     }
                     //--------- MOUSE EVENT FOR TESTING ---------- TODO
-                    else if(tool == ToolEnum.CREATE){
+                    else if(tool == ToolEnum.CREATE && mouseCreationActivated){
                         mode = Mode.CREATING;
                         createNodeController.onMousePressed(event);
                     }
@@ -200,7 +199,7 @@ public class MainController {
                     drawSelected();
                 }
                 //--------- MOUSE EVENT FOR TESTING ---------- TODO
-                else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING) {
+                else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING && mouseCreationActivated) {
                     createNodeController.onMouseDragged(event);
                 }
                 event.consume();
@@ -253,7 +252,7 @@ public class MainController {
                     mode = Mode.NO_MODE;
                 }
                 // -------------- MOUSE EVENT FOR TESTING ---------------- TODO
-                if (tool == ToolEnum.CREATE && mode == Mode.CREATING)
+                if (tool == ToolEnum.CREATE && mode == Mode.CREATING && mouseCreationActivated)
                 {
                     //Create ClassNode
                     ClassNode node = createNodeController.createClassNodeMouse(event);
@@ -340,7 +339,7 @@ public class MainController {
         aDrawPane.setOnTouchPressed(new EventHandler<TouchEvent>() {
             @Override
             public void handle(TouchEvent event) {
-                if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE)) {
+                if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && !mouseCreationActivated) {
                     mode = Mode.CREATING;
                     createNodeController.onTouchPressed(event);
                 }
@@ -361,7 +360,7 @@ public class MainController {
         aDrawPane.setOnTouchMoved(new EventHandler<TouchEvent>() {
             @Override
             public void handle(TouchEvent event) {
-                if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING) {
+                if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING && !mouseCreationActivated) {
                     createNodeController.onTouchDragged(event);
                 }
                 else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING)
@@ -380,7 +379,7 @@ public class MainController {
         aDrawPane.setOnTouchReleased(new EventHandler<TouchEvent>() {
             @Override
             public void handle(TouchEvent event) {
-                if (tool == ToolEnum.CREATE && mode == Mode.CREATING)
+                if (tool == ToolEnum.CREATE && mode == Mode.CREATING && !mouseCreationActivated)
                 {
                     //Create ClassNode
                     ClassNode node = createNodeController.createClassNode(event);
@@ -397,7 +396,7 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
 
-                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING) { //TODO: combine double code
+                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING && !mouseCreationActivated) { //TODO: combine double code
                     PackageNode node = createNodeController.createPackageNode(event);
                     PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node, currentScale);
                     nodeMap.put(nodeView, node);
@@ -958,6 +957,11 @@ public class MainController {
         }
     }
 
+    /**
+     * Disables or enables buttons provided in the list.
+     * @param disable
+     * @param buttonStrings
+     */
     private void setButtons(boolean disable, List<String> buttonStrings){
         ObservableList<javafx.scene.Node> buttonList = aToolBar.getItems();
         for (javafx.scene.Node button : buttonList){
@@ -968,6 +972,10 @@ public class MainController {
                 ((Button) button).fire();
             }
         }
+    }
+
+    public void handleMenuActionMouse(){
+        mouseCreationActivated = !mouseCreationActivated;
     }
 
 

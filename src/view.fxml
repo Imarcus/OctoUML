@@ -19,7 +19,9 @@
                         <MenuItem text="Open"/>
                         <MenuItem text="Save"/>
                         <MenuItem text="Save As"/>
-                        <SeparatorMenuItem  />
+                        <SeparatorMenuItem/>
+                        <MenuItem text="Activate Mouse" onAction="#handleMenuActionMouse"/>
+                        <SeparatorMenuItem/>
                         <MenuItem text="Exit"/>
                     </items>
                 </Menu>

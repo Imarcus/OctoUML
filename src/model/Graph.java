@@ -20,12 +20,20 @@ public class Graph {
     }
 
     /**
-     * Adds a Node to the Graph.
+     * Adds a Node to the Graph. If the node is added inside a package, the node is also added as a child to
+     * that package. 
      * @param n, the Node that should be added.
      */
-
     public boolean addNode(AbstractNode n){
         assert n != null;
+        for (AbstractNode node : nodes) {
+            if (node instanceof PackageNode) {
+                if (n.getX() >= node.getX() && n.getX() <= node.getX() + node.getWidth()
+                        && n.getY() >= node.getY() && n.getY() <= node.getY() + node.getHeight() ) {
+                    ((PackageNode) node).addChild(n);
+                }
+            }
+        }
         return nodes.add(n);
     }
 
@@ -112,7 +120,14 @@ public class Graph {
         assert point != null;
         for (Node node : nodes){
             if (node.getBounds().contains(point.getX(), point.getY())) {
-                return node;
+                if (node instanceof PackageNode && ((PackageNode) node).findNode(point) != null) {
+                    System.out.println("PackageNode found: x=" + node.getX() + " y=" + node.getY() +
+                            " width=" + node.getWidth() + " height=" + node.getHeight());
+                    return ((PackageNode) node).findNode(point);
+                }
+                else {
+                    return node;
+                }
             }
         }
         return null;

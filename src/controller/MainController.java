@@ -1,5 +1,6 @@
 package controller;
 
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.shape.Path;
 import model.*;
@@ -180,6 +181,9 @@ public class MainController {
                     edgeController.removeDragLine();
 
                     mode = Mode.NO_MODE;
+
+                }
+                else if (tool == ToolEnum.EDGE) {
 
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING)
@@ -451,7 +455,7 @@ public class MainController {
                 else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
                     edgeController.onMouseDragged(event);
                 }
-                /*else if(mode == Mode.CREATING && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE)) //TODO Create with touch
+                /*else if(mode == Mode.CREATING && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE))
                 {
                     createNodeController.onTouchMoved(event);
 
@@ -477,9 +481,11 @@ public class MainController {
                 {
                     nodeController.resizeFinished(nodeMap.get(nodeView), event);
 
-                }else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
+                }
+                else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
                     model.Node startNode = graph.findNode(edgeController.getStartPoint());
                     model.Node endNode = graph.findNode(edgeController.getEndPoint());
+
                     AssociationEdge edge = new AssociationEdge(startNode, endNode);
                     //Only add the edge to the graph if it connects two nodes.
                     AbstractNodeView startNodeView = null;
@@ -494,7 +500,7 @@ public class MainController {
                         }
 
                         for (AbstractNodeView nView : allNodeViews) {
-                            if (nView.getBoundsInParent().contains(endNode.getX(), endNode.getY())) {
+                            if (nView.contains(endNode.getX(), endNode.getY())) {
                                 endNodeView = nView;
                                 break;
                             }
@@ -506,6 +512,15 @@ public class MainController {
                     if (startNodeView != null && endNodeView != null) {
                         allEdgeViews.add(edgeView);
                         undoManager.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, graph, true));
+                        System.out.println("STARTNODE x = " + startNodeView.getX() +
+                                " y = " + startNodeView.getY());
+                        System.out.println("ENDNODE x = " + endNodeView.getX() +
+                                " y = " + endNodeView.getY());
+                        System.out.println("CREATING EDGE: startX = " +
+                                edgeView.getStartX() +
+                                " startY = " + edgeView.getStartY() +
+                                " endX = " + edgeView.getEndX() +
+                                " endY = " + edgeView.getEndY());
                     }
 
                 } /*else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) { //TODO Draw on nodes

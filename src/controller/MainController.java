@@ -95,6 +95,8 @@ public class MainController {
 
     private ContextMenu aContextMenu;
 
+    private AbstractNodeView nodeClicked;
+
 
     @FXML
     public void initialize() {
@@ -446,7 +448,8 @@ public class MainController {
         });*/
     }
 
-    @FXML
+    
+
     private void drawSelected(){
         for(AbstractNodeView nodeView : allNodeViews){
             if (selectedNodes.contains(nodeView))
@@ -467,6 +470,7 @@ public class MainController {
             public void handle(MouseEvent event) {
                 //TODO Maybe needs some check here?
                 if(event.getButton() == MouseButton.SECONDARY){
+                    nodeClicked = nodeView;
                     copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
                     aContextMenu.show(nodeView, event.getScreenX(), event.getScreenY());
                 }
@@ -753,6 +757,24 @@ public class MainController {
         undoManager.add(command);
     }
 
+    private void deleteNode(AbstractNodeView nodeView){
+        CompoundCommand command = new CompoundCommand();
+        AbstractNode node = nodeMap.get(nodeView);
+
+        deleteNodeEdges(node, command);
+        selectedNodes.remove(nodeView);
+        getGraphModel().removeNode(node);
+        aDrawPane.getChildren().remove(nodeView);
+        allNodeViews.remove(nodeView);
+        command.add(new AddDeleteNodeCommand(aDrawPane, nodeView, node, getGraphModel(), false));
+        undoManager.add(command);
+    }
+
+    /**
+     * Deletes all edges associated with the node
+     * @param node
+     * @param command
+     */
     private void deleteNodeEdges(AbstractNode node, CompoundCommand command){
         AbstractEdge edge;
         ArrayList<AbstractEdgeView> edgeViewsToBeDeleted = new ArrayList<>();
@@ -1013,6 +1035,18 @@ public class MainController {
     //------------------------- COPY-PASTE FEATURE -----------------------------
     private void initContextMenu(){
         aContextMenu  = new ContextMenu();
+
+        MenuItem cmItemDelete = new MenuItem("Delete");
+        cmItemDelete.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if(aContextMenu.getOwnerNode() instanceof AbstractNodeView){
+                    deleteNode((AbstractNodeView) aContextMenu.getOwnerNode());
+                }
+            }
+        });
+
+
         MenuItem cmItemCopy = new MenuItem("Copy");
         cmItemCopy.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
@@ -1029,7 +1063,8 @@ public class MainController {
             }
         });
 
-        aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste);
+
+        aContextMenu.getItems().addAll(cmItemDelete, cmItemCopy, cmItemPaste);
     }
 
     //TODO Copy edges and sketches as well

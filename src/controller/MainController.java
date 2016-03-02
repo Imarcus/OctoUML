@@ -964,7 +964,7 @@ public class MainController {
         }
     }
 
-    //---------------------- MENU HANDLERS ----------------------------------------------------------------------------
+    //---------------------- MENU HANDLERS -----------------------------------------------------------------------------
 
     List<String> umlButtonStrings = Arrays.asList("Create", "Package", "Edge");
 

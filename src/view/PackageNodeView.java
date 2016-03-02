@@ -32,7 +32,8 @@ public class PackageNodeView extends AbstractNodeView {
     private Rectangle body;
     private final double TOP_HEIGHT_RATIO = 0.2;
     private final double TOP_WIDTH_RATIO = 0.66;
-    private final double BOTTOM_HEIGHT_RATIO = 0.8;
+    private final double TOP_MAX_HEIGHT = 50;
+    private final double TOP_MAX_WIDTH = 200;
 
     public PackageNodeView(PackageNode node) {
         super(node);
@@ -69,16 +70,15 @@ public class PackageNodeView extends AbstractNodeView {
 
     private void createRectangles(){
         top = new Rectangle();
-        top.setWidth(getRefNode().getWidth()*TOP_WIDTH_RATIO);
-        top.setHeight(getRefNode().getHeight()*TOP_HEIGHT_RATIO);
+        body = new Rectangle();
+        changeHeight(getRefNode().getHeight());
+        changeWidth(getRefNode().getWidth());
+
         top.setX(getRefNode().getX());
         top.setY(getRefNode().getY());
         top.setFill(Color.LIGHTSKYBLUE);
         top.setStroke(Color.BLACK);
 
-        body = new Rectangle();
-        body.setWidth(getRefNode().getWidth());
-        body.setHeight(getRefNode().getHeight()*BOTTOM_HEIGHT_RATIO);
         body.setX(getRefNode().getX());
         body.setY(getRefNode().getY() + top.getHeight());
         body.setFill(Color.LIGHTSKYBLUE);
@@ -114,6 +114,20 @@ public class PackageNodeView extends AbstractNodeView {
         return body.getBoundsInParent();
     }
 
+    private void changeHeight(double height){
+        setHeight(height);
+        top.setHeight(Math.min(TOP_MAX_HEIGHT, height*TOP_HEIGHT_RATIO));
+        body.setHeight(height - top.getHeight());
+    }
+
+    private void changeWidth(double width){
+        setWidth(width);
+        top.setWidth(Math.min(TOP_MAX_WIDTH, width*TOP_WIDTH_RATIO));
+        body.setWidth(width);
+        title.setWrappingWidth(width - 7);
+
+    }
+
     private void setChangeListeners() {
         getRefNode().titleProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -140,9 +154,7 @@ public class PackageNodeView extends AbstractNodeView {
         getRefNode().heightProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setHeight(newValue.doubleValue());
-                top.setHeight(newValue.doubleValue()*TOP_HEIGHT_RATIO); //TODO Top gets too big when resizing
-                body.setHeight(newValue.doubleValue()*BOTTOM_HEIGHT_RATIO);
+                changeHeight(newValue.doubleValue());
                 setTitleSize();
             }
         });
@@ -150,11 +162,7 @@ public class PackageNodeView extends AbstractNodeView {
         getRefNode().widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setWidth(newValue.doubleValue());
-                top.setWidth(newValue.doubleValue()*TOP_WIDTH_RATIO);
-                body.setWidth(newValue.doubleValue());
-                //TODO Ugly
-                title.setWrappingWidth(getWidth()- 7);
+                changeWidth(newValue.doubleValue());
                 setTitleSize();
             }
         });

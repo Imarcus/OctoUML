@@ -448,7 +448,7 @@ public class MainController {
         });*/
     }
 
-    
+
 
     private void drawSelected(){
         for(AbstractNodeView nodeView : allNodeViews){
@@ -741,33 +741,31 @@ public class MainController {
      */
     private void deleteSelected(){
         CompoundCommand command = new CompoundCommand();
-        AbstractNode node;
         for(AbstractNodeView nodeView : selectedNodes){
-            node = nodeMap.get(nodeView);
-            deleteNodeEdges(node, command);
-
-            getGraphModel().removeNode(node);
-            aDrawPane.getChildren().remove(nodeView);
-            allNodeViews.remove(nodeView);
-            command.add(new AddDeleteNodeCommand(aDrawPane, nodeView, node, getGraphModel(), false));
-
+            deleteNode(nodeView, command);
         }
-
-        selectedNodes.clear();
         undoManager.add(command);
     }
 
-    private void deleteNode(AbstractNodeView nodeView){
-        CompoundCommand command = new CompoundCommand();
-        AbstractNode node = nodeMap.get(nodeView);
+    private void deleteNode(AbstractNodeView nodeView, CompoundCommand pCommand){
+        CompoundCommand command;
+        if(pCommand == null){
+            command = new CompoundCommand();
+        } else {
+            command = pCommand;
+        }
 
+        AbstractNode node = nodeMap.get(nodeView);
         deleteNodeEdges(node, command);
         selectedNodes.remove(nodeView);
         getGraphModel().removeNode(node);
         aDrawPane.getChildren().remove(nodeView);
         allNodeViews.remove(nodeView);
         command.add(new AddDeleteNodeCommand(aDrawPane, nodeView, node, getGraphModel(), false));
-        undoManager.add(command);
+
+        if(pCommand == null){
+            undoManager.add(command);
+        }
     }
 
     /**
@@ -966,7 +964,7 @@ public class MainController {
         }
     }
 
-    //---------------------- MENU HANDLERS ---------------------------------
+    //---------------------- MENU HANDLERS ----------------------------------------------------------------------------
 
     List<String> umlButtonStrings = Arrays.asList("Create", "Package", "Edge");
 
@@ -1032,7 +1030,7 @@ public class MainController {
     }
 
 
-    //------------------------- COPY-PASTE FEATURE -----------------------------
+    //------------------------- COPY-PASTE FEATURE --------------------------------------------------------------------
     private void initContextMenu(){
         aContextMenu  = new ContextMenu();
 
@@ -1041,7 +1039,7 @@ public class MainController {
             @Override
             public void handle(ActionEvent event) {
                 if(aContextMenu.getOwnerNode() instanceof AbstractNodeView){
-                    deleteNode((AbstractNodeView) aContextMenu.getOwnerNode());
+                    deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null);
                 }
             }
         });

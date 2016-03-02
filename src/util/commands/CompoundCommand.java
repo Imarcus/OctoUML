@@ -47,16 +47,6 @@ public class CompoundCommand implements Command
 		aCommands.push(pCommand);
 	}
 
-	public Stack<Command> getAllCommands(){
-		return aCommands;
-	}
-
-	public void addAll(CompoundCommand commands){
-		for(Command command : commands.getAllCommands()){
-			aCommands.push(command);
-		}
-	}
-
 	/**
 	 * Returns the number of commands in the compound command.
 	 * @return the size of the stack

@@ -15,11 +15,16 @@ public class Launcher extends Application {
 
     public void start(Stage stage) throws IOException { //TODO HANDLE EXCEPTION
         BorderPane root = null; //TODO FIX
+        FXMLLoader loader = null;
         try {
-            root = (BorderPane) FXMLLoader.load(getClass().getClassLoader().getResource("view.fxml"));
+            loader = new FXMLLoader(getClass().getClassLoader().getResource("view.fxml"));
+            root = (BorderPane) loader.load();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+
+        MainController mainController = (MainController) loader.getController();
+        mainController.setStage(stage);
         stage.setScene(new Scene(root, 1000, 800));
         stage.setTitle("Penguin");
         stage.show();

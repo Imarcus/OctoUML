@@ -1,6 +1,5 @@
 package model;
 
-import edu.tamu.core.sketch.Point;
 import edu.tamu.core.sketch.Stroke;
 import javafx.scene.shape.Path;
 

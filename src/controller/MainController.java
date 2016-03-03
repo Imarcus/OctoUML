@@ -42,6 +42,9 @@ public class MainController {
     private ArrayList<AbstractNodeView> selectedNodes = new ArrayList<>();
     private ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
     private ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
+
+    private ArrayList<AbstractEdgeView> selectedEdges = new ArrayList<>();
+
     private HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
     //Copy nodes logic
@@ -160,7 +163,7 @@ public class MainController {
                     else if (tool == ToolEnum.SELECT)
                     {
                         mode = Mode.SELECTING;
-
+                        //TODO This should not be needed, should be in nodeView.initActions().
                         for(AbstractNodeView nodeView : allNodeViews){
                             if (nodeView.getBoundsInParent().contains(event.getX(), event.getY()))
                             {
@@ -171,6 +174,8 @@ public class MainController {
 
                         selectStartX = event.getX();
                         selectStartY = event.getY();
+                        selectRectangle.setX(event.getX());
+                        selectRectangle.setY(event.getY());
                         aDrawPane.getChildren().add(selectRectangle);
 
                     }
@@ -204,7 +209,7 @@ public class MainController {
                     selectRectangle.setY(selectStartY);
                     selectRectangle.setWidth(event.getX() - selectStartX);
                     selectRectangle.setHeight(event.getY() - selectStartY);
-                    drawSelected();
+                    //drawSelected();
                 }
                 //--------- MOUSE EVENT FOR TESTING ---------- TODO
                 else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING && mouseCreationActivated) {
@@ -226,7 +231,7 @@ public class MainController {
 
                 }
                 else if (tool == ToolEnum.EDGE) {
-
+                    edgeController.removeDragLine();
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING)
                 {
@@ -235,6 +240,13 @@ public class MainController {
                         {
                             selected = true;
                             selectedNodes.add(nodeView);
+                        }
+                    }
+                    for (AbstractEdgeView edgeView: allEdgeViews) {
+                        if (selectRectangle.getBoundsInParent().intersects(edgeView.getBoundsInParent()))
+                        {
+                            selected = true;
+                            selectedEdges.add(edgeView);
                         }
                     }
                     /* //TODO Selectable nodes
@@ -250,6 +262,7 @@ public class MainController {
                     //If no nodes were contained, remove all selections
                     if (!selected) {
                         selectedNodes.clear();
+                        selectedEdges.clear();
                     }
 
                     drawSelected();
@@ -460,6 +473,14 @@ public class MainController {
                 nodeView.setFill(Color.LIGHTSKYBLUE);
             }
         }
+        for (AbstractEdgeView edgeView : allEdgeViews) {
+            if (selectedEdges.contains(edgeView))
+            {
+                edgeView.setSelected(true);
+            } else {
+                edgeView.setSelected(false);
+            }
+        }
     }
 
     //TODO THis should take a GraphElement(View?) instead!
@@ -476,8 +497,11 @@ public class MainController {
                     copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
                     aContextMenu.show(nodeView, event.getScreenX(), event.getScreenY());
                 }
-                else if (tool == ToolEnum.SELECT){
 
+                else if (tool == ToolEnum.SELECT){
+                    if (!(nodeView instanceof PackageNodeView)) {
+                        nodeView.toFront();
+                    }
                     if (mode == Mode.NO_MODE) //Resize, rectangles only
                     {
                         Point2D.Double eventPoint = new Point2D.Double(event.getX(), event.getY());
@@ -590,6 +614,7 @@ public class MainController {
                             onMouseReleased(edge, startNodeView, endNodeView);
                     //TODO This check shouldn't be necessary?
                     if (startNodeView != null && endNodeView != null) {
+                        initEdgeActions(edgeView);
                         allEdgeViews.add(edgeView);
                         undoManager.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, graph, true));
                         System.out.println("STARTNODE x = " + startNodeView.getX() +
@@ -602,6 +627,7 @@ public class MainController {
                                 " endX = " + edgeView.getEndX() +
                                 " endY = " + edgeView.getEndY());
                     }
+                    edgeController.removeDragLine();
 
                 } /*else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) { //TODO Draw on nodes
                     allPaths.add(drawPath);
@@ -740,9 +766,16 @@ public class MainController {
      */
     private void deleteSelected(){
         CompoundCommand command = new CompoundCommand();
+        System.out.println("SelectedEdges size: " + selectedEdges.size());
         for(AbstractNodeView nodeView : selectedNodes){
             deleteNode(nodeView, command);
         }
+        for (AbstractEdgeView edgeView : selectedEdges) {
+            deleteEdge(edgeView, command);
+        }
+        selectedNodes.clear();
+        selectedEdges.clear();
+
         undoManager.add(command);
     }
 
@@ -750,13 +783,13 @@ public class MainController {
         CompoundCommand command;
         if(pCommand == null){
             command = new CompoundCommand();
+            selectedNodes.remove(nodeView); //Fix for concurrentModificationException
         } else {
             command = pCommand;
         }
 
         AbstractNode node = nodeMap.get(nodeView);
         deleteNodeEdges(node, command);
-        selectedNodes.remove(nodeView);
         getGraphModel().removeNode(node);
         aDrawPane.getChildren().remove(nodeView);
         allNodeViews.remove(nodeView);
@@ -765,6 +798,22 @@ public class MainController {
         if(pCommand == null){
             undoManager.add(command);
         }
+    }
+
+    private void deleteEdge(AbstractEdgeView edgeView, CompoundCommand pCommand) {
+        CompoundCommand command;
+        //TODO Maybe not necessary for edges.
+        if (pCommand == null) {
+            command = new CompoundCommand();
+        } else {
+            command = pCommand;
+        }
+
+        AbstractEdge edge = edgeView.getRefEdge();
+        getGraphModel().removeEdge(edge);
+        aDrawPane.getChildren().remove(edgeView);
+        allEdgeViews.remove(edgeView);
+        command.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, getGraphModel(), false));
     }
 
     /**
@@ -811,6 +860,62 @@ public class MainController {
         return allNodeViews;
     }
 
+private void initEdgeActions(AbstractEdgeView edgeView){
+    edgeView.setOnMousePressed(new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent event) {
+            if (mouseCreationActivated) {
+                handleOnEdgeViewPressedEvents(edgeView);
+            }
+        }
+    });
+
+    edgeView.setOnTouchPressed(new EventHandler<TouchEvent>() {
+        @Override
+        public void handle(TouchEvent event) {
+            if (!mouseCreationActivated) {
+                handleOnEdgeViewPressedEvents(edgeView);
+            }
+        }
+    });
+}
+
+private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
+    if (edgeView.isSelected()) {
+        selectedEdges.remove(edgeView);
+        edgeView.setSelected(false);
+    } else {
+        selectedEdges.add(edgeView);
+        edgeView.setSelected(true);
+    }
+}
+    /**
+     * initialize handlers for a sketch.
+     * @param sketch
+     */
+    private void initSketchActions(Sketch sketch) {
+        //TODO Implement this.
+        sketch.getPath().setOnTouchPressed(new EventHandler<TouchEvent>() {
+            @Override
+            public void handle(TouchEvent event) {
+
+            }
+        });
+
+        sketch.getPath().setOnTouchMoved(new EventHandler<TouchEvent>() {
+            @Override
+            public void handle(TouchEvent event) {
+
+            }
+        });
+
+        sketch.getPath().setOnTouchReleased(new EventHandler<TouchEvent>() {
+            @Override
+            public void handle(TouchEvent event) {
+
+            }
+        });
+    }
 
     @FXML
     private void initToolBarActions(){
@@ -947,6 +1052,7 @@ public class MainController {
                                         onMouseReleased(edge, startNodeView, endNodeView);
                                 //TODO This check shouldn't be necessary?
                                 if (startNodeView != null && endNodeView != null) {
+                                    initEdgeActions(edgeView);
                                     allEdgeViews.add(edgeView);
                                     recognizeCompoundCommand.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, graph, true));
                                 }

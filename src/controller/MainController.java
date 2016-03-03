@@ -864,30 +864,6 @@ private void initEdgeActions(AbstractEdgeView edgeView){
             }
         }
     });
-
-    //TODO
-    edgeView.setOnTouchPressed(new EventHandler<TouchEvent>() {
-        @Override
-        public void handle(TouchEvent event) {
-            if (edgeView.isSelected()) {
-                edgeView.setFill(Color.BLACK);
-                selectedEdges.remove(edgeView);
-                edgeView.setSelected(false);
-            } else {
-                edgeView.setFill(Color.MEDIUMVIOLETRED);
-                selectedEdges.add(edgeView);
-                edgeView.setSelected(true);
-            }
-        }
-    });
-
-
-    edgeView.setOnTouchReleased(new EventHandler<TouchEvent>() {
-        @Override
-        public void handle(TouchEvent event) {
-
-        }
-    });
 }
 
     /**

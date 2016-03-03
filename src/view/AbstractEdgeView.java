@@ -27,7 +27,7 @@ public abstract class AbstractEdgeView extends Line implements EdgeView{
         this.setVisible(true);
         setChangeListeners();
         setPosition();
-        this.setStrokeWidth(10);
+        this.setStrokeWidth(5);
     }
 
     public boolean isSelected() {

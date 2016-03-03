@@ -174,6 +174,8 @@ public class MainController {
 
                         selectStartX = event.getX();
                         selectStartY = event.getY();
+                        selectRectangle.setX(event.getX());
+                        selectRectangle.setY(event.getY());
                         aDrawPane.getChildren().add(selectRectangle);
 
                     }
@@ -850,22 +852,34 @@ public class MainController {
     }
 
 private void initEdgeActions(AbstractEdgeView edgeView){
-    edgeView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+    edgeView.setOnMousePressed(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
             if (mouseCreationActivated) {
-                if (edgeView.isSelected()) {
-                    selectedEdges.remove(edgeView);
-                    edgeView.setSelected(false);
-                } else {
-                    selectedEdges.add(edgeView);
-                    edgeView.setSelected(true);
-                }
+                handleOnEdgeViewPressedEvents(edgeView);
+            }
+        }
+    });
+
+    edgeView.setOnTouchPressed(new EventHandler<TouchEvent>() {
+        @Override
+        public void handle(TouchEvent event) {
+            if (!mouseCreationActivated) {
+                handleOnEdgeViewPressedEvents(edgeView);
             }
         }
     });
 }
 
+private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
+    if (edgeView.isSelected()) {
+        selectedEdges.remove(edgeView);
+        edgeView.setSelected(false);
+    } else {
+        selectedEdges.add(edgeView);
+        edgeView.setSelected(true);
+    }
+}
     /**
      * initialize handlers for a sketch.
      * @param sketch

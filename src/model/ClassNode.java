@@ -1,5 +1,10 @@
 package model;
 
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 
 import java.util.ArrayList;
@@ -8,8 +13,8 @@ import java.util.ArrayList;
  */
 public class ClassNode extends AbstractNode
 {
-    private ArrayList<String> aAttributes = new ArrayList<>();
-    private ArrayList<String> aOperations = new ArrayList<>();
+    private SimpleStringProperty attributes = new SimpleStringProperty();
+    private SimpleStringProperty operations = new SimpleStringProperty();
 
 
     public ClassNode(double x, double y, double width, double height)
@@ -17,20 +22,29 @@ public class ClassNode extends AbstractNode
         super(x, y, width, height );
     }
 
-    public ArrayList<String> getAttributes() {
-        return aAttributes;
+    public SimpleStringProperty attributesProperty(){
+        return attributes;
     }
 
-    public void setAttributes(ArrayList<String> aAttributes) {
-        this.aAttributes = aAttributes;
+    public SimpleStringProperty operationsProperty(){
+        return operations;
     }
 
-    public ArrayList<String> getOperations() {
-        return aOperations;
+    public void setAttributes(String pAttributes){
+
+        attributes.setValue(pAttributes);
     }
 
-    public void setOperations(ArrayList<String> aOperations) {
-        this.aOperations = aOperations;
+    public void setOperations(String pOperations){
+        operations.setValue(pOperations);
+    }
+
+    public String getAttributes(){
+        return attributes.getValue();
+    }
+
+    public String getOperations(){
+        return operations.getValue();
     }
 
     @Override
@@ -45,11 +59,11 @@ public class ClassNode extends AbstractNode
             newCopy.setTitle(this.getTitle());
 
         }
-        if(this.getAttributes() != null){
-            newCopy.setAttributes(this.getAttributes());
+        if(this.attributesProperty().getValue() != null){
+            newCopy.setAttributes(this.attributesProperty().getValue());
         }
-        if(this.getOperations() != null){
-            newCopy.setOperations(getOperations());
+        if(this.operationsProperty().getValue() != null){
+            newCopy.setOperations(operationsProperty().getValue());
         }
         newCopy.setTranslateX(this.getTranslateX());
         newCopy.setTranslateY(this.getTranslateY());

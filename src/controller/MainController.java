@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Path;
+import javafx.stage.Stage;
 import model.*;
 import util.commands.*;
 import javafx.collections.ObservableList;
@@ -23,9 +24,10 @@ import java.util.*;
  * Created by marcusisaksson on 2016-02-11.
  */
 public class MainController {
-
+    //For testing
     private boolean mouseCreationActivated = false;
 
+    //Controllers
     private CreateNodeController createNodeController;
     private NodeController nodeController;
     private EdgeController edgeController;
@@ -34,7 +36,9 @@ public class MainController {
     private RecognizeController recognizeController;
 
     private Graph graph;
+    private Stage aStage;
 
+    //Node lists and maps
     private ArrayList<AbstractNodeView> selectedNodes = new ArrayList<>();
     private ArrayList<AbstractEdgeView> selectedEdges = new ArrayList<>();
     private ArrayList<Sketch> selectedSketches = new ArrayList<>();
@@ -48,8 +52,6 @@ public class MainController {
     private ArrayList<AbstractNode> currentlyCopiedNodes = new ArrayList<>();
     private HashMap<AbstractNode, double[]> copyDeltas = new HashMap<>();
     private double[] copyPasteCoords;
-
-
 
     //For drag-selecting nodes
     private double selectStartX, selectStartY;
@@ -505,15 +507,16 @@ public class MainController {
             @Override
             public void handle(MouseEvent event) {
                 //TODO Maybe needs some check here?
-                if(event.getButton() == MouseButton.SECONDARY){
+                if (event.getClickCount() == 2) {
+                    nodeController.onDoubleClick(nodeView);
+                }
+                else if(event.getButton() == MouseButton.SECONDARY){
                     nodeClicked = nodeView;
                     copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
                     aContextMenu.show(nodeView, event.getScreenX(), event.getScreenY());
                 }
-                if (event.getClickCount() == 2) {
-                    nodeController.addNodeTitle(nodeMap.get(nodeView));
-                }
-                if (tool == ToolEnum.SELECT){
+
+                else if (tool == ToolEnum.SELECT){
                     if (!(nodeView instanceof PackageNodeView)) {
                         nodeView.toFront();
                     }
@@ -612,29 +615,22 @@ public class MainController {
 
                 }
                 else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
-                    model.Node startNode = graph.findNode(edgeController.getStartPoint());
-                    model.Node endNode = graph.findNode(edgeController.getEndPoint());
-
-                    AssociationEdge edge = new AssociationEdge(startNode, endNode);
-                    //Only add the edge to the graph if it connects two nodes.
                     AbstractNodeView startNodeView = null;
                     AbstractNodeView endNodeView = null;
-
-                    if (graph.connect(startNode, endNode, edge)) {
-                        for (AbstractNodeView nView : allNodeViews) {
-                            if (nView.contains(startNode.getX(), startNode.getY())) {
-                                startNodeView = nView;
-                                break;
-                            }
-                        }
-
-                        for (AbstractNodeView nView : allNodeViews) {
-                            if (nView.contains(endNode.getX(), endNode.getY())) {
-                                endNodeView = nView;
-                                break;
-                            }
+                    model.Node startNode = null;
+                    model.Node endNode = null;
+                    for(AbstractNodeView nodeView : allNodeViews){
+                        if (nodeView.contains(edgeController.getStartPoint())){
+                            startNodeView = nodeView;
+                            startNode = graph.findNode(edgeController.getStartPoint());
+                        } else if (nodeView.contains(edgeController.getEndPoint())){
+                            endNodeView = nodeView;
+                            endNode = graph.findNode(edgeController.getEndPoint());
                         }
                     }
+
+                    AssociationEdge edge = new AssociationEdge(startNode, endNode);
+
                     AssociationEdgeView edgeView = (AssociationEdgeView) edgeController.
                             onMouseReleased(edge, startNodeView, endNodeView);
                     //TODO This check shouldn't be necessary?
@@ -880,6 +876,14 @@ public class MainController {
             }
         }
         allEdgeViews.removeAll(edgeViewsToBeDeleted);
+    }
+
+    public Stage getStage() {
+        return aStage;
+    }
+
+    public void setStage(Stage pStage) {
+        this.aStage = pStage;
     }
 
     protected HashMap<AbstractNodeView, AbstractNode> getNodeMap() {

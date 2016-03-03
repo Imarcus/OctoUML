@@ -1,7 +1,6 @@
 package controller;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Path;
@@ -18,7 +17,6 @@ import javafx.scene.shape.Rectangle;
 import view.*;
 
 import java.awt.geom.Point2D;
-import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -493,8 +491,10 @@ public class MainController {
         for (Sketch sketch : allSketches) {
             if (selectedSketches.contains(sketch)){
                 sketch.setSelected(true);
+                sketch.getPath().toFront();
             } else {
                 sketch.setSelected(false);
+                sketch.getPath().toFront();
             }
         }
     }
@@ -539,6 +539,8 @@ public class MainController {
                         drawSelected();
 
                         nodeController.moveNodesStart(event);
+                        //TODO THis is for testing!!!
+                        sketchController.moveSketchStart(event);
                     }
                 } else if (tool == ToolEnum.EDGE) {
                     mode = Mode.CREATING;
@@ -558,6 +560,8 @@ public class MainController {
                         selected.add(nodeMap.get(n));
                     }
                     nodeController.moveNodes(event);
+                    //TODO JUST FOR TESTING:
+                    sketchController.moveSketches(event);
                     nodeWasDragged = true;
 
 
@@ -585,9 +589,15 @@ public class MainController {
                 if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING)
                 {
                     double[] deltaTranslateVector = nodeController.moveNodesFinished(event);
+                    //TODO JUST FOR TESTING
+                    sketchController.moveSketchFinished(event);
                     CompoundCommand compoundCommand = new CompoundCommand();
                     for(AbstractNodeView movedView : selectedNodes){
-                        compoundCommand.add(new MoveNodeCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
+                        compoundCommand.add(new MoveGraphElementCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
+                    }
+                    //TODO JUST FOR TESTING:
+                    for (Sketch sketch : selectedSketches){
+                        compoundCommand.add(new MoveGraphElementCommand(sketch, deltaTranslateVector[0], deltaTranslateVector[1]));
                     }
                     undoManager.add(compoundCommand);
                     if(!nodeWasDragged) {
@@ -928,7 +938,59 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             public void handle(MouseEvent event) {
                 if (mouseCreationActivated){
                     handleOnSketchPressedEvents(sketch);
+
+                    //TODO DUPLICATED CODE FROM nodeView.setOnMousePressed()
+                    if (tool == ToolEnum.SELECT) {
+                        if (mode == Mode.NO_MODE) //Move, any kind of node
+                        {
+                            mode = Mode.DRAGGING;
+                            if (!selectedSketches.contains(sketch))
+                            {
+                                selectedSketches.add(sketch);
+                            }
+                            drawSelected();
+                            sketchController.moveSketchStart(event);
+                        }
+
+                    }
                 }
+                event.consume();
+            }
+        });
+
+        sketch.getPath().setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (mouseCreationActivated) {
+                    if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) {
+                        sketchController.moveSketches(event);
+                    }
+                }
+                event.consume();
+            }
+        });
+
+        sketch.getPath().setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                //TODO DUPLICATED CODE FROM nodeView.setOnMouseReleased()
+                if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING)
+                {
+                    double[] deltaTranslateVector = sketchController.moveSketchFinished(event);
+                    sketchController.moveSketchFinished(event);
+                    CompoundCommand compoundCommand = new CompoundCommand();
+                    for(AbstractNodeView movedView : selectedNodes){
+                        compoundCommand.add(new MoveGraphElementCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
+                    }
+                    //TODO JUST FOR TESTING:
+                    for (Sketch sketch : selectedSketches){
+                        compoundCommand.add(new MoveGraphElementCommand(sketch, deltaTranslateVector[0], deltaTranslateVector[1]));
+                    }
+                    undoManager.add(compoundCommand);
+                    drawSelected();
+                }
+                mode = Mode.NO_MODE;
+                event.consume();
             }
         });
 
@@ -951,6 +1013,10 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             selectedSketches.add(sketch);
             sketch.setSelected(true);
         }
+    }
+
+    public List<Sketch> getSelectedSketches(){
+        return selectedSketches;
     }
 
     @FXML

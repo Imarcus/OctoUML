@@ -84,6 +84,8 @@ public class NodeController {
     }
 
     public void moveNodesStart(MouseEvent event){
+        //TODO This can maybe cause problem further on. Should maybe use getX() instead?
+        //However, this is only used to calculate delta, so we leave it for now.
         initMoveX = event.getSceneX();
         initMoveY = event.getSceneY();
 

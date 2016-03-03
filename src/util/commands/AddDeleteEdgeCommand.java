@@ -104,7 +104,9 @@ public class AddDeleteEdgeCommand implements Command
 	private void add()
 	{
 		aGraph.connect(aP1, aP2, aEdge);
-        aPane.getChildren().add(aEdgeView);
+        if (!aPane.getChildren().contains(aEdgeView)) {
+			aPane.getChildren().add(aEdgeView);
+		}
 	}
 
 }

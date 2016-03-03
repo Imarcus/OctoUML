@@ -178,6 +178,7 @@ public class CreateNodeController {
         AbstractNodeView nodeView = null;
         if (node instanceof PackageNode){
             nodeView = createPackageFromDrag((PackageNode)node, currentScale);
+            nodeView.toBack();
         }
         else if (node instanceof ClassNode)
         {

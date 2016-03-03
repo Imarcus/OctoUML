@@ -496,7 +496,9 @@ public class MainController {
                     nodeController.addNodeTitle(nodeMap.get(nodeView));
                 }
                 if (tool == ToolEnum.SELECT){
-
+                    if (!(nodeView instanceof PackageNodeView)) {
+                        nodeView.toFront();
+                    }
                     if (mode == Mode.NO_MODE) //Resize, rectangles only
                     {
                         Point2D.Double eventPoint = new Point2D.Double(event.getX(), event.getY());

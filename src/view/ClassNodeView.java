@@ -104,8 +104,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         title.setTextAlignment(TextAlignment.CENTER);
         title.setWrappingWidth(node.getWidth() - 7);         //TODO Ugly solution, hardcoded value.
 
-        attributes = new Text();
-        operations = new Text();
+        attributes = new Text(node.getAttributes());
+        operations = new Text(node.getOperations());
     }
 
     private void initLooks(){
@@ -192,7 +192,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 attributes.setText(newValue);
-                //updateSize(refNode.getWidth(), refNode.getHeight());
             }
         });
 
@@ -200,7 +199,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 operations.setText(newValue);
-                //updateSize(refNode.getWidth(), refNode.getHeight());
             }
         });
     }

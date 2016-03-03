@@ -13,9 +13,6 @@ import java.util.ArrayList;
  */
 public class ClassNode extends AbstractNode
 {
-    /*private SimpleListProperty<String> attributes = new SimpleListProperty<>();
-    private SimpleListProperty<String> operations = new SimpleListProperty<>();*/
-
     private SimpleStringProperty attributes = new SimpleStringProperty();
     private SimpleStringProperty operations = new SimpleStringProperty();
 
@@ -42,6 +39,14 @@ public class ClassNode extends AbstractNode
         operations.setValue(pOperations);
     }
 
+    public String getAttributes(){
+        return attributes.getValue();
+    }
+
+    public String getOperations(){
+        return operations.getValue();
+    }
+
     @Override
     public ClassNode copy(){
         ClassNode newCopy = new ClassNode(this.getX(), this.getY(), this.getWidth(), this.getHeight());
@@ -54,12 +59,12 @@ public class ClassNode extends AbstractNode
             newCopy.setTitle(this.getTitle());
 
         }
-        /*if(this.getAttributes() != null){ //TODO FIX
-            newCopy.setAttributes(this.getAttributes());
+        if(this.attributesProperty().getValue() != null){
+            newCopy.setAttributes(this.attributesProperty().getValue());
         }
-        if(this.getOperations() != null){
-            newCopy.setOperations(getOperations());
-        }*/
+        if(this.operationsProperty().getValue() != null){
+            newCopy.setOperations(operationsProperty().getValue());
+        }
         newCopy.setTranslateX(this.getTranslateX());
         newCopy.setTranslateY(this.getTranslateY());
         return newCopy;

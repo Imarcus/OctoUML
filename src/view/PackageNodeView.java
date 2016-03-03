@@ -61,13 +61,6 @@ public class PackageNodeView extends AbstractNodeView {
         this.getChildren().add(container);
         this.setTranslateX(node.getTranslateX());
         this.setTranslateY(node.getTranslateY());
-
-        topStackPane.setStyle(
-                "-fx-border-style: solid inside;" +
-                        "-fx-border-width: 2;"  +
-                        "-fx-border-radius: 5;" +
-                        "-fx-border-color: yellow;");
-
     }
 
     private void setTitleSize(){

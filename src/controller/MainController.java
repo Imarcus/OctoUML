@@ -772,6 +772,7 @@ public class MainController {
         }
         selectedNodes.clear();
         selectedEdges.clear();
+
         undoManager.add(command);
     }
 
@@ -779,6 +780,7 @@ public class MainController {
         CompoundCommand command;
         if(pCommand == null){
             command = new CompoundCommand();
+            selectedNodes.remove(nodeView); //Fix for concurrentModificationException
         } else {
             command = pCommand;
         }

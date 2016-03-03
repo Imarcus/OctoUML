@@ -229,7 +229,7 @@ public class MainController {
 
                 }
                 else if (tool == ToolEnum.EDGE) {
-
+                    edgeController.removeDragLine();
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING)
                 {
@@ -622,6 +622,7 @@ public class MainController {
                                 " endX = " + edgeView.getEndX() +
                                 " endY = " + edgeView.getEndY());
                     }
+                    edgeController.removeDragLine();
 
                 } /*else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) { //TODO Draw on nodes
                     allPaths.add(drawPath);

@@ -83,6 +83,10 @@ public class EdgeController {
     }
 
     public void removeDragLine() {
+        dragLine.setStartX(0);
+        dragLine.setStartY(0);
+        dragLine.setEndX(0);
+        dragLine.setEndY(0);
         aDrawPane.getChildren().remove(dragLine);
     }
     //TODO Should have nullchecks?

@@ -40,7 +40,6 @@ public class PackageNodeView extends AbstractNodeView {
         refNode = node;
         setChangeListeners();
         title = new Text(node.getTitle());
-        //title.setTextAlignment(TextAlignment.CENTER);
         //TODO Ugly solution, hardcoded value.
         title.setWrappingWidth(node.getWidth() - 7);
         container = new VBox();
@@ -62,6 +61,13 @@ public class PackageNodeView extends AbstractNodeView {
         this.getChildren().add(container);
         this.setTranslateX(node.getTranslateX());
         this.setTranslateY(node.getTranslateY());
+
+        topStackPane.setStyle(
+                "-fx-border-style: solid inside;" +
+                        "-fx-border-width: 2;"  +
+                        "-fx-border-radius: 5;" +
+                        "-fx-border-color: yellow;");
+
     }
 
     private void setTitleSize(){
@@ -155,7 +161,7 @@ public class PackageNodeView extends AbstractNodeView {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 changeHeight(newValue.doubleValue());
-                setTitleSize();
+                //setTitleSize();
             }
         });
 
@@ -163,7 +169,7 @@ public class PackageNodeView extends AbstractNodeView {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 changeWidth(newValue.doubleValue());
-                setTitleSize();
+                //setTitleSize();
             }
         });
     }

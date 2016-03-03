@@ -5,6 +5,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -43,18 +44,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         setChangeListeners();
 
         container = new VBox();
+        operationsStackPane = new StackPane();
+        attributesStackPane = new StackPane();
+        titleStackPane = new StackPane();
 
         createTexts();
         createRectangles();
 
 
-        titleStackPane = new StackPane();
         titleStackPane.getChildren().addAll(titleRectangle, title);
-
-        attributesStackPane = new StackPane();
         attributesStackPane.getChildren().addAll(attributesRectangle, attributes);
-
-        operationsStackPane = new StackPane();
         operationsStackPane.getChildren().addAll(operationsRectangle, operations);
 
         initLooks();
@@ -84,19 +83,19 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     private void changeHeight(double height){
-        //setHeight(height);
-        container.setPrefHeight(height);
+        setHeight(height);
         titleRectangle.setHeight(Math.min(TOP_MAX_HEIGHT, height*TOP_HEIGHT_RATIO));
         attributesRectangle.setHeight((height - titleRectangle.getHeight())/2);
         operationsRectangle.setHeight((height - titleRectangle.getHeight())/2);
     }
 
     private void changeWidth(double width){
-        //setWidth(width);
-        container.setPrefWidth(width);
+        setWidth(width);
         titleRectangle.setWidth(width);
         attributesRectangle.setWidth(width);
         operationsRectangle.setWidth(width);
+        titleStackPane.setMinWidth(width);
+        container.setMaxWidth(width);
     }
 
     private void createTexts(){
@@ -122,12 +121,12 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         operationsRectangle.setFill(Color.LIGHTSKYBLUE);
         operationsRectangle.setStroke(Color.BLACK);
 
-        /*StackPane.setAlignment(title, Pos.TOP_CENTER);
+        StackPane.setAlignment(title, Pos.TOP_CENTER);
         StackPane.setMargin(title, new Insets(5,0,0,0));
         StackPane.setAlignment(attributes, Pos.TOP_LEFT);
         StackPane.setMargin(attributes, new Insets(5,0,0,5));
         StackPane.setAlignment(operations, Pos.TOP_LEFT);
-        StackPane.setMargin(operations, new Insets(5,0,0,5));*/
+        StackPane.setMargin(operations, new Insets(5,0,0,5));
     }
 
     public void setStrokeWidth(double scale){

@@ -130,6 +130,9 @@ public class NodeController {
         {
             n.setTranslateX(initTranslateMap.get(n).getX() + offsetX);
             n.setTranslateY(initTranslateMap.get(n).getY() + offsetY);
+            n.setX(initTranslateMap.get(n).getX() + offsetX);
+            n.setY(initTranslateMap.get(n).getY() + offsetY);
+
         }
     }
 

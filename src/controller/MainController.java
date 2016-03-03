@@ -587,29 +587,24 @@ public class MainController {
 
                 }
                 else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
-                    model.Node startNode = graph.findNode(edgeController.getStartPoint());
-                    model.Node endNode = graph.findNode(edgeController.getEndPoint());
-
-                    AssociationEdge edge = new AssociationEdge(startNode, endNode);
-                    //Only add the edge to the graph if it connects two nodes.
                     AbstractNodeView startNodeView = null;
                     AbstractNodeView endNodeView = null;
-
-                    if (graph.connect(startNode, endNode, edge)) {
-                        for (AbstractNodeView nView : allNodeViews) {
-                            if (nView.contains(startNode.getX(), startNode.getY())) {
-                                startNodeView = nView;
-                                break;
-                            }
-                        }
-
-                        for (AbstractNodeView nView : allNodeViews) {
-                            if (nView.contains(endNode.getX(), endNode.getY())) {
-                                endNodeView = nView;
-                                break;
-                            }
+                    model.Node startNode = null;
+                    model.Node endNode = null;
+                    for(AbstractNodeView nodeView : allNodeViews){
+                        if (nodeView.contains(edgeController.getStartPoint())){
+                            startNodeView = nodeView;
+                            startNode = graph.findNode(edgeController.getStartPoint());
+                        } else if (nodeView.contains(edgeController.getEndPoint())){
+                            endNodeView = nodeView;
+                            endNode = graph.findNode(edgeController.getEndPoint());
                         }
                     }
+
+
+
+                    AssociationEdge edge = new AssociationEdge(startNode, endNode);
+
                     AssociationEdgeView edgeView = (AssociationEdgeView) edgeController.
                             onMouseReleased(edge, startNodeView, endNodeView);
                     //TODO This check shouldn't be necessary?

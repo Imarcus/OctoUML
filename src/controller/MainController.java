@@ -18,6 +18,7 @@ import javafx.scene.shape.Rectangle;
 import view.*;
 
 import java.awt.geom.Point2D;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -37,11 +38,11 @@ public class MainController {
     private Graph graph;
 
     private ArrayList<AbstractNodeView> selectedNodes = new ArrayList<>();
-
+    private ArrayList<AbstractEdgeView> selectedEdges = new ArrayList<>();
+    private ArrayList<Sketch> selectedSketches = new ArrayList<>();
     private ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
     private ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
 
-    private ArrayList<AbstractEdgeView> selectedEdges = new ArrayList<>();
 
     private HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
@@ -249,6 +250,12 @@ public class MainController {
                             selectedEdges.add(edgeView);
                         }
                     }
+                    for (Sketch sketch : allSketches) {
+                        if (selectRectangle.getBoundsInParent().intersects(sketch.getPath().getBoundsInParent())) {
+                            selected = true;
+                            selectedSketches.add(sketch);
+                        }
+                    }
                     /* //TODO Selectable nodes
                     for (javafx.scene.Node p : allSketches)
                     {
@@ -263,6 +270,7 @@ public class MainController {
                     if (!selected) {
                         selectedNodes.clear();
                         selectedEdges.clear();
+                        selectedSketches.clear();
                     }
 
                     drawSelected();
@@ -432,6 +440,7 @@ public class MainController {
                 else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING)
                 {
                     Sketch sketch = sketchController.onTouchReleased(event);
+                    initSketchActions(sketch);
                     allSketches.add(sketch);
                     undoManager.add(new AddDeleteSketchCommand(aDrawPane, sketch, true));
 
@@ -479,6 +488,13 @@ public class MainController {
                 edgeView.setSelected(true);
             } else {
                 edgeView.setSelected(false);
+            }
+        }
+        for (Sketch sketch : allSketches) {
+            if (selectedSketches.contains(sketch)){
+                sketch.setSelected(true);
+            } else {
+                sketch.setSelected(false);
             }
         }
     }
@@ -741,6 +757,7 @@ public class MainController {
                 else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING)
                 {
                     Sketch sketch = sketchController.onTouchReleased(event);
+                    initSketchActions(sketch);
                     allSketches.add(sketch);
                     undoManager.add(new AddDeleteSketchCommand(aDrawPane, sketch, true));
 
@@ -772,8 +789,13 @@ public class MainController {
         for (AbstractEdgeView edgeView : selectedEdges) {
             deleteEdge(edgeView, command);
         }
+        for (Sketch sketch : selectedSketches) {
+            deleteSketch(sketch, command);
+        }
+
         selectedNodes.clear();
         selectedEdges.clear();
+        selectedSketches.clear();
 
         undoManager.add(command);
     }
@@ -813,6 +835,21 @@ public class MainController {
         aDrawPane.getChildren().remove(edgeView);
         allEdgeViews.remove(edgeView);
         command.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, getGraphModel(), false));
+    }
+
+    private void deleteSketch(Sketch sketch, CompoundCommand pCommand) {
+        CompoundCommand command;
+        //TODO Maybe not necessary for edges.
+        if (pCommand == null) {
+            command = new CompoundCommand();
+        } else {
+            command = pCommand;
+        }
+
+        getGraphModel().removeSketch(sketch);
+        aDrawPane.getChildren().remove(sketch.getPath());
+        allSketches.remove(sketch);
+        command.add(new AddDeleteSketchCommand(aDrawPane, sketch, false));
     }
 
     /**
@@ -886,26 +923,34 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
      */
     private void initSketchActions(Sketch sketch) {
         //TODO Implement this.
+        sketch.getPath().setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (mouseCreationActivated){
+                    handleOnSketchPressedEvents(sketch);
+                }
+            }
+        });
+
         sketch.getPath().setOnTouchPressed(new EventHandler<TouchEvent>() {
             @Override
             public void handle(TouchEvent event) {
-
+                if (!mouseCreationActivated) {
+                    handleOnSketchPressedEvents(sketch);
+                }
             }
         });
 
-        sketch.getPath().setOnTouchMoved(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
+    }
 
-            }
-        });
-
-        sketch.getPath().setOnTouchReleased(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
-
-            }
-        });
+    private void handleOnSketchPressedEvents(Sketch sketch){
+        if (sketch.isSelected()) {
+            selectedSketches.remove(sketch);
+            sketch.setSelected(false);
+        } else {
+            selectedSketches.add(sketch);
+            sketch.setSelected(true);
+        }
     }
 
     @FXML

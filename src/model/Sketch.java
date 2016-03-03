@@ -1,6 +1,7 @@
 package model;
 
 import edu.tamu.core.sketch.Stroke;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
 
 /**
@@ -11,6 +12,7 @@ public class Sketch implements GraphElement{
     private Path path;
     private GraphElement recognizedElement;
     private Stroke stroke;
+    private boolean selected = false;
 
     /**
      * Creates this Sketch
@@ -20,6 +22,19 @@ public class Sketch implements GraphElement{
         //TODO, should this make a copy of the path?
         this.path = path;
         path.toFront();
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+        if (selected) {
+            path.setStroke(Color.RED);
+        } else {
+            path.setStroke(Color.BLACK);
+        }
     }
 
     public void setStroke(Stroke stroke) {

@@ -1137,6 +1137,10 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         mouseMenuItem.setSelected(mouseCreationActivated);
     }
 
+    public void handleManuActionSave(){
+        PersistenceController.saveFile(graph);
+    }
+
 
     //------------------------- COPY-PASTE FEATURE --------------------------------------------------------------------
     private void initContextMenu(){

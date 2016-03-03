@@ -2,6 +2,7 @@ package view;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import model.AbstractEdge;
 
@@ -11,6 +12,7 @@ import model.AbstractEdge;
 public abstract class AbstractEdgeView extends Line implements EdgeView{
     private AbstractEdge refEdge;
     private AbstractNodeView startNode;
+    private boolean selected = false;
 
     public AbstractEdge getRefEdge() {
         return refEdge;
@@ -25,6 +27,20 @@ public abstract class AbstractEdgeView extends Line implements EdgeView{
         this.setVisible(true);
         setChangeListeners();
         setPosition();
+        this.setStrokeWidth(5);
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected){
+        this.selected = selected;
+        if (selected){
+            setStroke(Color.MEDIUMVIOLETRED);
+        } else {
+            setStroke(Color.BLACK);
+        }
     }
 
     private void setPosition() {

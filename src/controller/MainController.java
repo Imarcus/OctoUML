@@ -744,6 +744,7 @@ public class MainController {
         for(AbstractNodeView nodeView : selectedNodes){
             deleteNode(nodeView, command);
         }
+        selectedNodes.clear();
         undoManager.add(command);
     }
 
@@ -751,16 +752,15 @@ public class MainController {
         CompoundCommand command;
         if(pCommand == null){
             command = new CompoundCommand();
+            selectedNodes.remove(nodeView); //Fix for concurrentModificationException
         } else {
             command = pCommand;
         }
 
         AbstractNode node = nodeMap.get(nodeView);
         deleteNodeEdges(node, command);
-        selectedNodes.remove(nodeView);
         getGraphModel().removeNode(node);
         aDrawPane.getChildren().remove(nodeView);
-        allNodeViews.remove(nodeView);
         command.add(new AddDeleteNodeCommand(aDrawPane, nodeView, node, getGraphModel(), false));
 
         if(pCommand == null){

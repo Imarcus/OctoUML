@@ -28,9 +28,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     private StackPane attributesStackPane;
     private StackPane operationsStackPane;
 
-    private Pane attributesTextPane;
-    private Pane operationsTextPane;
-
     private Rectangle titleRectangle;
     private Rectangle attributesRectangle;
     private Rectangle operationsRectangle;
@@ -45,10 +42,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         super(node);
         setChangeListeners();
 
+        container = new VBox();
+
         createTexts();
         createRectangles();
 
-        container = new VBox();
 
         titleStackPane = new StackPane();
         titleStackPane.getChildren().addAll(titleRectangle, title);
@@ -57,14 +55,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         attributesStackPane.getChildren().addAll(attributesRectangle, attributes);
 
         operationsStackPane = new StackPane();
-        operationsTextPane = new Pane();
-        //operationsTextPane.getChildren().add(operations);
         operationsStackPane.getChildren().addAll(operationsRectangle, operations);
 
         initLooks();
-
-
-        //stackPane.setMargin(title, new Insets(7, 7, 7, 7));  TODO Hardcoded values.
 
         container.getChildren().addAll(titleStackPane, attributesStackPane, operationsStackPane);
         this.getChildren().add(container);
@@ -91,14 +84,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     private void changeHeight(double height){
-        setHeight(height);
+        //setHeight(height);
+        container.setPrefHeight(height);
         titleRectangle.setHeight(Math.min(TOP_MAX_HEIGHT, height*TOP_HEIGHT_RATIO));
         attributesRectangle.setHeight((height - titleRectangle.getHeight())/2);
         operationsRectangle.setHeight((height - titleRectangle.getHeight())/2);
     }
 
     private void changeWidth(double width){
-        setWidth(width);
+        //setWidth(width);
+        container.setPrefWidth(width);
         titleRectangle.setWidth(width);
         attributesRectangle.setWidth(width);
         operationsRectangle.setWidth(width);
@@ -127,12 +122,12 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         operationsRectangle.setFill(Color.LIGHTSKYBLUE);
         operationsRectangle.setStroke(Color.BLACK);
 
-        StackPane.setAlignment(title, Pos.TOP_CENTER);
+        /*StackPane.setAlignment(title, Pos.TOP_CENTER);
         StackPane.setMargin(title, new Insets(5,0,0,0));
         StackPane.setAlignment(attributes, Pos.TOP_LEFT);
         StackPane.setMargin(attributes, new Insets(5,0,0,5));
         StackPane.setAlignment(operations, Pos.TOP_LEFT);
-        StackPane.setMargin(operations, new Insets(5,0,0,5));
+        StackPane.setMargin(operations, new Insets(5,0,0,5));*/
     }
 
     public void setStrokeWidth(double scale){
@@ -175,7 +170,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         refNode.heightProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setHeight(newValue.doubleValue());
                 changeHeight(newValue.doubleValue());
             }
         });
@@ -183,7 +177,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         refNode.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setWidth(newValue.doubleValue());
                 changeWidth(newValue.doubleValue());
             }
         });

@@ -1,10 +1,10 @@
 package controller;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Path;
+import javafx.stage.Stage;
 import model.*;
 import util.commands.*;
 import javafx.collections.ObservableList;
@@ -24,9 +24,10 @@ import java.util.*;
  * Created by marcusisaksson on 2016-02-11.
  */
 public class MainController {
-
+    //For testing
     private boolean mouseCreationActivated = false;
 
+    //Controllers
     private CreateNodeController createNodeController;
     private NodeController nodeController;
     private EdgeController edgeController;
@@ -35,20 +36,18 @@ public class MainController {
     private RecognizeController recognizeController;
 
     private Graph graph;
+    private Stage aStage;
 
+    //Node lists and maps
     private ArrayList<AbstractNodeView> selectedNodes = new ArrayList<>();
-
     private ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
     private ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
-
     private HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
     //Copy nodes logic
     private ArrayList<AbstractNode> currentlyCopiedNodes = new ArrayList<>();
     private HashMap<AbstractNode, double[]> copyDeltas = new HashMap<>();
     private double[] copyPasteCoords;
-
-
 
     //For drag-selecting nodes
     private double selectStartX, selectStartY;
@@ -469,15 +468,15 @@ public class MainController {
             @Override
             public void handle(MouseEvent event) {
                 //TODO Maybe needs some check here?
-                if(event.getButton() == MouseButton.SECONDARY){
+                if (event.getClickCount() == 2) {
+                    nodeController.onDoubleClick(nodeView);
+                }
+                else if(event.getButton() == MouseButton.SECONDARY){
                     nodeClicked = nodeView;
                     copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
                     aContextMenu.show(nodeView, event.getScreenX(), event.getScreenY());
                 }
-                if (event.getClickCount() == 2) {
-                    nodeController.addNodeTitle(nodeMap.get(nodeView));
-                }
-                if (tool == ToolEnum.SELECT){
+                else if (tool == ToolEnum.SELECT){
 
                     if (mode == Mode.NO_MODE) //Resize, rectangles only
                     {
@@ -786,6 +785,14 @@ public class MainController {
             }
         }
         allEdgeViews.removeAll(edgeViewsToBeDeleted);
+    }
+
+    public Stage getStage() {
+        return aStage;
+    }
+
+    public void setStage(Stage pStage) {
+        this.aStage = pStage;
     }
 
     protected HashMap<AbstractNodeView, AbstractNode> getNodeMap() {

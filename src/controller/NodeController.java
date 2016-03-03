@@ -1,17 +1,26 @@
 package controller;
 
+import controller.dialog.NodeEditDialogController;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import model.AbstractNode;
+import model.ClassNode;
 import model.PackageNode;
 import view.AbstractNodeView;
+import view.ClassNodeView;
 import view.PackageNodeView;
 
 import java.awt.geom.Point2D;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -220,6 +229,72 @@ public class NodeController {
             } else {
                 packageNodeModel.getChildNodes().remove(potentialChildModel);
             }
+        }
+    }
+
+    public void onDoubleClick(AbstractNodeView nodeView){
+        if(nodeView instanceof ClassNodeView){
+            showClassNodeEditDialog((ClassNode) aMainController.getNodeMap().get(nodeView));
+        }
+        else {
+            showNodeTitleDialog(aMainController.getNodeMap().get(nodeView));
+
+        }
+    }
+
+    /**
+     * Brings up a dialog to give a title to a Node.
+     * @param node, the Node to give a Title
+     * @return false if node == null, otherwise true.
+     */
+    private boolean showNodeTitleDialog(AbstractNode node){
+        if (node == null)
+        {
+            return false;
+        }
+        Dialog <String> dialog = new TextInputDialog();
+        dialog.setTitle("Choose title");
+        dialog.setHeaderText("Choose title");
+
+        Optional<String> result = dialog.showAndWait();
+        String entered = "none.";
+
+        if (result.isPresent())
+        {
+            entered = result.get();
+        }
+
+        if(!entered.equals("none."))
+        {
+            node.setTitle(entered);
+        }
+        return true;
+    }
+
+    public boolean showClassNodeEditDialog(ClassNode node) {
+        try {
+            // Load the fxml file and create a new stage for the popup
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("NodeEditDialog.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Edit Person");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(aMainController.getStage());
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+            NodeEditDialogController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setNode(node);
+
+            dialogStage.showAndWait();
+
+            return controller.isOkClicked();
+
+        } catch (IOException e) {
+            // Exception gets thrown if the fxml file could not be loaded
+            e.printStackTrace();
+            return false;
         }
     }
 }

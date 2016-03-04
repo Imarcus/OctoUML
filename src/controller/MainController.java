@@ -40,10 +40,11 @@ public class MainController {
 
     //Node lists and maps
     private ArrayList<AbstractNodeView> selectedNodes = new ArrayList<>();
+    private ArrayList<AbstractEdgeView> selectedEdges = new ArrayList<>();
+    private ArrayList<Sketch> selectedSketches = new ArrayList<>();
     private ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
     private ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
 
-    private ArrayList<AbstractEdgeView> selectedEdges = new ArrayList<>();
 
     private HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
@@ -249,6 +250,12 @@ public class MainController {
                             selectedEdges.add(edgeView);
                         }
                     }
+                    for (Sketch sketch : allSketches) {
+                        if (selectRectangle.getBoundsInParent().intersects(sketch.getPath().getBoundsInParent())) {
+                            selected = true;
+                            selectedSketches.add(sketch);
+                        }
+                    }
                     /* //TODO Selectable nodes
                     for (javafx.scene.Node p : allSketches)
                     {
@@ -263,6 +270,7 @@ public class MainController {
                     if (!selected) {
                         selectedNodes.clear();
                         selectedEdges.clear();
+                        selectedSketches.clear();
                     }
 
                     drawSelected();
@@ -432,6 +440,7 @@ public class MainController {
                 else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING)
                 {
                     Sketch sketch = sketchController.onTouchReleased(event);
+                    initSketchActions(sketch);
                     allSketches.add(sketch);
                     undoManager.add(new AddDeleteSketchCommand(aDrawPane, sketch, true));
 
@@ -481,6 +490,15 @@ public class MainController {
                 edgeView.setSelected(false);
             }
         }
+        for (Sketch sketch : allSketches) {
+            if (selectedSketches.contains(sketch)){
+                sketch.setSelected(true);
+                sketch.getPath().toFront();
+            } else {
+                sketch.setSelected(false);
+                sketch.getPath().toFront();
+            }
+        }
     }
 
     //TODO THis should take a GraphElement(View?) instead!
@@ -524,6 +542,8 @@ public class MainController {
                         drawSelected();
 
                         nodeController.moveNodesStart(event);
+                        //TODO THis is for testing!!!
+                        sketchController.moveSketchStart(event);
                     }
                 } else if (tool == ToolEnum.EDGE) {
                     mode = Mode.CREATING;
@@ -543,6 +563,8 @@ public class MainController {
                         selected.add(nodeMap.get(n));
                     }
                     nodeController.moveNodes(event);
+                    //TODO JUST FOR TESTING:
+                    sketchController.moveSketches(event);
                     nodeWasDragged = true;
 
 
@@ -570,9 +592,15 @@ public class MainController {
                 if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING)
                 {
                     double[] deltaTranslateVector = nodeController.moveNodesFinished(event);
+                    //TODO JUST FOR TESTING
+                    sketchController.moveSketchFinished(event);
                     CompoundCommand compoundCommand = new CompoundCommand();
                     for(AbstractNodeView movedView : selectedNodes){
-                        compoundCommand.add(new MoveNodeCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
+                        compoundCommand.add(new MoveGraphElementCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
+                    }
+                    //TODO JUST FOR TESTING:
+                    for (Sketch sketch : selectedSketches){
+                        compoundCommand.add(new MoveGraphElementCommand(sketch, deltaTranslateVector[0], deltaTranslateVector[1]));
                     }
                     undoManager.add(compoundCommand);
                     if(!nodeWasDragged) {
@@ -600,8 +628,6 @@ public class MainController {
                             endNode = graph.findNode(edgeController.getEndPoint());
                         }
                     }
-
-
 
                     AssociationEdge edge = new AssociationEdge(startNode, endNode);
 
@@ -737,6 +763,7 @@ public class MainController {
                 else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING)
                 {
                     Sketch sketch = sketchController.onTouchReleased(event);
+                    initSketchActions(sketch);
                     allSketches.add(sketch);
                     undoManager.add(new AddDeleteSketchCommand(aDrawPane, sketch, true));
 
@@ -768,8 +795,13 @@ public class MainController {
         for (AbstractEdgeView edgeView : selectedEdges) {
             deleteEdge(edgeView, command);
         }
+        for (Sketch sketch : selectedSketches) {
+            deleteSketch(sketch, command);
+        }
+
         selectedNodes.clear();
         selectedEdges.clear();
+        selectedSketches.clear();
 
         undoManager.add(command);
     }
@@ -809,6 +841,21 @@ public class MainController {
         aDrawPane.getChildren().remove(edgeView);
         allEdgeViews.remove(edgeView);
         command.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, getGraphModel(), false));
+    }
+
+    private void deleteSketch(Sketch sketch, CompoundCommand pCommand) {
+        CompoundCommand command;
+        //TODO Maybe not necessary for edges.
+        if (pCommand == null) {
+            command = new CompoundCommand();
+        } else {
+            command = pCommand;
+        }
+
+        getGraphModel().removeSketch(sketch);
+        aDrawPane.getChildren().remove(sketch.getPath());
+        allSketches.remove(sketch);
+        command.add(new AddDeleteSketchCommand(aDrawPane, sketch, false));
     }
 
     /**
@@ -890,26 +937,90 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
      */
     private void initSketchActions(Sketch sketch) {
         //TODO Implement this.
+        sketch.getPath().setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (mouseCreationActivated){
+                    handleOnSketchPressedEvents(sketch);
+
+                    //TODO DUPLICATED CODE FROM nodeView.setOnMousePressed()
+                    if (tool == ToolEnum.SELECT) {
+                        if (mode == Mode.NO_MODE) //Move, any kind of node
+                        {
+                            mode = Mode.DRAGGING;
+                            if (!selectedSketches.contains(sketch))
+                            {
+                                selectedSketches.add(sketch);
+                            }
+                            drawSelected();
+                            sketchController.moveSketchStart(event);
+                        }
+
+                    }
+                }
+                event.consume();
+            }
+        });
+
+        sketch.getPath().setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (mouseCreationActivated) {
+                    if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) {
+                        sketchController.moveSketches(event);
+                    }
+                }
+                event.consume();
+            }
+        });
+
+        sketch.getPath().setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                //TODO DUPLICATED CODE FROM nodeView.setOnMouseReleased()
+                if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING)
+                {
+                    double[] deltaTranslateVector = sketchController.moveSketchFinished(event);
+                    sketchController.moveSketchFinished(event);
+                    CompoundCommand compoundCommand = new CompoundCommand();
+                    for(AbstractNodeView movedView : selectedNodes){
+                        compoundCommand.add(new MoveGraphElementCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
+                    }
+                    //TODO JUST FOR TESTING:
+                    for (Sketch sketch : selectedSketches){
+                        compoundCommand.add(new MoveGraphElementCommand(sketch, deltaTranslateVector[0], deltaTranslateVector[1]));
+                    }
+                    undoManager.add(compoundCommand);
+                    drawSelected();
+                }
+                mode = Mode.NO_MODE;
+                event.consume();
+            }
+        });
+
         sketch.getPath().setOnTouchPressed(new EventHandler<TouchEvent>() {
             @Override
             public void handle(TouchEvent event) {
-
+                if (!mouseCreationActivated) {
+                    handleOnSketchPressedEvents(sketch);
+                }
             }
         });
 
-        sketch.getPath().setOnTouchMoved(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
+    }
 
-            }
-        });
+    private void handleOnSketchPressedEvents(Sketch sketch){
+        if (sketch.isSelected()) {
+            selectedSketches.remove(sketch);
+            sketch.setSelected(false);
+        } else {
+            selectedSketches.add(sketch);
+            sketch.setSelected(true);
+        }
+    }
 
-        sketch.getPath().setOnTouchReleased(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
-
-            }
-        });
+    public List<Sketch> getSelectedSketches(){
+        return selectedSketches;
     }
 
     @FXML

@@ -21,15 +21,16 @@
 package util.commands;
 
 import model.AbstractNode;
+import model.GraphElement;
 import model.PackageNode;
 
 /**
  * Stores the moving of a node.
  * @author EJBQ
  */
-public class MoveNodeCommand implements Command
+public class MoveGraphElementCommand implements Command
 {
-	private AbstractNode aNode;
+	private GraphElement aGraphElement;
 	private double aDX;
 	private double aDY;
 	
@@ -39,9 +40,9 @@ public class MoveNodeCommand implements Command
 	 * @param pDX The amount moved horizontally
 	 * @param pDY The amount moved vertically
 	 */
-	public MoveNodeCommand(AbstractNode pNode, double pDX, double pDY)
+	public MoveGraphElementCommand(GraphElement pNode, double pDX, double pDY)
 	{
-		aNode = pNode;
+		aGraphElement = pNode;
 		aDX = pDX;
 		aDY = pDY;
 	}
@@ -51,10 +52,10 @@ public class MoveNodeCommand implements Command
 	 */
 	public void undo() 
 	{
-		aNode.setTranslateX(aNode.getTranslateX()-aDX);
-		aNode.setTranslateY(aNode.getTranslateY()-aDY);
-		if(aNode instanceof PackageNode){
-			for(AbstractNode node :((PackageNode) aNode).getChildNodes()){
+		aGraphElement.setTranslateX(aGraphElement.getTranslateX()-aDX);
+		aGraphElement.setTranslateY(aGraphElement.getTranslateY()-aDY);
+		if(aGraphElement instanceof PackageNode){
+			for(AbstractNode node :((PackageNode) aGraphElement).getChildNodes()){
 				node.setTranslateX(node.getTranslateX()-aDX);
 				node.setTranslateY(node.getTranslateY()-aDY);
 			}
@@ -66,10 +67,10 @@ public class MoveNodeCommand implements Command
 	 */
 	public void execute() 
 	{
-		aNode.setTranslateX(aNode.getTranslateX()+aDX);
-		aNode.setTranslateY(aNode.getTranslateY()+aDY);
-		if(aNode instanceof PackageNode){
-			for(AbstractNode node :((PackageNode) aNode).getChildNodes()){
+		aGraphElement.setTranslateX(aGraphElement.getTranslateX()+aDX);
+		aGraphElement.setTranslateY(aGraphElement.getTranslateY()+aDY);
+		if(aGraphElement instanceof PackageNode){
+			for(AbstractNode node :((PackageNode) aGraphElement).getChildNodes()){
 				node.setTranslateX(node.getTranslateX()+aDX);
 				node.setTranslateY(node.getTranslateY()+aDY);
 			}

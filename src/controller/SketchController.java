@@ -5,7 +5,6 @@ import edu.tamu.core.sketch.Shape;
 import edu.tamu.core.sketch.Stroke;
 import edu.tamu.recognition.paleo.PaleoConfig;
 import edu.tamu.recognition.paleo.PaleoSketchRecognizer;
-import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.Pane;
@@ -16,6 +15,8 @@ import javafx.scene.shape.Path;
 import model.*;
 import view.AbstractNodeView;
 
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -29,6 +30,10 @@ public class SketchController {
 
     private HashMap<Integer, Sketch> currentSketches = new HashMap<>();
     private HashMap<Integer, Stroke> currentStrokes = new HashMap<>();
+
+    private double initMoveX, initMoveY;
+    private HashMap<Sketch, Point2D.Double> initTranslateMap = new HashMap<>();
+    private ArrayList<Sketch> toBeMoved = new ArrayList<>();
 
     public SketchController(Pane pDrawPane, MainController mainController) {
         this.aDrawPane = pDrawPane;
@@ -94,5 +99,37 @@ public class SketchController {
 
     public boolean currentlyDrawing() {
         return !currentStrokes.isEmpty();
+    }
+
+    public void moveSketchStart(MouseEvent event) {
+        initMoveX = event.getSceneX();
+        initMoveY = event.getSceneY();
+        Point2D.Double initTranslate;
+        for (Sketch sketch : mController.getSelectedSketches()) {
+            initTranslate = new Point2D.Double(sketch.getTranslateX(), sketch.getTranslateY());
+            initTranslateMap.put(sketch, initTranslate);
+            toBeMoved.add(sketch);
+        }
+    }
+
+    public void moveSketches(MouseEvent event) {
+        double offsetX = event.getSceneX() - initMoveX;
+        double offsetY = event.getSceneY() - initMoveY;
+
+        //Drag all selected sketches.
+        for(Sketch sketch : toBeMoved)
+        {
+            sketch.setTranslateX(initTranslateMap.get(sketch).getX() + offsetX);
+            sketch.setTranslateY(initTranslateMap.get(sketch).getY() + offsetY);
+        }
+    }
+
+    public double[] moveSketchFinished(MouseEvent event) {
+        toBeMoved.clear();
+        initTranslateMap.clear();
+        double[] deltaTranslateVector = new double[2];
+        deltaTranslateVector[0] = event.getSceneX() - initMoveX;
+        deltaTranslateVector[1] = event.getSceneY() - initMoveY;
+        return deltaTranslateVector;
     }
 }

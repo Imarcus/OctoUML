@@ -279,7 +279,7 @@ public class NodeController {
     public boolean showClassNodeEditDialog(ClassNode node) {
         try {
             // Load the fxml file and create a new stage for the popup
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("NodeEditDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("nodeEditDialog.fxml"));
             AnchorPane page = (AnchorPane) loader.load();
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Edit Person");

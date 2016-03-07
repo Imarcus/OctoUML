@@ -16,10 +16,9 @@
             <menus>
                 <Menu text="File">
                     <items>
-                        <MenuItem text="New"/>
-                        <MenuItem text="Open"/>
-                        <MenuItem text="Save" onAction="#handleManuActionSave"/>
-                        <MenuItem text="Save As"/>
+                        <MenuItem text="New" onAction="#handleMenuActionNew"/>
+                        <MenuItem text="Open" onAction="#handleMenuActionLoad"/>
+                        <MenuItem text="Save" onAction="#handleMenuActionSave"/>
                         <SeparatorMenuItem/>
                         <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
                         <SeparatorMenuItem/>

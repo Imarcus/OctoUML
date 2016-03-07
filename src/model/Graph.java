@@ -1,22 +1,30 @@
 package model;
 
 import javafx.geometry.Point2D;
+
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Model-representation of a Graph.
  */
-public class Graph {
-    private List<AbstractNode> nodes;
-    private List<Edge> edges;
-    private List<Sketch> sketches;
+public class Graph implements Serializable {
+    private List<AbstractNode> allNodes = new ArrayList<>();
+    private List<Edge> allEdges = new ArrayList<>();
+    private List<Sketch> allSketches = new ArrayList<>();
+
+    private String name = "";
 
     public Graph() {
-        nodes = new LinkedList<>();
-        edges = new LinkedList<>();
-        sketches = new LinkedList<>();
+    }
+
+    public void setName(String name){
+        this.name = name;
+    }
+
+    public String getName(){
+        return name;
     }
 
     /**
@@ -26,15 +34,16 @@ public class Graph {
      */
     public boolean addNode(AbstractNode n){
         assert n != null;
-        for (AbstractNode node : nodes) {
+        for (AbstractNode node : allNodes) {
             if (node instanceof PackageNode) {
+                //TODO this is weird, looking for graphical position in model
                 if (n.getX() >= node.getX() && n.getX() <= node.getX() + node.getWidth()
                         && n.getY() >= node.getY() && n.getY() <= node.getY() + node.getHeight() ) {
                     ((PackageNode) node).addChild(n);
                 }
             }
         }
-        return nodes.add(n);
+        return allNodes.add(n);
     }
 
     /**
@@ -43,7 +52,7 @@ public class Graph {
      */
     public boolean addEdge(Edge e){
         assert e != null;
-        return edges.add(e);
+        return allEdges.add(e);
     }
 
     /**
@@ -52,13 +61,12 @@ public class Graph {
      */
     public void addSketch(Sketch s) {
         assert s != null;
-        sketches.add(s);
+        allSketches.add(s);
     }
 
-    //TODO This should maybe also connect the Nodes somehow?
     public boolean connect(Node startNode, Node endNode, Edge edge){
         if (startNode != null && endNode != null && edge != null) {
-            if (nodes.contains(startNode) && nodes.contains(endNode)) {
+            if (allNodes.contains(startNode) && allNodes.contains(endNode)) {
                 return addEdge(edge);
             }
         }
@@ -73,7 +81,7 @@ public class Graph {
      */
     public boolean removeNode(Node n) {
         assert n != null;
-        return nodes.remove(n);
+        return allNodes.remove(n);
     }
 
     /**
@@ -83,31 +91,31 @@ public class Graph {
      */
     public boolean removeEdge(Edge e) {
         assert e != null;
-        return edges.remove(e);
+        return allEdges.remove(e);
     }
 
     public boolean removeSketch(Sketch s) {
         assert s != null;
-        return sketches.remove(s);
+        return allSketches.remove(s);
     }
 
     public List<AbstractNode> getAllNodes() {
-        return nodes;
+        return allNodes;
     }
 
     public List<Edge> getAllEdges() {
-        return edges;
+        return allEdges;
     }
 
     public List<Sketch> getAllSketches(){
-        return sketches;
+        return allSketches;
     }
 
     public List<GraphElement> getAllGraphElements() {
         ArrayList list = new ArrayList();
-        list.addAll(nodes);
-        list.addAll(edges);
-        list.addAll(sketches);
+        list.addAll(allNodes);
+        list.addAll(allEdges);
+        list.addAll(allSketches);
         return list;
     }
 
@@ -118,7 +126,7 @@ public class Graph {
      */
     public Node findNode(Point2D point) {
         assert point != null;
-        for (Node node : nodes){
+        for (Node node : allNodes){
             if (node.getBounds().contains(point.getX(), point.getY())) {
                 if (node instanceof PackageNode && ((PackageNode) node).findNode(point) != null) {
                     System.out.println("PackageNode found: x=" + node.getX() + " y=" + node.getY() +
@@ -131,5 +139,23 @@ public class Graph {
             }
         }
         return null;
+    }
+
+
+    //------------------------------- Implemented for serializable ----------------------------------------------------
+
+    public void setAllNodes(List<AbstractNode> allNodes) {
+        this.allNodes.clear();
+        this.allNodes.addAll(allNodes);
+    }
+
+    public void setAllEdges(List<Edge> allEdges) {
+        this.allEdges.clear();
+        this.allEdges.addAll(allEdges);
+    }
+
+    public void setAllSketches(List<Sketch> allSketches) {
+        this.allSketches.clear();
+        this.allSketches.addAll(allSketches);
     }
 }

@@ -442,6 +442,7 @@ public class MainController {
                     Sketch sketch = sketchController.onTouchReleased(event);
                     initSketchActions(sketch);
                     allSketches.add(sketch);
+                    graph.addSketch(sketch);
                     undoManager.add(new AddDeleteSketchCommand(aDrawPane, sketch, true));
 
                     //We only want to move out of drawing mode if there are no other current drawings
@@ -765,6 +766,7 @@ public class MainController {
                     Sketch sketch = sketchController.onTouchReleased(event);
                     initSketchActions(sketch);
                     allSketches.add(sketch);
+                    graph.addSketch(sketch);
                     undoManager.add(new AddDeleteSketchCommand(aDrawPane, sketch, true));
 
                     //We only want to move out of drawing mode if there are no other current drawings
@@ -784,7 +786,7 @@ public class MainController {
     }
 
     /**
-     * Deletes all selected nodes and their associated edges (using deleteNodeEdges)
+     * Deletes all selected nodes, edges and sketches.
      */
     private void deleteSelected(){
         CompoundCommand command = new CompoundCommand();
@@ -1168,6 +1170,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
                         for (Sketch sketch : recognizeController.getSketchesToBeRemoved()) {
                             recognizeCompoundCommand.add(new AddDeleteSketchCommand(aDrawPane, sketch, false));
                             aDrawPane.getChildren().remove(sketch);
+                            graph.removeSketch(sketch);
                         }
                         allSketches.removeAll(recognizeController.getSketchesToBeRemoved());
                         undoManager.add(recognizeCompoundCommand);

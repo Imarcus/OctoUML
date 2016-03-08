@@ -10,6 +10,8 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Label?>
 <BorderPane fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
     <top>
         <MenuBar fx:id="menuBar">
@@ -60,4 +62,10 @@
             <Button text="Delete"/>
         </ToolBar>
     </right>
+    <bottom>
+        <ToolBar>
+            <Label text="zoom: "/>
+            <Slider fx:id="zoomSlider" min="0.1"  max="2" value="1"/>
+        </ToolBar>
+    </bottom>
 </BorderPane>

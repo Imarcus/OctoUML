@@ -1,5 +1,7 @@
 package controller;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
@@ -97,6 +99,7 @@ public class MainController {
     @FXML private CheckMenuItem umlMenuItem;
     @FXML private CheckMenuItem sketchesMenuItem;
     @FXML private CheckMenuItem mouseMenuItem;
+    @FXML private Slider zoomSlider;
 
     private ContextMenu aContextMenu;
 
@@ -114,6 +117,7 @@ public class MainController {
         //initSceneActions();
         initToolBarActions();
         initContextMenu();
+        initZoomSlider();
 
         graph = new Graph();
 
@@ -1310,5 +1314,17 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             }
         }
     }
+
+    //------------------------ Zoom-feature ------------------------------------------------------------------------
+    private void initZoomSlider(){
+        zoomSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                                Number old_val, Number new_val) {
+                graphController.zoomPane(old_val.doubleValue(), new_val.doubleValue());
+                //opacityValue.setText(String.format("%.2f", new_val));
+            }
+        });
+    }
+
 
 }

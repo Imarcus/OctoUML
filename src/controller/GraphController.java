@@ -65,19 +65,22 @@ public class GraphController {
         //Not used
     }
 
-    public void zoomPane(ZoomEvent event)
+    public void zoomPane(double oldZoom, double newZoom)
     {
+
+
         for (AbstractNode n : aMainController.getGraphModel().getAllNodes()) {
             double scale = n.getScaleX(); // currently we only use Y, same value is used for X
             double oldScale = scale;
 
 
-            scale *= event.getZoomFactor();
+            scale = newZoom;//*= zoomFactor;
+            System.out.println("scale: " + scale);
 
             double f = (scale / oldScale) - 1;
 
-            double dx = (event.getSceneX() - (n.getWidth() / 2 + n.getX()));
-            double dy = (event.getSceneY() - (n.getHeight() / 2 + n.getY()));
+            double dx = ((aDrawPane.getWidth()/2) - (n.getWidth() / 2 + n.getX())) * scale;
+            double dy = ((aDrawPane.getHeight()/2) - (n.getHeight() / 2 + n.getY())) * scale;
 
             n.setScaleX(scale);
             n.setScaleY(scale);

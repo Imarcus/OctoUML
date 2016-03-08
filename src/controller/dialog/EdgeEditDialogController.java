@@ -52,7 +52,7 @@ public class EdgeEditDialogController {
 
     public void setEdge(AssociationEdge edge) {
         this.edge = edge;
-        directionBox.setItems(AbstractEdge.Direction.NO_DIRECTION, AbstractEdge.Direction.START_TO_END);
+        directionBox.getItems().setAll(AbstractEdge.Direction.values());
         startMultiplicity.setText(edge.getStartMultiplicity());
         endMultiplicity.setText(edge.getEndMultiplicity());
     }
@@ -71,7 +71,8 @@ public class EdgeEditDialogController {
     @FXML
     private void handleOk() {
         if (isInputValid()) {
-            edge.setNavigable(navigableCheckBox.isSelected());
+            //TODO; this will not probably work...
+            edge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
             edge.setStartMultiplicity(startMultiplicity.getText());
             edge.setEndMultiplicity(endMultiplicity.getText());
 

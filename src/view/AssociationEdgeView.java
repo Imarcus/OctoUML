@@ -2,6 +2,8 @@ package view;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Group;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
@@ -10,7 +12,7 @@ import javafx.scene.text.Text;
 import model.AbstractEdge;
 
 /**
- * Created by chris on 2016-02-18.
+ * The Graphical Representation of a AssociationEdge.
  */
 public class AssociationEdgeView extends AbstractEdgeView {
     private AbstractEdge refEdge;
@@ -36,26 +38,37 @@ public class AssociationEdgeView extends AbstractEdgeView {
 
     private void drawDirectionality() {
         AbstractEdge.Direction direction = refEdge.getDirection();
+
+        getChildren().clear();
+        getChildren().add(getLine());
         switch(direction) {
             case NO_DIRECTION:
+                //Do nothing.
                 break;
             case START_TO_END:
-                drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY());
+                this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
                 break;
             case END_TO_START:
-                drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY());
+                this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
                 break;
             case BIDIRECTIONAL:
-                drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY());
-                drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY());
+                this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
+                this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
                 break;
         }
     }
 
-    private void drawArrowHead(double startX, double startY, double endX, double endY) {
-        //Based on code from http://www.coderanch.com/t/340443/GUI/java/Draw-arrow-head-line
-        getChildren().clear();
-        getChildren().add(getLine());
+    /**
+     * Draws an ArrowHead and returns it in a group.
+     * Based on code from http://www.coderanch.com/t/340443/GUI/java/Draw-arrow-head-line
+     * @param startX
+     * @param startY
+     * @param endX
+     * @param endY
+     * @return Group.
+     */
+    private Group drawArrowHead(double startX, double startY, double endX, double endY) {
+        Group group = new Group();
         double phi = Math.toRadians(40);
         int barb = 20;
         double dy = startY - endY;
@@ -68,9 +81,10 @@ public class AssociationEdgeView extends AbstractEdgeView {
             y = startY - barb * Math.sin(rho);
             Line arrowHeadLine = new Line(startX, startY, x, y);
             arrowHeadLine.setStrokeWidth(super.STROKE_WIDTH);
-            getChildren().add(arrowHeadLine);
+            group.getChildren().add(arrowHeadLine);
             rho = theta - phi;
         }
+        return group;
     }
 
     private void setChangeListeners() {
@@ -102,13 +116,6 @@ public class AssociationEdgeView extends AbstractEdgeView {
             }
         });
 
-        refEdge.getNavigableProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                drawDirectionality();
-            }
-        });
-
         refEdge.startMultiplicityProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -120,6 +127,14 @@ public class AssociationEdgeView extends AbstractEdgeView {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 endMultiplicity.setText(newValue);
+            }
+        });
+
+        refEdge.getDirectionProperty().addListener(new ChangeListener<AbstractEdge.Direction>() {
+            @Override
+            public void changed(ObservableValue<? extends AbstractEdge.Direction> observable,
+                                AbstractEdge.Direction oldValue, AbstractEdge.Direction newValue) {
+                drawDirectionality();
             }
         });
     }

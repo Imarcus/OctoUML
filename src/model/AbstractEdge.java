@@ -1,9 +1,6 @@
 package model;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
 /**
  * Abstract Edge to hide some basic Edge-functionality.
@@ -11,26 +8,30 @@ import javafx.beans.property.StringProperty;
 public abstract class AbstractEdge implements Edge {
     private Node startNode;
     private Node endNode;
-    private BooleanProperty navigable = new SimpleBooleanProperty();
     private StringProperty startMultiplicity = new SimpleStringProperty();
     private StringProperty endMultiplicity = new SimpleStringProperty();
 
     public enum Direction {
         NO_DIRECTION, START_TO_END, END_TO_START, BIDIRECTIONAL
     }
-    private Direction direction = Direction.NO_DIRECTION;
+
+    private ObjectProperty<Direction> direction = new SimpleObjectProperty<>();
 
     public AbstractEdge(Node startNode, Node endNode) {
         this.startNode = startNode;
         this.endNode = endNode;
-        navigable.setValue(false);
+        direction.setValue(Direction.NO_DIRECTION);
     }
 
     public void setDirection(Direction direction) {
-        this.direction = direction;
+        this.direction.setValue(direction);
     }
 
     public Direction getDirection() {
+        return direction.getValue();
+    }
+
+    public ObjectProperty<Direction> getDirectionProperty() {
         return direction;
     }
 
@@ -56,18 +57,6 @@ public abstract class AbstractEdge implements Edge {
 
     public StringProperty endMultiplicityProperty() {
         return endMultiplicity;
-    }
-
-    public BooleanProperty getNavigableProperty() {
-        return navigable;
-    }
-
-    public void setNavigable(boolean value) {
-        navigable.setValue(value);
-    }
-
-    public boolean isNavigable() {
-        return navigable.get();
     }
 
     public Node getStartNode() {

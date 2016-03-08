@@ -1,6 +1,9 @@
 package controller;
 
+import javafx.scene.input.MouseEvent;
+import model.AbstractEdge;
 import model.AbstractNode;
+import model.Edge;
 import model.GraphElement;
 import javafx.scene.input.TouchEvent;
 import javafx.scene.input.ZoomEvent;
@@ -29,10 +32,10 @@ public class GraphController {
         aMainController = pMainController;
     }
 
-    public void movePaneStart(List<GraphElement> elements, TouchEvent event)
+    public void movePaneStart(List<GraphElement> elements, MouseEvent event)
     {
-        initMoveX = event.getTouchPoint().getSceneX();
-        initMoveY = event.getTouchPoint().getSceneY();
+        initMoveX = event.getSceneX();
+        initMoveY = event.getSceneY();
 
         for(GraphElement gElement : elements){
             xInitTranslateList.add(gElement.getTranslateX());
@@ -40,10 +43,10 @@ public class GraphController {
         }
     }
 
-    public void movePane(List<GraphElement> elements, TouchEvent event)
+    public void movePane(List<GraphElement> elements, MouseEvent event)
     {
-        double offsetX = event.getTouchPoint().getSceneX() - initMoveX;
-        double offsetY = event.getTouchPoint().getSceneY() - initMoveY;
+        double offsetX = event.getSceneX() - initMoveX;
+        double offsetY = event.getSceneY() - initMoveY;
 
         //Drag all nodes
         int i = 0;
@@ -88,6 +91,9 @@ public class GraphController {
             // note: pivot value must be untransformed, i. e. without scaling
             n.setTranslateX(n.getTranslateX() - (f * dx));
             n.setTranslateY(n.getTranslateY() - (f * dy));
+        }
+        for(Edge e : aMainController.getGraphModel().getAllEdges()){
+            ((AbstractEdge) e).setZoom(newZoom);
         }
     }
 

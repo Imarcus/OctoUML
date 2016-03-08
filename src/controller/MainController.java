@@ -66,12 +66,6 @@ public class MainController {
     //private Path drawPath;
     private Map<Integer, Path> currentPaths = new HashMap<>();
 
-    //For max/min zoom check
-    private boolean zoomMaxedOut;
-    private double totalZoomFactor;
-    private final double MAX_ZOOM = 7;
-    private final double MIN_ZOOM = 0.3;
-
     private boolean selected = false; //A node is currently selected
     private double currentScale = 1;
 
@@ -114,7 +108,6 @@ public class MainController {
         selectRectangle.setStroke(Color.BLACK);
 
         initDrawPaneActions();
-        //initSceneActions();
         initToolBarActions();
         initContextMenu();
         initZoomSlider();
@@ -131,25 +124,6 @@ public class MainController {
         undoManager = new UndoManager();
 
     }
-
-    
-    //TODO FIX SO THAT YOU CAN USE KEYACTIONS
-    /*private void initSceneActions(){
-        aScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                if (keyEvent.isControlDown() && keyEvent.getCode() == KeyCode.Z) {
-
-                    undoManager.undoCommand();
-                    keyEvent.consume();
-                }
-                if (keyEvent.isControlDown() && keyEvent.getCode() == KeyCode.Y) {
-                    undoManager.redoCommand();
-                    keyEvent.consume();
-                }
-            }
-        });
-    }*/
 
     private void initDrawPaneActions() {
         aDrawPane.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -191,6 +165,12 @@ public class MainController {
                         mode = Mode.CREATING;
                         createNodeController.onMousePressed(event);
                     }
+                    else if(tool == ToolEnum.MOVE_SCENE){
+                        mode = Mode.MOVING;
+                        graphController.movePaneStart(graph.getAllGraphElements(), event);
+                        event.consume();
+                    }
+
                 } else if (mode == Mode.CONTEXT_MENU)
                 {
                     if(event.getButton() == MouseButton.SECONDARY){
@@ -221,6 +201,9 @@ public class MainController {
                 //--------- MOUSE EVENT FOR TESTING ---------- TODO
                 else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING && mouseCreationActivated) {
                     createNodeController.onMouseDragged(event);
+                } else if(mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE)
+                {
+                    graphController.movePane(graph.getAllGraphElements(), event);
                 }
                 event.consume();
             }
@@ -256,15 +239,6 @@ public class MainController {
                             selectedEdges.add(edgeView);
                         }
                     }
-                    /* //TODO Selectable nodes
-                    for (javafx.scene.Node p : allSketches)
-                    {
-                        if (selectRectangle.getBoundsInParent().contains(p.getBoundsInParent()))
-                        {
-                            selected = true;
-                            selectedNodes.add(p);
-                        }
-                    }*/
 
                     //If no nodes were contained, remove all selections
                     if (!selected) {
@@ -297,7 +271,9 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
 
-                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING && mouseCreationActivated) { //TODO: combine double code
+                }
+                else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING && mouseCreationActivated)
+                { //TODO: combine double code
                     PackageNode node = createNodeController.createPackageNodeMouse(event);
                     PackageNodeView nodeView = (PackageNodeView) createNodeController.onMouseReleased(event, node, currentScale);
                     nodeMap.put(nodeView, node);
@@ -309,60 +285,14 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
                 }
-            }
-        });
-
-        /*aDrawPane.setOnZoomStarted(new EventHandler<ZoomEvent>() {
-            @Override
-            public void handle(ZoomEvent event) {
-                if(tool != ToolEnum.MOVE_SCENE){
-                    mode = Mode.ZOOMING;
-                    event.consume();
-                }
-
-            }
-        });
-
-        aDrawPane.setOnZoom(new EventHandler<ZoomEvent>() {
-            @Override
-            public void handle(ZoomEvent event) {
-                if(mode == Mode.ZOOMING && tool != ToolEnum.MOVE_SCENE){
-                    if(!zoomMaxedOut){
-                        if((event.getTotalZoomFactor()*currentScale < MIN_ZOOM) ||
-                                (event.getTotalZoomFactor()*currentScale > MAX_ZOOM)){ //TODO magic numbers
-                            zoomMaxedOut = true;
-                            totalZoomFactor = event.getTotalZoomFactor();
-                        } else {
-                            graphController.zoomPane(event);
-                        }
-                        event.consume();
-                    }
-               }
-            }
-        });
-
-        aDrawPane.setOnZoomFinished(new EventHandler<ZoomEvent>() {
-            @Override
-            public void handle(ZoomEvent event) {
-                if(mode == Mode.ZOOMING && tool != ToolEnum.MOVE_SCENE)
+                else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE)
                 {
-                    if(zoomMaxedOut)
-                    {
-                        currentScale = totalZoomFactor * currentScale;
-                        currentScale = Math.min(MAX_ZOOM, currentScale);
-                        currentScale = Math.max(MIN_ZOOM, currentScale);
-                    }
-                    else
-                    {
-                        currentScale = event.getTotalZoomFactor() * currentScale;
-                    }
+                    graphController.movePaneFinished();
                     mode = Mode.NO_MODE;
-                    zoomMaxedOut = false;
-                    totalZoomFactor = 0;
-                    event.consume();
                 }
             }
-        });*/
+        });
+
 
         aDrawPane.setOnTouchPressed(new EventHandler<TouchEvent>() {
             @Override
@@ -375,12 +305,6 @@ public class MainController {
                 {
                     mode = Mode.DRAWING;
                     sketchController.onTouchPressed(event);
-                    event.consume();
-                }
-                else if(event.getTouchCount() > 2 && mode == Mode.NO_MODE && tool == ToolEnum.MOVE_SCENE){ //TODO MORE THAN 2?
-                    mode = Mode.MOVING;
-                    graphController.movePaneStart(graph.getAllGraphElements(), event);
-                    event.consume();
                 }
             }
         });
@@ -394,10 +318,6 @@ public class MainController {
                 else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING)
                 {
                     sketchController.onTouchMoved(event);
-                }
-                else if(event.getTouchCount() > 2 && mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE)
-                {
-                    graphController.movePane(graph.getAllGraphElements(), event);
                 }
                 event.consume();
 
@@ -424,7 +344,8 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
 
-                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING && !mouseCreationActivated) { //TODO: combine double code
+                }
+                else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING && !mouseCreationActivated) { //TODO: combine double code
                     PackageNode node = createNodeController.createPackageNode(event);
                     PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node, currentScale);
                     nodeMap.put(nodeView, node);
@@ -447,24 +368,9 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
                 }
-                else if(event.getTouchCount() > 2 && mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
-                    graphController.movePaneFinished();
-                    mode = Mode.NO_MODE;
-                }
                 event.consume();
             }
         });
-
-        /*aDrawPane.setOnScroll(new EventHandler<ScrollEvent>() {
-            @Override
-            public void handle(ScrollEvent event) {
-                for (javafx.scene.Node n : aDrawPane.getChildren()) {
-                    n.setTranslateX(n.getTranslateX() + event.getDeltaX());
-                    n.setTranslateY(n.getTranslateY() + event.getDeltaY());
-                    event.consume();
-                }
-            }
-        });*/
     }
 
 
@@ -490,7 +396,6 @@ public class MainController {
         }
     }
 
-    //TODO THis should take a GraphElement(View?) instead!
     private void initNodeActions(AbstractNodeView nodeView){
         nodeView.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
@@ -498,6 +403,16 @@ public class MainController {
                 //TODO Maybe needs some check here?
                 if (event.getClickCount() == 2) {
                     nodeController.onDoubleClick(nodeView);
+                }
+                else if(tool == ToolEnum.MOVE_SCENE) {
+                    mode = Mode.MOVING;
+                    graphController.movePaneStart(graph.getAllGraphElements(), event);
+                    event.consume();
+                }
+                else if(tool == ToolEnum.MOVE_SCENE){
+                    mode = Mode.MOVING;
+                    graphController.movePaneStart(graph.getAllGraphElements(), event);
+                    event.consume();
                 }
                 else if(event.getButton() == MouseButton.SECONDARY){
                     nodeClicked = nodeView;
@@ -554,6 +469,10 @@ public class MainController {
 
 
                 }
+                else if(mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE)
+                {
+                    graphController.movePane(graph.getAllGraphElements(), event);
+                }
                 else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING)
                 {
                     nodeController.resize(nodeView, event);
@@ -587,6 +506,10 @@ public class MainController {
                         drawSelected();
                         nodeWasDragged = false;
                     }
+                } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE)
+                {
+                    graphController.movePaneFinished();
+                    mode = Mode.NO_MODE;
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING)
                 {
@@ -674,10 +597,6 @@ public class MainController {
                     mode = Mode.DRAWING;
                     sketchController.onTouchPressed(event);
                 }
-                else if(event.getTouchCount() > 2 && mode == Mode.NO_MODE && tool == ToolEnum.MOVE_SCENE){ //TODO MORE THAN 2?
-                    mode = Mode.MOVING;
-                    graphController.movePaneStart(graph.getAllGraphElements(), event);
-                }
                 event.consume();
             }
         });
@@ -691,10 +610,6 @@ public class MainController {
                 else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING)
                 {
                     sketchController.onTouchMoved(event);
-                }
-                else if(event.getTouchCount() > 2 && mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE)
-                {
-                    graphController.movePane(graph.getAllGraphElements(), event);
                 }
                 event.consume();
 
@@ -1298,6 +1213,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         aDrawPane.getChildren().clear();
         nodeMap.clear();
         allNodeViews.clear();
+        zoomSlider.setValue(zoomSlider.getMax()/2);
     }
 
     private void load(Graph graph){
@@ -1321,6 +1237,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             public void changed(ObservableValue<? extends Number> ov,
                                 Number old_val, Number new_val) {
                 graphController.zoomPane(old_val.doubleValue(), new_val.doubleValue());
+                //currentScale = event.getTotalZoomFactor() * currentScale;
                 //opacityValue.setText(String.format("%.2f", new_val));
             }
         });

@@ -16,6 +16,12 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
     private AbstractNodeView startNode;
     private boolean selected = false;
     public final double STROKE_WIDTH = 2;
+    public enum Position{
+        ABOVE, BELOW, RIGHT, LEFT, NONE
+    }
+
+    private Position position = Position.NONE;
+
 
     public AbstractEdge getRefEdge() {
         return refEdge;
@@ -78,6 +84,10 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
         }
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
     private void setPosition() {
         //IF end node is to the right of startNode:
         if (startNode.getX() + startNode.getWidth() <= endNode.getX()) {
@@ -85,6 +95,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
             line.setStartY(startNode.getY() + (startNode.getHeight() / 2));
             line.setEndX(endNode.getX());
             line.setEndY(endNode.getY() + (endNode.getHeight() / 2));
+            position = Position.RIGHT;
         }
         //If end node is to the left of startNode:
         else if (startNode.getX() > endNode.getX() + endNode.getWidth()) {
@@ -92,6 +103,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
             line.setStartY(startNode.getY() + (startNode.getHeight() / 2));
             line.setEndX(endNode.getX() + endNode.getWidth());
             line.setEndY(endNode.getY() + (endNode.getHeight() / 2));
+            position = Position.LEFT;
         }
         // If end node is below startNode:
         else if (startNode.getY() + startNode.getHeight() < endNode.getY()){
@@ -99,6 +111,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
             line.setStartY(startNode.getY() + startNode.getHeight());
             line.setEndX(endNode.getX() + (endNode.getWidth()/2));
             line.setEndY(endNode.getY());
+            position = Position.BELOW;
         }
         //If end node is above startNode:
         else if (startNode.getY() >= endNode.getY() + endNode.getHeight()) {
@@ -106,6 +119,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
             line.setStartY(startNode.getY());
             line.setEndX(endNode.getX() + (endNode.getWidth()/2));
             line.setEndY(endNode.getY() + endNode.getHeight());
+            position = Position.ABOVE;
         }
         //TODO Handle when the nodes are overlapping.
     }

@@ -3,11 +3,8 @@ package view;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Polyline;
 import javafx.scene.text.Text;
 import model.AbstractEdge;
 
@@ -31,16 +28,51 @@ public class AssociationEdgeView extends AbstractEdgeView {
         this.setStroke(Color.BLACK);
         startMultiplicity = new Text(edge.getStartMultiplicity());
         endMultiplicity = new Text(edge.getEndMultiplicity());
-        drawDirectionality();
+        draw();
         setChangeListeners();
 
     }
 
-    private void drawDirectionality() {
+    private void draw() {
         AbstractEdge.Direction direction = refEdge.getDirection();
 
         getChildren().clear();
         getChildren().add(getLine());
+
+        //Draw multiplicity
+        Position position = super.getPosition();
+        final double OFFSET = 20;
+        switch (position) {
+            case RIGHT:
+                startMultiplicity.setX(getLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getLine().getEndX() - OFFSET - endMultiplicity.getText().length() -5);
+                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                break;
+            case LEFT:
+                startMultiplicity.setX(getLine().getStartX() - OFFSET - endMultiplicity.getText().length() -5);
+                startMultiplicity.setY(getLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                break;
+            case ABOVE:
+                startMultiplicity.setX(getLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getLine().getStartY() - OFFSET);
+                endMultiplicity.setX(getLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                break;
+            case BELOW:
+                startMultiplicity.setX(getLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getLine().getEndY() - OFFSET);
+        }
+        startMultiplicity.toFront();
+        endMultiplicity.toFront();
+        getChildren().add(startMultiplicity);
+        getChildren().add(endMultiplicity);
+
+        //Draw arrows.
         switch(direction) {
             case NO_DIRECTION:
                 //Do nothing.
@@ -91,28 +123,28 @@ public class AssociationEdgeView extends AbstractEdgeView {
         super.getLine().endXProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                drawDirectionality();
+                draw();
             }
         });
 
         super.getLine().endYProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                drawDirectionality();
+                draw();
             }
         });
 
         super.getLine().startXProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                drawDirectionality();
+                draw();
             }
         });
 
         super.getLine().startYProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                drawDirectionality();
+                draw();
             }
         });
 
@@ -120,6 +152,7 @@ public class AssociationEdgeView extends AbstractEdgeView {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 startMultiplicity.setText(newValue);
+                draw();
             }
         });
 
@@ -127,6 +160,7 @@ public class AssociationEdgeView extends AbstractEdgeView {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 endMultiplicity.setText(newValue);
+                draw();
             }
         });
 
@@ -134,7 +168,7 @@ public class AssociationEdgeView extends AbstractEdgeView {
             @Override
             public void changed(ObservableValue<? extends AbstractEdge.Direction> observable,
                                 AbstractEdge.Direction oldValue, AbstractEdge.Direction newValue) {
-                drawDirectionality();
+                draw();
             }
         });
     }

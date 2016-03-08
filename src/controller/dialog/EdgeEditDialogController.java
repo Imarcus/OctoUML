@@ -71,8 +71,9 @@ public class EdgeEditDialogController {
     @FXML
     private void handleOk() {
         if (isInputValid()) {
-            //TODO; this will not probably work...
-            edge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
+            if (directionBox.getValue() != null) {
+                edge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
+            }
             edge.setStartMultiplicity(startMultiplicity.getText());
             edge.setEndMultiplicity(endMultiplicity.getText());
 

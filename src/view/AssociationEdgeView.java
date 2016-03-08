@@ -29,36 +29,47 @@ public class AssociationEdgeView extends AbstractEdgeView {
         this.setStroke(Color.BLACK);
         startMultiplicity = new Text(edge.getStartMultiplicity());
         endMultiplicity = new Text(edge.getEndMultiplicity());
-        
-        drawArrowHead();
+        drawDirectionality();
         setChangeListeners();
-
-
 
     }
 
-    private void drawArrowHead() {
+    private void drawDirectionality() {
+        AbstractEdge.Direction direction = refEdge.getDirection();
+        switch(direction) {
+            case NO_DIRECTION:
+                break;
+            case START_TO_END:
+                drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY());
+                break;
+            case END_TO_START:
+                drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY());
+                break;
+            case BIDIRECTIONAL:
+                drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY());
+                drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY());
+                break;
+        }
+    }
+
+    private void drawArrowHead(double startX, double startY, double endX, double endY) {
         //Based on code from http://www.coderanch.com/t/340443/GUI/java/Draw-arrow-head-line
         getChildren().clear();
         getChildren().add(getLine());
-        if (refEdge.isNavigable()) {
-            double phi = Math.toRadians(40);
-            int barb = 20;
-            double dy = getStartY() - getEndY();
-            double dx = getStartX() - getEndX();
-            double theta = Math.atan2(dy, dx);
-            //System.out.println("theta = " + Math.toDegrees(theta));
-            double x, y, rho = theta + phi;
+        double phi = Math.toRadians(40);
+        int barb = 20;
+        double dy = startY - endY;
+        double dx = startX - endX;
+        double theta = Math.atan2(dy, dx);
+        double x, y, rho = theta + phi;
 
-            for (int j = 0; j < 2; j++) {
-                x = getStartX() - barb * Math.cos(rho);
-                y = getStartY() - barb * Math.sin(rho);
-                Line arrowHeadLine = new Line(getStartX(), getStartY(), x, y);
-                arrowHeadLine.setStrokeWidth(super.STROKE_WIDTH);
-                getChildren().add(arrowHeadLine);
-                //g2.draw(new Line2D.Double(startNode.x, startNode.y, x, y));
-                rho = theta - phi;
-            }
+        for (int j = 0; j < 2; j++) {
+            x = startX - barb * Math.cos(rho);
+            y = startY - barb * Math.sin(rho);
+            Line arrowHeadLine = new Line(startX, startY, x, y);
+            arrowHeadLine.setStrokeWidth(super.STROKE_WIDTH);
+            getChildren().add(arrowHeadLine);
+            rho = theta - phi;
         }
     }
 
@@ -66,35 +77,35 @@ public class AssociationEdgeView extends AbstractEdgeView {
         super.getLine().endXProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                drawArrowHead();
+                drawDirectionality();
             }
         });
 
         super.getLine().endYProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                drawArrowHead();
+                drawDirectionality();
             }
         });
 
         super.getLine().startXProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                drawArrowHead();
+                drawDirectionality();
             }
         });
 
         super.getLine().startYProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                drawArrowHead();
+                drawDirectionality();
             }
         });
 
         refEdge.getNavigableProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                drawArrowHead();
+                drawDirectionality();
             }
         });
 

@@ -15,10 +15,23 @@ public abstract class AbstractEdge implements Edge {
     private StringProperty startMultiplicity = new SimpleStringProperty();
     private StringProperty endMultiplicity = new SimpleStringProperty();
 
+    public enum Direction {
+        NO_DIRECTION, START_TO_END, END_TO_START, BIDIRECTIONAL
+    }
+    private Direction direction = Direction.NO_DIRECTION;
+
     public AbstractEdge(Node startNode, Node endNode) {
         this.startNode = startNode;
         this.endNode = endNode;
         navigable.setValue(false);
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     public void setStartMultiplicity(String startMultiplicity) {

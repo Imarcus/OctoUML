@@ -6,10 +6,10 @@
     <children>
         <GridPane prefHeight="164.0" prefWidth="301.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
             <children>
-                <Label text="Navigable" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label text="Directionality" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                 <Label text="Start multiplicity" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                 <Label text="End multiplicity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <CheckBox fx:id="navigableCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <ChoiceBox fx:id="directionBox" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                 <TextField fx:id="startMultiplicity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <TextField fx:id="endMultiplicity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             </children>

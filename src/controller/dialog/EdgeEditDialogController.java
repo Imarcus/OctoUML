@@ -4,11 +4,9 @@ package controller.dialog;
  * Created by marcusisaksson on 2016-02-25.
  */
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
+import model.AbstractEdge;
 import model.AssociationEdge;
 import model.ClassNode;
 
@@ -23,7 +21,7 @@ import java.util.Scanner;
 public class EdgeEditDialogController {
 
     @FXML
-    private CheckBox navigableCheckBox;
+    private ChoiceBox directionBox;
     @FXML
     private TextField startMultiplicity;
     @FXML
@@ -54,7 +52,7 @@ public class EdgeEditDialogController {
 
     public void setEdge(AssociationEdge edge) {
         this.edge = edge;
-        navigableCheckBox.setSelected(edge.isNavigable());
+        directionBox.setItems(AbstractEdge.Direction.NO_DIRECTION, AbstractEdge.Direction.START_TO_END);
         startMultiplicity.setText(edge.getStartMultiplicity());
         endMultiplicity.setText(edge.getEndMultiplicity());
     }

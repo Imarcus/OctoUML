@@ -72,7 +72,8 @@ public class RecognizeController {
                 System.out.println(bestMatchString);
 
                 if (bestMatchString.equals("Line") || bestMatchString.startsWith("Polyline") ||
-                        bestMatchString.equals("Arc") || bestMatchString.equals("Curve")){
+                        bestMatchString.equals("Arc") || bestMatchString.equals("Curve") ||
+                        bestMatchString.equals("Arrow")){
                     //TODO Hmm, quite messy way to create Edges...
                     Point2D startPoint = new Point2D(s.getStroke().getFirstPoint().getX(), s.getStroke().getFirstPoint().getY());
                     Point2D endPoint = new Point2D(s.getStroke().getLastPoint().getX(), s.getStroke().getLastPoint().getY());
@@ -82,7 +83,11 @@ public class RecognizeController {
                     Node startNode = mainController.getGraphModel().findNode(startPoint);
                     Node endNode = mainController.getGraphModel().findNode(endPoint);
                     if (startNode != null && endNode != null && !startNode.equals(endNode)) {
-                        s.setRecognizedElement(new AssociationEdge(startNode, endNode));
+                        AssociationEdge newEdge = new AssociationEdge(startNode, endNode);
+                        if (bestMatchString.equals("Arrow")) {
+                            newEdge.setDirection(AbstractEdge.Direction.START_TO_END);
+                        }
+                        s.setRecognizedElement(newEdge);
                         System.out.println("Recognized an Edge: " + s.getRecognizedElement().toString());
                         recognizedElements.add(s.getRecognizedElement());
                         sketchesToBeRemoved.add(s);

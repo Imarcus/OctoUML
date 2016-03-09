@@ -119,8 +119,8 @@ public class EdgeController {
             page.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
             page.setStyle("-fx-border-color: black");
             //Set location for "dialog".
-            page.setLayoutX((edge.getStartNode().getX() + edge.getEndNode().getX())/2);
-            page.setLayoutY((edge.getStartNode().getY() + edge.getEndNode().getY())/2);
+            page.setLayoutX((edge.getStartNode().getTranslateX() + edge.getEndNode().getTranslateX())/2);
+            page.setLayoutY((edge.getStartNode().getTranslateY() + edge.getEndNode().getTranslateY())/2);
 
             EdgeEditDialogController controller = loader.getController();
             controller.setEdge(edge);

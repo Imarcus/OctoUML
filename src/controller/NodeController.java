@@ -303,8 +303,8 @@ public class NodeController {
             AnchorPane page = (AnchorPane) loader.load();
             page.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
             page.setStyle("-fx-border-color: black");
-            page.setLayoutX(node.getX()+5);
-            page.setLayoutY(node.getY()+5);
+            page.setLayoutX(node.getTranslateX()+5);
+            page.setLayoutY(node.getTranslateY()+5);
 
             NodeEditDialogController controller = loader.getController();
             controller.setNode(node);

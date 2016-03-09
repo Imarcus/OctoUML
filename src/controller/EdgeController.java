@@ -55,25 +55,18 @@ public class EdgeController {
         }
     }
 
-    public Point2D getStartPoint() {
-        return new Point2D(dragStartX, dragStartY);
-    }
-
-    public Point2D getEndPoint() {
-        return new Point2D(dragLine.getEndX(), dragLine.getEndY());
-    }
-
     public EdgeView onMouseReleased(AbstractEdge abstractEdge,
                                                AbstractNodeView startNode,
                                                AbstractNodeView endNode) {
         if (startNode == null || endNode == null) {
             return null;
         }
+
         AbstractEdgeView edgeView = null;
         if (abstractEdge instanceof AssociationEdge) {
             edgeView = createAssociationEdgeView(abstractEdge, startNode, endNode);
         }
-        aDrawPane.getChildren().remove(dragLine);
+        aDrawPane.getChildren().remove(dragLine); //TODO why not use removeDragLine?
         dragLine.setStartX(0);
         dragLine.setStartY(0);
         dragLine.setEndX(0);
@@ -89,6 +82,16 @@ public class EdgeController {
         dragLine.setEndY(0);
         aDrawPane.getChildren().remove(dragLine);
     }
+
+
+    public Point2D getStartPoint() {
+        return new Point2D(dragStartX, dragStartY);
+    }
+
+    public Point2D getEndPoint() {
+        return new Point2D(dragLine.getEndX(), dragLine.getEndY());
+    }
+
     //TODO Should have nullchecks?
     private AssociationEdgeView createAssociationEdgeView(AbstractEdge edge,
                                                           AbstractNodeView startNode,

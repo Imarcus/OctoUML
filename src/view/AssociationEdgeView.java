@@ -20,7 +20,5 @@ public class AssociationEdgeView extends AbstractEdgeView {
         //TODO Hardcoded value:
         this.setStrokeWidth(2);
         this.setFill(Color.BLACK);
-       // System.out.println("Creating Association Edge! startX=" + startNode.getX() + " startY=" +
-        //        startNode.getY() + " endX=" + endNode.getX() + " endY=" + endNode.getY());
     }
 }

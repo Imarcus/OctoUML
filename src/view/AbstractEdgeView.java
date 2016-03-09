@@ -45,63 +45,74 @@ public abstract class AbstractEdgeView extends Line implements EdgeView{
 
     private void setPosition() {
         //IF end node is to the right of startNode:
-        if (startNode.getX() + startNode.getWidth() <= endNode.getX()) {
-            this.setStartX(startNode.getX() + startNode.getWidth());
-            this.setStartY(startNode.getY() + (startNode.getHeight() / 2));
-            this.setEndX(endNode.getX());
-            this.setEndY(endNode.getY() + (endNode.getHeight() / 2));
+        if (startNode.getTranslateX() + startNode.getWidth() <= endNode.getTranslateX()) {
+            this.setStartX(startNode.getTranslateX() + startNode.getWidth());
+            this.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            this.setEndX(endNode.getTranslateX());
+            this.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
         }
         //If end node is to the left of startNode:
-        else if (startNode.getX() > endNode.getX() + endNode.getWidth()) {
-            this.setStartX(startNode.getX());
-            this.setStartY(startNode.getY() + (startNode.getHeight() / 2));
-            this.setEndX(endNode.getX() + endNode.getWidth());
-            this.setEndY(endNode.getY() + (endNode.getHeight() / 2));
+        else if (startNode.getTranslateX() > endNode.getTranslateX() + endNode.getWidth()) {
+            this.setStartX(startNode.getTranslateX());
+            this.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            this.setEndX(endNode.getTranslateX() + endNode.getWidth());
+            this.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
         }
         // If end node is below startNode:
-        else if (startNode.getY() + startNode.getHeight() < endNode.getY()){
-            this.setStartX(startNode.getX() + (startNode.getWidth() /2));
-            this.setStartY(startNode.getY() + startNode.getHeight());
-            this.setEndX(endNode.getX() + (endNode.getWidth()/2));
-            this.setEndY(endNode.getY());
+        else if (startNode.getTranslateY() + startNode.getHeight() < endNode.getTranslateY()){
+            this.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+            this.setStartY(startNode.getTranslateY() + startNode.getHeight());
+            this.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            this.setEndY(endNode.getTranslateY());
         }
         //If end node is above startNode:
-        else if (startNode.getY() >= endNode.getY() + endNode.getHeight()) {
-            this.setStartX(startNode.getX() + (startNode.getWidth() / 2));
-            this.setStartY(startNode.getY());
-            this.setEndX(endNode.getX() + (endNode.getWidth()/2));
-            this.setEndY(endNode.getY() + endNode.getHeight());
+        else if (startNode.getTranslateY() >= endNode.getTranslateY() + endNode.getHeight()) {
+            this.setStartX(startNode.getTranslateX() + (startNode.getWidth() / 2));
+            this.setStartY(startNode.getTranslateY());
+            this.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            this.setEndY(endNode.getTranslateY() + endNode.getHeight());
         }
         //TODO Handle when the nodes are overlapping.
+    }
+
+    public AbstractNodeView getStartNode() {
+        return startNode;
+    }
+
+    public void setStartNode(AbstractNodeView startNode) {
+        this.startNode = startNode;
+    }
+
+    public AbstractNodeView getEndNode() {
+        return endNode;
+    }
+
+    public void setEndNode(AbstractNodeView endNode) {
+        this.endNode = endNode;
     }
 
     private void setChangeListeners() {
         startNode.translateXProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                //setStartX(newValue.doubleValue());
-                startNode.setX(newValue.doubleValue());
                 setPosition();
             }
         });
         startNode.translateYProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                startNode.setY(newValue.doubleValue());
                 setPosition();
             }
         });
         endNode.translateXProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                endNode.setX(newValue.doubleValue());
                 setPosition();
             }
         });
         endNode.translateYProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                endNode.setY(newValue.doubleValue());
                 setPosition();
             }
         });

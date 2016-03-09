@@ -177,7 +177,7 @@ public class MainController {
                         selectStartY = event.getY();
                         selectRectangle.setX(event.getX());
                         selectRectangle.setY(event.getY());
-                        if (aDrawPane.getChildren().contains(selectRectangle)) {
+                        if (!aDrawPane.getChildren().contains(selectRectangle)) {
                             aDrawPane.getChildren().add(selectRectangle);
                         }
 

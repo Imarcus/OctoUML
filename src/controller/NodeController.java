@@ -1,14 +1,17 @@
 package controller;
 
 import controller.dialog.NodeEditDialogController;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -253,26 +256,42 @@ public class NodeController {
      * @return false if node == null, otherwise true.
      */
     private boolean showNodeTitleDialog(AbstractNode node){
-        if (node == null)
-        {
+        if (node == null) {
             return false;
         }
-        Dialog <String> dialog = new TextInputDialog();
-        dialog.setTitle("Choose title");
-        dialog.setHeaderText("Choose title");
+        VBox group = new VBox();
+        TextField input = new TextField();
+        Button okButton = new Button("Ok");
+        okButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                node.setTitle(input.getText());
+                aDrawPane.getChildren().remove(group);
+            }
+        });
 
-        Optional<String> result = dialog.showAndWait();
-        String entered = "none.";
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                aDrawPane.getChildren().remove(group);
+            }
+        });
 
-        if (result.isPresent())
-        {
-            entered = result.get();
-        }
-
-        if(!entered.equals("none."))
-        {
-            node.setTitle(entered);
-        }
+        Label label = new Label("Choose title");
+        group.getChildren().add(label);
+        group.getChildren().add(input);
+        HBox buttons = new HBox();
+        buttons.getChildren().add(okButton);
+        buttons.getChildren().add(cancelButton);
+        buttons.setPadding(new Insets(15, 0, 0, 0));
+        group.getChildren().add(buttons);
+        group.setLayoutX(node.getX()+5);
+        group.setLayoutY(node.getY()+5);
+        group.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
+        group.setStyle("-fx-border-color: black");
+        group.setPadding(new Insets(15, 12, 15, 12));
+        aDrawPane.getChildren().add(group);
         return true;
     }
 
@@ -280,19 +299,32 @@ public class NodeController {
         try {
             // Load the fxml file and create a new stage for the popup
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("nodeEditDialog.fxml"));
+
             AnchorPane page = (AnchorPane) loader.load();
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Edit Person");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(aMainController.getStage());
-            Scene scene = new Scene(page);
-            dialogStage.setScene(scene);
+            page.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
+            page.setStyle("-fx-border-color: black");
+            page.setLayoutX(node.getX()+5);
+            page.setLayoutY(node.getY()+5);
 
             NodeEditDialogController controller = loader.getController();
-            controller.setDialogStage(dialogStage);
             controller.setNode(node);
+            controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    node.setTitle(controller.getTitle());
+                    node.setAttributes(controller.getAttributes());
+                    node.setOperations(controller.getOperations());
+                    aDrawPane.getChildren().remove(page);
+                }
+            });
 
-            dialogStage.showAndWait();
+            controller.getCancelButton().setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    aDrawPane.getChildren().remove(page);
+                }
+            });
+            aDrawPane.getChildren().add(page);
 
             return controller.isOkClicked();
 

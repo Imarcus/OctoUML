@@ -1128,7 +1128,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
                 ((Button)button).setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) { //TODO MOVE THIS SOMEWHERE ELSE
-                        ArrayList<GraphElement> list = recognizeController.recognize(allSketches);
+                        ArrayList<GraphElement> list = recognizeController.recognize(selectedSketches);
                         CompoundCommand recognizeCompoundCommand = new CompoundCommand();
 
                         //TODO Remove
@@ -1182,7 +1182,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
                             aDrawPane.getChildren().remove(sketch);
                             graph.removeSketch(sketch);
                         }
-                        allSketches.removeAll(recognizeController.getSketchesToBeRemoved());
+                        selectedSketches.removeAll(recognizeController.getSketchesToBeRemoved());
                         undoManager.add(recognizeCompoundCommand);
                         //Bring all sketches to front:
                         for (Sketch sketch : allSketches) {

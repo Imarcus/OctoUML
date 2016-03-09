@@ -300,11 +300,14 @@ public class NodeController {
             // Load the fxml file and create a new stage for the popup
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("nodeEditDialog.fxml"));
 
-            AnchorPane page = (AnchorPane) loader.load();
-            page.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
-            page.setStyle("-fx-border-color: black");
-            page.setLayoutX(node.getTranslateX()+5);
-            page.setLayoutY(node.getTranslateY()+5);
+            AnchorPane dialog = (AnchorPane) loader.load();
+            dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
+            dialog.setStyle("-fx-border-color: black");
+            //Set location for dialog.
+            double maxX = aDrawPane.getWidth() - dialog.getPrefWidth();
+            double maxY = aDrawPane.getHeight() - dialog.getPrefHeight();
+            dialog.setLayoutX(Math.min(maxX,node.getTranslateX()+5));
+            dialog.setLayoutY(Math.min(maxY, node.getTranslateY()+5));
 
             NodeEditDialogController controller = loader.getController();
             controller.setNode(node);
@@ -314,18 +317,17 @@ public class NodeController {
                     node.setTitle(controller.getTitle());
                     node.setAttributes(controller.getAttributes());
                     node.setOperations(controller.getOperations());
-                    aDrawPane.getChildren().remove(page);
+                    aDrawPane.getChildren().remove(dialog);
                 }
             });
 
             controller.getCancelButton().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    aDrawPane.getChildren().remove(page);
+                    aDrawPane.getChildren().remove(dialog);
                 }
             });
-            aDrawPane.getChildren().add(page);
-
+            aDrawPane.getChildren().add(dialog);
             return controller.isOkClicked();
 
         } catch (IOException e) {

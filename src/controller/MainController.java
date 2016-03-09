@@ -146,6 +146,10 @@ public class MainController {
         });
     }*/
 
+    public ToolBar getToolBar() {
+        return aToolBar;
+    }
+
     private void initDrawPaneActions() {
         aDrawPane.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override

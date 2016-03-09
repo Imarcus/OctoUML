@@ -118,12 +118,14 @@ public class EdgeController {
         try {
             // Load the fxml file and create a new stage for the popup
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("edgeEditDialog.fxml"));
-            AnchorPane page = (AnchorPane) loader.load();
-            page.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
-            page.setStyle("-fx-border-color: black");
+            AnchorPane dialog = (AnchorPane) loader.load();
+            dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
+            dialog.setStyle("-fx-border-color: black");
             //Set location for "dialog".
-            page.setLayoutX((edge.getStartNode().getTranslateX() + edge.getEndNode().getTranslateX())/2);
-            page.setLayoutY((edge.getStartNode().getTranslateY() + edge.getEndNode().getTranslateY())/2);
+            double maxX = aDrawPane.getWidth() - dialog.getPrefWidth();
+            double maxY = aDrawPane.getHeight() - dialog.getPrefHeight();
+            dialog.setLayoutX(Math.min(maxX,(edge.getStartNode().getTranslateX() + edge.getEndNode().getTranslateX())/2));
+            dialog.setLayoutY(Math.min(maxY,(edge.getStartNode().getTranslateY() + edge.getEndNode().getTranslateY())/2));
 
             EdgeEditDialogController controller = loader.getController();
             controller.setEdge(edge);
@@ -136,16 +138,16 @@ public class EdgeController {
                     }
                     edge.setStartMultiplicity(controller.getStartMultiplicity());
                     edge.setEndMultiplicity(controller.getEndMultiplicity());
-                    aDrawPane.getChildren().remove(page);
+                    aDrawPane.getChildren().remove(dialog);
                 }
             });
             controller.getCancelButton().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    aDrawPane.getChildren().remove(page);
+                    aDrawPane.getChildren().remove(dialog);
                 }
             });
-            aDrawPane.getChildren().add(page);
+            aDrawPane.getChildren().add(dialog);
 
             return controller.isOkClicked();
 

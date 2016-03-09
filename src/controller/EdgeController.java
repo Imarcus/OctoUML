@@ -1,32 +1,42 @@
 package controller;
 
+import controller.dialog.EdgeEditDialogController;
+import controller.dialog.NodeEditDialogController;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
+import javafx.scene.Scene;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import model.AbstractEdge;
-import model.AssociationEdge;
-import model.Node;
-import model.PackageNode;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import model.*;
 import view.AbstractEdgeView;
 import view.AbstractNodeView;
 import view.AssociationEdgeView;
 import view.EdgeView;
 
+import java.io.IOException;
+
 /**
- * Created by chris on 2016-02-15.
+ * Controller class for Edges.
  */
 public class EdgeController {
     private double dragStartX, dragStartY;
     private Line dragLine;
     private Pane aDrawPane;
+    private MainController mainController;
 
-    public EdgeController(Pane pDrawPane) {
+    public EdgeController(Pane pDrawPane, MainController mainController) {
         aDrawPane = pDrawPane;
         dragLine = new Line();
         dragLine.setStroke(Color.DARKGRAY);
         dragLine.setStrokeWidth(2);
+        this.mainController = mainController;
     }
 
     public void onMousePressed(MouseEvent event) {
@@ -102,5 +112,47 @@ public class EdgeController {
     //TODO Not used?
     private AssociationEdge createAssociationEdge(Node startNode, Node endNode) {
         return new AssociationEdge(startNode, endNode);
+    }
+
+    public boolean showEdgeEditDialog(AssociationEdge edge) {
+        try {
+            // Load the fxml file and create a new stage for the popup
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("edgeEditDialog.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+            page.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
+            page.setStyle("-fx-border-color: black");
+            //Set location for "dialog".
+            page.setLayoutX((edge.getStartNode().getTranslateX() + edge.getEndNode().getTranslateX())/2);
+            page.setLayoutY((edge.getStartNode().getTranslateY() + edge.getEndNode().getTranslateY())/2);
+
+            EdgeEditDialogController controller = loader.getController();
+            controller.setEdge(edge);
+            ChoiceBox box = controller.getDirectionBox();
+            controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    if (box.getValue() != null) {
+                        edge.setDirection(AbstractEdge.Direction.valueOf(box.getValue().toString()));
+                    }
+                    edge.setStartMultiplicity(controller.getStartMultiplicity());
+                    edge.setEndMultiplicity(controller.getEndMultiplicity());
+                    aDrawPane.getChildren().remove(page);
+                }
+            });
+            controller.getCancelButton().setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    aDrawPane.getChildren().remove(page);
+                }
+            });
+            aDrawPane.getChildren().add(page);
+
+            return controller.isOkClicked();
+
+        } catch (IOException e) {
+            // Exception gets thrown if the fxml file could not be loaded
+            e.printStackTrace();
+            return false;
+        }
     }
 }

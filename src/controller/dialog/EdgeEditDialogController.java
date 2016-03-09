@@ -26,9 +26,11 @@ public class EdgeEditDialogController {
     private TextField startMultiplicity;
     @FXML
     private TextField endMultiplicity;
+    @FXML
+    private Button okButton;
+    @FXML
+    private Button cancelButton;
 
-
-    private Stage dialogStage;
     private AssociationEdge edge;
     private boolean okClicked = false;
 
@@ -41,14 +43,25 @@ public class EdgeEditDialogController {
 
     }
 
-    /**
-     * Sets the stage of this dialog.
-     * @param dialogStage
-     */
-    public void setDialogStage(Stage dialogStage) {
-        this.dialogStage = dialogStage;
+    public String getStartMultiplicity() {
+        return startMultiplicity.getText();
     }
 
+    public String getEndMultiplicity() {
+        return endMultiplicity.getText();
+    }
+
+    public Button getOkButton() {
+        return okButton;
+    }
+
+    public Button getCancelButton() {
+        return cancelButton;
+    }
+
+    public ChoiceBox getDirectionBox() {
+        return directionBox;
+    }
 
     public void setEdge(AssociationEdge edge) {
         this.edge = edge;
@@ -65,30 +78,6 @@ public class EdgeEditDialogController {
         return okClicked;
     }
 
-    /**
-     * Called when the user clicks ok.
-     */
-    @FXML
-    private void handleOk() {
-        if (isInputValid()) {
-            if (directionBox.getValue() != null) {
-                edge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
-            }
-            edge.setStartMultiplicity(startMultiplicity.getText());
-            edge.setEndMultiplicity(endMultiplicity.getText());
-
-            okClicked = true;
-            dialogStage.close();
-        }
-    }
-
-    /**
-     * Called when the user clicks cancel.
-     */
-    @FXML
-    private void handleCancel() {
-        dialogStage.close();
-    }
 
     /**
      * Validates the user input in the text fields.

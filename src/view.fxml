@@ -65,7 +65,7 @@
     <bottom>
         <ToolBar>
             <Label text="zoom: "/>
-            <Slider fx:id="zoomSlider" min="0.1"  max="2" value="1"/>
+            <Slider fx:id="zoomSlider" min="10"  max="200" value="100"/>
         </ToolBar>
     </bottom>
 </BorderPane>

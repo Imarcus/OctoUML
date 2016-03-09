@@ -26,10 +26,17 @@ public class GraphController {
     private Pane aDrawPane;
     private MainController aMainController;
 
+    //For calculating zooming pivot point
+    private double drawPaneXOffset;
+    private double drawPaneYOffset;
+
     public GraphController(Pane pDrawPane, MainController pMainController)
     {
         aDrawPane = pDrawPane;
         aMainController = pMainController;
+        drawPaneXOffset = 0;
+        drawPaneYOffset = 0;
+
     }
 
     public void movePaneStart(List<GraphElement> elements, MouseEvent event)
@@ -58,8 +65,14 @@ public class GraphController {
         }
     }
 
-    public void movePaneFinished()
+    public void movePaneFinished(MouseEvent event)
     {
+        drawPaneXOffset += (initMoveX - event.getSceneX());
+        drawPaneYOffset += (initMoveY - event.getSceneY());
+
+        System.out.println("drawPaneXOffset: " + drawPaneXOffset);
+        System.out.println("drawPaneYOffset: " + drawPaneYOffset);
+
         xInitTranslateList.clear();
         yInitTranslateList.clear();
     }
@@ -73,17 +86,22 @@ public class GraphController {
 
 
         for (AbstractNode n : aMainController.getGraphModel().getAllNodes()) {
-            double scale = n.getScaleX(); // currently we only use Y, same value is used for X
-            double oldScale = scale;
-
-
-            scale = newZoom;//*= zoomFactor;
-            System.out.println("scale: " + scale);
+            double oldScale = n.getScaleX();
+            double scale = newZoom/100;
 
             double f = (scale / oldScale) - 1;
+            /*double f = 0;
+            if (scale/oldScale -1> 0) {
+                f = 0.01;
+            } else {
+                f = -0.01;
+            }*/
+            System.out.println("f: " + f);
 
-            double dx = ((aDrawPane.getWidth()/2) - (n.getWidth() / 2 + n.getX())) * scale;
-            double dy = ((aDrawPane.getHeight()/2) - (n.getHeight() / 2 + n.getY())) * scale;
+
+            //The nodes distance from the middle of the view
+            double dx = (((aDrawPane.getWidth()/2) + drawPaneXOffset)  - (n.getWidth() / 2 + n.getX())) * scale;
+            double dy = (((aDrawPane.getHeight()/2) + drawPaneYOffset) - (n.getHeight() / 2 + n.getY())) * scale;
 
             n.setScaleX(scale);
             n.setScaleY(scale);
@@ -93,12 +111,17 @@ public class GraphController {
             n.setTranslateY(n.getTranslateY() - (f * dy));
         }
         for(Edge e : aMainController.getGraphModel().getAllEdges()){
-            ((AbstractEdge) e).setZoom(newZoom);
+            ((AbstractEdge) e).setZoom(newZoom/100);
         }
     }
 
     public void zoomPaneFinished()
     {
         //Not used
+    }
+
+    public void resetDrawPaneOffset(){
+        drawPaneYOffset = 0;
+        drawPaneYOffset = 0;
     }
 }

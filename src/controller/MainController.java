@@ -287,7 +287,7 @@ public class MainController {
                 }
                 else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE)
                 {
-                    graphController.movePaneFinished();
+                    graphController.movePaneFinished(event);
                     mode = Mode.NO_MODE;
                 }
             }
@@ -508,7 +508,7 @@ public class MainController {
                     }
                 } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE)
                 {
-                    graphController.movePaneFinished();
+                    graphController.movePaneFinished(event);
                     mode = Mode.NO_MODE;
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING)
@@ -659,8 +659,8 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
                 }
-                else if(event.getTouchCount() > 2 && mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
-                    graphController.movePaneFinished();
+                else if(mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
+                    //graphController.movePaneFinished(event); TODO
                     mode = Mode.NO_MODE;
                 }
                 event.consume();
@@ -1214,6 +1214,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         nodeMap.clear();
         allNodeViews.clear();
         zoomSlider.setValue(zoomSlider.getMax()/2);
+        graphController.resetDrawPaneOffset();
     }
 
     private void load(Graph graph){
@@ -1236,11 +1237,17 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         zoomSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov,
                                 Number old_val, Number new_val) {
-                graphController.zoomPane(old_val.doubleValue(), new_val.doubleValue());
+                if(!zoomSlider.isValueChanging()){
+                    graphController.zoomPane(old_val.doubleValue(), new_val.doubleValue());
+                }
                 //currentScale = event.getTotalZoomFactor() * currentScale;
                 //opacityValue.setText(String.format("%.2f", new_val));
             }
         });
+        zoomSlider.setShowTickMarks(true);
+        zoomSlider.setMajorTickUnit(20);
+        zoomSlider.setMinorTickCount(0);
+        zoomSlider.setSnapToTicks(true);
     }
 
 

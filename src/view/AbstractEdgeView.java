@@ -48,6 +48,7 @@ public abstract class AbstractEdgeView extends Line implements EdgeView{
         double startNodeHeight = startNode.getHeight() * startNode.getScaleY();
         double endNodeWidth = endNode.getWidth() * endNode.getScaleX();
         double endNodeHeight = endNode.getHeight() * endNode.getScaleY();
+
         //IF end node is to the right of startNode:
         if (startNode.getTranslateX() + startNodeWidth <= endNode.getTranslateX()) {
             this.setStartX(startNode.getTranslateX() + startNodeWidth);

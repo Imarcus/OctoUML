@@ -20,7 +20,7 @@
  *******************************************************************************/
 package util.commands;
 
-import javafx.scene.layout.Pane;
+import controller.MainController;
 import model.AbstractNode;
 import model.Graph;
 import view.AbstractNodeView;
@@ -31,10 +31,10 @@ import view.AbstractNodeView;
  */
 public class AddDeleteNodeCommand implements Command
 {
+	private MainController aController;
+	private Graph aGraph;
 	private AbstractNodeView aNodeView;
 	private AbstractNode aNode;
-	private Graph aGraph;
-	private Pane aPane;
 	private boolean aAdding; //true for adding, false for deleting
 	
 	/**
@@ -42,11 +42,12 @@ public class AddDeleteNodeCommand implements Command
 	 * @param pNode The node to be added/deleted
 	 * @param pAdding True when adding, false when deleting
 	 */
-	public AddDeleteNodeCommand(Pane pPane, AbstractNodeView pNodeView, AbstractNode pNode, Graph pGraph, boolean pAdding)
+	public AddDeleteNodeCommand(MainController pController,
+								Graph pGraph, AbstractNodeView pNodeView, AbstractNode pNode, boolean pAdding)
 	{
+		aController = pController;
 		aGraph = pGraph;
 		aNodeView = pNodeView;
-		aPane = pPane;
 		aNode = pNode;
 		aAdding = pAdding;
 	}
@@ -87,7 +88,7 @@ public class AddDeleteNodeCommand implements Command
 	private void delete() 
 	{
 		aGraph.removeNode(aNode);
-		aPane.getChildren().remove(aNodeView);
+		aController.deleteNode(aNodeView, null, true);
 	}
 	
 	/**
@@ -96,7 +97,7 @@ public class AddDeleteNodeCommand implements Command
 	private void add() 
 	{
 		aGraph.addNode(aNode);
-		aPane.getChildren().add(aNodeView);
+		aController.addNodeView(aNodeView, aNode);
 		aNodeView.toBack();
 	}
 	

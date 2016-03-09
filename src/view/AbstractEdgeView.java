@@ -89,68 +89,75 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
     }
 
     private void setPosition() {
-        //IF end node is to the right of startNode:
-        if (startNode.getX() + startNode.getWidth() <= endNode.getX()) {
-            line.setStartX(startNode.getX() + startNode.getWidth());
-            line.setStartY(startNode.getY() + (startNode.getHeight() / 2));
-            line.setEndX(endNode.getX());
-            line.setEndY(endNode.getY() + (endNode.getHeight() / 2));
-            position = Position.RIGHT;
+        //If end node is to the right of startNode:
+        if (startNode.getTranslateX() + startNode.getWidth() <= endNode.getTranslateX()) {
+            line.setStartX(startNode.getTranslateX() + startNode.getWidth());
+            line.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            line.setEndX(endNode.getTranslateX());
+            line.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
         }
         //If end node is to the left of startNode:
-        else if (startNode.getX() > endNode.getX() + endNode.getWidth()) {
-            line.setStartX(startNode.getX());
-            line.setStartY(startNode.getY() + (startNode.getHeight() / 2));
-            line.setEndX(endNode.getX() + endNode.getWidth());
-            line.setEndY(endNode.getY() + (endNode.getHeight() / 2));
-            position = Position.LEFT;
+        else if (startNode.getTranslateX() > endNode.getTranslateX() + endNode.getWidth()) {
+            line.setStartX(startNode.getTranslateX());
+            line.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            line.setEndX(endNode.getTranslateX() + endNode.getWidth());
+            line.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
         }
         // If end node is below startNode:
-        else if (startNode.getY() + startNode.getHeight() < endNode.getY()){
-            line.setStartX(startNode.getX() + (startNode.getWidth() /2));
-            line.setStartY(startNode.getY() + startNode.getHeight());
-            line.setEndX(endNode.getX() + (endNode.getWidth()/2));
-            line.setEndY(endNode.getY());
-            position = Position.BELOW;
+        else if (startNode.getTranslateY() + startNode.getHeight() < endNode.getTranslateY()){
+            line.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+            line.setStartY(startNode.getTranslateY() + startNode.getHeight());
+            line.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            line.setEndY(endNode.getTranslateY());
         }
         //If end node is above startNode:
-        else if (startNode.getY() >= endNode.getY() + endNode.getHeight()) {
-            line.setStartX(startNode.getX() + (startNode.getWidth() / 2));
-            line.setStartY(startNode.getY());
-            line.setEndX(endNode.getX() + (endNode.getWidth()/2));
-            line.setEndY(endNode.getY() + endNode.getHeight());
-            position = Position.ABOVE;
+        else if (startNode.getTranslateY() >= endNode.getTranslateY() + endNode.getHeight()) {
+            line.setStartX(startNode.getTranslateX() + (startNode.getWidth() / 2));
+            line.setStartY(startNode.getTranslateY());
+            line.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            line.setEndY(endNode.getTranslateY() + endNode.getHeight());
         }
         //TODO Handle when the nodes are overlapping.
+    }
+
+    public AbstractNodeView getStartNode() {
+        return startNode;
+    }
+
+    public void setStartNode(AbstractNodeView startNode) {
+        this.startNode = startNode;
+    }
+
+    public AbstractNodeView getEndNode() {
+        return endNode;
+    }
+
+    public void setEndNode(AbstractNodeView endNode) {
+        this.endNode = endNode;
     }
 
     private void setChangeListeners() {
         startNode.translateXProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                //setStartX(newValue.doubleValue());
-                startNode.setX(newValue.doubleValue());
                 setPosition();
             }
         });
         startNode.translateYProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                startNode.setY(newValue.doubleValue());
                 setPosition();
             }
         });
         endNode.translateXProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                endNode.setX(newValue.doubleValue());
                 setPosition();
             }
         });
         endNode.translateYProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                endNode.setY(newValue.doubleValue());
                 setPosition();
             }
         });

@@ -74,4 +74,6 @@ public abstract class AbstractEdge implements Edge {
     public void setEndNode(Node node) {
         this.endNode = node;
     }
+
+
 }

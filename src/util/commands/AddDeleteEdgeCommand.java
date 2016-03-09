@@ -21,10 +21,9 @@
 package util.commands;
 
 
-import javafx.scene.layout.Pane;
+import controller.MainController;
 import model.AbstractEdge;
 import model.Edge;
-import model.Graph;
 import model.Node;
 import view.AbstractEdgeView;
 
@@ -34,25 +33,22 @@ import view.AbstractEdgeView;
  */
 public class AddDeleteEdgeCommand implements Command
 {
-    private Pane aPane;
+	private MainController aController;
     private AbstractEdgeView aEdgeView;
 	private Edge aEdge;
-	private Graph aGraph;
 	private Node aP1;
 	private Node aP2;
 	private boolean aAdding; //true for adding, false for deleting
 
 	/**
 	 * Creates the command.
-	 * @param pGraph The panel to add/delete the edge
 	 * @param pEdge The edge to be added/deleted
 	 * @param pAdding True when adding, false when deleting
-	 */ //Pane pPane, AbstractNodeView pNodeView, AbstractNode pNode, Graph pGraph, boolean pAdding
-	public AddDeleteEdgeCommand(Pane pPane, AbstractEdgeView pEdgeView, AbstractEdge pEdge, Graph pGraph, boolean pAdding)
+	 */
+	public AddDeleteEdgeCommand(MainController pController, AbstractEdgeView pEdgeView, AbstractEdge pEdge, boolean pAdding)
 	{
-        aPane = pPane;
+		aController = pController;
         aEdgeView = pEdgeView;
-		aGraph = pGraph;
 		aEdge = pEdge;
 		aP1 = aEdge.getStartNode();
 		aP2 = aEdge.getEndNode();
@@ -94,8 +90,7 @@ public class AddDeleteEdgeCommand implements Command
 	 */
 	private void delete()
 	{
-		aGraph.removeEdge(aEdge);
-        aPane.getChildren().remove(aEdgeView);
+		aController.deleteEdge(aEdgeView, null, true);
 	}
 
 	/**
@@ -103,10 +98,7 @@ public class AddDeleteEdgeCommand implements Command
 	 */
 	private void add()
 	{
-		aGraph.connect(aP1, aP2, aEdge);
-        if (!aPane.getChildren().contains(aEdgeView)) {
-			aPane.getChildren().add(aEdgeView);
-		}
+		aController.addEdgeView(aEdgeView);
 	}
 
 }

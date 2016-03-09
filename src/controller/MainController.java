@@ -24,8 +24,8 @@ import java.util.*;
  * Created by marcusisaksson on 2016-02-11.
  */
 public class MainController {
-    //For testing
-    private boolean mouseCreationActivated = false;
+    //For testing with mouse and keyboard
+    private boolean mouseCreationActivated = true; //TODO shouldn't be true, only while testing
 
     //Controllers
     private CreateNodeController createNodeController;
@@ -50,6 +50,7 @@ public class MainController {
 
     //Copy nodes logic
     private ArrayList<AbstractNode> currentlyCopiedNodes = new ArrayList<>();
+    private ArrayList<AbstractEdge> currentlyCopiedEdges = new ArrayList<>();
     private HashMap<AbstractNode, double[]> copyDeltas = new HashMap<>();
     private double[] copyPasteCoords;
 
@@ -295,7 +296,7 @@ public class MainController {
                     allNodeViews.add(nodeView);
                     initNodeActions(nodeView);
 
-                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
+                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
                     if(!createNodeController.currentlyCreating()){
                         mode = Mode.NO_MODE;
                     }
@@ -305,7 +306,7 @@ public class MainController {
                     PackageNodeView nodeView = (PackageNodeView) createNodeController.onMouseReleased(event, node, currentScale);
                     nodeMap.put(nodeView, node);
                     initNodeActions(nodeView);
-                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
+                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
                     allNodeViews.add(nodeView);
                     //
                     if(!createNodeController.currentlyCreating()){
@@ -422,7 +423,7 @@ public class MainController {
                     allNodeViews.add(nodeView);
                     initNodeActions(nodeView);
 
-                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
+                    undoManager.add(new AddDeleteNodeCommand(MainController.this,  graph, nodeView, nodeMap.get(nodeView), true));
                     if(!createNodeController.currentlyCreating()){
                         mode = Mode.NO_MODE;
                     }
@@ -432,7 +433,7 @@ public class MainController {
                     PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node, currentScale);
                     nodeMap.put(nodeView, node);
                     initNodeActions(nodeView);
-                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
+                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
                     allNodeViews.add(nodeView);
                     //
                     if(!createNodeController.currentlyCreating()){
@@ -640,16 +641,7 @@ public class MainController {
                     if (startNodeView != null && endNodeView != null) {
                         initEdgeActions(edgeView);
                         allEdgeViews.add(edgeView);
-                        undoManager.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, graph, true));
-                        System.out.println("STARTNODE x = " + startNodeView.getX() +
-                                " y = " + startNodeView.getY());
-                        System.out.println("ENDNODE x = " + endNodeView.getX() +
-                                " y = " + endNodeView.getY());
-                        System.out.println("CREATING EDGE: startX = " +
-                                edgeView.getStartX() +
-                                " startY = " + edgeView.getStartY() +
-                                " endX = " + edgeView.getEndX() +
-                                " endY = " + edgeView.getEndY());
+                        undoManager.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
                     }
                     edgeController.removeDragLine();
 
@@ -746,7 +738,7 @@ public class MainController {
                     allNodeViews.add(nodeView);
                     initNodeActions(nodeView);
 
-                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
+                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
                     if(!createNodeController.currentlyCreating()){
                         mode = Mode.NO_MODE;
                     }
@@ -756,7 +748,7 @@ public class MainController {
                     PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node, currentScale);
                     nodeMap.put(nodeView, node);
                     initNodeActions(nodeView);
-                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
+                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
                     allNodeViews.add(nodeView);
                     //
                     if(!createNodeController.currentlyCreating()){
@@ -794,10 +786,10 @@ public class MainController {
         CompoundCommand command = new CompoundCommand();
         System.out.println("SelectedEdges size: " + selectedEdges.size());
         for(AbstractNodeView nodeView : selectedNodes){
-            deleteNode(nodeView, command);
+            deleteNode(nodeView, command, false);
         }
         for (AbstractEdgeView edgeView : selectedEdges) {
-            deleteEdge(edgeView, command);
+            deleteEdge(edgeView, command, false);
         }
         for (Sketch sketch : selectedSketches) {
             deleteSketch(sketch, command);
@@ -810,28 +802,36 @@ public class MainController {
         undoManager.add(command);
     }
 
-    private void deleteNode(AbstractNodeView nodeView, CompoundCommand pCommand){
-        CompoundCommand command;
-        if(pCommand == null){
+    /**
+     * Deletes nodes and its associated edges
+     * @param nodeView
+     * @param pCommand If not null we create our own command
+     * @param undo If true this is an undo and no command should be created
+     */
+    public void deleteNode(AbstractNodeView nodeView, CompoundCommand pCommand, boolean undo){
+        CompoundCommand command = null;
+        if(pCommand == null && !undo){
             command = new CompoundCommand();
             selectedNodes.remove(nodeView); //Fix for concurrentModificationException
-        } else {
+        } else if (!undo) {
             command = pCommand;
         }
 
         AbstractNode node = nodeMap.get(nodeView);
-        deleteNodeEdges(node, command);
+        deleteNodeEdges(node, command, undo);
         getGraphModel().removeNode(node);
         aDrawPane.getChildren().remove(nodeView);
         allNodeViews.remove(nodeView);
-        command.add(new AddDeleteNodeCommand(aDrawPane, nodeView, node, getGraphModel(), false));
 
-        if(pCommand == null){
+        if(!undo){
+            command.add(new AddDeleteNodeCommand(this, graph, nodeView, node, false));
+        }
+        if(pCommand == null && !undo){
             undoManager.add(command);
         }
     }
 
-    private void deleteEdge(AbstractEdgeView edgeView, CompoundCommand pCommand) {
+    public void deleteEdge(AbstractEdgeView edgeView, CompoundCommand pCommand, boolean undo) {
         CompoundCommand command;
         //TODO Maybe not necessary for edges.
         if (pCommand == null) {
@@ -844,7 +844,10 @@ public class MainController {
         getGraphModel().removeEdge(edge);
         aDrawPane.getChildren().remove(edgeView);
         allEdgeViews.remove(edgeView);
-        command.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, getGraphModel(), false));
+        selectedEdges.remove(edgeView);
+        if (!undo) {
+            command.add(new AddDeleteEdgeCommand(this, edgeView, edge, false));
+        }
     }
 
     private void deleteSketch(Sketch sketch, CompoundCommand pCommand) {
@@ -867,7 +870,7 @@ public class MainController {
      * @param node
      * @param command
      */
-    private void deleteNodeEdges(AbstractNode node, CompoundCommand command){
+    public void deleteNodeEdges(AbstractNode node, CompoundCommand command, boolean undo){
         AbstractEdge edge;
         ArrayList<AbstractEdgeView> edgeViewsToBeDeleted = new ArrayList<>();
         for(AbstractEdgeView edgeView : allEdgeViews){
@@ -875,8 +878,11 @@ public class MainController {
             if(edge.getEndNode().equals(node) || edge.getStartNode().equals(node)){
                 getGraphModel().removeEdge(edgeView.getRefEdge());
                 aDrawPane.getChildren().remove(edgeView);
+                selectedEdges.remove(edgeView);
                 edgeViewsToBeDeleted.add(edgeView);
-                command.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edgeView.getRefEdge(), getGraphModel(), false));
+                if(!undo){
+                    command.add(new AddDeleteEdgeCommand(this, edgeView, edgeView.getRefEdge(), false));
+                }
             }
         }
         allEdgeViews.removeAll(edgeViewsToBeDeleted);
@@ -1128,23 +1134,21 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
                 ((Button)button).setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) { //TODO MOVE THIS SOMEWHERE ELSE
-                        ArrayList<GraphElement> list = recognizeController.recognize(selectedSketches);
+                        ArrayList<GraphElement> recognized = recognizeController.recognize(selectedSketches);
                         CompoundCommand recognizeCompoundCommand = new CompoundCommand();
 
-                        //TODO Remove
-                        System.out.println("Entered handle ActionEvent");
-                        for (GraphElement e : list) {
+                        for (GraphElement e : recognized) {
                             if (e instanceof ClassNode) {
                                 ClassNodeView nodeView = new ClassNodeView((ClassNode)e);
                                 recognizeCompoundCommand.add(
-                                        new AddDeleteNodeCommand(aDrawPane, nodeView, (ClassNode)e,graph, true));
+                                        new AddDeleteNodeCommand(MainController.this, graph, nodeView, (ClassNode)e, true));
                                 nodeMap.put(nodeView, (ClassNode) e);
                                 aDrawPane.getChildren().add(nodeView);
                                 allNodeViews.add(nodeView);
                                 initNodeActions(nodeView);
                             }
                         }
-                        for (GraphElement e2 : list) {
+                        for (GraphElement e2 : recognized) {
                             if (e2 instanceof AssociationEdge) {
                                 AssociationEdge edge = (AssociationEdge) e2;
                                 //Only add the edge to the graph if it connects two nodes.
@@ -1172,7 +1176,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
                                 if (startNodeView != null && endNodeView != null) {
                                     initEdgeActions(edgeView);
                                     allEdgeViews.add(edgeView);
-                                    recognizeCompoundCommand.add(new AddDeleteEdgeCommand(aDrawPane, edgeView, edge, graph, true));
+                                    recognizeCompoundCommand.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
                                 }
                             }
                         }
@@ -1271,7 +1275,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             @Override
             public void handle(ActionEvent event) {
                 if(aContextMenu.getOwnerNode() instanceof AbstractNodeView){
-                    deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null);
+                    deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false);
                 }
             }
         });
@@ -1292,37 +1296,44 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
                 mode = Mode.NO_MODE;
             }
         });
-
-
-        aContextMenu.getItems().addAll(cmItemDelete, cmItemCopy, cmItemPaste);
+        aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste, cmItemDelete);
     }
 
     //TODO Copy edges and sketches as well
     private void copy(){
         currentlyCopiedNodes.clear();
         copyDeltas.clear();
+        currentlyCopiedEdges.clear();
 
         for(AbstractNodeView nodeView : selectedNodes){
-            AbstractNode node = nodeMap.get(nodeView);
-            currentlyCopiedNodes.add(node);
+            currentlyCopiedNodes.add(nodeMap.get(nodeView));
+        }
+        for(AbstractEdgeView edgeView : selectedEdges){
+            currentlyCopiedEdges.add(edgeView.getRefEdge());
         }
         setUpCopyCoords();
     }
 
+    /**
+     * Sets up relative coordinates for the nodes being copied
+     */
     private void setUpCopyCoords(){
         double currentClosestToCorner = Double.MAX_VALUE;
         AbstractNode closest = null;
-        for(AbstractNode node: currentlyCopiedNodes){
-            if((node.getTranslateX() + node.getTranslateY()) < currentClosestToCorner){
-                currentClosestToCorner = node.getTranslateX() + node.getTranslateY();
-                closest = node;
+        for(GraphElement element: currentlyCopiedNodes){
+            if(element instanceof AbstractNode){
+                if((element.getTranslateX() + element.getTranslateY()) < currentClosestToCorner){
+                    currentClosestToCorner = element.getTranslateX() + element.getTranslateY();
+                    closest = (AbstractNode) element;
+                }
             }
+
         }
 
         for(AbstractNode node : currentlyCopiedNodes){
             if(node != closest){
                 copyDeltas.put(node, new double[]{node.getTranslateX() - closest.getTranslateX(),
-                         node.getTranslateY() - closest.getTranslateY()});
+                        node.getTranslateY() - closest.getTranslateY()});
             } else {
                 copyDeltas.put(node, new double[]{0,0});
             }
@@ -1332,30 +1343,131 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
     //TODO Paste two times in a row
     private void paste(){
         CompoundCommand command = new CompoundCommand();
-        for (AbstractNode old : currentlyCopiedNodes) {
-            AbstractNode copy = old.copy();
+
+
+        AbstractNode newStartNode = null;
+        AbstractNode newEndNode = null;
+        AbstractNodeView newStartNodeView = null;
+        AbstractNodeView newEndNodeView = null;
+
+        //If a node has several edges it will be found more than once in the currentlyCopiedEdges loop, so we put nodes
+        //that are already copied in this map.
+        HashMap<AbstractNode, AbstractNode> alreadyCopiedNodes = new HashMap<>();
+
+        //Paste edges and their start and end nodes
+        for(AbstractEdge oldEdge : currentlyCopiedEdges){
+            for(AbstractNode node : currentlyCopiedNodes){
+                if(node.equals(oldEdge.getStartNode())){
+                    if(!alreadyCopiedNodes.containsKey(node)){ //If start node is not already copied
+                        newStartNode = ((AbstractNode)oldEdge.getStartNode()).copy();
+                        alreadyCopiedNodes.put(node, newStartNode);
+
+                        getGraphModel().addNode(newStartNode);
+                        newStartNode.setTranslateX(copyPasteCoords[0] + copyDeltas.get(node)[0]);
+                        newStartNode.setTranslateY(copyPasteCoords[1] + copyDeltas.get(node)[1]);
+                        newStartNodeView = createNodeView(newStartNode);
+                        command.add(new AddDeleteNodeCommand(this, graph, newStartNodeView, newStartNode, true));
+                    } else {
+                        newStartNode = alreadyCopiedNodes.get(node);
+                    }
+
+                } else if (node.equals(oldEdge.getEndNode())){
+                    if (!alreadyCopiedNodes.containsKey(node)) { //If end node is not already copied
+                        newEndNode = ((AbstractNode) oldEdge.getEndNode()).copy();
+                        alreadyCopiedNodes.put(node, newEndNode);
+
+                        getGraphModel().addNode(newEndNode);
+                        newEndNode.setTranslateX(copyPasteCoords[0] + copyDeltas.get(node)[0]);
+                        newEndNode.setTranslateY(copyPasteCoords[1] + copyDeltas.get(node)[1]);
+                        newEndNodeView = createNodeView(newEndNode);
+                        command.add(new AddDeleteNodeCommand(this, graph, newEndNodeView, newEndNode, true));
+                    } else {
+                        newEndNode = alreadyCopiedNodes.get(node);
+                    }
+                }
+            }
+            currentlyCopiedNodes.removeAll(alreadyCopiedNodes.keySet());
+            AbstractEdge copy = (AbstractEdge)oldEdge.copy(newStartNode, newEndNode);
+            getGraphModel().getAllEdges().add(copy);
+            AbstractEdgeView newEdgeView = createEdgeView(copy, newStartNodeView, newEndNodeView);
+            command.add(new AddDeleteEdgeCommand(this,newEdgeView, copy, true));
+        }
+
+        for (GraphElement old : currentlyCopiedNodes) {
+            AbstractNode copy = ((AbstractNode)old).copy();
             getGraphModel().addNode(copy);
             copy.setTranslateX(copyPasteCoords[0] + copyDeltas.get(old)[0]);
             copy.setTranslateY(copyPasteCoords[1] + copyDeltas.get(old)[1]);
-            AbstractNodeView newView = addNodeView(copy);
-            command.add(new AddDeleteNodeCommand(aDrawPane, newView, copy, getGraphModel(), true));
+            AbstractNodeView newView = createNodeView(copy);
+            command.add(new AddDeleteNodeCommand(this, graph, newView, copy, true));
+
         }
-        undoManager.add(command);
+        currentlyCopiedNodes.clear();
+        currentlyCopiedEdges.clear();
+        if(command.size() != 0){
+            undoManager.add(command);
+        }
     }
 
-    public AbstractNodeView addNodeView(AbstractNode node){
+    /**
+     * Creates and adds a new NodeView
+     * @param node
+     * @return
+     */
+    public AbstractNodeView createNodeView(AbstractNode node){
         AbstractNodeView newView;
         if(node instanceof ClassNode){
             newView = new ClassNodeView((ClassNode)node);
         } else /*if (node instanceof PackageNode)*/{
             newView = new PackageNodeView((PackageNode)node);
         }
-        aDrawPane.getChildren().add(newView);
-        initNodeActions(newView);
-        nodeMap.put(newView, node);
-        allNodeViews.add(newView);
 
-        return newView;
+        return addNodeView(newView, node);
+    }
+
+    /**
+     * Adds a NodeView
+     * @param nodeView
+     * @param node
+     * @return
+     */
+    public AbstractNodeView addNodeView(AbstractNodeView nodeView, AbstractNode node){
+        aDrawPane.getChildren().add(nodeView);
+        initNodeActions(nodeView);
+        nodeMap.put(nodeView, node);
+        allNodeViews.add(nodeView);
+
+        return nodeView;
+    }
+
+    /**
+     * Creates and adds a new EdgeView
+     * @param edge
+     * @param startNodeView
+     * @param endNodeView
+     * @return
+     */
+    public AbstractEdgeView createEdgeView(AbstractEdge edge, AbstractNodeView startNodeView, AbstractNodeView endNodeView){
+        AbstractEdgeView edgeView;
+        if(edge instanceof AssociationEdge){
+            edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
+        } else {
+            return null;
+        }
+        return addEdgeView(edgeView);
+    }
+
+    /**
+     * Adds an EdgeView
+     * @param edgeView
+     * @return
+     */
+    public AbstractEdgeView addEdgeView(AbstractEdgeView edgeView){
+        aDrawPane.getChildren().add(edgeView);
+        initEdgeActions(edgeView);
+        allEdgeViews.add(edgeView);
+
+        return edgeView;
     }
 
 }

@@ -2,8 +2,8 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<AnchorPane prefHeight="224.0" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.dialog.NodeEditDialogController">
+<!-- prefHeight was 224.0 -->
+<AnchorPane prefHeight="254.0" prefWidth="300.0" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.dialog.NodeEditDialogController">
     <children>
         <GridPane prefHeight="164.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
             <children>

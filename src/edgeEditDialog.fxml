@@ -2,7 +2,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="224.0" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.dialog.EdgeEditDialogController">
+<AnchorPane prefHeight="224.0" prefWidth="340.0" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.dialog.EdgeEditDialogController">
     <children>
         <GridPane prefHeight="164.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
             <children>

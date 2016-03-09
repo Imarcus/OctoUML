@@ -91,8 +91,6 @@ public class AddDeleteEdgeCommand implements Command
 	private void delete()
 	{
 		aController.deleteEdge(aEdgeView, null, true);
-		/*aGraph.removeEdge(aEdge);
-        aPane.getChildren().remove(aEdgeView);*/
 	}
 
 	/**
@@ -101,10 +99,6 @@ public class AddDeleteEdgeCommand implements Command
 	private void add()
 	{
 		aController.addEdgeView(aEdgeView);
-		/*aGraph.connect(aP1, aP2, aEdge);
-        if (!aPane.getChildren().contains(aEdgeView)) {
-			aPane.getChildren().add(aEdgeView);
-		}*/
 	}
 
 }

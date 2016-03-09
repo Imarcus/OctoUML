@@ -95,6 +95,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
             line.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
             line.setEndX(endNode.getTranslateX());
             line.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            position = Position.RIGHT;
         }
         //If end node is to the left of startNode:
         else if (startNode.getTranslateX() > endNode.getTranslateX() + endNode.getWidth()) {
@@ -102,6 +103,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
             line.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
             line.setEndX(endNode.getTranslateX() + endNode.getWidth());
             line.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            position = Position.LEFT;
         }
         // If end node is below startNode:
         else if (startNode.getTranslateY() + startNode.getHeight() < endNode.getTranslateY()){
@@ -109,6 +111,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
             line.setStartY(startNode.getTranslateY() + startNode.getHeight());
             line.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
             line.setEndY(endNode.getTranslateY());
+            position = Position.BELOW;
         }
         //If end node is above startNode:
         else if (startNode.getTranslateY() >= endNode.getTranslateY() + endNode.getHeight()) {
@@ -116,6 +119,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
             line.setStartY(startNode.getTranslateY());
             line.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
             line.setEndY(endNode.getTranslateY() + endNode.getHeight());
+            position = Position.ABOVE;
         }
         //TODO Handle when the nodes are overlapping.
     }

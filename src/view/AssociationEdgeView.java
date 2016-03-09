@@ -66,11 +66,12 @@ public class AssociationEdgeView extends AbstractEdgeView {
                 startMultiplicity.setY(getLine().getStartY() + OFFSET);
                 endMultiplicity.setX(getLine().getEndX() + OFFSET);
                 endMultiplicity.setY(getLine().getEndY() - OFFSET);
+                break;
         }
         startMultiplicity.toFront();
         endMultiplicity.toFront();
-        getChildren().add(startMultiplicity);
-        getChildren().add(endMultiplicity);
+        this.getChildren().add(startMultiplicity);
+        this.getChildren().add(endMultiplicity);
 
         //Draw arrows.
         switch(direction) {

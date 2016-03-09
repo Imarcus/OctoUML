@@ -1,18 +1,24 @@
 package controller;
 
+import controller.dialog.EdgeEditDialogController;
+import controller.dialog.NodeEditDialogController;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
+import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import model.AbstractEdge;
-import model.AssociationEdge;
-import model.Node;
-import model.PackageNode;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import model.*;
 import view.AbstractEdgeView;
 import view.AbstractNodeView;
 import view.AssociationEdgeView;
 import view.EdgeView;
+
+import java.io.IOException;
 
 /**
  * Created by chris on 2016-02-15.
@@ -21,12 +27,14 @@ public class EdgeController {
     private double dragStartX, dragStartY;
     private Line dragLine;
     private Pane aDrawPane;
+    private MainController mainController;
 
-    public EdgeController(Pane pDrawPane) {
+    public EdgeController(Pane pDrawPane, MainController mainController) {
         aDrawPane = pDrawPane;
         dragLine = new Line();
         dragLine.setStroke(Color.DARKGRAY);
         dragLine.setStrokeWidth(2);
+        this.mainController = mainController;
     }
 
     public void onMousePressed(MouseEvent event) {
@@ -99,5 +107,32 @@ public class EdgeController {
     //TODO Not used?
     private AssociationEdge createAssociationEdge(Node startNode, Node endNode) {
         return new AssociationEdge(startNode, endNode);
+    }
+
+    public boolean showEdgeEditDialog(AssociationEdge edge) {
+        try {
+            // Load the fxml file and create a new stage for the popup
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("edgeEditDialog.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Edit Edge");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(mainController.getStage());
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+            EdgeEditDialogController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setEdge(edge);
+
+            dialogStage.showAndWait();
+
+            return controller.isOkClicked();
+
+        } catch (IOException e) {
+            // Exception gets thrown if the fxml file could not be loaded
+            e.printStackTrace();
+            return false;
+        }
     }
 }

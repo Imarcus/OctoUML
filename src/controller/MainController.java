@@ -118,7 +118,7 @@ public class MainController {
         createNodeController = new CreateNodeController(aDrawPane, this);
         nodeController = new NodeController(aDrawPane, this);
         graphController = new GraphController(aDrawPane, this);
-        edgeController = new EdgeController(aDrawPane);
+        edgeController = new EdgeController(aDrawPane, this);
         sketchController = new SketchController(aDrawPane, this);
         recognizeController = new RecognizeController(aDrawPane, this);
 
@@ -177,7 +177,9 @@ public class MainController {
                         selectStartY = event.getY();
                         selectRectangle.setX(event.getX());
                         selectRectangle.setY(event.getY());
-                        aDrawPane.getChildren().add(selectRectangle);
+                        if (aDrawPane.getChildren().contains(selectRectangle)) {
+                            aDrawPane.getChildren().add(selectRectangle);
+                        }
 
                     }
                     //--------- MOUSE EVENT FOR TESTING ---------- TODO
@@ -909,6 +911,10 @@ private void initEdgeActions(AbstractEdgeView edgeView){
             if (mouseCreationActivated) {
                 handleOnEdgeViewPressedEvents(edgeView);
             }
+            if (event.getClickCount() == 2 || event.getButton() == MouseButton.SECONDARY) {
+                //TODO If more kinds of Edges implemented: this will not work:
+                edgeController.showEdgeEditDialog((AssociationEdge) edgeView.getRefEdge());
+            }
         }
     });
 
@@ -917,6 +923,10 @@ private void initEdgeActions(AbstractEdgeView edgeView){
         public void handle(TouchEvent event) {
             if (!mouseCreationActivated) {
                 handleOnEdgeViewPressedEvents(edgeView);
+                if (event.getTouchCount() == 2) {
+                    //TODO If more kinds of Edges implemented: this will not work:
+                    edgeController.showEdgeEditDialog((AssociationEdge) edgeView.getRefEdge());
+                }
             }
         }
     });

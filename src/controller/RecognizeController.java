@@ -82,10 +82,21 @@ public class RecognizeController {
 
                     Node startNode = mainController.getGraphModel().findNode(startPoint);
                     Node endNode = mainController.getGraphModel().findNode(endPoint);
+
+                    //For arrows, which don't have an endpoint
+                    List<Point> points = s.getStroke().getPoints();
+                    for (int i = points.size()-1; i > points.size()/2; i--) {
+                        Point2D point = new Point2D(points.get(i).getX(), points.get(i).getY());
+                        if (mainController.getGraphModel().findNode(point) != null) {
+                            endNode = mainController.getGraphModel().findNode(point);
+                            break;
+                        }
+                    }
+
                     if (startNode != null && endNode != null && !startNode.equals(endNode)) {
                         AssociationEdge newEdge = new AssociationEdge(startNode, endNode);
                         if (bestMatchString.equals("Arrow")) {
-                            newEdge.setDirection(AbstractEdge.Direction.START_TO_END);
+                            newEdge.setDirection(AbstractEdge.Direction.END_TO_START);
                         }
                         s.setRecognizedElement(newEdge);
                         System.out.println("Recognized an Edge: " + s.getRecognizedElement().toString());

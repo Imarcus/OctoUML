@@ -910,10 +910,10 @@ private void initEdgeActions(AbstractEdgeView edgeView){
         public void handle(MouseEvent event) {
             if (mouseCreationActivated) {
                 handleOnEdgeViewPressedEvents(edgeView);
-                if (event.getClickCount() == 2) {
-                    //TODO If more kinds of Edges implemented: this will not work:
-                    edgeController.showEdgeEditDialog((AssociationEdge) edgeView.getRefEdge());
-                }
+            }
+            if (event.getClickCount() == 2 || event.getButton() == MouseButton.SECONDARY) {
+                //TODO If more kinds of Edges implemented: this will not work:
+                edgeController.showEdgeEditDialog((AssociationEdge) edgeView.getRefEdge());
             }
         }
     });
@@ -923,6 +923,10 @@ private void initEdgeActions(AbstractEdgeView edgeView){
         public void handle(TouchEvent event) {
             if (!mouseCreationActivated) {
                 handleOnEdgeViewPressedEvents(edgeView);
+                if (event.getTouchCount() == 2) {
+                    //TODO If more kinds of Edges implemented: this will not work:
+                    edgeController.showEdgeEditDialog((AssociationEdge) edgeView.getRefEdge());
+                }
             }
         }
     });

@@ -1,19 +1,11 @@
 package controller;
 
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ToolBar;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.shape.Rectangle;
 import model.AbstractNode;
 import model.GraphElement;
-import model.Node;
-import view.GraphView;
 import javafx.scene.input.TouchEvent;
 import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.Pane;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -55,6 +55,12 @@ public class AssociationEdge extends AbstractEdge {
         return 0;
     }
 
+    /**
+     * No-arg constructor for JavaBean convention
+     */
+    public AssociationEdge(){
+    }
+    
     public AssociationEdge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy){
         return new AssociationEdge(startNodeCopy, endNodeCopy);
     }

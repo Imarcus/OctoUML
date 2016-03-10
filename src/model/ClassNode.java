@@ -69,4 +69,10 @@ public class ClassNode extends AbstractNode
         newCopy.setTranslateY(this.getTranslateY());
         return newCopy;
     }
+
+    /**
+     * No-arg constructor for JavaBean convention
+     */
+    public ClassNode(){
+    }
 }

@@ -69,4 +69,10 @@ public class PackageNode extends AbstractNode
         }*/
         return newCopy;
     }
+
+    /**
+     * No-arg constructor for JavaBean convention
+     */
+    public PackageNode(){
+    }
 }

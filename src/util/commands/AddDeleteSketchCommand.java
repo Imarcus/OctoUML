@@ -88,8 +88,10 @@ public class AddDeleteSketchCommand implements Command
 	 */
 	private void add() 
 	{
-		aPane.getChildren().add(aSketch.getPath());
-		aSketch.getPath().toFront();
+		if (!aPane.getChildren().contains(aSketch.getPath())) {
+			aPane.getChildren().add(aSketch.getPath());
+			aSketch.getPath().toFront();
+		}
 	}
 	
 }

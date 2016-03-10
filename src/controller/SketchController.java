@@ -52,8 +52,8 @@ public class SketchController {
         double xPoint;
         double yPoint;
         if(event.getSource() instanceof AbstractNodeView){
-            xPoint = ((AbstractNodeView)event.getSource()).getX() + event.getTouchPoint().getX();
-            yPoint = ((AbstractNodeView)event.getSource()).getY() + event.getTouchPoint().getY();
+            xPoint = ((AbstractNodeView)event.getSource()).getTranslateX() + event.getTouchPoint().getX();
+            yPoint = ((AbstractNodeView)event.getSource()).getTranslateY() + event.getTouchPoint().getY();
         } else {
             xPoint = event.getTouchPoint().getX();
             yPoint = event.getTouchPoint().getY();
@@ -74,8 +74,8 @@ public class SketchController {
         double xPoint;
         double yPoint;
         if(event.getSource() instanceof AbstractNodeView){
-            xPoint = ((AbstractNodeView)event.getSource()).getX() + event.getTouchPoint().getX();
-            yPoint = ((AbstractNodeView)event.getSource()).getY() + event.getTouchPoint().getY();
+            xPoint = ((AbstractNodeView)event.getSource()).getTranslateX() + event.getTouchPoint().getX();
+            yPoint = ((AbstractNodeView)event.getSource()).getTranslateY() + event.getTouchPoint().getY();
         } else {
             xPoint = event.getTouchPoint().getX();
             yPoint = event.getTouchPoint().getY();

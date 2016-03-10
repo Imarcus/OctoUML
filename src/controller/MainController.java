@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class MainController {
     //For testing with mouse and keyboard
-    private boolean mouseCreationActivated = true; //TODO shouldn't be true, only while testing
+    private boolean mouseCreationActivated = false; 
 
     //Controllers
     private CreateNodeController createNodeController;

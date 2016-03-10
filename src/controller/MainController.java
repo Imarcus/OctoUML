@@ -852,9 +852,10 @@ public class MainController {
         getGraphModel().removeEdge(edge);
         aDrawPane.getChildren().remove(edgeView);
         allEdgeViews.remove(edgeView);
-        selectedEdges.remove(edgeView);
         if (!undo) {
             command.add(new AddDeleteEdgeCommand(this, edgeView, edge, false));
+        } else {
+            selectedEdges.remove(edgeView);
         }
     }
 

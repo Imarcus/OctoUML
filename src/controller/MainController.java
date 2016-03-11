@@ -111,6 +111,8 @@ public class MainController {
         selectRectangle = new Rectangle();
         selectRectangle.setFill(null);
         selectRectangle.setStroke(Color.BLACK);
+        selectRectangle.getStrokeDashArray().addAll(4.0,5.0,4.0,5.0);
+
 
         initDrawPaneActions();
         //initSceneActions();

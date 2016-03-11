@@ -65,60 +65,63 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
     private void createRectangles(){
         ClassNode node = (ClassNode) getRefNode();
-        //attributesRectangle = new Rectangle();
-        //operationsRectangle = new Rectangle();
         changeHeight(node.getHeight());
         changeWidth(node.getWidth());
         rectangle.setX(node.getX());
         rectangle.setY(node.getY());
-
-        //attributesRectangle.setX(node.getX());
-        //attributesRectangle.setY(node.getY() + titleRectangle.getHeight());
-
-        //operationsRectangle.setX(node.getX());
-        //operationsRectangle.setY(node.getY() + titleRectangle.getHeight() + attributesRectangle.getHeight());
     }
 
     private void changeHeight(double height){
         setHeight(height);
-        rectangle.setHeight(height);//Math.min(TOP_MAX_HEIGHT, height*TOP_HEIGHT_RATIO));
-        //attributesRectangle.setHeight((height - titleRectangle.getHeight())/2);
-        //operationsRectangle.setHeight((height - titleRectangle.getHeight())/2);
+        rectangle.setHeight(height);
     }
 
     private void changeWidth(double width){
         setWidth(width);
         rectangle.setWidth(width);
         container.setMaxWidth(width);
+
+        vbox.setMaxWidth(width);
+
+        firstLine.setMaxWidth(width);
+        //firstLine.setPrefWidth(width);
+
+        secondLine.setMaxWidth(width);
+        //secondLine.setPrefWidth(width);
     }
 
     private void initVBox(){
         ClassNode node = (ClassNode) getRefNode();
 
+        vbox.setPadding(new Insets(5, 0, 5, 0));
+        vbox.setSpacing(5);
 
-        title = new Text();
-        if(node.getTitle() == null) {
-            title.setText("Untitled");
-        } else {
-            title.setText(node.getTitle());
-        }
-        title.setTextAlignment(TextAlignment.CENTER);
-        title.setWrappingWidth(node.getWidth() - 7);         //TODO Ugly solution, hardcoded value.
-        attributes = new Text(node.getAttributes());
-        operations = new Text(node.getOperations());
+        StackPane titlePane = new StackPane();
 
         firstLine = new Separator();
-        firstLine.setMinWidth(node.getWidth());
         firstLine.setMaxWidth(node.getWidth());
-        firstLine.setPrefWidth(node.getWidth());
-        firstLine.bord
 
         secondLine = new Separator();
-        secondLine.setMinWidth(node.getWidth());
         secondLine.setMaxWidth(node.getWidth());
-        secondLine.setPrefWidth(node.getWidth());
 
-        vbox.getChildren().addAll(title, firstLine);
+        title = new Text();
+        if(node.getTitle() != null) {
+            title.setText(node.getTitle());
+        } else {
+            firstLine.setVisible(false);
+        }
+        title.setTextAlignment(TextAlignment.CENTER);
+
+        attributes = new Text(node.getAttributes());
+
+        operations = new Text(node.getOperations());
+
+        if(operations.getText() == null || operations.getText().equals("")){
+            secondLine.setVisible(false);
+        }
+
+        titlePane.getChildren().add(title);
+        vbox.getChildren().addAll(titlePane, firstLine, attributes, secondLine, operations);
     }
 
     private void initLooks(){
@@ -126,12 +129,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         rectangle.setFill(Color.LIGHTSKYBLUE);
         rectangle.setStroke(Color.BLACK);
 
-        StackPane.setAlignment(title, Pos.TOP_CENTER);
-        StackPane.setMargin(title, new Insets(5,0,0,0));
-        StackPane.setAlignment(attributes, Pos.TOP_LEFT);
-        StackPane.setMargin(attributes, new Insets(5,0,0,5));
-        StackPane.setAlignment(operations, Pos.TOP_LEFT);
-        StackPane.setMargin(operations, new Insets(5,0,0,5));
+        title.setWrappingWidth(getRefNode().getWidth() - 7);         //TODO Ugly solution, hardcoded value.
+        attributes.setWrappingWidth(getRefNode().getWidth() - 7);
+        operations.setWrappingWidth(getRefNode().getWidth() - 7);
+
+        //StackPane.setAlignment(title, Pos.TOP_CENTER);
+        //VBox.setMargin(title, new Insets(5,0,0,0));
+        //StackPane.setAlignment(attributes, Pos.TOP_LEFT);
+        StackPane.setAlignment(title, Pos.CENTER);
+        VBox.setMargin(attributes, new Insets(5,0,0,5));
+        VBox.setMargin(operations, new Insets(5,0,0,5));
     }
 
     public void setStrokeWidth(double scale){
@@ -184,8 +191,12 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         refNode.titleProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                //TODO Check how long the new string is, and handle that!
                 title.setText(newValue);
+                if(title.getText() == null || title.getText().equals("")){
+                    firstLine.setVisible(false);
+                } else {
+                    firstLine.setVisible(true);
+                }
             }
         });
 
@@ -200,6 +211,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 operations.setText(newValue);
+                if(operations.getText() == null || operations.getText().equals("")){
+                    secondLine.setVisible(false);
+                } else {
+                    secondLine.setVisible(true);
+                }
             }
         });
     }

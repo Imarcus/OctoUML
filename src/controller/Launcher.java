@@ -1,5 +1,6 @@
 package controller;
 
+import com.guigarage.flatterfx.FlatterFX;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -28,5 +29,6 @@ public class Launcher extends Application {
         stage.setScene(new Scene(root, 1000, 800));
         stage.setTitle("Penguin");
         stage.show();
+        //FlatterFX.style();
     }
 }

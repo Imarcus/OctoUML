@@ -1,0 +1,53 @@
+#create {
+    -fx-background-image: url("/icons/class.png");
+    -fx-background-size: 30px 30px;
+}
+
+.button {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: #55596d;
+    -fx-padding: 10 10;
+}
+
+.button:armed {
+    -fx-text-fill: white;
+    -fx-background-color: black;
+}
+
+#aDrawPane {
+    -fx-background-color: #ffffff;
+}
+
+#aToolBar {
+    -fx-background-color: #c8c8c9;
+    -fx-alignment: center;
+    -fx-padding: 10 10;
+    -fx-spacing: 20;
+}
+
+#umlBox {
+    -fx-spacing: 5;
+    -fx-padding: 0 25 0 0;
+}
+
+#drawBox {
+    -fx-spacing: 5;
+    -fx-padding: 0 15 0 15;
+}
+
+#utilBox {
+    -fx-spacing: 5;
+    -fx-padding: 0 15 0 15;
+}
+
+#undoBox {
+    -fx-spacing: 5;
+    -fx-padding: 0 15 0 15;
+}
+
+#recognizeBox {
+    -fx-spacing: 5;
+    -fx-padding: 0 0 0 15;
+}

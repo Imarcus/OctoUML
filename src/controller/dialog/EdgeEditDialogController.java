@@ -31,7 +31,7 @@ public class EdgeEditDialogController {
     @FXML
     private Button cancelButton;
 
-    private AssociationEdge edge;
+    private AbstractEdge edge;
     private boolean okClicked = false;
 
     /**
@@ -63,7 +63,7 @@ public class EdgeEditDialogController {
         return directionBox;
     }
 
-    public void setEdge(AssociationEdge edge) {
+    public void setEdge(AbstractEdge edge) {
         this.edge = edge;
         directionBox.getItems().setAll(AbstractEdge.Direction.values());
         startMultiplicity.setText(edge.getStartMultiplicity());

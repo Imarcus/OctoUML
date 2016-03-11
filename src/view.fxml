@@ -10,6 +10,7 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.CheckMenuItem?>
+<?import java.net.URL?>
 <BorderPane fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
     <top>
         <MenuBar fx:id="menuBar">
@@ -60,4 +61,7 @@
             <Button text="Delete"/>
         </ToolBar>
     </right>
+    <stylesheets>
+        <URL value="@main.css" />
+    </stylesheets>
 </BorderPane>

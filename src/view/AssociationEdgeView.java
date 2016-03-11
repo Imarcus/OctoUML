@@ -15,8 +15,7 @@ public class AssociationEdgeView extends AbstractEdgeView {
     private AbstractEdge refEdge;
     private AbstractNodeView startNode;
     private AbstractNodeView endNode;
-    private Text startMultiplicity;
-    private Text endMultiplicity;
+
 
     
     public AssociationEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
@@ -26,52 +25,18 @@ public class AssociationEdgeView extends AbstractEdgeView {
         this.endNode = endNode;
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
-        startMultiplicity = new Text(edge.getStartMultiplicity());
-        endMultiplicity = new Text(edge.getEndMultiplicity());
         draw();
         setChangeListeners();
 
     }
 
-    private void draw() {
+    protected void draw() {
         AbstractEdge.Direction direction = refEdge.getDirection();
-
         getChildren().clear();
         getChildren().add(getLine());
-
-        //Draw multiplicity
-        Position position = super.getPosition();
-        final double OFFSET = 20;
-        switch (position) {
-            case RIGHT:
-                startMultiplicity.setX(getLine().getStartX() + OFFSET);
-                startMultiplicity.setY(getLine().getStartY() + OFFSET);
-                endMultiplicity.setX(getLine().getEndX() - OFFSET - endMultiplicity.getText().length() -5);
-                endMultiplicity.setY(getLine().getEndY() + OFFSET);
-                break;
-            case LEFT:
-                startMultiplicity.setX(getLine().getStartX() - OFFSET - endMultiplicity.getText().length() -5);
-                startMultiplicity.setY(getLine().getStartY() + OFFSET);
-                endMultiplicity.setX(getLine().getEndX() + OFFSET);
-                endMultiplicity.setY(getLine().getEndY() + OFFSET);
-                break;
-            case ABOVE:
-                startMultiplicity.setX(getLine().getStartX() + OFFSET);
-                startMultiplicity.setY(getLine().getStartY() - OFFSET);
-                endMultiplicity.setX(getLine().getEndX() + OFFSET);
-                endMultiplicity.setY(getLine().getEndY() + OFFSET);
-                break;
-            case BELOW:
-                startMultiplicity.setX(getLine().getStartX() + OFFSET);
-                startMultiplicity.setY(getLine().getStartY() + OFFSET);
-                endMultiplicity.setX(getLine().getEndX() + OFFSET);
-                endMultiplicity.setY(getLine().getEndY() - OFFSET);
-                break;
-        }
-        startMultiplicity.toFront();
-        endMultiplicity.toFront();
-        this.getChildren().add(startMultiplicity);
-        this.getChildren().add(endMultiplicity);
+        super.draw();
+        this.getChildren().add(super.getEndMultiplicity());
+        this.getChildren().add(super.getStartMultiplicity());
 
         //Draw arrows.
         switch(direction) {
@@ -145,22 +110,6 @@ public class AssociationEdgeView extends AbstractEdgeView {
         super.getLine().startYProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        refEdge.startMultiplicityProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                startMultiplicity.setText(newValue);
-                draw();
-            }
-        });
-
-        refEdge.endMultiplicityProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                endMultiplicity.setText(newValue);
                 draw();
             }
         });

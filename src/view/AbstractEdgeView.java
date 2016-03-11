@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import model.AbstractEdge;
 
 /**
@@ -21,11 +22,8 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
     }
 
     private Position position = Position.NONE;
-
-
-    public AbstractEdge getRefEdge() {
-        return refEdge;
-    }
+    private Text startMultiplicity;
+    private Text endMultiplicity;
 
     private AbstractNodeView endNode;
     private Line line;
@@ -38,9 +36,61 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
         this.setVisible(true);
         line = new Line();
         this.getChildren().add(line);
+        startMultiplicity = new Text(edge.getStartMultiplicity());
+        endMultiplicity = new Text(edge.getEndMultiplicity());
         setChangeListeners();
         setPosition();
         line.setStrokeWidth(STROKE_WIDTH);
+    }
+
+    protected void draw() {
+        //Draw multiplicity
+        Position position = getPosition();
+        final double OFFSET = 20;
+
+        switch (position) {
+            case RIGHT:
+                startMultiplicity.setX(getLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getLine().getEndX() - OFFSET - endMultiplicity.getText().length() -5);
+                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                break;
+            case LEFT:
+                startMultiplicity.setX(getLine().getStartX() - OFFSET - endMultiplicity.getText().length() -5);
+                startMultiplicity.setY(getLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                break;
+            case ABOVE:
+                startMultiplicity.setX(getLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getLine().getStartY() - OFFSET);
+                endMultiplicity.setX(getLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                break;
+            case BELOW:
+                startMultiplicity.setX(getLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getLine().getEndY() - OFFSET);
+                break;
+        }
+        startMultiplicity.toFront();
+        endMultiplicity.toFront();
+        //TODO This doesn't seem to work?
+        //getChildren().add(startMultiplicity);
+        //getChildren().add(endMultiplicity);
+    }
+
+    public Text getStartMultiplicity() {
+        return startMultiplicity;
+    }
+
+    public Text getEndMultiplicity() {
+        return endMultiplicity;
+    }
+
+    public AbstractEdge getRefEdge() {
+        return refEdge;
     }
 
     public void setStrokeWidth(double width) {
@@ -163,6 +213,22 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 setPosition();
+            }
+        });
+
+        refEdge.startMultiplicityProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                startMultiplicity.setText(newValue);
+                draw();
+            }
+        });
+
+        refEdge.endMultiplicityProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                endMultiplicity.setText(newValue);
+                draw();
             }
         });
     }

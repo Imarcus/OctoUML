@@ -111,6 +111,8 @@ public class MainController {
         selectRectangle = new Rectangle();
         selectRectangle.setFill(null);
         selectRectangle.setStroke(Color.BLACK);
+        selectRectangle.getStrokeDashArray().addAll(4.0,5.0,4.0,5.0);
+
 
         initDrawPaneActions();
         //initSceneActions();
@@ -216,10 +218,13 @@ public class MainController {
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING)
                 {
-                    selectRectangle.setX(selectStartX);
-                    selectRectangle.setY(selectStartY);
-                    selectRectangle.setWidth(event.getX() - selectStartX);
-                    selectRectangle.setHeight(event.getY() - selectStartY);
+                    selectRectangle.setX(Math.min(selectStartX, event.getX()));
+                    selectRectangle.setY(Math.min(selectStartY, event.getY()));
+                    selectRectangle.setWidth(Math.abs(selectStartX - event.getX()));
+                    selectRectangle.setHeight(Math.abs(selectStartY - event.getY()));
+
+
+                    selectRectangle.setHeight(Math.max(event.getY() - selectStartY, selectStartY - event.getY()));
                     //drawSelected();
                 }
                 //--------- MOUSE EVENT FOR TESTING ---------- TODO

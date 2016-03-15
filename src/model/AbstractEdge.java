@@ -1,11 +1,13 @@
 package model;
 
+import javafx.beans.property.ObjectProperty;
+import java.io.Serializable;
 import javafx.beans.property.*;
 
 /**
  * Abstract Edge to hide some basic Edge-functionality.
  */
-public abstract class AbstractEdge implements Edge {
+public abstract class AbstractEdge implements Edge, Serializable {
     private Node startNode;
     private Node endNode;
     private StringProperty startMultiplicity = new SimpleStringProperty();
@@ -75,5 +77,9 @@ public abstract class AbstractEdge implements Edge {
         this.endNode = node;
     }
 
-
+    /**
+     * No-arg constructor for JavaBean convention
+     */
+    public AbstractEdge(){
+    }
 }

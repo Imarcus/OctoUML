@@ -56,3 +56,9 @@
     -fx-spacing: 5;
     -fx-padding: 0 0 0 15;
 }
+
+.separator *.line {
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: black;
+}

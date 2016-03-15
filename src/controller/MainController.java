@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Path;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
 import util.commands.*;
@@ -15,9 +16,11 @@ import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import util.persistence.PersistenceManager;
 import view.*;
 
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.util.*;
 
 /**
@@ -25,7 +28,7 @@ import java.util.*;
  */
 public class MainController {
     //For testing with mouse and keyboard
-    private boolean mouseCreationActivated = true; //TODO shouldn't be true, only while testing
+    private boolean mouseCreationActivated = false; 
 
     //Controllers
     private CreateNodeController createNodeController;
@@ -107,6 +110,8 @@ public class MainController {
         selectRectangle = new Rectangle();
         selectRectangle.setFill(null);
         selectRectangle.setStroke(Color.BLACK);
+        selectRectangle.getStrokeDashArray().addAll(4.0,5.0,4.0,5.0);
+
 
         initDrawPaneActions();
         //initSceneActions();
@@ -208,10 +213,13 @@ public class MainController {
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING)
                 {
-                    selectRectangle.setX(selectStartX);
-                    selectRectangle.setY(selectStartY);
-                    selectRectangle.setWidth(event.getX() - selectStartX);
-                    selectRectangle.setHeight(event.getY() - selectStartY);
+                    selectRectangle.setX(Math.min(selectStartX, event.getX()));
+                    selectRectangle.setY(Math.min(selectStartY, event.getY()));
+                    selectRectangle.setWidth(Math.abs(selectStartX - event.getX()));
+                    selectRectangle.setHeight(Math.abs(selectStartY - event.getY()));
+
+
+                    selectRectangle.setHeight(Math.max(event.getY() - selectStartY, selectStartY - event.getY()));
                     //drawSelected();
                 }
                 //--------- MOUSE EVENT FOR TESTING ---------- TODO
@@ -640,6 +648,7 @@ public class MainController {
                     if (startNodeView != null && endNodeView != null) {
                         initEdgeActions(edgeView);
                         allEdgeViews.add(edgeView);
+                        graph.getAllEdges().add(edge);
                         undoManager.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
                     }
                     edgeController.removeDragLine();
@@ -843,9 +852,10 @@ public class MainController {
         getGraphModel().removeEdge(edge);
         aDrawPane.getChildren().remove(edgeView);
         allEdgeViews.remove(edgeView);
-        selectedEdges.remove(edgeView);
         if (!undo) {
             command.add(new AddDeleteEdgeCommand(this, edgeView, edge, false));
+        } else {
+            selectedEdges.remove(edgeView);
         }
     }
 
@@ -1260,9 +1270,40 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         selectBtn.fire();
     }
 
+    //------------------------- SAVE-LOAD FEATURE --------------------------------------------------------------------
+
     public void handleMenuActionMouse(){
         mouseCreationActivated = !mouseCreationActivated;
         mouseMenuItem.setSelected(mouseCreationActivated);
+    }
+
+    public void handleMenuActionSave(){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Diagram");
+        File file = fileChooser.showSaveDialog(getStage());
+        if(graph.getName().equals("")){
+            fileChooser.setInitialFileName(graph.getName() + ".xml");
+        } else {
+            fileChooser.setInitialFileName("mydiagram.xml");
+        }
+        PersistenceManager.saveFile(graph, file.getAbsolutePath());
+    }
+
+    public void handleMenuActionLoad(){
+        final FileChooser fileChooser = new FileChooser();
+        File file = fileChooser.showOpenDialog(getStage());
+        fileChooser.setTitle("Choose XML-file");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
+        Graph graph = null;
+        if (file != null) {
+            graph = PersistenceManager.loadFile(file.getAbsolutePath());
+        }
+        load(graph);
+    }
+
+    public void handleMenuActionNew(){
+        reset();
     }
 
 
@@ -1422,6 +1463,11 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             newView = new PackageNodeView((PackageNode)node);
         }
 
+        if(newView instanceof ClassNodeView){
+            newView.toFront();
+        } else {
+            newView.toBack();
+        }
         return addNodeView(newView, node);
     }
 
@@ -1468,6 +1514,51 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         allEdgeViews.add(edgeView);
 
         return edgeView;
+    }
+
+    public AbstractEdgeView addEdgeView(AbstractEdge edge){
+        //TODO Really ugly
+        AbstractNodeView startNodeView = null;
+        AbstractNodeView endNodeView = null;
+        for(AbstractNodeView nodeView : allNodeViews){
+            if(edge.getStartNode() == nodeMap.get(nodeView)){
+                startNodeView = nodeView;
+            } else if (edge.getEndNode() == nodeMap.get(nodeView)){
+                endNodeView = nodeView;
+            }
+        }
+        if(startNodeView == null || endNodeView == null) {
+            System.out.println("Failed to find start or end node");
+            return null;
+        } else {
+            AssociationEdgeView edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
+            initEdgeActions(edgeView);
+            allEdgeViews.add(edgeView);
+            aDrawPane.getChildren().add(edgeView);
+            return edgeView;
+        }
+    }
+
+    private void reset(){
+        graph = new Graph();
+        aDrawPane.getChildren().clear();
+        nodeMap.clear();
+        allNodeViews.clear();
+    }
+
+    private void load(Graph graph){
+        reset();
+
+        if (graph != null) {
+            this.graph = graph;
+            for(AbstractNode node : this.graph.getAllNodes()){
+                createNodeView(node);
+            }
+
+            for(Edge edge : this.graph.getAllEdges()){
+                addEdgeView((AbstractEdge) edge);
+            }
+        }
     }
 
 }

@@ -3,13 +3,15 @@ package model;
 import javafx.beans.property.*;
 import javafx.geometry.Rectangle2D;
 
+import java.io.Serializable;
+
 /**
  * Abstract Node to hide some basic functionality for Nodes.
  */
-public abstract class AbstractNode implements Node
+public abstract class AbstractNode implements Node, Serializable
 {
-    private final double MIN_WIDTH = 25;
-    private final double MIN_HEIGHT = 25;
+    private final double MIN_WIDTH = 110;
+    private final double MIN_HEIGHT = 90;
     private StringProperty aTitle = new SimpleStringProperty();
     private DoubleProperty x = new SimpleDoubleProperty();
     private DoubleProperty y = new SimpleDoubleProperty();
@@ -178,5 +180,12 @@ public abstract class AbstractNode implements Node
     @Override
     public String toString() {
         return super.toString() + " x=" + getX() + " y=" + getY() + " height=" + getHeight() + " width=" + getWidth();
+    }
+
+    /**
+     * No-arg constructor for JavaBean convention
+     */
+    public AbstractNode(){
+
     }
 }

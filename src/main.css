@@ -11,7 +11,12 @@
     -fx-padding: 10 10;
 }
 
-.button:armed {
+.button:focused {
+    -fx-text-fill: white;
+    -fx-background-color: black;
+}
+
+.button-in-use{
     -fx-text-fill: white;
     -fx-background-color: black;
 }

@@ -96,9 +96,6 @@ public class MainController {
     @FXML private CheckMenuItem sketchesMenuItem;
     @FXML private CheckMenuItem mouseMenuItem;
 
-
-
-
     private ContextMenu aContextMenu;
 
     private AbstractNodeView nodeClicked;
@@ -126,7 +123,6 @@ public class MainController {
         recognizeController = new RecognizeController(aDrawPane, this);
 
         undoManager = new UndoManager();
-
     }
 
     
@@ -1055,13 +1051,18 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
     @FXML private Button moveBtn;
     @FXML private Button deleteBtn;
     @FXML private Button recognizeBtn;
+    private Button buttonInUse;
 
     private void initToolBarActions() {
+
+        buttonInUse = createBtn;
+        buttonInUse.getStyleClass().add("button-in-use");
 
         createBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 tool = ToolEnum.CREATE;
+                setButtonClicked(createBtn);
             }
         });
 
@@ -1069,6 +1070,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             @Override
             public void handle(ActionEvent event) {
                 tool = ToolEnum.PACKAGE;
+                setButtonClicked(packageBtn);
             }
         });
 
@@ -1076,6 +1078,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             @Override
             public void handle(ActionEvent event) {
                 tool = ToolEnum.EDGE;
+                setButtonClicked(edgeBtn);
             }
         });
 
@@ -1083,6 +1086,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             @Override
             public void handle(ActionEvent event) {
                 tool = ToolEnum.SELECT;
+                setButtonClicked(selectBtn);
             }
         });
 
@@ -1090,6 +1094,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             @Override
             public void handle(ActionEvent event) {
                 tool = ToolEnum.DRAW;
+                setButtonClicked(drawBtn);
             }
         });
 
@@ -1125,69 +1130,15 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             @Override
             public void handle(ActionEvent event) {
                 recognize();
-                ArrayList<GraphElement> recognized = recognizeController.recognize(selectedSketches);
-                CompoundCommand recognizeCompoundCommand = new CompoundCommand();
-
-                for (GraphElement e : recognized) {
-                    if (e instanceof ClassNode) {
-                        ClassNodeView nodeView = new ClassNodeView((ClassNode) e);
-                        recognizeCompoundCommand.add(
-                                new AddDeleteNodeCommand(MainController.this, graph, nodeView, (ClassNode) e, true));
-                        nodeMap.put(nodeView, (ClassNode) e);
-                        aDrawPane.getChildren().add(nodeView);
-                        allNodeViews.add(nodeView);
-                        initNodeActions(nodeView);
-                    }
-                }
-                for (GraphElement e2 : recognized) {
-                    if (e2 instanceof AssociationEdge) {
-                        AssociationEdge edge = (AssociationEdge) e2;
-                        //Only add the edge to the graph if it connects two nodes.
-                        AbstractNodeView startNodeView = null;
-                        AbstractNodeView endNodeView = null;
-
-                        for (AbstractNodeView nView : allNodeViews) {
-                            if (nView.contains(edge.getStartNode().getX(), edge.getStartNode().getY())) {
-                                startNodeView = nView;
-                                break;
-                            }
-                        }
-
-                        for (AbstractNodeView nView : allNodeViews) {
-                            if (nView.contains(edge.getEndNode().getX(),
-                                    edge.getEndNode().getY())) {
-                                endNodeView = nView;
-                                break;
-                            }
-                        }
-
-                        AssociationEdgeView edgeView = (AssociationEdgeView) edgeController.
-                                onMouseReleased(edge, startNodeView, endNodeView);
-                        //TODO This check shouldn't be necessary?
-                        if (startNodeView != null && endNodeView != null) {
-                            initEdgeActions(edgeView);
-                            allEdgeViews.add(edgeView);
-                            recognizeCompoundCommand.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
-                        }
-                    }
-                }
-                //Add the removal of sketches to UndoManager:
-                for (Sketch sketch : recognizeController.getSketchesToBeRemoved()) {
-                    recognizeCompoundCommand.add(new AddDeleteSketchCommand(aDrawPane, sketch, false));
-                    aDrawPane.getChildren().remove(sketch);
-                    graph.removeSketch(sketch);
-                }
-                selectedSketches.removeAll(recognizeController.getSketchesToBeRemoved());
-                undoManager.add(recognizeCompoundCommand);
-                //Bring all sketches to front:
-                for (Sketch sketch : allSketches) {
-                    sketch.getPath().toFront();
-                }
-                mode = Mode.NO_MODE;
             }
         });
 
+    }
 
+    private void setButtonClicked(Button b){
+        buttonInUse.getStyleClass().remove("button-in-use");
+        buttonInUse = b;
+        buttonInUse.getStyleClass().add("button-in-use");
     }
 
     private void recognize(){

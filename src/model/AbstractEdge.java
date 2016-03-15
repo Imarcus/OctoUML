@@ -77,6 +77,12 @@ public abstract class AbstractEdge implements Edge, Serializable {
         this.endNode = node;
     }
 
+
+    @Override
+    public String toString() {
+        return super.toString() + this.getClass().toString() + " " + direction + getStartMultiplicity() + getEndMultiplicity();
+    }
+
     /**
      * No-arg constructor for JavaBean convention
      */

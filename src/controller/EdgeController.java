@@ -15,10 +15,8 @@ import javafx.scene.shape.Line;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.*;
-import view.AbstractEdgeView;
-import view.AbstractNodeView;
-import view.AssociationEdgeView;
-import view.EdgeView;
+import view.*;
+import weka.core.neighboursearch.balltrees.PointsClosestToFurthestChildren;
 
 import java.io.IOException;
 
@@ -114,7 +112,7 @@ public class EdgeController {
         return new AssociationEdge(startNode, endNode);
     }
 
-    public boolean showEdgeEditDialog(AssociationEdge edge) {
+    public boolean showEdgeEditDialog(AbstractEdge edge) {
         try {
             // Load the fxml file and create a new stage for the popup
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("edgeEditDialog.fxml"));
@@ -130,6 +128,7 @@ public class EdgeController {
             EdgeEditDialogController controller = loader.getController();
             controller.setEdge(edge);
             ChoiceBox box = controller.getDirectionBox();
+            ChoiceBox type = controller.getTypeBox();
             controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -138,6 +137,15 @@ public class EdgeController {
                     }
                     edge.setStartMultiplicity(controller.getStartMultiplicity());
                     edge.setEndMultiplicity(controller.getEndMultiplicity());
+                    if (type.getValue() != null) {
+                        if (type.getValue().equals("Inheritance") && !(edge instanceof InheritanceEdge)) {
+                            InheritanceEdge newEdge = new InheritanceEdge(edge.getStartNode(), edge.getEndNode());
+                            mainController.replaceEdge(edge, newEdge);
+                        } else if (type.getValue().equals("Association") && !(edge instanceof AssociationEdge)) {
+                            AssociationEdge newEdge = new AssociationEdge(edge.getStartNode(), edge.getEndNode());
+                            mainController.replaceEdge(edge, newEdge);
+                        }
+                    }
                     aDrawPane.getChildren().remove(dialog);
                 }
             });

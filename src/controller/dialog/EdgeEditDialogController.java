@@ -23,6 +23,8 @@ public class EdgeEditDialogController {
     @FXML
     private ChoiceBox directionBox;
     @FXML
+    private ChoiceBox typeBox;
+    @FXML
     private TextField startMultiplicity;
     @FXML
     private TextField endMultiplicity;
@@ -63,8 +65,14 @@ public class EdgeEditDialogController {
         return directionBox;
     }
 
+    public ChoiceBox getTypeBox() {
+        return typeBox;
+    }
+
     public void setEdge(AbstractEdge edge) {
         this.edge = edge;
+        //TODO Hardcoded values. Where to put them?
+        typeBox.getItems().setAll("Association", "Inheritance");
         directionBox.getItems().setAll(AbstractEdge.Direction.values());
         startMultiplicity.setText(edge.getStartMultiplicity());
         endMultiplicity.setText(edge.getEndMultiplicity());

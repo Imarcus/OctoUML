@@ -486,6 +486,41 @@ public class MainController {
     }
 
 
+    public boolean replaceEdge(AbstractEdge oldEdge, AbstractEdge newEdge) {
+        AbstractEdgeView oldEdgeView = null;
+        for (AbstractEdgeView edgeView : allEdgeViews) {
+            if (edgeView.getRefEdge().equals(oldEdge)) {
+                oldEdgeView = edgeView;
+                break;
+            }
+        }
+        if (oldEdgeView == null) {
+            return false;
+        }
+        deleteEdge(oldEdgeView, null, false);
+
+        newEdge.setDirection(oldEdge.getDirection());
+        newEdge.setStartMultiplicity(oldEdge.getStartMultiplicity());
+        newEdge.setEndMultiplicity(oldEdge.getEndMultiplicity());
+        graph.addEdge(newEdge);
+
+        AbstractEdgeView newEdgeView = null;
+        if (newEdge instanceof AssociationEdge) {
+            newEdgeView = new AssociationEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
+        } else if (newEdge instanceof InheritanceEdge) {
+            newEdgeView = new InheritanceEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
+        }
+        if (newEdgeView == null) {
+            return false;
+        }
+
+        allEdgeViews.add(newEdgeView);
+        initEdgeActions(newEdgeView);
+        undoManager.add(new AddDeleteEdgeCommand(MainController.this, newEdgeView, newEdge, true));
+        aDrawPane.getChildren().add(newEdgeView);
+        System.out.println("Replaced Edge: Old edge:" + oldEdge.toString() + " new edge: "+ newEdge.toString());
+        return true;
+    }
 
     private void drawSelected(){
         for(AbstractNodeView nodeView : allNodeViews){
@@ -935,7 +970,7 @@ private void initEdgeActions(AbstractEdgeView edgeView){
             }
             if (event.getClickCount() == 2 || event.getButton() == MouseButton.SECONDARY) {
                 //TODO If more kinds of Edges implemented: this will not work:
-                edgeController.showEdgeEditDialog((AssociationEdge) edgeView.getRefEdge());
+                edgeController.showEdgeEditDialog(edgeView.getRefEdge());
             }
         }
     });

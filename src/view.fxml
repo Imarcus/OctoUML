@@ -3,21 +3,14 @@
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.CheckMenuItem?>
 <?import java.net.URL?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
-
-
-<?import java.net.URL?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.HBox?>
+
 <BorderPane fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
     <top>
         <VBox>
@@ -55,16 +48,14 @@
                     <Button text="Create" fx:id="createBtn"/>
                     <Button text="Package" fx:id="packageBtn"/>
                     <Button text="Edge" fx:id="edgeBtn"/>
-                </HBox>
-                <HBox fx:id="drawBox">
                     <Button text="Draw" fx:id="drawBtn"/>
                 </HBox>
                 <HBox fx:id="utilBox">
                     <Button text="Select" fx:id="selectBtn"/>
                     <Button text="Move" fx:id="moveBtn"/>
-                    <Button text="Delete" fx:id="deleteBtn"/>
                 </HBox>
                 <HBox fx:id="undoBox">
+                    <Button text="Delete" fx:id="deleteBtn"/>
                     <Button text="Undo" fx:id="undoBtn"/>
                     <Button text="Redo" fx:id="redoBtn"/>
                 </HBox>

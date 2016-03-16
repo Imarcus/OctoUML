@@ -7,18 +7,16 @@
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-background-repeat: no-repeat;
-    -fx-background-color: #55596d;
+    -fx-background-color: #95A5A6;
     -fx-padding: 10 10;
-}
+    -fx-border-radius: 0 0 0 0;
+    -fx-background-radius: 0 0 0 0;
 
-.button:focused {
-    -fx-text-fill: white;
-    -fx-background-color: black;
 }
 
 .button-in-use{
     -fx-text-fill: white;
-    -fx-background-color: black;
+    -fx-background-color: #7F8C8D;
 }
 
 #aDrawPane {
@@ -26,7 +24,7 @@
 }
 
 #aToolBar {
-    -fx-background-color: #c8c8c9;
+    -fx-background-color: #2C3E50;
     -fx-alignment: center;
     -fx-padding: 10 10;
     -fx-spacing: 20;

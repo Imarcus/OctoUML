@@ -2,6 +2,8 @@ package controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Path;
 import javafx.stage.FileChooser;
@@ -1065,6 +1067,22 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
 
     private void initToolBarActions() {
 
+        Image image = new Image("/icons/class.png");
+        ImageView imageView = new ImageView(image);
+        imageView.setScaleX(0.2);
+        imageView.setScaleY(0.2);
+
+        createBtn.setGraphic(imageView);
+        createBtn.setText("");
+
+        image = new Image("/icons/package.png");
+        packageBtn.setGraphic(new ImageView(image));
+        packageBtn.setText("");
+
+        image = new Image("/icons/edge.png");
+        edgeBtn.setGraphic(new ImageView(image));
+        edgeBtn.setText("");
+
         buttonInUse = createBtn;
         buttonInUse.getStyleClass().add("button-in-use");
 
@@ -1125,6 +1143,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         moveBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                setButtonClicked(moveBtn);
                 tool = ToolEnum.MOVE_SCENE;
             }
         });

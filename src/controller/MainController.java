@@ -511,6 +511,8 @@ public class MainController {
             newEdgeView = new InheritanceEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
         } else if (newEdge instanceof AggregationEdge) {
             newEdgeView = new AggregationEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
+        } else if (newEdge instanceof CompositionEdge) {
+            newEdgeView = new CompositionEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
         }
         if (newEdgeView == null) {
             return false;

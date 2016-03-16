@@ -147,6 +147,9 @@ public class EdgeController {
                         } else if (type.getValue().equals("Aggregation") && !(edge instanceof AggregationEdge)) {
                             AggregationEdge newEdge = new AggregationEdge(edge.getStartNode(), edge.getEndNode());
                             mainController.replaceEdge(edge, newEdge);
+                        } else if (type.getValue().equals("Composition") && !(edge instanceof CompositionEdge)) {
+                            CompositionEdge newEdge = new CompositionEdge(edge.getStartNode(), edge.getEndNode());
+                            mainController.replaceEdge(edge, newEdge);
                         }
                     }
                     aDrawPane.getChildren().remove(dialog);

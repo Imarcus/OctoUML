@@ -509,6 +509,8 @@ public class MainController {
             newEdgeView = new AssociationEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
         } else if (newEdge instanceof InheritanceEdge) {
             newEdgeView = new InheritanceEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
+        } else if (newEdge instanceof AggregationEdge) {
+            newEdgeView = new AggregationEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
         }
         if (newEdgeView == null) {
             return false;

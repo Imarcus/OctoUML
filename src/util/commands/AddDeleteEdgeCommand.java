@@ -90,7 +90,7 @@ public class AddDeleteEdgeCommand implements Command
 	 */
 	private void delete()
 	{
-		aController.deleteEdge(aEdgeView, null, true);
+		aController.deleteEdgeView(aEdgeView, null, true);
 	}
 
 	/**

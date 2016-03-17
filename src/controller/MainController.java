@@ -848,12 +848,12 @@ public class MainController {
      * Deletes edfe
      * @param edgeView
      * @param pCommand Compound command from deleting all selected, if not null we create our own command.
-     * @param undo If true this is an undo and no command should be created
+     * @param undo If true this is an undo and no command should be created, also used by replaceEdge in EdgeController
      */
     public void deleteEdgeView(AbstractEdgeView edgeView, CompoundCommand pCommand, boolean undo) {
         CompoundCommand command = null;
-        //TODO Maybe not necessary for edges.
-        if (pCommand == null && !undo) {
+        //TODO Ugly solution for replace.
+        if (pCommand == null) {
             command = new CompoundCommand();
             selectedEdges.remove(edgeView);
         } else if (!undo){

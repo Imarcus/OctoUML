@@ -799,7 +799,7 @@ public class MainController {
             deleteNode(nodeView, command, false);
         }
         for (AbstractEdgeView edgeView : selectedEdges) {
-            deleteEdge(edgeView, command, false);
+            deleteEdgeView(edgeView, command, false);
         }
         for (Sketch sketch : selectedSketches) {
             deleteSketch(sketch, command);
@@ -815,7 +815,7 @@ public class MainController {
     /**
      * Deletes nodes and its associated edges
      * @param nodeView
-     * @param pCommand If not null we create our own command
+     * @param pCommand Compound command from deleting all selected, if not null we create our own command.
      * @param undo If true this is an undo and no command should be created
      */
     public void deleteNode(AbstractNodeView nodeView, CompoundCommand pCommand, boolean undo){
@@ -841,12 +841,19 @@ public class MainController {
         }
     }
 
-    public void deleteEdge(AbstractEdgeView edgeView, CompoundCommand pCommand, boolean undo) {
-        CompoundCommand command;
-        //TODO Maybe not necessary for edges.
+    /**
+     * Deletes edfe
+     * @param edgeView
+     * @param pCommand Compound command from deleting all selected, if not null we create our own command.
+     * @param undo If true this is an undo and no command should be created, also used by replaceEdge in EdgeController
+     */
+    public void deleteEdgeView(AbstractEdgeView edgeView, CompoundCommand pCommand, boolean undo) {
+        CompoundCommand command = null;
+        //TODO Ugly solution for replace.
         if (pCommand == null) {
             command = new CompoundCommand();
-        } else {
+            selectedEdges.remove(edgeView);
+        } else if (!undo){
             command = pCommand;
         }
 
@@ -856,8 +863,9 @@ public class MainController {
         allEdgeViews.remove(edgeView);
         if (!undo) {
             command.add(new AddDeleteEdgeCommand(this, edgeView, edge, false));
-        } else {
-            selectedEdges.remove(edgeView);
+        }
+        if(pCommand == null && !undo){
+            undoManager.add(command);
         }
     }
 
@@ -923,6 +931,14 @@ public class MainController {
         return allNodeViews;
     }
 
+    public ArrayList<AbstractEdgeView> getAllEdgeViews() {
+        return allEdgeViews;
+    }
+
+    public UndoManager getUndoManager(){
+        return undoManager;
+    }
+
 private void initEdgeActions(AbstractEdgeView edgeView){
     edgeView.setOnMousePressed(new EventHandler<MouseEvent>() {
         @Override
@@ -932,7 +948,7 @@ private void initEdgeActions(AbstractEdgeView edgeView){
             }
             if (event.getClickCount() == 2 || event.getButton() == MouseButton.SECONDARY) {
                 //TODO If more kinds of Edges implemented: this will not work:
-                edgeController.showEdgeEditDialog((AssociationEdge) edgeView.getRefEdge());
+                edgeController.showEdgeEditDialog(edgeView.getRefEdge());
             }
         }
     });
@@ -1516,8 +1532,14 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         AbstractEdgeView edgeView;
         if(edge instanceof AssociationEdge){
             edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
+        } else if (edge instanceof AggregationEdge) {
+            edgeView = new AggregationEdgeView(edge, startNodeView, endNodeView);
+        } else if (edge instanceof CompositionEdge) {
+            edgeView = new CompositionEdgeView(edge, startNodeView, endNodeView);
+        } else if (edge instanceof InheritanceEdge) {
+            edgeView = new InheritanceEdgeView(edge, startNodeView, endNodeView);
         } else {
-            return null;
+            edgeView = null;
         }
         return addEdgeView(edgeView);
     }
@@ -1528,9 +1550,11 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
      * @return
      */
     public AbstractEdgeView addEdgeView(AbstractEdgeView edgeView){
-        aDrawPane.getChildren().add(edgeView);
-        initEdgeActions(edgeView);
-        allEdgeViews.add(edgeView);
+        if(edgeView != null) {
+            aDrawPane.getChildren().add(edgeView);
+            initEdgeActions(edgeView);
+            allEdgeViews.add(edgeView);
+        }
 
         return edgeView;
     }
@@ -1563,6 +1587,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         aDrawPane.getChildren().clear();
         nodeMap.clear();
         allNodeViews.clear();
+        undoManager = new UndoManager();
     }
 
     private void load(Graph graph){

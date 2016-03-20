@@ -2,17 +2,19 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="224.0" prefWidth="340.0" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.dialog.EdgeEditDialogController">
+<AnchorPane prefHeight="234.0" prefWidth="340.0" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.dialog.EdgeEditDialogController">
     <children>
-        <GridPane prefHeight="164.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+        <GridPane prefHeight="175.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
             <children>
                 <Label text="Edit Edge" style="-fx-font: 16px Tahoma; -fx-stroke-width: 3;" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <Label text="Directionality" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <Label text="Start multiplicity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <Label text="End multiplicity" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                <ChoiceBox fx:id="directionBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                <TextField fx:id="startMultiplicity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <TextField fx:id="endMultiplicity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <Label text="Type" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label text="Directionality" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <Label text="Start multiplicity" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <Label text="End multiplicity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <ChoiceBox fx:id="typeBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <ChoiceBox fx:id="directionBox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <TextField fx:id="startMultiplicity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <TextField fx:id="endMultiplicity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             </children>
             <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />

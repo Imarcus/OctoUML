@@ -5,29 +5,22 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import javafx.scene.text.Text;
+import javafx.scene.shape.Polygon;
 import model.AbstractEdge;
 
 /**
- * The Graphical Representation of a AssociationEdge.
+ * Created by chris on 2016-03-11.
  */
-public class AssociationEdgeView extends AbstractEdgeView {
+public class InheritanceEdgeView extends AbstractEdgeView{
     private AbstractEdge refEdge;
-    private AbstractNodeView startNode;
-    private AbstractNodeView endNode;
 
-
-    
-    public AssociationEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
+    public InheritanceEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
         super(edge, startNode, endNode);
-        this.refEdge = edge;
-        this.startNode = startNode;
-        this.endNode = endNode;
+        refEdge = edge;
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
         draw();
         setChangeListeners();
-
     }
 
     protected void draw() {
@@ -67,6 +60,7 @@ public class AssociationEdgeView extends AbstractEdgeView {
      */
     private Group drawArrowHead(double startX, double startY, double endX, double endY) {
         Group group = new Group();
+
         double phi = Math.toRadians(40);
         int barb = 20;
         double dy = startY - endY;
@@ -74,14 +68,35 @@ public class AssociationEdgeView extends AbstractEdgeView {
         double theta = Math.atan2(dy, dx);
         double x, y, rho = theta + phi;
 
+        double[] xs = new double[2];
+        double[] ys = new double[2];
+
         for (int j = 0; j < 2; j++) {
             x = startX - barb * Math.cos(rho);
             y = startY - barb * Math.sin(rho);
-            Line arrowHeadLine = new Line(startX, startY, x, y);
-            arrowHeadLine.setStrokeWidth(super.STROKE_WIDTH);
-            group.getChildren().add(arrowHeadLine);
+            xs[j] = x;
+            ys[j] = y;
             rho = theta - phi;
         }
+
+        Polygon background = new Polygon();
+        background.getPoints().addAll(new Double[] {
+                startX, startY,
+                xs[0], ys[0],
+                xs[1], ys[1]
+        });
+        background.setFill(Color.WHITE);
+        background.toBack();
+        Line line1 = new Line(startX, startY, xs[0], ys[0]);
+        Line line2 = new Line(startX, startY, xs[1], ys[1]);
+        Line line3 = new Line(xs[0], ys[0], xs[1], ys[1]);
+        line1.setStrokeWidth(super.STROKE_WIDTH);
+        line2.setStrokeWidth(super.STROKE_WIDTH);
+        line3.setStrokeWidth(super.STROKE_WIDTH);
+        group.getChildren().add(background);
+        group.getChildren().add(line1);
+        group.getChildren().add(line2);
+        group.getChildren().add(line3);
         return group;
     }
 

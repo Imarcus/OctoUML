@@ -1084,11 +1084,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
     private void initToolBarActions() {
 
         Image image = new Image("/icons/class.png");
-        ImageView imageView = new ImageView(image);
-        imageView.setScaleX(0.2);
-        imageView.setScaleY(0.2);
-
-        createBtn.setGraphic(imageView);
+        createBtn.setGraphic(new ImageView(image));
         createBtn.setText("");
 
         image = new Image("/icons/package.png");
@@ -1098,6 +1094,34 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         image = new Image("/icons/edge.png");
         edgeBtn.setGraphic(new ImageView(image));
         edgeBtn.setText("");
+
+        image = new Image("/icons/select.png");
+        selectBtn.setGraphic(new ImageView(image));
+        selectBtn.setText("");
+
+        image = new Image("/icons/undo.png");
+        undoBtn.setGraphic(new ImageView(image));
+        undoBtn.setText("");
+
+        image = new Image("/icons/redo.png");
+        redoBtn.setGraphic(new ImageView(image));
+        redoBtn.setText("");
+
+        image = new Image("/icons/move.png");
+        moveBtn.setGraphic(new ImageView(image));
+        moveBtn.setText("");
+
+        image = new Image("/icons/delete.png");
+        deleteBtn.setGraphic(new ImageView(image));
+        deleteBtn.setText("");
+
+        image = new Image("/icons/draw.png");
+        drawBtn.setGraphic(new ImageView(image));
+        drawBtn.setText("");
+
+        image = new Image("/icons/recognize.png");
+        recognizeBtn.setGraphic(new ImageView(image));
+        recognizeBtn.setText("");
 
         buttonInUse = createBtn;
         buttonInUse.getStyleClass().add("button-in-use");

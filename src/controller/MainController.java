@@ -1237,7 +1237,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         zoomSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov,
                                 Number old_val, Number new_val) {
-                if(!zoomSlider.isValueChanging()){
+                if(zoomSlider.isValueChanging()){
                     graphController.zoomPane(old_val.doubleValue(), new_val.doubleValue());
                 }
                 //currentScale = event.getTotalZoomFactor() * currentScale;
@@ -1245,9 +1245,6 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             }
         });
         zoomSlider.setShowTickMarks(true);
-        zoomSlider.setMajorTickUnit(20);
-        zoomSlider.setMinorTickCount(0);
-        zoomSlider.setSnapToTicks(true);
     }
 
 

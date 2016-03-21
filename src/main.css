@@ -7,7 +7,7 @@
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-background-repeat: no-repeat;
-    -fx-background-color: #95A5A6;
+    -fx-background-color: #21487F;
     -fx-padding: 10 10;
     -fx-border-radius: 0 0 0 0;
     -fx-background-radius: 0 0 0 0;
@@ -16,7 +16,7 @@
 
 .button-in-use{
     -fx-text-fill: white;
-    -fx-background-color: #7F8C8D;
+    -fx-background-color: #082C59;
 }
 
 #aDrawPane {
@@ -24,7 +24,7 @@
 }
 
 #aToolBar {
-    -fx-background-color: #2C3E50;
+    -fx-background-color: #BDBDBD;
     -fx-alignment: center;
     -fx-padding: 10 10;
     -fx-spacing: 20;

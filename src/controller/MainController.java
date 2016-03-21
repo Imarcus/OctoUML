@@ -1083,43 +1083,43 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
 
     private void initToolBarActions() {
 
-        Image image = new Image("/icons/class.png");
+        Image image = new Image("/icons/classw.png");
         createBtn.setGraphic(new ImageView(image));
         createBtn.setText("");
 
-        image = new Image("/icons/package.png");
+        image = new Image("/icons/packagew.png");
         packageBtn.setGraphic(new ImageView(image));
         packageBtn.setText("");
 
-        image = new Image("/icons/edge.png");
+        image = new Image("/icons/edgew.png");
         edgeBtn.setGraphic(new ImageView(image));
         edgeBtn.setText("");
 
-        image = new Image("/icons/select.png");
+        image = new Image("/icons/selectw.png");
         selectBtn.setGraphic(new ImageView(image));
         selectBtn.setText("");
 
-        image = new Image("/icons/undo.png");
+        image = new Image("/icons/undow.png");
         undoBtn.setGraphic(new ImageView(image));
         undoBtn.setText("");
 
-        image = new Image("/icons/redo.png");
+        image = new Image("/icons/redow.png");
         redoBtn.setGraphic(new ImageView(image));
         redoBtn.setText("");
 
-        image = new Image("/icons/move.png");
+        image = new Image("/icons/movew.png");
         moveBtn.setGraphic(new ImageView(image));
         moveBtn.setText("");
 
-        image = new Image("/icons/delete.png");
+        image = new Image("/icons/deletew.png");
         deleteBtn.setGraphic(new ImageView(image));
         deleteBtn.setText("");
 
-        image = new Image("/icons/draw.png");
+        image = new Image("/icons/draww.png");
         drawBtn.setGraphic(new ImageView(image));
         drawBtn.setText("");
 
-        image = new Image("/icons/recognize.png");
+        image = new Image("/icons/recognizew.png");
         recognizeBtn.setGraphic(new ImageView(image));
         recognizeBtn.setText("");
 

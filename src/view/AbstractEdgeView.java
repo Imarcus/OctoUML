@@ -2,32 +2,123 @@ package view;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import model.AbstractEdge;
 
 /**
  * Created by chris on 2016-02-18.
  */
-public abstract class AbstractEdgeView extends Line implements EdgeView{
+public abstract class AbstractEdgeView extends Group implements EdgeView{
     private AbstractEdge refEdge;
     private AbstractNodeView startNode;
     private boolean selected = false;
+    public final double STROKE_WIDTH = 2;
+    public enum Position{
+        ABOVE, BELOW, RIGHT, LEFT, NONE
+    }
+
+    private Position position = Position.NONE;
+    private Text startMultiplicity;
+    private Text endMultiplicity;
+
+    private AbstractNodeView endNode;
+    private Line line;
+
+    public AbstractEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
+        super();
+        this.refEdge = edge;
+        this.startNode = startNode;
+        this.endNode = endNode;
+        this.setVisible(true);
+        line = new Line();
+        this.getChildren().add(line);
+        startMultiplicity = new Text(edge.getStartMultiplicity());
+        endMultiplicity = new Text(edge.getEndMultiplicity());
+        setChangeListeners();
+        setPosition();
+        line.setStrokeWidth(STROKE_WIDTH);
+    }
+
+    protected void draw() {
+        //Draw multiplicity
+        Position position = getPosition();
+        final double OFFSET = 20;
+
+        switch (position) {
+            case RIGHT:
+                startMultiplicity.setX(getLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getLine().getEndX() - OFFSET - endMultiplicity.getText().length() -5);
+                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                break;
+            case LEFT:
+                startMultiplicity.setX(getLine().getStartX() - OFFSET - endMultiplicity.getText().length() -5);
+                startMultiplicity.setY(getLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                break;
+            case ABOVE:
+                startMultiplicity.setX(getLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getLine().getStartY() - OFFSET);
+                endMultiplicity.setX(getLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                break;
+            case BELOW:
+                startMultiplicity.setX(getLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getLine().getEndY() - OFFSET);
+                break;
+        }
+        startMultiplicity.toFront();
+        endMultiplicity.toFront();
+        //TODO This doesn't seem to work?
+        //getChildren().add(startMultiplicity);
+        //getChildren().add(endMultiplicity);
+    }
+
+    public Text getStartMultiplicity() {
+        return startMultiplicity;
+    }
+
+    public Text getEndMultiplicity() {
+        return endMultiplicity;
+    }
 
     public AbstractEdge getRefEdge() {
         return refEdge;
     }
 
-    private AbstractNodeView endNode;
+    public void setStrokeWidth(double width) {
+        line.setStrokeWidth(width);
+    }
 
-    public AbstractEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
-        this.refEdge = edge;
-        this.startNode = startNode;
-        this.endNode = endNode;
-        this.setVisible(true);
-        setChangeListeners();
-        setPosition();
-        this.setStrokeWidth(5);
+    public void setStroke(Paint value){
+        line.setStroke(value);
+    }
+
+    public double getStartX() {
+        return line.getStartX();
+    }
+
+    public double getStartY(){
+        return line.getStartY();
+    }
+
+    public double getEndX(){
+        return line.getEndX();
+    }
+
+    public double getEndY(){
+        return line.getEndY();
+    }
+
+    public Line getLine() {
+        return line;
     }
 
     public boolean isSelected() {
@@ -37,47 +128,66 @@ public abstract class AbstractEdgeView extends Line implements EdgeView{
     public void setSelected(boolean selected){
         this.selected = selected;
         if (selected){
-            setStroke(Color.MEDIUMVIOLETRED);
+            line.setStroke(Color.MEDIUMVIOLETRED);
         } else {
-            setStroke(Color.BLACK);
+            line.setStroke(Color.BLACK);
         }
     }
 
-    private void setPosition() {
-        double startNodeWidth = startNode.getWidth() * startNode.getScaleX();
-        double startNodeHeight = startNode.getHeight() * startNode.getScaleY();
-        double endNodeWidth = endNode.getWidth() * endNode.getScaleX();
-        double endNodeHeight = endNode.getHeight() * endNode.getScaleY();
+    public Position getPosition() {
+        return position;
+    }
 
-        //IF end node is to the right of startNode:
-        if (startNode.getTranslateX() + startNodeWidth <= endNode.getTranslateX()) {
-            this.setStartX(startNode.getTranslateX() + startNodeWidth);
-            this.setStartY(startNode.getTranslateY() + (startNodeHeight / 2));
-            this.setEndX(endNode.getTranslateX());
-            this.setEndY(endNode.getTranslateY() + (endNodeHeight / 2));
+    private void setPosition() {
+        //If end node is to the right of startNode:
+        if (startNode.getTranslateX() + startNode.getWidth() <= endNode.getTranslateX()) {
+            line.setStartX(startNode.getTranslateX() + startNode.getWidth());
+            line.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            line.setEndX(endNode.getTranslateX());
+            line.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            position = Position.RIGHT;
         }
         //If end node is to the left of startNode:
-        else if (startNode.getTranslateX() > endNode.getTranslateX() + endNodeWidth) {
-            this.setStartX(startNode.getTranslateX());
-            this.setStartY(startNode.getTranslateY() + (startNodeHeight / 2));
-            this.setEndX(endNode.getTranslateX() + endNodeWidth);
-            this.setEndY(endNode.getTranslateY() + (endNodeHeight / 2));
+        else if (startNode.getTranslateX() > endNode.getTranslateX() + endNode.getWidth()) {
+            line.setStartX(startNode.getTranslateX());
+            line.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            line.setEndX(endNode.getTranslateX() + endNode.getWidth());
+            line.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            position = Position.LEFT;
         }
         // If end node is below startNode:
-        else if (startNode.getTranslateY() + startNodeHeight < endNode.getTranslateY()){
-            this.setStartX(startNode.getTranslateX() + (startNodeWidth /2));
-            this.setStartY(startNode.getTranslateY() + startNodeHeight);
-            this.setEndX(endNode.getTranslateX() + (endNodeWidth/2));
-            this.setEndY(endNode.getTranslateY());
+        else if (startNode.getTranslateY() + startNode.getHeight() < endNode.getTranslateY()){
+            line.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+            line.setStartY(startNode.getTranslateY() + startNode.getHeight());
+            line.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            line.setEndY(endNode.getTranslateY());
+            position = Position.BELOW;
         }
         //If end node is above startNode:
-        else if (startNode.getTranslateY() >= endNode.getTranslateY() + endNodeHeight) {
-            this.setStartX(startNode.getTranslateX() + (startNodeWidth / 2));
-            this.setStartY(startNode.getTranslateY());
-            this.setEndX(endNode.getTranslateX() + (endNodeWidth/2));
-            this.setEndY(endNode.getTranslateY() + endNodeHeight);
+        else if (startNode.getTranslateY() >= endNode.getTranslateY() + endNode.getHeight()) {
+            line.setStartX(startNode.getTranslateX() + (startNode.getWidth() / 2));
+            line.setStartY(startNode.getTranslateY());
+            line.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            line.setEndY(endNode.getTranslateY() + endNode.getHeight());
+            position = Position.ABOVE;
         }
         //TODO Handle when the nodes are overlapping.
+    }
+
+    public AbstractNodeView getStartNode() {
+        return startNode;
+    }
+
+    public void setStartNode(AbstractNodeView startNode) {
+        this.startNode = startNode;
+    }
+
+    public AbstractNodeView getEndNode() {
+        return endNode;
+    }
+
+    public void setEndNode(AbstractNodeView endNode) {
+        this.endNode = endNode;
     }
 
     private void setChangeListeners() {
@@ -110,6 +220,22 @@ public abstract class AbstractEdgeView extends Line implements EdgeView{
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 setStrokeWidth(newValue.doubleValue());
                 setPosition();
+            }
+        });
+
+        refEdge.startMultiplicityProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                startMultiplicity.setText(newValue);
+                draw();
+            }
+        });
+
+        refEdge.endMultiplicityProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                endMultiplicity.setText(newValue);
+                draw();
             }
         });
     }

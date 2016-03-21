@@ -12,6 +12,8 @@
 <?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Label?>
+<?import java.net.URL?>
+
 <BorderPane fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
     <top>
         <MenuBar fx:id="menuBar">
@@ -68,4 +70,7 @@
             <Slider fx:id="zoomSlider" min="10"  max="200" value="100"/>
         </ToolBar>
     </bottom>
+    <stylesheets>
+        <URL value="@main.css" />
+    </stylesheets>
 </BorderPane>

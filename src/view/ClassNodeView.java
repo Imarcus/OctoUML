@@ -5,12 +5,14 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -25,15 +27,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     private Text attributes;
     private Text operations;
 
-    private StackPane titleStackPane;
-    private StackPane attributesStackPane;
-    private StackPane operationsStackPane;
+    private Rectangle rectangle;
 
-    private Rectangle titleRectangle;
-    private Rectangle attributesRectangle;
-    private Rectangle operationsRectangle;
+    private StackPane container;
+    private VBox vbox;
 
-    private VBox container;
+    private Separator firstLine;
+    private Separator secondLine;
 
     private final double TOP_MAX_HEIGHT = 50;
     private final double TOP_HEIGHT_RATIO = 0.2;
@@ -43,22 +43,20 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         super(node);
         setChangeListeners();
 
-        container = new VBox();
-        operationsStackPane = new StackPane();
-        attributesStackPane = new StackPane();
-        titleStackPane = new StackPane();
+        container = new StackPane();
+        rectangle = new Rectangle();
+        vbox = new VBox();
+        container.getChildren().addAll(rectangle, vbox);
 
-        createTexts();
+
+
+        initVBox();
         createRectangles();
-
-
-        titleStackPane.getChildren().addAll(titleRectangle, title);
-        attributesStackPane.getChildren().addAll(attributesRectangle, attributes);
-        operationsStackPane.getChildren().addAll(operationsRectangle, operations);
+        changeHeight(node.getHeight());
+        changeWidth(node.getWidth());
 
         initLooks();
 
-        container.getChildren().addAll(titleStackPane, attributesStackPane, operationsStackPane);
         this.getChildren().add(container);
 
         this.setTranslateX(node.getTranslateX());
@@ -67,82 +65,92 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
     private void createRectangles(){
         ClassNode node = (ClassNode) getRefNode();
-        titleRectangle = new Rectangle();
-        attributesRectangle = new Rectangle();
-        operationsRectangle = new Rectangle();
         changeHeight(node.getHeight());
         changeWidth(node.getWidth());
-        titleRectangle.setX(node.getX());
-        titleRectangle.setY(node.getY());
-
-        attributesRectangle.setX(node.getX());
-        attributesRectangle.setY(node.getY() + titleRectangle.getHeight());
-
-        operationsRectangle.setX(node.getX());
-        operationsRectangle.setY(node.getY() + titleRectangle.getHeight() + attributesRectangle.getHeight());
+        rectangle.setX(node.getX());
+        rectangle.setY(node.getY());
     }
 
     private void changeHeight(double height){
         setHeight(height);
-        titleRectangle.setHeight(Math.min(TOP_MAX_HEIGHT, height*TOP_HEIGHT_RATIO));
-        attributesRectangle.setHeight((height - titleRectangle.getHeight())/2);
-        operationsRectangle.setHeight((height - titleRectangle.getHeight())/2);
+        rectangle.setHeight(height);
     }
 
     private void changeWidth(double width){
         setWidth(width);
-        titleRectangle.setWidth(width);
-        attributesRectangle.setWidth(width);
-        operationsRectangle.setWidth(width);
-        titleStackPane.setMinWidth(width);
+        rectangle.setWidth(width);
         container.setMaxWidth(width);
+
+        vbox.setMaxWidth(width);
+
+        firstLine.setMaxWidth(width);
+        //firstLine.setPrefWidth(width);
+
+        secondLine.setMaxWidth(width);
+        //secondLine.setPrefWidth(width);
     }
 
-    private void createTexts(){
+    private void initVBox(){
         ClassNode node = (ClassNode) getRefNode();
-        title = new Text(node.getTitle());
+
+        vbox.setPadding(new Insets(5, 0, 5, 0));
+        vbox.setSpacing(5);
+
+        StackPane titlePane = new StackPane();
+
+        firstLine = new Separator();
+        firstLine.setMaxWidth(node.getWidth());
+
+        secondLine = new Separator();
+        secondLine.setMaxWidth(node.getWidth());
+
+        title = new Text();
+        if(node.getTitle() != null) {
+            title.setText(node.getTitle());
+        } else {
+            firstLine.setVisible(false);
+        }
         title.setTextAlignment(TextAlignment.CENTER);
-        title.setWrappingWidth(node.getWidth() - 7);         //TODO Ugly solution, hardcoded value.
 
         attributes = new Text(node.getAttributes());
+
         operations = new Text(node.getOperations());
+
+        if(operations.getText() == null || operations.getText().equals("")){
+            secondLine.setVisible(false);
+        }
+
+        titlePane.getChildren().add(title);
+        vbox.getChildren().addAll(titlePane, firstLine, attributes, secondLine, operations);
     }
 
     private void initLooks(){
-        titleRectangle.setStrokeWidth(STROKE_WIDTH);
-        titleRectangle.setFill(Color.LIGHTSKYBLUE);
-        titleRectangle.setStroke(Color.BLACK);
+        rectangle.setStrokeWidth(STROKE_WIDTH);
+        rectangle.setFill(Color.LIGHTSKYBLUE);
+        rectangle.setStroke(Color.BLACK);
 
-        attributesRectangle.setStrokeWidth(STROKE_WIDTH);
-        attributesRectangle.setFill(Color.LIGHTSKYBLUE);
-        attributesRectangle.setStroke(Color.BLACK);
+        title.setWrappingWidth(getRefNode().getWidth() - 7);         //TODO Ugly solution, hardcoded value.
+        attributes.setWrappingWidth(getRefNode().getWidth() - 7);
+        operations.setWrappingWidth(getRefNode().getWidth() - 7);
 
-        operationsRectangle.setStrokeWidth(STROKE_WIDTH);
-        operationsRectangle.setFill(Color.LIGHTSKYBLUE);
-        operationsRectangle.setStroke(Color.BLACK);
-
-        StackPane.setAlignment(title, Pos.TOP_CENTER);
-        StackPane.setMargin(title, new Insets(5,0,0,0));
-        StackPane.setAlignment(attributes, Pos.TOP_LEFT);
-        StackPane.setMargin(attributes, new Insets(5,0,0,5));
-        StackPane.setAlignment(operations, Pos.TOP_LEFT);
-        StackPane.setMargin(operations, new Insets(5,0,0,5));
+        //StackPane.setAlignment(title, Pos.TOP_CENTER);
+        //VBox.setMargin(title, new Insets(5,0,0,0));
+        //StackPane.setAlignment(attributes, Pos.TOP_LEFT);
+        StackPane.setAlignment(title, Pos.CENTER);
+        VBox.setMargin(attributes, new Insets(5,0,0,5));
+        VBox.setMargin(operations, new Insets(5,0,0,5));
     }
 
     public void setStrokeWidth(double scale){
-        titleRectangle.setStrokeWidth(scale);
+        rectangle.setStrokeWidth(scale);
     }
 
     public void setFill(Paint p) {
-        titleRectangle.setFill(p);
-        attributesRectangle.setFill(p);
-        operationsRectangle.setFill(p);
+        rectangle.setFill(p);
     }
 
     public void setStroke(Paint p) {
-        titleRectangle.setStroke(p);
-        attributesRectangle.setStroke(p);
-        operationsRectangle.setStroke(p);
+        rectangle.setStroke(p);
     }
 
     public Bounds getBounds(){
@@ -183,8 +191,12 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         refNode.titleProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                //TODO Check how long the new string is, and handle that!
                 title.setText(newValue);
+                if(title.getText() == null || title.getText().equals("")){
+                    firstLine.setVisible(false);
+                } else {
+                    firstLine.setVisible(true);
+                }
             }
         });
 
@@ -199,6 +211,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 operations.setText(newValue);
+                if(operations.getText() == null || operations.getText().equals("")){
+                    secondLine.setVisible(false);
+                } else {
+                    secondLine.setVisible(true);
+                }
             }
         });
     }

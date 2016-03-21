@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="234.0" prefWidth="340.0" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.dialog.EdgeEditDialogController">
+    <children>
+        <GridPane prefHeight="175.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+            <children>
+                <Label text="Edit Edge" style="-fx-font: 16px Tahoma; -fx-stroke-width: 3;" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label text="Type" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label text="Directionality" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <Label text="Start multiplicity" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <Label text="End multiplicity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <ChoiceBox fx:id="typeBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <ChoiceBox fx:id="directionBox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <TextField fx:id="startMultiplicity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <TextField fx:id="endMultiplicity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            </children>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+        </GridPane>
+        <HBox id="HBox" alignment="CENTER" minWidth="-1.0" spacing="5.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
+            <children>
+                <Button fx:id="okButton" mnemonicParsing="false" prefWidth="80.0" text="OK" />
+                <Button fx:id="cancelButton" mnemonicParsing="false" prefWidth="80.0" text="Cancel" />
+            </children>
+        </HBox>
+    </children>
+</AnchorPane>

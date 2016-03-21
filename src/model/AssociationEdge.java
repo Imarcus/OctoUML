@@ -4,7 +4,7 @@ package model;
  * Created by chris on 2016-02-15.
  */
 public class AssociationEdge extends AbstractEdge {
-    private Node startNode;
+    private Node startNode; //TODO these are not needed since they are in the super class
     private Node endNode;
 
     public AssociationEdge(Node startNode, Node endNode) {
@@ -59,5 +59,9 @@ public class AssociationEdge extends AbstractEdge {
      * No-arg constructor for JavaBean convention
      */
     public AssociationEdge(){
+    }
+    
+    public AssociationEdge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy){
+        return new AssociationEdge(startNodeCopy, endNodeCopy);
     }
 }

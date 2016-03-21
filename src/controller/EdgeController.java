@@ -1,24 +1,18 @@
 package controller;
 
 import controller.dialog.EdgeEditDialogController;
-import controller.dialog.NodeEditDialogController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
-import javafx.scene.Scene;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import model.*;
-import view.AbstractEdgeView;
-import view.AbstractNodeView;
-import view.AssociationEdgeView;
-import view.EdgeView;
+import util.commands.ReplaceEdgeCommand;
+import view.*;
 
 import java.io.IOException;
 
@@ -114,7 +108,7 @@ public class EdgeController {
         return new AssociationEdge(startNode, endNode);
     }
 
-    public boolean showEdgeEditDialog(AssociationEdge edge) {
+    public boolean showEdgeEditDialog(AbstractEdge edge) {
         try {
             // Load the fxml file and create a new stage for the popup
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("edgeEditDialog.fxml"));
@@ -130,6 +124,7 @@ public class EdgeController {
             EdgeEditDialogController controller = loader.getController();
             controller.setEdge(edge);
             ChoiceBox box = controller.getDirectionBox();
+            ChoiceBox type = controller.getTypeBox();
             controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -138,6 +133,21 @@ public class EdgeController {
                     }
                     edge.setStartMultiplicity(controller.getStartMultiplicity());
                     edge.setEndMultiplicity(controller.getEndMultiplicity());
+                    if (type.getValue() != null) {
+                        if (type.getValue().equals("Inheritance") && !(edge instanceof InheritanceEdge)) {
+                            InheritanceEdge newEdge = new InheritanceEdge(edge.getStartNode(), edge.getEndNode());
+                            replaceEdge(edge, newEdge);
+                        } else if (type.getValue().equals("Association") && !(edge instanceof AssociationEdge)) {
+                            AssociationEdge newEdge = new AssociationEdge(edge.getStartNode(), edge.getEndNode());
+                            replaceEdge(edge, newEdge);
+                        } else if (type.getValue().equals("Aggregation") && !(edge instanceof AggregationEdge)) {
+                            AggregationEdge newEdge = new AggregationEdge(edge.getStartNode(), edge.getEndNode());
+                            replaceEdge(edge, newEdge);
+                        } else if (type.getValue().equals("Composition") && !(edge instanceof CompositionEdge)) {
+                            CompositionEdge newEdge = new CompositionEdge(edge.getStartNode(), edge.getEndNode());
+                            replaceEdge(edge, newEdge);
+                        }
+                    }
                     aDrawPane.getChildren().remove(dialog);
                 }
             });
@@ -156,5 +166,32 @@ public class EdgeController {
             e.printStackTrace();
             return false;
         }
+    }
+    public boolean replaceEdge(AbstractEdge oldEdge, AbstractEdge newEdge) {
+        AbstractEdgeView oldEdgeView = null;
+        for (AbstractEdgeView edgeView : mainController.getAllEdgeViews()) {
+            if (edgeView.getRefEdge().equals(oldEdge)) {
+                oldEdgeView = edgeView;
+                break;
+            }
+        }
+        if (oldEdgeView == null) {
+            return false;
+        }
+        mainController.deleteEdgeView(oldEdgeView, null, true);
+
+        newEdge.setDirection(oldEdge.getDirection());
+        newEdge.setStartMultiplicity(oldEdge.getStartMultiplicity());
+        newEdge.setEndMultiplicity(oldEdge.getEndMultiplicity());
+        mainController.getGraphModel().addEdge(newEdge);
+
+        AbstractEdgeView newEdgeView = mainController.createEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
+
+        mainController.getUndoManager().add(
+                new ReplaceEdgeCommand(oldEdge, newEdge, oldEdgeView, newEdgeView, mainController, mainController.getGraphModel())
+        );
+
+        System.out.println("Replaced Edge: Old edge:" + oldEdge.toString() + " new edge: "+ newEdge.toString());
+        return true;
     }
 }

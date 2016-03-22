@@ -2,6 +2,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
@@ -11,6 +12,8 @@
 <?import javafx.scene.control.Label?>
 <?import java.net.URL?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.HBox?>
+
 
 <StackPane fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
 
@@ -19,49 +22,58 @@
     </Pane>
     <BorderPane fx:id="aBorderPane">
         <top>
-            <MenuBar fx:id="menuBar">
-                <menus>
-                    <Menu text="File">
-                        <items>
-                            <MenuItem text="New" onAction="#handleMenuActionNew"/>
-                            <MenuItem text="Open" onAction="#handleMenuActionLoad"/>
-                            <MenuItem text="Save" onAction="#handleMenuActionSave"/>
-                            <SeparatorMenuItem/>
-                            <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
-                            <SeparatorMenuItem/>
-                            <MenuItem text="Exit"/>
-                        </items>
-                    </Menu>
-                    <Menu text="Edit">
-                        <items>
-                            <MenuItem text="Copy"/>
-                            <MenuItem text="Cut"/>
-                            <MenuItem text="Paste"/>
-                        </items>
-                    </Menu>
-                    <Menu text="View">
-                        <items>
-                            <CheckMenuItem fx:id="umlMenuItem" text="UML" onAction="#handleMenuActionUML" selected="true"/>
-                            <CheckMenuItem fx:id="sketchesMenuItem" text="Sketches" onAction="#handleMenuActionSketches" selected="true"/>
-                        </items>
-                    </Menu>
-                </menus>
-            </MenuBar>
+            <VBox>
+                <MenuBar fx:id="menuBar">
+                    <menus>
+                        <Menu text="File">
+                            <items>
+                                <MenuItem text="New" onAction="#handleMenuActionNew"/>
+                                <MenuItem text="Open" onAction="#handleMenuActionLoad"/>
+                                <MenuItem text="Save" onAction="#handleMenuActionSave"/>
+
+                                <SeparatorMenuItem/>
+                                <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
+                                <SeparatorMenuItem/>
+                                <MenuItem text="Exit"/>
+                            </items>
+                        </Menu>
+                        <Menu text="Edit">
+                            <items>
+                                <MenuItem text="Copy"/>
+                                <MenuItem text="Cut"/>
+                                <MenuItem text="Paste"/>
+                            </items>
+                        </Menu>
+                        <Menu text="View">
+                            <items>
+                                <CheckMenuItem fx:id="umlMenuItem" text="UML" onAction="#handleMenuActionUML" selected="true"/>
+                                <CheckMenuItem fx:id="sketchesMenuItem" text="Sketches" onAction="#handleMenuActionSketches" selected="true"/>
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+                <ToolBar fx:id="aToolBar" orientation="HORIZONTAL">
+                    <HBox fx:id="umlBox">
+                        <Button text="Create" fx:id="createBtn"/>
+                        <Button text="Package" fx:id="packageBtn"/>
+                        <Button text="Edge" fx:id="edgeBtn"/>
+                        <Button text="Draw" fx:id="drawBtn"/>
+                    </HBox>
+                    <HBox fx:id="utilBox">
+                        <Button text="Select" fx:id="selectBtn"/>
+                        <Button text="Move" fx:id="moveBtn"/>
+                    </HBox>
+                    <HBox fx:id="undoBox">
+                        <Button text="Delete" fx:id="deleteBtn"/>
+                        <Button text="Undo" fx:id="undoBtn"/>
+                        <Button text="Redo" fx:id="redoBtn"/>
+                    </HBox>
+                    <HBox fx:id="recognizeBox">
+                        <Button text="Recognize" fx:id="recognizeBtn"/>
+                    </HBox>
+                </ToolBar>
+            </VBox>
         </top>
-        <right>
-            <ToolBar fx:id="aToolBar" orientation="VERTICAL">
-                <Button text="Create"/>
-                <Button text="Package"/>
-                <Button text="Edge"/>
-                <Button text="Select"/>
-                <Button text="Draw"/>
-                <Button text="Undo"/>
-                <Button text="Redo"/>
-                <Button text="Move"/>
-                <Button text="Recognize"/>
-                <Button text="Delete"/>
-            </ToolBar>
-        </right>
         <bottom>
             <ToolBar>
                 <Label text="Zoom: "/>

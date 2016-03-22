@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -14,11 +15,11 @@ import java.io.IOException;
 public class Launcher extends Application {
 
     public void start(Stage stage) throws IOException { //TODO HANDLE EXCEPTION
-        BorderPane root = null; //TODO FIX
+        StackPane root = null; //TODO FIX
         FXMLLoader loader = null;
         try {
             loader = new FXMLLoader(getClass().getClassLoader().getResource("view.fxml"));
-            root = (BorderPane) loader.load();
+            root = (StackPane) loader.load();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }

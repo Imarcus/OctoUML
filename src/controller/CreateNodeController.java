@@ -171,7 +171,6 @@ public class CreateNodeController {
 
 
         if(event.getSource() instanceof AbstractNodeView){
-            System.out.println("Tjena");
             mouseDragRectangle.setX(((AbstractNodeView)event.getSource()).getX() + mouseDragStartX);
             mouseDragRectangle.setY(((AbstractNodeView)event.getSource()).getY() + mouseDragStartY);
 

@@ -52,8 +52,15 @@ public class GraphController {
 
     public void movePane(List<GraphElement> elements, MouseEvent event)
     {
-        double offsetX = event.getSceneX() - initMoveX;
-        double offsetY = event.getSceneY() - initMoveY;
+        double offsetX = 0;
+        double offsetY = 0;
+        if(event.getSource() instanceof javafx.scene.Node){
+            offsetX = (event.getSceneX() - initMoveX) * 100/aMainController.getZoomScale();
+            offsetY = (event.getSceneY() - initMoveY) * 100/aMainController.getZoomScale();
+        } else {
+            offsetX = event.getX() - initMoveX;
+            offsetY = event.getY() - initMoveY;
+        }
 
         //Drag all nodes
         int i = 0;
@@ -67,11 +74,8 @@ public class GraphController {
 
     public void movePaneFinished(MouseEvent event)
     {
-        drawPaneXOffset += (initMoveX - event.getSceneX());
-        drawPaneYOffset += (initMoveY - event.getSceneY());
-
-        System.out.println("drawPaneXOffset: " + drawPaneXOffset);
-        System.out.println("drawPaneYOffset: " + drawPaneYOffset);
+        drawPaneXOffset += (initMoveX - event.getX());
+        drawPaneYOffset += (initMoveY - event.getY());
 
         xInitTranslateList.clear();
         yInitTranslateList.clear();
@@ -83,36 +87,9 @@ public class GraphController {
 
     public void zoomPane(double oldZoom, double newZoom)
     {
-
-
-        for (AbstractNode n : aMainController.getGraphModel().getAllNodes()) {
-            double oldScale = n.getScaleX();
-            double scale = newZoom/100;
-
-            double f = (scale / oldScale) - 1;
-            /*double f = 0;
-            if (scale/oldScale -1> 0) {
-                f = 0.01;
-            } else {
-                f = -0.01;
-            }*/
-            System.out.println("f: " + f);
-
-
-            //The nodes distance from the middle of the view
-            double dx = (((aDrawPane.getWidth()/2) + drawPaneXOffset)  - (n.getWidth() / 2 + n.getX())) * scale;
-            double dy = (((aDrawPane.getHeight()/2) + drawPaneYOffset) - (n.getHeight() / 2 + n.getY())) * scale;
-
-            n.setScaleX(scale);
-            n.setScaleY(scale);
-
-            // note: pivot value must be untransformed, i. e. without scaling
-            n.setTranslateX(n.getTranslateX() - (f * dx));
-            n.setTranslateY(n.getTranslateY() - (f * dy));
-        }
-        for(Edge e : aMainController.getGraphModel().getAllEdges()){
-            ((AbstractEdge) e).setZoom(newZoom/100);
-        }
+        double scale = newZoom/100;
+        aDrawPane.setScaleX(scale);
+        aDrawPane.setScaleY(scale);
     }
 
     public void zoomPaneFinished()

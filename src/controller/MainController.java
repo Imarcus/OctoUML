@@ -5,6 +5,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Path;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -30,7 +32,7 @@ import java.util.*;
  */
 public class MainController {
     //For testing with mouse and keyboard
-    private boolean mouseCreationActivated = false; 
+    private boolean mouseCreationActivated = true;
 
     //Controllers
     private CreateNodeController createNodeController;
@@ -96,6 +98,7 @@ public class MainController {
     @FXML private CheckMenuItem sketchesMenuItem;
     @FXML private CheckMenuItem mouseMenuItem;
     @FXML private Slider zoomSlider;
+    @FXML private BorderPane aBorderPane;
 
     private ContextMenu aContextMenu;
 
@@ -134,9 +137,18 @@ public class MainController {
     }
 
     private void initDrawPaneActions() {
+        aBorderPane.setPickOnBounds(false);
+        /*for(javafx.scene.Node n : aBorderPane.getChildren()){
+            System.out.println(n + " " + n.isPickOnBounds());
+            n.setPickOnBounds(false);
+        }*/
+        aDrawPane.setStyle("-fx-background-color: blue;");
+        aBorderPane.setBackground(Background.EMPTY);
+
         aDrawPane.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                System.out.println("DU HAR TRYCKT!");
                 if(mode == Mode.NO_MODE)
                 {
                     if(event.getButton() == MouseButton.SECONDARY){
@@ -197,6 +209,7 @@ public class MainController {
         aDrawPane.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                System.out.println(event.getSceneX() + " " + event.getSceneY());
                 if (tool == ToolEnum.EDGE && mode == Mode.CREATING){
                     edgeController.onMouseDragged(event);
                 }
@@ -1522,6 +1535,8 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
 
     //------------------------ Zoom-feature ------------------------------------------------------------------------
     private void initZoomSlider(){
+        //aDrawPane.setStyle("-fx-background-color: black;");
+        aDrawPane.setStyle("-fx-border-color: red;");
         zoomSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov,
                                 Number old_val, Number new_val) {
@@ -1533,6 +1548,10 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             }
         });
         zoomSlider.setShowTickMarks(true);
+    }
+
+    public double getZoomScale(){
+        return zoomSlider.getValue();
     }
 
 

@@ -21,6 +21,8 @@ public class GraphController {
     private double initMoveX, initMoveY;
     private ArrayList<Double> xInitTranslateList = new ArrayList<>();
     private ArrayList<Double> yInitTranslateList = new ArrayList<>();
+    private double initPaneTranslateX;
+    private double initPaneTranslateY;
 
 
     private Pane aDrawPane;
@@ -44,10 +46,13 @@ public class GraphController {
         initMoveX = event.getSceneX();
         initMoveY = event.getSceneY();
 
-        for(GraphElement gElement : elements){
+        initPaneTranslateX = aDrawPane.getTranslateX();
+        initPaneTranslateY = aDrawPane.getTranslateY();
+
+        /*for(GraphElement gElement : elements){
             xInitTranslateList.add(gElement.getTranslateX());
             yInitTranslateList.add(gElement.getTranslateY());
-        }
+        }*/
     }
 
     public void movePane(List<GraphElement> elements, MouseEvent event)
@@ -55,21 +60,24 @@ public class GraphController {
         double offsetX = 0;
         double offsetY = 0;
         if(event.getSource() instanceof javafx.scene.Node){
-            offsetX = (event.getSceneX() - initMoveX) * 100/aMainController.getZoomScale();
-            offsetY = (event.getSceneY() - initMoveY) * 100/aMainController.getZoomScale();
+            offsetX = (event.getSceneX() - initMoveX);
+            offsetY = (event.getSceneY() - initMoveY);
         } else {
-            offsetX = event.getX() - initMoveX;
-            offsetY = event.getY() - initMoveY;
+            offsetX = (event.getX() - initMoveX);
+            offsetY = (event.getY() - initMoveY);
         }
 
+        aDrawPane.setTranslateX(initPaneTranslateX + offsetX);
+        aDrawPane.setTranslateY(initPaneTranslateY + offsetY);
+
         //Drag all nodes
-        int i = 0;
+        /*int i = 0;
         for (GraphElement gElement : elements)
         {
             gElement.setTranslateX(xInitTranslateList.get(i) + offsetX);
             gElement.setTranslateY(yInitTranslateList.get(i) + offsetY);
             i++;
-        }
+        }*/
     }
 
     public void movePaneFinished(MouseEvent event)
@@ -79,6 +87,8 @@ public class GraphController {
 
         xInitTranslateList.clear();
         yInitTranslateList.clear();
+        initPaneTranslateX = 0;
+        initPaneTranslateY = 0;
     }
     public void zoomPaneStart()
     {

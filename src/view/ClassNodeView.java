@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import model.ClassNode;
@@ -47,8 +48,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         rectangle = new Rectangle();
         vbox = new VBox();
         container.getChildren().addAll(rectangle, vbox);
-
-
 
         initVBox();
         createRectangles();
@@ -84,10 +83,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         vbox.setMaxWidth(width);
 
         firstLine.setMaxWidth(width);
-        //firstLine.setPrefWidth(width);
 
         secondLine.setMaxWidth(width);
-        //secondLine.setPrefWidth(width);
     }
 
     private void initVBox(){
@@ -105,6 +102,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         secondLine.setMaxWidth(node.getWidth());
 
         title = new Text();
+        title.setFont(Font.font("Verdana", 10));
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
         } else {
@@ -113,8 +111,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         title.setTextAlignment(TextAlignment.CENTER);
 
         attributes = new Text(node.getAttributes());
+        attributes.setFont(Font.font("Verdana", 10));
 
         operations = new Text(node.getOperations());
+        operations.setFont(Font.font("Verdana", 10));
+
 
         if(operations.getText() == null || operations.getText().equals("")){
             secondLine.setVisible(false);

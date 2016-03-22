@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Path;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -130,6 +131,16 @@ public class MainController {
 
         undoManager = new UndoManager();
 
+        //Create grid
+        for (int i = 0; i < 10000; i+=20)
+        {
+            Line line1 = new Line(i, 0, i, 8000);
+            line1.setStroke(Color.LIGHTGRAY);
+            Line line2 = new Line(0, i, 10000, i);
+            line2.setStroke(Color.LIGHTGRAY);
+            aDrawPane.getChildren().addAll(line1, line2);
+        }
+
     }
 
     public ToolBar getToolBar() {
@@ -138,17 +149,10 @@ public class MainController {
 
     private void initDrawPaneActions() {
         aBorderPane.setPickOnBounds(false);
-        /*for(javafx.scene.Node n : aBorderPane.getChildren()){
-            System.out.println(n + " " + n.isPickOnBounds());
-            n.setPickOnBounds(false);
-        }*/
-        aDrawPane.setStyle("-fx-background-color: blue;");
-        aBorderPane.setBackground(Background.EMPTY);
 
         aDrawPane.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("DU HAR TRYCKT!");
                 if(mode == Mode.NO_MODE)
                 {
                     if(event.getButton() == MouseButton.SECONDARY){
@@ -209,7 +213,6 @@ public class MainController {
         aDrawPane.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println(event.getSceneX() + " " + event.getSceneY());
                 if (tool == ToolEnum.EDGE && mode == Mode.CREATING){
                     edgeController.onMouseDragged(event);
                 }
@@ -1535,19 +1538,17 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
 
     //------------------------ Zoom-feature ------------------------------------------------------------------------
     private void initZoomSlider(){
-        //aDrawPane.setStyle("-fx-background-color: black;");
-        aDrawPane.setStyle("-fx-border-color: red;");
+
         zoomSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov,
                                 Number old_val, Number new_val) {
                 if(zoomSlider.isValueChanging()){
                     graphController.zoomPane(old_val.doubleValue(), new_val.doubleValue());
                 }
-                //currentScale = event.getTotalZoomFactor() * currentScale;
-                //opacityValue.setText(String.format("%.2f", new_val));
             }
         });
         zoomSlider.setShowTickMarks(true);
+        zoomSlider.setPrefWidth(200);
     }
 
     public double getZoomScale(){

@@ -125,7 +125,6 @@ public class NodeController {
     }
 
     public void moveNodes(MouseEvent event){
-        System.out.println(aMainController.getZoomScale());
         double offsetX = (event.getSceneX() - initMoveX) * 100/aMainController.getZoomScale();
         double offsetY = (event.getSceneY() - initMoveY) * 100/aMainController.getZoomScale();
 

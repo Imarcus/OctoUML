@@ -1279,9 +1279,11 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         cmItemDelete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                //TODO Is this really needed? Why just not delete all selected?
                 if(aContextMenu.getOwnerNode() instanceof AbstractNodeView){
                     deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false);
                 }
+                deleteSelected();
             }
         });
 

@@ -1,5 +1,8 @@
 package model;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+
 import javafx.beans.property.ObjectProperty;
 import java.io.Serializable;
 import javafx.beans.property.*;
@@ -10,6 +13,7 @@ import javafx.beans.property.*;
 public abstract class AbstractEdge implements Edge, Serializable {
     private Node startNode;
     private Node endNode;
+    private DoubleProperty zoom = new SimpleDoubleProperty(1);
     private StringProperty startMultiplicity = new SimpleStringProperty();
     private StringProperty endMultiplicity = new SimpleStringProperty();
 
@@ -77,6 +81,17 @@ public abstract class AbstractEdge implements Edge, Serializable {
         this.endNode = node;
     }
 
+    public void setZoom(double scale){
+        zoom.setValue(scale);
+    }
+
+    public double getZoom(){
+        return zoom.getValue();
+    }
+
+    public DoubleProperty zoomProperty() {
+        return zoom;
+    }
 
     @Override
     public String toString() {

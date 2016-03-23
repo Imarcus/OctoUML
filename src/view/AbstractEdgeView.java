@@ -215,6 +215,13 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
                 setPosition();
             }
         });
+        refEdge.zoomProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                setStrokeWidth(newValue.doubleValue());
+                setPosition();
+            }
+        });
 
         refEdge.startMultiplicityProperty().addListener(new ChangeListener<String>() {
             @Override

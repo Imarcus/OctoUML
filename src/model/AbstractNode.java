@@ -10,8 +10,8 @@ import java.io.Serializable;
  */
 public abstract class AbstractNode implements Node, Serializable
 {
-    private final double MIN_WIDTH = 110;
-    private final double MIN_HEIGHT = 90;
+    private final double MIN_WIDTH = 80;
+    private final double MIN_HEIGHT = 70;
     private StringProperty aTitle = new SimpleStringProperty();
     private DoubleProperty x = new SimpleDoubleProperty();
     private DoubleProperty y = new SimpleDoubleProperty();

@@ -1,12 +1,18 @@
 package controller;
 
+import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Line;
+import model.AbstractEdge;
 import model.AbstractNode;
+import model.Edge;
 import model.GraphElement;
 import javafx.scene.input.TouchEvent;
 import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -16,80 +22,105 @@ public class GraphController {
 
     //For touch-moving the pane
     private double initMoveX, initMoveY;
-    private ArrayList<Double> xInitTranslateList = new ArrayList<>();
-    private ArrayList<Double> yInitTranslateList = new ArrayList<>();
+    private HashMap<GraphElement, Double>  xInitTranslateMap = new HashMap<>();
+    private HashMap<GraphElement, Double>  yInitTranslateMap = new HashMap<>();
+    private HashMap<Line, Double> xInitTranslateMapGrid = new HashMap<>();
+    private HashMap<Line, Double> yInitTranslateMapGrid = new HashMap<>();
+
+    private double initPaneTranslateX;
+    private double initPaneTranslateY;
 
 
     private Pane aDrawPane;
     private MainController aMainController;
 
+    //For calculating zooming pivot point
+    private double drawPaneXOffset;
+    private double drawPaneYOffset;
+
     public GraphController(Pane pDrawPane, MainController pMainController)
     {
         aDrawPane = pDrawPane;
         aMainController = pMainController;
+        drawPaneXOffset = 0;
+        drawPaneYOffset = 0;
+
     }
 
-    public void movePaneStart(List<GraphElement> elements, TouchEvent event)
+    public void movePaneStart(List<GraphElement> elements, MouseEvent event)
     {
-        initMoveX = event.getTouchPoint().getSceneX();
-        initMoveY = event.getTouchPoint().getSceneY();
+        initMoveX = event.getSceneX();
+        initMoveY = event.getSceneY();
+
+        initPaneTranslateX = aDrawPane.getTranslateX();
+        initPaneTranslateY = aDrawPane.getTranslateY();
 
         for(GraphElement gElement : elements){
-            xInitTranslateList.add(gElement.getTranslateX());
-            yInitTranslateList.add(gElement.getTranslateY());
+            xInitTranslateMap.put(gElement, gElement.getTranslateX());
+            yInitTranslateMap.put(gElement, gElement.getTranslateY());
+        }
+
+        for(Line line : aMainController.getGrid()){
+            xInitTranslateMapGrid.put(line, line.getTranslateX());
+            yInitTranslateMapGrid.put(line, line.getTranslateY());
         }
     }
 
-    public void movePane(List<GraphElement> elements, TouchEvent event)
+    public void movePane(List<GraphElement> elements, MouseEvent event)
     {
-        double offsetX = event.getTouchPoint().getSceneX() - initMoveX;
-        double offsetY = event.getTouchPoint().getSceneY() - initMoveY;
+        double offsetX = 0;
+        double offsetY = 0;
+        if(event.getSource() instanceof javafx.scene.Node){
+            offsetX = (event.getSceneX() - initMoveX) * 100/aMainController.getZoomScale();;
+            offsetY = (event.getSceneY() - initMoveY) * 100/aMainController.getZoomScale();;
+        } else {
+            offsetX = (event.getX() - initMoveX) * 100/aMainController.getZoomScale();;
+            offsetY = (event.getY() - initMoveY) * 100/aMainController.getZoomScale();;
+        }
+
+        //TODO Limit graph panningg
 
         //Drag all nodes
-        int i = 0;
         for (GraphElement gElement : elements)
         {
-            gElement.setTranslateX(xInitTranslateList.get(i) + offsetX);
-            gElement.setTranslateY(yInitTranslateList.get(i) + offsetY);
-            i++;
+            gElement.setTranslateX(xInitTranslateMap.get(gElement) + offsetX);
+            gElement.setTranslateY(yInitTranslateMap.get(gElement) + offsetY);
+        }
+
+        for(Line line : aMainController.getGrid()){
+            line.setTranslateX(xInitTranslateMapGrid.get(line) + offsetX);
+            line.setTranslateY(yInitTranslateMapGrid.get(line) + offsetY);
         }
     }
 
-    public void movePaneFinished()
+    public void movePaneFinished(MouseEvent event)
     {
-        xInitTranslateList.clear();
-        yInitTranslateList.clear();
+        drawPaneXOffset += (initMoveX - event.getX());
+        drawPaneYOffset += (initMoveY - event.getY());
+        xInitTranslateMap.clear();
+        yInitTranslateMap.clear();
+        initPaneTranslateX = 0;
+        initPaneTranslateY = 0;
     }
     public void zoomPaneStart()
     {
         //Not used
     }
 
-    public void zoomPane(ZoomEvent event)
+    public void zoomPane(double oldZoom, double newZoom)
     {
-        for (AbstractNode n : aMainController.getGraphModel().getAllNodes()) {
-            double scale = n.getScaleX(); // currently we only use Y, same value is used for X
-            double oldScale = scale;
-
-
-            scale *= event.getZoomFactor();
-
-            double f = (scale / oldScale) - 1;
-
-            double dx = (event.getSceneX() - (n.getWidth() / 2 + n.getX()));
-            double dy = (event.getSceneY() - (n.getHeight() / 2 + n.getY()));
-
-            n.setScaleX(scale);
-            n.setScaleY(scale);
-
-            // note: pivot value must be untransformed, i. e. without scaling
-            n.setTranslateX(n.getTranslateX() - (f * dx));
-            n.setTranslateY(n.getTranslateY() - (f * dy));
-        }
+        double scale = newZoom/100;
+        aDrawPane.setScaleX(scale);
+        aDrawPane.setScaleY(scale);
     }
 
     public void zoomPaneFinished()
     {
         //Not used
+    }
+
+    public void resetDrawPaneOffset(){
+        drawPaneYOffset = 0;
+        drawPaneYOffset = 0;
     }
 }

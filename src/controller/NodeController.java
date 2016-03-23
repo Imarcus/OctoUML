@@ -96,8 +96,6 @@ public class NodeController {
     }
 
     public void moveNodesStart(MouseEvent event){
-        //TODO This can maybe cause problem further on. Should maybe use getX() instead?
-        //However, this is only used to calculate delta, so we leave it for now.
         initMoveX = event.getSceneX();
         initMoveY = event.getSceneY();
 
@@ -127,8 +125,8 @@ public class NodeController {
     }
 
     public void moveNodes(MouseEvent event){
-        double offsetX = event.getSceneX() - initMoveX;
-        double offsetY = event.getSceneY() - initMoveY;
+        double offsetX = (event.getSceneX() - initMoveX) * 100/aMainController.getZoomScale();
+        double offsetY = (event.getSceneY() - initMoveY) * 100/aMainController.getZoomScale();
 
         //Drag all selected nodes and their children
         for(AbstractNode n : toBeMoved)
@@ -137,7 +135,6 @@ public class NodeController {
             n.setTranslateY(initTranslateMap.get(n).getY() + offsetY);
             n.setX(initTranslateMap.get(n).getX() + offsetX);
             n.setY(initTranslateMap.get(n).getY() + offsetY);
-
         }
     }
 
@@ -205,16 +202,10 @@ public class NodeController {
                         ((PackageNode)nodeMap.get(potentialParent)).addChild(nodeMap.get(potentialChild));
                     }
                     childMovedInside = true;
-                    System.out.println("INSIDE");
                 } else {
-                    System.out.println("OUTSIDE");
                     //Remove child if it is moved out of the package
                     ((PackageNode)nodeMap.get(potentialParent)).getChildNodes().remove(nodeMap.get(potentialChild));
 
-                }
-                System.out.println("CHILDLIST SIZE: " + ((PackageNode) nodeMap.get(potentialParent)).getChildNodes().size());
-                for(AbstractNode n : ((PackageNode)nodeMap.get(potentialParent)).getChildNodes()) {
-                    System.out.println(n);
                 }
             }
         }

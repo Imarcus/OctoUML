@@ -84,6 +84,7 @@ public class CreateNodeController {
         if (node instanceof PackageNode){
             nodeView = createPackageFromDrag((PackageNode)node, currentScale);
             nodeView.toBack();
+            aMainController.gridToBack();
         }
         else if (node instanceof ClassNode)
         {
@@ -171,7 +172,6 @@ public class CreateNodeController {
 
 
         if(event.getSource() instanceof AbstractNodeView){
-            System.out.println("Tjena");
             mouseDragRectangle.setX(((AbstractNodeView)event.getSource()).getX() + mouseDragStartX);
             mouseDragRectangle.setY(((AbstractNodeView)event.getSource()).getY() + mouseDragStartY);
 
@@ -203,6 +203,7 @@ public class CreateNodeController {
         if (node instanceof PackageNode){
             nodeView = createPackageFromDrag((PackageNode)node, currentScale);
             nodeView.toBack();
+            aMainController.gridToBack();
         }
         else if (node instanceof ClassNode)
         {

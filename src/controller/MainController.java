@@ -1463,6 +1463,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             newView.toFront();
         } else {
             newView.toBack();
+            gridToBack();
         }
         return addNodeView(newView, node);
     }
@@ -1554,16 +1555,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         drawGrid();
     }
 
-    private void drawGrid(){
-        for (int i = 0; i < 10000; i+=20)
-        {
-            Line line1 = new Line(i, 0, i, 8000);
-            line1.setStroke(Color.LIGHTGRAY);
-            Line line2 = new Line(0, i, 10000, i);
-            line2.setStroke(Color.LIGHTGRAY);
-            aDrawPane.getChildren().addAll(line1, line2);
-        }
-    }
+
 
     private void load(Graph graph){
         reset();
@@ -1577,6 +1569,32 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             for(Edge edge : this.graph.getAllEdges()){
                 addEdgeView((AbstractEdge) edge);
             }
+        }
+    }
+
+    //------------------------------------ GRID -------------------------------------
+    private ArrayList<Line> grid = new ArrayList<>();
+
+    public ArrayList<Line> getGrid(){
+        return grid;
+    }
+
+    private void drawGrid(){
+        for (int i = 0; i < 10000; i+=20)
+        {
+            Line line1 = new Line(i, 0, i, 15000);
+            line1.setStroke(Color.LIGHTGRAY);
+            Line line2 = new Line(0, i, 15000, i);
+            line2.setStroke(Color.LIGHTGRAY);
+            grid.add(line1);
+            grid.add(line2);
+            aDrawPane.getChildren().addAll(line1, line2);
+        }
+    }
+
+    public void gridToBack(){
+        for(Line line : grid){
+            line.toBack();
         }
     }
 

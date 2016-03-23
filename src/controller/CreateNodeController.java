@@ -84,6 +84,7 @@ public class CreateNodeController {
         if (node instanceof PackageNode){
             nodeView = createPackageFromDrag((PackageNode)node, currentScale);
             nodeView.toBack();
+            aMainController.gridToBack();
         }
         else if (node instanceof ClassNode)
         {
@@ -202,6 +203,7 @@ public class CreateNodeController {
         if (node instanceof PackageNode){
             nodeView = createPackageFromDrag((PackageNode)node, currentScale);
             nodeView.toBack();
+            aMainController.gridToBack();
         }
         else if (node instanceof ClassNode)
         {

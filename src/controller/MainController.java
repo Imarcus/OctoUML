@@ -99,6 +99,7 @@ public class MainController {
     @FXML private CheckMenuItem umlMenuItem;
     @FXML private CheckMenuItem sketchesMenuItem;
     @FXML private CheckMenuItem mouseMenuItem;
+    @FXML private CheckMenuItem gridMenuItem;
     @FXML private Slider zoomSlider;
     @FXML private BorderPane aBorderPane;
 
@@ -1229,6 +1230,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             setButtons(false, umlButtons);
             umlMenuItem.setSelected(true);
             umlVisible = true;
+            sketchesToFront();
         }
     }
 
@@ -1250,6 +1252,14 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             setButtons(false, Arrays.asList(drawBtn));
             sketchesMenuItem.setSelected(true);
             sketchesVisible = true;
+        }
+    }
+
+    public void handleMenuActionGrid(){
+        if(isGridVisible()){
+            setGridVisible(false);
+        } else {
+            setGridVisible(true);
         }
     }
 
@@ -1596,6 +1606,26 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
     public void gridToBack(){
         for(Line line : grid){
             line.toBack();
+        }
+    }
+
+    private boolean isGridVisible = true;
+
+    public void setGridVisible(boolean visible){
+        for (Line line : grid){
+            line.setVisible(visible);
+        }g
+        isGridVisible = visible;
+        gridMenuItem.setSelected(visible);
+    }
+
+    public boolean isGridVisible(){
+        return isGridVisible;
+    }
+
+    public void sketchesToFront(){
+        for(Sketch sketch : allSketches){
+            sketch.getPath().toFront();
         }
     }
 

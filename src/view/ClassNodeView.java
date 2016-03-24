@@ -5,18 +5,15 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
+import javafx.scene.text.FontWeight;
 import model.ClassNode;
 
 /**
@@ -24,13 +21,14 @@ import model.ClassNode;
  */
 public class ClassNodeView extends AbstractNodeView implements NodeView {
 
-    private Text title;
-    private Text attributes;
-    private Text operations;
+    private Label title;
+    private Label attributes;
+    private Label operations;
 
     private Rectangle rectangle;
 
     private StackPane container;
+    private StackPane titlePane;
     private VBox vbox;
 
     private Separator firstLine;
@@ -48,6 +46,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         rectangle = new Rectangle();
         vbox = new VBox();
         container.getChildren().addAll(rectangle, vbox);
+
 
         initVBox();
         createRectangles();
@@ -79,12 +78,23 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         setWidth(width);
         rectangle.setWidth(width);
         container.setMaxWidth(width);
+        container.setPrefWidth(width);
 
         vbox.setMaxWidth(width);
-
+        vbox.setPrefWidth(width);
         firstLine.setMaxWidth(width);
-
+        firstLine.setPrefWidth(width);
         secondLine.setMaxWidth(width);
+        secondLine.setPrefWidth(width);
+
+        title.setMaxWidth(width);
+        title.setPrefWidth(width);
+
+        attributes.setMaxWidth(width);
+        attributes.setPrefWidth(width);
+
+        operations.setMaxWidth(width);
+        operations.setPrefWidth(width);
     }
 
     private void initVBox(){
@@ -93,7 +103,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         vbox.setPadding(new Insets(5, 0, 5, 0));
         vbox.setSpacing(5);
 
-        StackPane titlePane = new StackPane();
+        titlePane = new StackPane();
 
         firstLine = new Separator();
         firstLine.setMaxWidth(node.getWidth());
@@ -101,19 +111,19 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         secondLine = new Separator();
         secondLine.setMaxWidth(node.getWidth());
 
-        title = new Text();
-        title.setFont(Font.font("Verdana", 10));
+        title = new Label();
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
         } else {
             firstLine.setVisible(false);
         }
-        title.setTextAlignment(TextAlignment.CENTER);
+        title.setAlignment(Pos.CENTER);
 
-        attributes = new Text(node.getAttributes());
+        attributes = new Label(node.getAttributes());
         attributes.setFont(Font.font("Verdana", 10));
 
-        operations = new Text(node.getOperations());
+        operations = new Label(node.getOperations());
         operations.setFont(Font.font("Verdana", 10));
 
 
@@ -129,14 +139,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         rectangle.setStrokeWidth(STROKE_WIDTH);
         rectangle.setFill(Color.LIGHTSKYBLUE);
         rectangle.setStroke(Color.BLACK);
-
-        title.setWrappingWidth(getRefNode().getWidth() - 7);         //TODO Ugly solution, hardcoded value.
-        attributes.setWrappingWidth(getRefNode().getWidth() - 7);
-        operations.setWrappingWidth(getRefNode().getWidth() - 7);
-
-        //StackPane.setAlignment(title, Pos.TOP_CENTER);
-        //VBox.setMargin(title, new Insets(5,0,0,0));
-        //StackPane.setAlignment(attributes, Pos.TOP_LEFT);
         StackPane.setAlignment(title, Pos.CENTER);
         VBox.setMargin(attributes, new Insets(5,0,0,5));
         VBox.setMargin(operations, new Insets(5,0,0,5));

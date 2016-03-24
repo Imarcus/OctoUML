@@ -1,10 +1,8 @@
 package controller;
 
-import com.guigarage.flatterfx.FlatterFX;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -29,6 +27,7 @@ public class Launcher extends Application {
         mainController.setStage(stage);
         stage.setScene(new Scene(root, 1000, 800));
         stage.setTitle("Penguin");
+        stage.setFullScreen(true);
         stage.show();
         //FlatterFX.style();
     }

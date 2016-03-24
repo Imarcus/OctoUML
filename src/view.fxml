@@ -77,8 +77,12 @@
         </top>
         <bottom>
             <ToolBar>
-                <Label text="Zoom: "/>
-                <Slider fx:id="zoomSlider" min="30"  max="200" value="100"/>
+                <Pane HBox.hgrow="ALWAYS" />
+                <VBox alignment="CENTER">
+                    <Slider fx:id="zoomSlider" min="10"  max="200" value="100"/>
+                    <Label text="Zoom"/>
+                </VBox>
+                <Pane HBox.hgrow="ALWAYS" />
             </ToolBar>
         </bottom>
     </BorderPane>

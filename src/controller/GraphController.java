@@ -2,6 +2,7 @@ package controller;
 
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Line;
 import model.AbstractEdge;
 import model.AbstractNode;
@@ -26,6 +27,8 @@ public class GraphController {
     private HashMap<GraphElement, Double>  yInitTranslateMap = new HashMap<>();
     private HashMap<Line, Double> xInitTranslateMapGrid = new HashMap<>();
     private HashMap<Line, Double> yInitTranslateMapGrid = new HashMap<>();
+    private HashMap<AnchorPane, Double> xDialogInitTranslateMap = new HashMap<>();
+    private HashMap<AnchorPane, Double> yDialogInitTranslateMap = new HashMap<>();
 
     private double initPaneTranslateX;
     private double initPaneTranslateY;
@@ -64,6 +67,11 @@ public class GraphController {
             xInitTranslateMapGrid.put(line, line.getTranslateX());
             yInitTranslateMapGrid.put(line, line.getTranslateY());
         }
+
+        for (AnchorPane dialog : aMainController.getAllDialogs()) {
+            xDialogInitTranslateMap.put(dialog, dialog.getTranslateX());
+            yDialogInitTranslateMap.put(dialog, dialog.getTranslateY());
+        }
     }
 
     public void movePane(List<GraphElement> elements, MouseEvent event)
@@ -90,6 +98,11 @@ public class GraphController {
         for(Line line : aMainController.getGrid()){
             line.setTranslateX(xInitTranslateMapGrid.get(line) + offsetX);
             line.setTranslateY(yInitTranslateMapGrid.get(line) + offsetY);
+        }
+
+        for (AnchorPane dialog : aMainController.getAllDialogs()) {
+            dialog.setTranslateX(xDialogInitTranslateMap.get(dialog) + offsetX);
+            dialog.setTranslateY(yDialogInitTranslateMap.get(dialog) + offsetY);
         }
     }
 

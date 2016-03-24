@@ -1,5 +1,6 @@
 package controller;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -1279,6 +1280,10 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
     public void handleMenuActionMouse(){
         mouseCreationActivated = !mouseCreationActivated;
         mouseMenuItem.setSelected(mouseCreationActivated);
+    }
+
+    public void handleMenuActionExit() {
+        Platform.exit();
     }
 
     public void handleMenuActionSave(){

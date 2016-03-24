@@ -34,7 +34,7 @@
                                 <SeparatorMenuItem/>
                                 <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
                                 <SeparatorMenuItem/>
-                                <MenuItem text="Exit"/>
+                                <MenuItem text="Exit" onAction="#handleMenuActionExit"/>
                             </items>
                         </Menu>
                         <Menu text="Edit">

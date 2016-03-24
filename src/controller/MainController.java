@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Line;
@@ -55,6 +56,7 @@ public class MainController {
     private ArrayList<Sketch> selectedSketches = new ArrayList<>();
     private ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
     private ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
+    private ArrayList<AnchorPane> allDialogs = new ArrayList<>();
 
 
     private HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
@@ -137,6 +139,17 @@ public class MainController {
         drawGrid();
     }
 
+    public void addDialog(AnchorPane dialog) {
+        allDialogs.add(dialog);
+    }
+
+    public boolean removeDialog(AnchorPane dialog) {
+        return allDialogs.remove(dialog);
+    }
+
+    public ArrayList<AnchorPane> getAllDialogs() {
+        return allDialogs;
+    }
 
     private void initDrawPaneActions() {
         aBorderPane.setPickOnBounds(false);

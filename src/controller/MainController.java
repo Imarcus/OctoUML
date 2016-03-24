@@ -1613,7 +1613,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
     public void setGridVisible(boolean visible){
         for (Line line : grid){
             line.setVisible(visible);
-        }g
+        }
         isGridVisible = visible;
         gridMenuItem.setSelected(visible);
     }

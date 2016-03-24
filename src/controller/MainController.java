@@ -1198,6 +1198,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             aDrawPane.getChildren().remove(sketch);
             graph.removeSketch(sketch);
         }
+        allSketches.removeAll(recognizeController.getSketchesToBeRemoved());
         selectedSketches.removeAll(recognizeController.getSketchesToBeRemoved());
         undoManager.add(recognizeCompoundCommand);
         //Bring all sketches to front:

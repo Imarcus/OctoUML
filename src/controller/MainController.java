@@ -1610,7 +1610,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
     private void drawGrid(){
         for (int i = 0; i < 10000; i+=20)
         {
-            Line line1 = new Line(i, 0, i, 15000);
+            Line line1 = new Line(i, 0, i, 18000);
             line1.setStroke(Color.LIGHTGRAY);
             Line line2 = new Line(0, i, 15000, i);
             line2.setStroke(Color.LIGHTGRAY);

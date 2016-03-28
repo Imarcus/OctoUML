@@ -49,6 +49,7 @@ public class GraphController {
 
     public void movePaneStart(List<GraphElement> elements, MouseEvent event)
     {
+
         initMoveX = event.getSceneX();
         initMoveY = event.getSceneY();
 
@@ -71,11 +72,15 @@ public class GraphController {
         double offsetX = 0;
         double offsetY = 0;
         if(event.getSource() instanceof javafx.scene.Node){
-            offsetX = (event.getSceneX() - initMoveX) * 100/aMainController.getZoomScale();;
-            offsetY = (event.getSceneY() - initMoveY) * 100/aMainController.getZoomScale();;
+            offsetX = (event.getSceneX() - initMoveX) * 100/aMainController.getZoomScale();
+            offsetY = (event.getSceneY() - initMoveY) * 100/aMainController.getZoomScale();
+            drawPaneXOffset += (initMoveX - event.getSceneX());
+            drawPaneYOffset += (initMoveY - event.getSceneY());
         } else {
-            offsetX = (event.getX() - initMoveX) * 100/aMainController.getZoomScale();;
-            offsetY = (event.getY() - initMoveY) * 100/aMainController.getZoomScale();;
+            offsetX = (event.getX() - initMoveX) * 100/aMainController.getZoomScale();
+            offsetY = (event.getY() - initMoveY) * 100/aMainController.getZoomScale();
+            drawPaneXOffset += (initMoveX - event.getX());
+            drawPaneYOffset += (initMoveY - event.getY());
         }
 
         //TODO Limit graph panningg
@@ -83,24 +88,40 @@ public class GraphController {
         //Drag all nodes
         for (GraphElement gElement : elements)
         {
-            gElement.setTranslateX(xInitTranslateMap.get(gElement) + offsetX);
-            gElement.setTranslateY(yInitTranslateMap.get(gElement) + offsetY);
+            if(Math.abs(drawPaneXOffset + offsetX) < aDrawPane.getWidth()/2 ||
+                    (drawPaneXOffset > 0 && offsetX > 0) ||
+                    (drawPaneXOffset < 0 && offsetX < 0)){
+                gElement.setTranslateX(xInitTranslateMap.get(gElement) + offsetX);
+            }
+            if(Math.abs(drawPaneYOffset+ offsetY) < aDrawPane.getHeight()/2 ||
+                    (drawPaneYOffset > 0 && offsetY > 0) ||
+                    (drawPaneYOffset < 0 && offsetY < 0)){
+                gElement.setTranslateY(yInitTranslateMap.get(gElement) + offsetY);
+            }
         }
 
         for(Line line : aMainController.getGrid()){
-            line.setTranslateX(xInitTranslateMapGrid.get(line) + offsetX);
-            line.setTranslateY(yInitTranslateMapGrid.get(line) + offsetY);
+            if(Math.abs(drawPaneXOffset + offsetX) < aDrawPane.getWidth()/2 ||
+                    (drawPaneXOffset > 0 && offsetX > 0) ||
+                    (drawPaneXOffset < 0 && offsetX < 0)) {
+                line.setTranslateX(xInitTranslateMapGrid.get(line) + offsetX);
+            }
+            if(Math.abs(drawPaneYOffset + offsetY) < aDrawPane.getHeight()/2 ||
+                    (drawPaneYOffset > 0 && offsetY > 0) ||
+                    (drawPaneYOffset < 0 && offsetY < 0)){
+                line.setTranslateY(yInitTranslateMapGrid.get(line) + offsetY);
+            }
         }
     }
 
     public void movePaneFinished(MouseEvent event)
     {
-        drawPaneXOffset += (initMoveX - event.getX());
-        drawPaneYOffset += (initMoveY - event.getY());
         xInitTranslateMap.clear();
         yInitTranslateMap.clear();
         initPaneTranslateX = 0;
         initPaneTranslateY = 0;
+        initMoveX = 0;
+        initMoveY = 0;
     }
     public void zoomPaneStart()
     {

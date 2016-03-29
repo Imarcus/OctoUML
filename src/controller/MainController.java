@@ -1234,12 +1234,18 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             for(AbstractNodeView nodeView : allNodeViews){
                 aDrawPane.getChildren().remove(nodeView);
             }
+            for(AbstractEdgeView edgView: allEdgeViews) {
+                aDrawPane.getChildren().remove(edgView);
+            }
             setButtons(true, umlButtons);
             umlMenuItem.setSelected(false);
             umlVisible = false;
         } else {
             for(AbstractNodeView nodeView : allNodeViews){
                 aDrawPane.getChildren().add(nodeView);
+            }
+            for(AbstractEdgeView edgView: allEdgeViews) {
+                aDrawPane.getChildren().add(edgView);
             }
             setButtons(false, umlButtons);
             umlMenuItem.setSelected(true);

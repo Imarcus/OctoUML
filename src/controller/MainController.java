@@ -1213,6 +1213,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             aDrawPane.getChildren().remove(sketch);
             graph.removeSketch(sketch);
         }
+        allSketches.removeAll(recognizeController.getSketchesToBeRemoved());
         selectedSketches.removeAll(recognizeController.getSketchesToBeRemoved());
         undoManager.add(recognizeCompoundCommand);
         //Bring all sketches to front:
@@ -1233,12 +1234,18 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             for(AbstractNodeView nodeView : allNodeViews){
                 aDrawPane.getChildren().remove(nodeView);
             }
+            for(AbstractEdgeView edgView: allEdgeViews) {
+                aDrawPane.getChildren().remove(edgView);
+            }
             setButtons(true, umlButtons);
             umlMenuItem.setSelected(false);
             umlVisible = false;
         } else {
             for(AbstractNodeView nodeView : allNodeViews){
                 aDrawPane.getChildren().add(nodeView);
+            }
+            for(AbstractEdgeView edgView: allEdgeViews) {
+                aDrawPane.getChildren().add(edgView);
             }
             setButtons(false, umlButtons);
             umlMenuItem.setSelected(true);

@@ -98,7 +98,7 @@ public class AddDeleteNodeCommand implements Command
 	{
 		aGraph.addNode(aNode);
 		aController.addNodeView(aNodeView, aNode);
-		aNodeView.toBack();
+		aController.sketchesToFront();
 	}
 	
 }

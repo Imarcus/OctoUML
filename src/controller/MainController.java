@@ -1,5 +1,6 @@
 package controller;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -7,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Line;
@@ -35,7 +37,7 @@ import java.util.*;
  */
 public class MainController {
     //For testing with mouse and keyboard
-    private boolean mouseCreationActivated = true;
+    private boolean mouseCreationActivated = false;
 
     //Controllers
     private CreateNodeController createNodeController;
@@ -54,6 +56,7 @@ public class MainController {
     private ArrayList<Sketch> selectedSketches = new ArrayList<>();
     private ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
     private ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
+    private ArrayList<AnchorPane> allDialogs = new ArrayList<>();
 
 
     private HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
@@ -136,6 +139,17 @@ public class MainController {
         drawGrid();
     }
 
+    public void addDialog(AnchorPane dialog) {
+        allDialogs.add(dialog);
+    }
+
+    public boolean removeDialog(AnchorPane dialog) {
+        return allDialogs.remove(dialog);
+    }
+
+    public ArrayList<AnchorPane> getAllDialogs() {
+        return allDialogs;
+    }
 
     private void initDrawPaneActions() {
         aBorderPane.setPickOnBounds(false);
@@ -1282,6 +1296,10 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         mouseMenuItem.setSelected(mouseCreationActivated);
     }
 
+    public void handleMenuActionExit() {
+        Platform.exit();
+    }
+
     public void handleMenuActionSave(){
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Diagram");
@@ -1593,7 +1611,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
     private void drawGrid(){
         for (int i = 0; i < 10000; i+=20)
         {
-            Line line1 = new Line(i, 0, i, 15000);
+            Line line1 = new Line(i, 0, i, 18000);
             line1.setStroke(Color.LIGHTGRAY);
             Line line2 = new Line(0, i, 15000, i);
             line2.setStroke(Color.LIGHTGRAY);
@@ -1614,7 +1632,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
     public void setGridVisible(boolean visible){
         for (Line line : grid){
             line.setVisible(visible);
-        }g
+        }
         isGridVisible = visible;
         gridMenuItem.setSelected(visible);
     }

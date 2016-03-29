@@ -309,6 +309,7 @@ public class NodeController {
                     node.setAttributes(controller.getAttributes());
                     node.setOperations(controller.getOperations());
                     aDrawPane.getChildren().remove(dialog);
+                    aMainController.removeDialog(dialog);
                 }
             });
 
@@ -316,9 +317,11 @@ public class NodeController {
                 @Override
                 public void handle(ActionEvent event) {
                     aDrawPane.getChildren().remove(dialog);
+                    aMainController.removeDialog(dialog);
                 }
             });
             aDrawPane.getChildren().add(dialog);
+            aMainController.addDialog(dialog);
             return controller.isOkClicked();
 
         } catch (IOException e) {

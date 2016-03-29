@@ -116,10 +116,8 @@ public class EdgeController {
             dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
             dialog.setStyle("-fx-border-color: black");
             //Set location for "dialog".
-            double maxX = aDrawPane.getWidth() - dialog.getPrefWidth();
-            double maxY = aDrawPane.getHeight() - dialog.getPrefHeight();
-            dialog.setLayoutX(Math.min(maxX,(edge.getStartNode().getTranslateX() + edge.getEndNode().getTranslateX())/2));
-            dialog.setLayoutY(Math.min(maxY,(edge.getStartNode().getTranslateY() + edge.getEndNode().getTranslateY())/2));
+            dialog.setLayoutX((edge.getStartNode().getTranslateX() + edge.getEndNode().getTranslateX())/2);
+            dialog.setLayoutY((edge.getStartNode().getTranslateY() + edge.getEndNode().getTranslateY())/2);
 
             EdgeEditDialogController controller = loader.getController();
             controller.setEdge(edge);
@@ -149,14 +147,17 @@ public class EdgeController {
                         }
                     }
                     aDrawPane.getChildren().remove(dialog);
+                    mainController.removeDialog(dialog);
                 }
             });
             controller.getCancelButton().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     aDrawPane.getChildren().remove(dialog);
+                    mainController.removeDialog(dialog);
                 }
             });
+            mainController.addDialog(dialog);
             aDrawPane.getChildren().add(dialog);
 
             return controller.isOkClicked();

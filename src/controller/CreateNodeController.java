@@ -48,12 +48,16 @@ public class CreateNodeController {
         if(event.getSource() instanceof AbstractNodeView){
             dragRectangle.setX(event.getTouchPoint().getX() + ((AbstractNodeView) event.getSource()).getX());
             dragRectangle.setY(event.getTouchPoint().getY() + ((AbstractNodeView) event.getSource()).getY());
+            dragStarts.put(event.getTouchPoint().getId(), new Point2D(
+                    event.getTouchPoint().getX() + ((AbstractNodeView) event.getSource()).getX()
+                    , event.getTouchPoint().getY() + ((AbstractNodeView) event.getSource()).getY()));
+
         } else {
             dragRectangle.setX(event.getTouchPoint().getX());
             dragRectangle.setY(event.getTouchPoint().getY());
+            dragStarts.put(event.getTouchPoint().getId(), new Point2D(event.getTouchPoint().getX(), event.getTouchPoint().getY()));
         }
 
-        dragStarts.put(event.getTouchPoint().getId(), new Point2D(event.getTouchPoint().getX(), event.getTouchPoint().getY()));
         dragRectangles.put(event.getTouchPoint().getId(), dragRectangle);
         aDrawPane.getChildren().add(dragRectangle);
     }

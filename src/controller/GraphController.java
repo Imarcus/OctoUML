@@ -98,29 +98,29 @@ public class GraphController {
         {
             //Limit to moving the pane
             //If we are inside the limit OR we are moving away from the limit we allow moving
-            if(Math.abs(drawPaneXOffset + offsetX) < aDrawPane.getWidth()/2 ||
+            /*if(Math.abs(drawPaneXOffset + offsetX) < aDrawPane.getWidth()/2 ||
                     (drawPaneXOffset > 0 && offsetX > 0) ||
-                    (drawPaneXOffset < 0 && offsetX < 0)){
+                    (drawPaneXOffset < 0 && offsetX < 0)){*/
                 gElement.setTranslateX(xInitTranslateMap.get(gElement) + offsetX);
-            }
-            if(Math.abs(drawPaneYOffset+ offsetY) < aDrawPane.getHeight()/2 ||
+           //}
+            /*if(Math.abs(drawPaneYOffset+ offsetY) < aDrawPane.getHeight()/2 ||
                     (drawPaneYOffset > 0 && offsetY > 0) ||
-                    (drawPaneYOffset < 0 && offsetY < 0)){
+                    (drawPaneYOffset < 0 && offsetY < 0)){*/
                 gElement.setTranslateY(yInitTranslateMap.get(gElement) + offsetY);
-            }
+            //}
         }
 
         for(Line line : aMainController.getGrid()){
-            if(Math.abs(drawPaneXOffset + offsetX) < aDrawPane.getWidth()/2 ||
+            /*if(Math.abs(drawPaneXOffset + offsetX) < aDrawPane.getWidth()/2 ||
                     (drawPaneXOffset > 0 && offsetX > 0) ||
-                    (drawPaneXOffset < 0 && offsetX < 0)) {
+                    (drawPaneXOffset < 0 && offsetX < 0)) {*/
                 line.setTranslateX(xInitTranslateMapGrid.get(line) + offsetX);
-            }
-            if(Math.abs(drawPaneYOffset + offsetY) < aDrawPane.getHeight()/2 ||
+            //}
+            /*if(Math.abs(drawPaneYOffset + offsetY) < aDrawPane.getHeight()/2 ||
                     (drawPaneYOffset > 0 && offsetY > 0) ||
-                    (drawPaneYOffset < 0 && offsetY < 0)){
+                    (drawPaneYOffset < 0 && offsetY < 0)){*/
                 line.setTranslateY(yInitTranslateMapGrid.get(line) + offsetY);
-            }
+            //}
         }
 
         for (AnchorPane dialog : aMainController.getAllDialogs()) {

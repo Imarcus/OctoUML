@@ -1069,7 +1069,7 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
         drawBtn.setGraphic(new ImageView(image));
         drawBtn.setText("");
 
-        image = new Image("/icons/recognizew.png");
+        image = new Image("/icons/recow.png");
         recognizeBtn.setGraphic(new ImageView(image));
         recognizeBtn.setText("");
 

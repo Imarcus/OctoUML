@@ -7,4 +7,5 @@ public interface Edge extends GraphElement {
     Node getStartNode();
     Node getEndNode();
     Edge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy);
+    String getType();
 }

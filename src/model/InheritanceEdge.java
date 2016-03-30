@@ -58,4 +58,8 @@ public class InheritanceEdge extends AbstractEdge {
     public double getScaleX() {
         return 0;
     }
+
+    public String getType(){
+        return "Inheritance";
+    }
 }

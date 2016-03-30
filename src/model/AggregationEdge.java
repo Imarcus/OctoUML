@@ -53,4 +53,8 @@ public class AggregationEdge extends AbstractEdge {
     public double getScaleX() {
         return 0;
     }
+
+    public String getType(){
+        return "Aggregation";
+    }
 }

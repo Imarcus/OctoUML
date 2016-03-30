@@ -73,7 +73,9 @@ public class EdgeEditDialogController {
         this.edge = edge;
         //TODO Hardcoded values. Where to put them?
         typeBox.getItems().setAll("Association", "Inheritance", "Aggregation", "Composition");
+        typeBox.getSelectionModel().select(edge.getType());
         directionBox.getItems().setAll(AbstractEdge.Direction.values());
+        directionBox.getSelectionModel().select(edge.getDirection());
         startMultiplicity.setText(edge.getStartMultiplicity());
         endMultiplicity.setText(edge.getEndMultiplicity());
     }

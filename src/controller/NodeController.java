@@ -9,6 +9,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -294,6 +295,7 @@ public class NodeController {
             AnchorPane dialog = (AnchorPane) loader.load();
             dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
             dialog.setStyle("-fx-border-color: black");
+
             //Set location for dialog.
             double maxX = aDrawPane.getWidth() - dialog.getPrefWidth();
             double maxY = aDrawPane.getHeight() - dialog.getPrefHeight();
@@ -301,10 +303,11 @@ public class NodeController {
             dialog.setLayoutY(Math.min(maxY, node.getTranslateY()+5));
 
             NodeEditDialogController controller = loader.getController();
+
             controller.setNode(node);
-            controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
+            controller.getOkButton().setOnMousePressed(new EventHandler<MouseEvent>() {
                 @Override
-                public void handle(ActionEvent event) {
+                public void handle(MouseEvent event) {
                     node.setTitle(controller.getTitle());
                     node.setAttributes(controller.getAttributes());
                     node.setOperations(controller.getOperations());

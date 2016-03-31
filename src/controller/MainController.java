@@ -137,6 +137,7 @@ public class MainController {
         undoManager = new UndoManager();
 
         drawGrid();
+        mouseMenuItem.setSelected(mouseCreationActivated);
     }
 
     public void addDialog(AnchorPane dialog) {
@@ -144,6 +145,7 @@ public class MainController {
     }
 
     public boolean removeDialog(AnchorPane dialog) {
+        mode = Mode.NO_MODE;
         return allDialogs.remove(dialog);
     }
 
@@ -166,11 +168,35 @@ public class MainController {
                     }
                     else if (tool == ToolEnum.EDGE)
                     {
+                        for(AbstractEdgeView edgeView : allEdgeViews){
+                            if (edgeView.getBoundsInParent().contains(event.getX(), event.getY())){
+                                selected = true;
+                                selectedEdges.add(edgeView);
+                                if(event.getClickCount() > 1){
+                                    edgeController.showEdgeEditDialog(edgeView.getRefEdge());
+                                    tool = ToolEnum.SELECT;
+                                    setButtonClicked(selectBtn);
+                                }
+                            }
+                        }
+
                         mode = Mode.CREATING;
                         edgeController.onMousePressed(event);
                     }
                     else if (tool == ToolEnum.SELECT)
                     {
+                        for(AbstractEdgeView edgeView : allEdgeViews){
+                            if (edgeView.getBoundsInParent().contains(event.getX(), event.getY())){
+                                selected = true;
+                                selectedEdges.add(edgeView);
+                                if(event.getClickCount() > 1){
+                                    edgeController.showEdgeEditDialog(edgeView.getRefEdge());
+                                    tool = ToolEnum.SELECT;
+                                    setButtonClicked(selectBtn);
+                                }
+                            }
+                        }
+
                         mode = Mode.SELECTING;
                         //TODO This should not be needed, should be in nodeView.initActions().
                         for(AbstractNodeView nodeView : allNodeViews){
@@ -181,15 +207,7 @@ public class MainController {
                             }
                         }
 
-                        for(AbstractEdgeView edgeView : allEdgeViews){
-                            if (edgeView.getBoundsInParent().contains(event.getX(), event.getY())){
-                                selected = true;
-                                selectedEdges.add(edgeView);
-                                if(event.getClickCount() > 1){
-                                    edgeController.showEdgeEditDialog(edgeView.getRefEdge());
-                                }
-                            }
-                        }
+
 
                         selectStartX = event.getX();
                         selectStartY = event.getY();
@@ -202,6 +220,7 @@ public class MainController {
                     }
                     //--------- MOUSE EVENT FOR TESTING ---------- TODO
                     else if((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mouseCreationActivated){
+                        System.out.println("Mouse in drawPane");
                         mode = Mode.CREATING;
                         createNodeController.onMousePressed(event);
                     }
@@ -357,6 +376,7 @@ public class MainController {
             @Override
             public void handle(TouchEvent event) {
                 if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && !mouseCreationActivated) {
+                    System.out.println("Touch in drawPane");
                     mode = Mode.CREATING;
                     createNodeController.onTouchPressed(event);
                 }
@@ -472,6 +492,8 @@ public class MainController {
                 //TODO Maybe needs some check here?
                 if (event.getClickCount() == 2) {
                     nodeController.onDoubleClick(nodeView);
+                    tool = ToolEnum.SELECT;
+                    setButtonClicked(selectBtn);
                 }
                 else if(tool == ToolEnum.MOVE_SCENE) {
                     mode = Mode.MOVING;
@@ -665,7 +687,7 @@ public class MainController {
         nodeView.setOnTouchPressed(new EventHandler<TouchEvent>() {
             @Override
             public void handle(TouchEvent event) {
-                if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE)) {
+                if (nodeView instanceof PackageNodeView && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE)) {
                     mode = Mode.CREATING;
                     createNodeController.onTouchPressed(event);
                 }
@@ -681,7 +703,8 @@ public class MainController {
         nodeView.setOnTouchMoved(new EventHandler<TouchEvent>() {
             @Override
             public void handle(TouchEvent event) {
-                if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING) {
+                if (nodeView instanceof PackageNodeView && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) &&
+                        mode == Mode.CREATING) {
                     createNodeController.onTouchDragged(event);
                 }
                 else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING)
@@ -696,7 +719,7 @@ public class MainController {
         nodeView.setOnTouchReleased(new EventHandler<TouchEvent>() {
             @Override
             public void handle(TouchEvent event) {
-                if (tool == ToolEnum.CREATE && mode == Mode.CREATING)
+                if (nodeView instanceof PackageNodeView && tool == ToolEnum.CREATE && mode == Mode.CREATING)
                 {
                     //Create ClassNode
                     ClassNode node = createNodeController.createClassNode(event);
@@ -707,20 +730,22 @@ public class MainController {
                     nodeMap.put(nodeView, node);
                     allNodeViews.add(nodeView);
                     initNodeActions(nodeView);
-
                     undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
+
+                    //If someone else is creating at the same time.
                     if(!createNodeController.currentlyCreating()){
                         mode = Mode.NO_MODE;
                     }
 
-                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING) { //TODO: combine double code
+                } else if (nodeView instanceof PackageNodeView && tool == ToolEnum.PACKAGE && mode == Mode.CREATING) { //TODO: combine double code
                     PackageNode node = createNodeController.createPackageNode(event);
                     PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node, currentScale);
                     nodeMap.put(nodeView, node);
                     initNodeActions(nodeView);
                     undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
                     allNodeViews.add(nodeView);
-                    //
+
+                    //If someone else is creating at the same time.
                     if(!createNodeController.currentlyCreating()){
                         mode = Mode.NO_MODE;
                     }
@@ -909,6 +934,8 @@ private void initEdgeActions(AbstractEdgeView edgeView){
             if (event.getClickCount() == 2 || event.getButton() == MouseButton.SECONDARY) {
                 //TODO If more kinds of Edges implemented: this will not work:
                 edgeController.showEdgeEditDialog(edgeView.getRefEdge());
+                tool = ToolEnum.SELECT;
+                setButtonClicked(selectBtn);
             }
         }
     });

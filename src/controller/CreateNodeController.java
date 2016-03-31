@@ -108,8 +108,7 @@ public class CreateNodeController {
     public PackageNode createPackageNode(TouchEvent event) {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
         PackageNode node = new PackageNode(dragRectangle.getX(), dragRectangle.getY(),
-                event.getTouchPoint().getSceneX() - dragRectangle.getX(),
-                event.getTouchPoint().getSceneY() - dragRectangle.getY());
+                dragRectangle.getWidth(), dragRectangle.getHeight());
         killDragRectangle(event);
         return node;
     }

@@ -181,6 +181,16 @@ public class MainController {
                             }
                         }
 
+                        for(AbstractEdgeView edgeView : allEdgeViews){
+                            if (edgeView.getBoundsInParent().contains(event.getX(), event.getY())){
+                                selected = true;
+                                selectedEdges.add(edgeView);
+                                if(event.getClickCount() > 1){
+                                    edgeController.showEdgeEditDialog(edgeView.getRefEdge());
+                                }
+                            }
+                        }
+
                         selectStartX = event.getX();
                         selectStartY = event.getY();
                         selectRectangle.setX(event.getX());

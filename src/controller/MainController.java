@@ -636,11 +636,12 @@ public class MainController {
 
                     AssociationEdgeView edgeView = (AssociationEdgeView) edgeController.
                             onMouseReleased(edge, startNodeView, endNodeView);
-                    //TODO This check shouldn't be necessary?
-                    if (startNodeView != null && endNodeView != null) {
+
+                    if (startNodeView != null && endNodeView != null && !graph.hasEdge(edge)) {
                         initEdgeActions(edgeView);
                         allEdgeViews.add(edgeView);
-                        graph.getAllEdges().add(edge);
+                        graph.addEdge(edge);
+                        aDrawPane.getChildren().add(edgeView);
                         undoManager.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
                     }
                     edgeController.removeDragLine();
@@ -827,9 +828,9 @@ public class MainController {
     }
 
     /**
-     * Deletes edfe
+     * Deletes edge
      * @param edgeView
-     * @param pCommand Compound command from deleting all selected, if not null we create our own command.
+     * @param pCommand Compound command from deleting all selected, if null we create our own command.
      * @param undo If true this is an undo and no command should be created, also used by replaceEdge in EdgeController
      */
     public void deleteEdgeView(AbstractEdgeView edgeView, CompoundCommand pCommand, boolean undo) {
@@ -856,7 +857,7 @@ public class MainController {
 
     private void deleteSketch(Sketch sketch, CompoundCommand pCommand) {
         CompoundCommand command;
-        //TODO Maybe not necessary for edges.
+        //TODO Maybe not necessary for sketches.
         if (pCommand == null) {
             command = new CompoundCommand();
         } else {
@@ -1584,8 +1585,9 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
      * @return
      */
     public AbstractEdgeView addEdgeView(AbstractEdgeView edgeView){
-        if(edgeView != null) {
+        if(edgeView != null && graph.hasEdge(edgeView.getRefEdge())) {
             aDrawPane.getChildren().add(edgeView);
+            graph.addEdge(edgeView.getRefEdge());
             initEdgeActions(edgeView);
             allEdgeViews.add(edgeView);
         }
@@ -1604,8 +1606,8 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
                 endNodeView = nodeView;
             }
         }
-        if(startNodeView == null || endNodeView == null) {
-            System.out.println("Failed to find start or end node");
+        if(startNodeView == null || endNodeView == null || graph.hasEdge(edge)) {
+            System.out.println("Failed to find start or end node, or graph already has edge.");
             return null;
         } else {
             AssociationEdgeView edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);

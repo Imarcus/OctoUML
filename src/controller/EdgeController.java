@@ -75,7 +75,6 @@ public class EdgeController {
         dragLine.setStartY(0);
         dragLine.setEndX(0);
         dragLine.setEndY(0);
-        aDrawPane.getChildren().add(edgeView);
         return edgeView;
     }
 

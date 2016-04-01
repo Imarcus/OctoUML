@@ -120,6 +120,21 @@ public class Graph implements Serializable {
     }
 
     /**
+     * Returns true if the graph have an edge that connects the same nodes.
+     * @param edge
+     * @return
+     */
+    public boolean hasEdge(Edge edge) {
+        for(Edge e: allEdges) {
+            if ((e.getStartNode().equals(edge.getStartNode()) || e.getEndNode().equals(edge.getStartNode())) &&
+                    (e.getEndNode().equals(edge.getEndNode()) || e.getStartNode().equals(edge.getEndNode()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns the Node given a Point where it's located.
      * @param point can not be null.
      * @return the node if found, otherwise null.

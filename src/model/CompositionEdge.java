@@ -60,4 +60,8 @@ public class CompositionEdge extends AbstractEdge{
     public double getScaleX() {
         return 0;
     }
+
+    public String getType(){
+        return "Composite";
+    }
 }

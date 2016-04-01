@@ -64,4 +64,8 @@ public class AssociationEdge extends AbstractEdge {
     public AssociationEdge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy){
         return new AssociationEdge(startNodeCopy, endNodeCopy);
     }
+
+    public String getType(){
+        return "Association";
+    }
 }

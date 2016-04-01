@@ -9,15 +9,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Path;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
+import util.Constants;
 import util.commands.*;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
@@ -429,11 +428,11 @@ public class MainController {
         for(AbstractNodeView nodeView : allNodeViews){
             if (selectedNodes.contains(nodeView))
             {
-                nodeView.setFill(Color.MEDIUMVIOLETRED);
+                nodeView.setFill(Constants.selected_color);
             }
             else
             {
-                nodeView.setFill(Color.LIGHTSKYBLUE);
+                nodeView.setFill(Constants.not_selected_color);
             }
         }
         for (AbstractEdgeView edgeView : allEdgeViews) {

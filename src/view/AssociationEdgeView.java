@@ -7,6 +7,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import model.AbstractEdge;
+import util.Constants;
+
+import java.util.ArrayList;
 
 /**
  * The Graphical Representation of a AssociationEdge.
@@ -15,6 +18,7 @@ public class AssociationEdgeView extends AbstractEdgeView {
     private AbstractEdge refEdge;
     private AbstractNodeView startNode;
     private AbstractNodeView endNode;
+    private ArrayList<Line> arrowHeadLines = new ArrayList<>();
 
 
     
@@ -56,6 +60,19 @@ public class AssociationEdgeView extends AbstractEdgeView {
         }
     }
 
+    public void setSelected(boolean selected){
+        super.setSelected(selected);
+        if(selected){
+            for(Line l : arrowHeadLines){
+                l.setStroke(Constants.selected_color);
+            }
+        } else {
+            for (Line l : arrowHeadLines) {
+                l.setStroke(Color.BLACK);
+            }
+        }
+    }
+
     /**
      * Draws an ArrowHead and returns it in a group.
      * Based on code from http://www.coderanch.com/t/340443/GUI/java/Draw-arrow-head-line
@@ -79,6 +96,10 @@ public class AssociationEdgeView extends AbstractEdgeView {
             y = startY - barb * Math.sin(rho);
             Line arrowHeadLine = new Line(startX, startY, x, y);
             arrowHeadLine.setStrokeWidth(super.STROKE_WIDTH);
+            arrowHeadLines.add(arrowHeadLine);
+            if(super.isSelected()){
+                arrowHeadLine.setStroke(Constants.selected_color);
+            }
             group.getChildren().add(arrowHeadLine);
             rho = theta - phi;
         }

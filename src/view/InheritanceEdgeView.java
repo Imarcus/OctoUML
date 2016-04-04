@@ -7,12 +7,18 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import model.AbstractEdge;
+import util.Constants;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by chris on 2016-03-11.
  */
 public class InheritanceEdgeView extends AbstractEdgeView{
     private AbstractEdge refEdge;
+    private ArrayList<Line> arrowHeadLines = new ArrayList<>();
+
 
     public InheritanceEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
         super(edge, startNode, endNode);
@@ -46,6 +52,19 @@ public class InheritanceEdgeView extends AbstractEdgeView{
                 this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
                 this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
                 break;
+        }
+    }
+
+    public void setSelected(boolean selected){
+        super.setSelected(selected);
+        if(selected){
+            for(Line l : arrowHeadLines){
+                l.setStroke(Constants.selected_color);
+            }
+        } else {
+            for (Line l : arrowHeadLines) {
+                l.setStroke(Color.BLACK);
+            }
         }
     }
 
@@ -97,6 +116,12 @@ public class InheritanceEdgeView extends AbstractEdgeView{
         group.getChildren().add(line1);
         group.getChildren().add(line2);
         group.getChildren().add(line3);
+        arrowHeadLines.addAll(Arrays.asList(new Line[]{line1, line2, line3}));
+        if(super.isSelected()){
+            for(Line l : arrowHeadLines){
+                l.setStroke(Constants.selected_color);
+            }
+        }
         return group;
     }
 

@@ -36,7 +36,6 @@ public class PackageNode extends AbstractNode
         for (AbstractNode node : childNodes) {
             if (point.getX() >= node.getX() && point.getX() <= node.getX()+ node.getWidth()
                     && point.getY() >= node.getY() && point.getY() <= node.getY() + node.getHeight()) {
-                System.out.println("\t IN PACKAGENODE:findNode, found this:" + node.toString());
                 return node;
             }
         }

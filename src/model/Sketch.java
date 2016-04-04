@@ -3,6 +3,7 @@ package model;
 import edu.tamu.core.sketch.Stroke;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
+import util.Constants;
 
 /**
  * The model-representation of a Sketch.
@@ -31,7 +32,7 @@ public class Sketch implements GraphElement{
     public void setSelected(boolean selected) {
         this.selected = selected;
         if (selected) {
-            path.setStroke(Color.RED);
+            path.setStroke(Constants.selected_sketch_color);
         } else {
             path.setStroke(Color.BLACK);
         }

@@ -8,6 +8,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import model.AbstractEdge;
+import util.Constants;
 
 /**
  * Created by chris on 2016-02-18.
@@ -128,7 +129,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
     public void setSelected(boolean selected){
         this.selected = selected;
         if (selected){
-            line.setStroke(Color.MEDIUMVIOLETRED);
+            line.setStroke(Constants.selected_color);
         } else {
             line.setStroke(Color.BLACK);
         }

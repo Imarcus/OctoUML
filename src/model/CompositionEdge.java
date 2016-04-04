@@ -18,7 +18,7 @@ public class CompositionEdge extends AbstractEdge{
 
     @Override
     public Edge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy) {
-        return new InheritanceEdge(startNodeCopy, endNodeCopy);
+        return new CompositionEdge(startNodeCopy, endNodeCopy);
     }
 
     @Override

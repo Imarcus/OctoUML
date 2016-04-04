@@ -7,12 +7,19 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import model.AbstractEdge;
+import util.Constants;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Chris on 2016-03-16.
  */
 public class CompositionEdgeView extends AbstractEdgeView {
     private AbstractEdge refEdge;
+    private ArrayList<Line> diamondLines = new ArrayList<>();
+    private Polygon diamondBackground;
+
 
     public CompositionEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
         super(edge, startNode, endNode);
@@ -71,16 +78,19 @@ public class CompositionEdgeView extends AbstractEdgeView {
             ys[j] = y;
             rho = theta - phi;
         }
-
-        Polygon background = new Polygon();
-        background.getPoints().setAll(new Double[] {
+        diamondBackground = new Polygon();
+        diamondBackground.getPoints().setAll(new Double[] {
                 startX, startY,
                 xs[0], ys[0],
                 x4, y4,
                 xs[1], ys[1]
         });
-        background.setFill(Color.BLACK);
-        background.toBack();
+        if(super.isSelected()){
+            diamondBackground.setFill(Constants.selected_color);
+        } else {
+            diamondBackground.setFill(Color.BLACK);
+        }
+        diamondBackground.toBack();
         Line line1 = new Line(startX, startY, xs[0], ys[0]);
         Line line2 = new Line(startX, startY, xs[1], ys[1]);
         Line line3 = new Line(xs[0], ys[0], x4, y4);
@@ -89,12 +99,37 @@ public class CompositionEdgeView extends AbstractEdgeView {
         line2.setStrokeWidth(super.STROKE_WIDTH);
         line3.setStrokeWidth(super.STROKE_WIDTH);
         line4.setStrokeWidth(super.STROKE_WIDTH);
-        group.getChildren().add(background);
+        group.getChildren().add(diamondBackground);
         group.getChildren().add(line1);
         group.getChildren().add(line2);
         group.getChildren().add(line3);
         group.getChildren().add(line4);
+        diamondLines.addAll(Arrays.asList(new Line[]{line1, line2, line3, line4}));
+        if(super.isSelected()){
+            for(Line l : diamondLines){
+                l.setStroke(Constants.selected_color);
+            }
+        }
         return group;
+    }
+
+    public void setSelected(boolean selected){
+        super.setSelected(selected);
+        if(selected){
+            if(diamondBackground != null){
+                diamondBackground.setFill(Constants.selected_color);
+            }
+            for(Line l : diamondLines){
+                l.setStroke(Constants.selected_color);
+            }
+        } else {
+            if(diamondBackground != null){
+                diamondBackground.setFill(Color.BLACK);
+            }
+            for (Line l : diamondLines) {
+                l.setStroke(Color.BLACK);
+            }
+        }
     }
 
     private void setChangeListeners() {

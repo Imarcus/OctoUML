@@ -7,12 +7,17 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import model.AbstractEdge;
+import util.Constants;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Chris on 2016-03-16.
  */
 public class AggregationEdgeView extends AbstractEdgeView {
     private AbstractEdge refEdge;
+    private ArrayList<Line> diamondLines = new ArrayList<>();
 
     public AggregationEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
         super(edge, startNode, endNode);
@@ -94,7 +99,26 @@ public class AggregationEdgeView extends AbstractEdgeView {
         group.getChildren().add(line2);
         group.getChildren().add(line3);
         group.getChildren().add(line4);
+        diamondLines.addAll(Arrays.asList(new Line[]{line1, line2, line3, line4}));
+        if(super.isSelected()){
+            for(Line l : diamondLines){
+                l.setStroke(Constants.selected_color);
+            }
+        }
         return group;
+    }
+
+    public void setSelected(boolean selected){
+        super.setSelected(selected);
+        if(selected){
+            for(Line l : diamondLines){
+                l.setStroke(Constants.selected_color);
+            }
+        } else {
+            for (Line l : diamondLines) {
+                l.setStroke(Color.BLACK);
+            }
+        }
     }
 
     private void setChangeListeners() {

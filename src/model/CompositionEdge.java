@@ -62,6 +62,6 @@ public class CompositionEdge extends AbstractEdge{
     }
 
     public String getType(){
-        return "Composite";
+        return "Composition";
     }
 }

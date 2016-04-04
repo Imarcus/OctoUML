@@ -925,18 +925,13 @@ public class MainController {
         return undoManager;
     }
 
+//TODO Can be removed!
 private void initEdgeActions(AbstractEdgeView edgeView){
     edgeView.setOnMousePressed(new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
             if (mouseCreationActivated) {
                 handleOnEdgeViewPressedEvents(edgeView);
-            }
-            if (event.getClickCount() == 2 || event.getButton() == MouseButton.SECONDARY) {
-                //TODO If more kinds of Edges implemented: this will not work:
-                edgeController.showEdgeEditDialog(edgeView.getRefEdge());
-                tool = ToolEnum.SELECT;
-                setButtonClicked(selectBtn);
             }
         }
     });
@@ -946,23 +941,19 @@ private void initEdgeActions(AbstractEdgeView edgeView){
         public void handle(TouchEvent event) {
             if (!mouseCreationActivated) {
                 handleOnEdgeViewPressedEvents(edgeView);
-                if (event.getTouchCount() == 2) {
-                    //TODO If more kinds of Edges implemented: this will not work:
-                    edgeController.showEdgeEditDialog((AssociationEdge) edgeView.getRefEdge());
-                }
             }
         }
     });
 }
 
 private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
-    if (edgeView.isSelected()) {
+    /*if (edgeView.isSelected()) {
         selectedEdges.remove(edgeView);
         edgeView.setSelected(false);
     } else {
         selectedEdges.add(edgeView);
         edgeView.setSelected(true);
-    }
+    }*/
 }
     /**
      * initialize handlers for a sketch.
@@ -1217,30 +1208,8 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
             if (e2 instanceof AssociationEdge) {
                 AssociationEdge edge = (AssociationEdge) e2;
                 //Only add the edge to the graph if it connects two nodes.
-                AbstractNodeView startNodeView = null;
-                AbstractNodeView endNodeView = null;
-
-                for (AbstractNodeView nView : allNodeViews) {
-                    if (nView.contains(edge.getStartNode().getX(), edge.getStartNode().getY())) {
-                        startNodeView = nView;
-                        break;
-                    }
-                }
-
-                for (AbstractNodeView nView : allNodeViews) {
-                    if (nView.contains(edge.getEndNode().getX(),
-                            edge.getEndNode().getY())) {
-                        endNodeView = nView;
-                        break;
-                    }
-                }
-
-                AssociationEdgeView edgeView = (AssociationEdgeView) edgeController.
-                        onMouseReleased(edge, startNodeView, endNodeView);
-                //TODO This check shouldn't be necessary?
-                if (startNodeView != null && endNodeView != null) {
-                    initEdgeActions(edgeView);
-                    allEdgeViews.add(edgeView);
+                AbstractEdgeView edgeView = addEdgeView(edge);
+                if (edgeView != null) {
                     recognizeCompoundCommand.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
                 }
             }
@@ -1580,12 +1549,12 @@ private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
     }
 
     /**
-     * Adds an EdgeView
+     * Adds an EdgeView, SHO
      * @param edgeView
      * @return
      */
     public AbstractEdgeView addEdgeView(AbstractEdgeView edgeView){
-        if(edgeView != null && graph.hasEdge(edgeView.getRefEdge())) {
+        if(edgeView != null) {
             aDrawPane.getChildren().add(edgeView);
             graph.addEdge(edgeView.getRefEdge());
             initEdgeActions(edgeView);

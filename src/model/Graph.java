@@ -125,6 +125,11 @@ public class Graph implements Serializable {
      * @return
      */
     public boolean hasEdge(Edge edge) {
+        if (edge == null || edge.getStartNode() == null || edge.getEndNode() == null) {
+            System.out.println("CRITICAL: Edge, edge.getStartNode or edge.getEndNode is null.");
+            //TODO what should this return?
+            return false;
+        }
         for(Edge e: allEdges) {
             if ((e.getStartNode().equals(edge.getStartNode()) || e.getEndNode().equals(edge.getStartNode())) &&
                     (e.getEndNode().equals(edge.getEndNode()) || e.getStartNode().equals(edge.getEndNode()))) {

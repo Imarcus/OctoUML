@@ -20,8 +20,8 @@
  *******************************************************************************/
 package util.commands;
 
+import controller.MainController;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Path;
 import model.Sketch;
 
 /**
@@ -31,6 +31,7 @@ import model.Sketch;
 public class AddDeleteSketchCommand implements Command
 {
 	private Sketch aSketch;
+	private MainController mainController;
 	private Pane aPane;
 	private boolean aAdding; //true for adding, false for deleting
 
@@ -38,8 +39,9 @@ public class AddDeleteSketchCommand implements Command
 	 * Creates the command.
 	 * @param pAdding True when adding, false when deleting
 	 */
-	public AddDeleteSketchCommand(Pane pPane, Sketch pPath, boolean pAdding)
+	public AddDeleteSketchCommand(MainController mController, Pane pPane, Sketch pPath, boolean pAdding)
 	{
+		mainController = mController;
 		aPane = pPane;
 		aSketch = pPath;
 		aAdding = pAdding;
@@ -81,6 +83,8 @@ public class AddDeleteSketchCommand implements Command
 	private void delete() 
 	{
 		aPane.getChildren().remove(aSketch.getPath());
+		mainController.getAllSketches().remove(aSketch);
+		mainController.getSelectedSketches().remove(aSketch);
 	}
 	
 	/**
@@ -90,6 +94,7 @@ public class AddDeleteSketchCommand implements Command
 	{
 		if (!aPane.getChildren().contains(aSketch.getPath())) {
 			aPane.getChildren().add(aSketch.getPath());
+			mainController.getAllSketches().add(aSketch);
 			aSketch.getPath().toFront();
 		}
 	}

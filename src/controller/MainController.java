@@ -152,6 +152,39 @@ public class MainController {
         return allDialogs;
     }
 
+    //Code copied, sorry!
+    private double distanceToLine(Line l, double pointX, double pointY){
+        double y1 = l.getStartY();
+        double y2 = l.getEndY();
+        double x1 = l.getStartX();
+        double x2 = l.getEndX();
+
+        double px = x2-x1;
+        double py = y2-y1;
+
+        double something = px*px + py*py;
+
+        double u =  ((pointX - x1) * px + (pointY - y1) * py) / something;
+
+        if (u > 1){
+            u = 1;
+        }
+        else if (u < 0){
+            u = 0;
+        }
+
+        double x = x1 + u * px;
+        double y = y1 + u * py;
+
+        double dx = x - pointX;
+        double dy = y - pointY;
+
+        double dist = Math.sqrt(dx*dx + dy*dy);
+
+        return dist;
+
+    }
+
     private void initDrawPaneActions() {
         aBorderPane.setPickOnBounds(false);
 
@@ -168,7 +201,7 @@ public class MainController {
                     else if (tool == ToolEnum.EDGE)
                     {
                         for(AbstractEdgeView edgeView : allEdgeViews){
-                            if (edgeView.getBoundsInParent().contains(event.getX(), event.getY())){
+                            if (distanceToLine(edgeView.getLine(), event.getX(), event.getY()) < 15){
                                 selected = true;
                                 selectedEdges.add(edgeView);
                                 if(event.getClickCount() > 1){
@@ -185,7 +218,7 @@ public class MainController {
                     else if (tool == ToolEnum.SELECT)
                     {
                         for(AbstractEdgeView edgeView : allEdgeViews){
-                            if (edgeView.getBoundsInParent().contains(event.getX(), event.getY())){
+                            if (distanceToLine(edgeView.getLine(), event.getX(), event.getY()) < 15){
                                 selected = true;
                                 selectedEdges.add(edgeView);
                                 if(event.getClickCount() > 1){
@@ -275,7 +308,7 @@ public class MainController {
             public void handle(MouseEvent event)
             {
                 if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
-                    //User is not creating a Edge between two nodes, so we don't handle that.
+                    //User is not creating an Edge between two nodes, so we don't handle that.
                     edgeController.removeDragLine();
 
                     mode = Mode.NO_MODE;
@@ -779,7 +812,6 @@ public class MainController {
      */
     private void deleteSelected(){
         CompoundCommand command = new CompoundCommand();
-        System.out.println("SelectedEdges size: " + selectedEdges.size());
         for(AbstractNodeView nodeView : selectedNodes){
             deleteNode(nodeView, command, false);
         }
@@ -924,36 +956,36 @@ public class MainController {
         return undoManager;
     }
 
-//TODO Can be removed!
-private void initEdgeActions(AbstractEdgeView edgeView){
-    edgeView.setOnMousePressed(new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent event) {
-            if (mouseCreationActivated) {
-                handleOnEdgeViewPressedEvents(edgeView);
+    //TODO Can be removed!
+    private void initEdgeActions(AbstractEdgeView edgeView){
+        edgeView.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (mouseCreationActivated) {
+                    handleOnEdgeViewPressedEvents(edgeView);
+                }
             }
-        }
-    });
+        });
 
-    edgeView.setOnTouchPressed(new EventHandler<TouchEvent>() {
-        @Override
-        public void handle(TouchEvent event) {
-            if (!mouseCreationActivated) {
-                handleOnEdgeViewPressedEvents(edgeView);
+        edgeView.setOnTouchPressed(new EventHandler<TouchEvent>() {
+            @Override
+            public void handle(TouchEvent event) {
+                if (!mouseCreationActivated) {
+                    handleOnEdgeViewPressedEvents(edgeView);
+                }
             }
-        }
-    });
-}
+        });
+    }
 
-private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
-    /*if (edgeView.isSelected()) {
-        selectedEdges.remove(edgeView);
-        edgeView.setSelected(false);
-    } else {
-        selectedEdges.add(edgeView);
-        edgeView.setSelected(true);
-    }*/
-}
+    private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
+        /*if (edgeView.isSelected()) {
+            selectedEdges.remove(edgeView);
+            edgeView.setSelected(false);
+        } else {
+            selectedEdges.add(edgeView);
+            edgeView.setSelected(true);
+        }*/
+    }
     /**
      * initialize handlers for a sketch.
      * @param sketch

@@ -46,6 +46,7 @@ public class MainController {
     SketchController sketchController;
     RecognizeController recognizeController;
     SelectController selectController;
+    CopyPasteController copyPasteController;
 
     private Graph graph;
     private Stage aStage;
@@ -59,13 +60,8 @@ public class MainController {
     ArrayList<AnchorPane> allDialogs = new ArrayList<>();
 
 
-    private HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
+    HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
-    //Copy nodes logic
-    ArrayList<AbstractNode> currentlyCopiedNodes = new ArrayList<>();
-    ArrayList<AbstractEdge> currentlyCopiedEdges = new ArrayList<>();
-    HashMap<AbstractNode, double[]> copyDeltas = new HashMap<>();
-    double[] copyPasteCoords;
 
     //For drawing
     ArrayList<Sketch> allSketches = new ArrayList<>();
@@ -116,7 +112,7 @@ public class MainController {
     @FXML private Slider zoomSlider;
     @FXML private BorderPane aBorderPane;
 
-    private ContextMenu aContextMenu;
+    ContextMenu aContextMenu;
 
     private AbstractNodeView nodeClicked;
     private MainController instance = this;
@@ -138,6 +134,7 @@ public class MainController {
         sketchController = new SketchController(aDrawPane, this);
         recognizeController = new RecognizeController(aDrawPane, this);
         selectController = new SelectController(aDrawPane, this);
+        copyPasteController = new CopyPasteController(aDrawPane, this);
 
         undoManager = new UndoManager();
 
@@ -169,7 +166,7 @@ public class MainController {
                 {
                     if(event.getButton() == MouseButton.SECONDARY){
                         mode = Mode.CONTEXT_MENU;
-                        copyPasteCoords = new double[]{event.getX(), event.getY()};
+                        copyPasteController.copyPasteCoords = new double[]{event.getX(), event.getY()};
                         aContextMenu.show(aDrawPane, event.getScreenX(), event.getScreenY());
                     }
                     else if (tool == ToolEnum.SELECT || tool == ToolEnum.EDGE){
@@ -191,7 +188,7 @@ public class MainController {
                 } else if (mode == Mode.CONTEXT_MENU)
                 {
                     if(event.getButton() == MouseButton.SECONDARY){
-                        copyPasteCoords = new double[]{event.getX(), event.getY()};
+                        copyPasteController.copyPasteCoords = new double[]{event.getX(), event.getY()};
                         aContextMenu.show(aDrawPane, event.getScreenX(), event.getScreenY());
                     } else {
                         aContextMenu.hide();
@@ -417,7 +414,7 @@ public class MainController {
                 }
                 else if(event.getButton() == MouseButton.SECONDARY){
                     nodeClicked = nodeView;
-                    copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
+                    copyPasteController.copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
                     aContextMenu.show(nodeView, event.getScreenX(), event.getScreenY());
                 }
 
@@ -688,7 +685,7 @@ public class MainController {
     /**
      * Deletes all selected nodes, edges and sketches.
      */
-    private void deleteSelected(){
+    void deleteSelected(){
         CompoundCommand command = new CompoundCommand();
         for(AbstractNodeView nodeView : selectedNodes){
             deleteNode(nodeView, command, false);
@@ -1277,7 +1274,7 @@ public class MainController {
         MenuItem cmItemCopy = new MenuItem("Copy");
         cmItemCopy.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                copy();
+                copyPasteController.copy();
                 mode = Mode.NO_MODE;
             }
         });
@@ -1285,121 +1282,11 @@ public class MainController {
         MenuItem cmItemPaste = new MenuItem("Paste");
         cmItemPaste.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                paste();
+                copyPasteController.paste();
                 mode = Mode.NO_MODE;
             }
         });
         aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste, cmItemDelete);
-    }
-
-    //TODO Copy edges and sketches as well
-    private void copy(){
-        currentlyCopiedNodes.clear();
-        copyDeltas.clear();
-        currentlyCopiedEdges.clear();
-
-        for(AbstractNodeView nodeView : selectedNodes){
-            currentlyCopiedNodes.add(nodeMap.get(nodeView));
-        }
-        for(AbstractEdgeView edgeView : selectedEdges){
-            currentlyCopiedEdges.add(edgeView.getRefEdge());
-        }
-        setUpCopyCoords();
-    }
-
-    /**
-     * Sets up relative coordinates for the nodes being copied
-     */
-    private void setUpCopyCoords(){
-        double currentClosestToCorner = Double.MAX_VALUE;
-        AbstractNode closest = null;
-        for(GraphElement element: currentlyCopiedNodes){
-            if(element instanceof AbstractNode){
-                if((element.getTranslateX() + element.getTranslateY()) < currentClosestToCorner){
-                    currentClosestToCorner = element.getTranslateX() + element.getTranslateY();
-                    closest = (AbstractNode) element;
-                }
-            }
-
-        }
-
-        for(AbstractNode node : currentlyCopiedNodes){
-            if(node != closest){
-                copyDeltas.put(node, new double[]{node.getTranslateX() - closest.getTranslateX(),
-                        node.getTranslateY() - closest.getTranslateY()});
-            } else {
-                copyDeltas.put(node, new double[]{0,0});
-            }
-        }
-    }
-
-    //TODO Paste two times in a row
-    private void paste(){
-        CompoundCommand command = new CompoundCommand();
-
-
-        AbstractNode newStartNode = null;
-        AbstractNode newEndNode = null;
-        AbstractNodeView newStartNodeView = null;
-        AbstractNodeView newEndNodeView = null;
-
-        //If a node has several edges it will be found more than once in the currentlyCopiedEdges loop, so we put nodes
-        //that are already copied in this map.
-        HashMap<AbstractNode, AbstractNode> alreadyCopiedNodes = new HashMap<>();
-
-        //Paste edges and their start and end nodes
-        for(AbstractEdge oldEdge : currentlyCopiedEdges){
-            for(AbstractNode node : currentlyCopiedNodes){
-                if(node.equals(oldEdge.getStartNode())){
-                    if(!alreadyCopiedNodes.containsKey(node)){ //If start node is not already copied
-                        newStartNode = ((AbstractNode)oldEdge.getStartNode()).copy();
-                        alreadyCopiedNodes.put(node, newStartNode);
-
-                        getGraphModel().addNode(newStartNode);
-                        newStartNode.setTranslateX(copyPasteCoords[0] + copyDeltas.get(node)[0]);
-                        newStartNode.setTranslateY(copyPasteCoords[1] + copyDeltas.get(node)[1]);
-                        newStartNodeView = createNodeView(newStartNode);
-                        command.add(new AddDeleteNodeCommand(this, graph, newStartNodeView, newStartNode, true));
-                    } else {
-                        newStartNode = alreadyCopiedNodes.get(node);
-                    }
-
-                } else if (node.equals(oldEdge.getEndNode())){
-                    if (!alreadyCopiedNodes.containsKey(node)) { //If end node is not already copied
-                        newEndNode = ((AbstractNode) oldEdge.getEndNode()).copy();
-                        alreadyCopiedNodes.put(node, newEndNode);
-
-                        getGraphModel().addNode(newEndNode);
-                        newEndNode.setTranslateX(copyPasteCoords[0] + copyDeltas.get(node)[0]);
-                        newEndNode.setTranslateY(copyPasteCoords[1] + copyDeltas.get(node)[1]);
-                        newEndNodeView = createNodeView(newEndNode);
-                        command.add(new AddDeleteNodeCommand(this, graph, newEndNodeView, newEndNode, true));
-                    } else {
-                        newEndNode = alreadyCopiedNodes.get(node);
-                    }
-                }
-            }
-            currentlyCopiedNodes.removeAll(alreadyCopiedNodes.keySet());
-            AbstractEdge copy = (AbstractEdge)oldEdge.copy(newStartNode, newEndNode);
-            getGraphModel().getAllEdges().add(copy);
-            AbstractEdgeView newEdgeView = createEdgeView(copy, newStartNodeView, newEndNodeView);
-            command.add(new AddDeleteEdgeCommand(this,newEdgeView, copy, true));
-        }
-
-        for (GraphElement old : currentlyCopiedNodes) {
-            AbstractNode copy = ((AbstractNode)old).copy();
-            getGraphModel().addNode(copy);
-            copy.setTranslateX(copyPasteCoords[0] + copyDeltas.get(old)[0]);
-            copy.setTranslateY(copyPasteCoords[1] + copyDeltas.get(old)[1]);
-            AbstractNodeView newView = createNodeView(copy);
-            command.add(new AddDeleteNodeCommand(this, graph, newView, copy, true));
-
-        }
-        currentlyCopiedNodes.clear();
-        currentlyCopiedEdges.clear();
-        if(command.size() != 0){
-            undoManager.add(command);
-        }
     }
 
     /**

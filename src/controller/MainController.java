@@ -36,58 +36,69 @@ import java.util.*;
  */
 public class MainController {
     //For testing with mouse and keyboard
-    private boolean mouseCreationActivated = false;
+    boolean mouseCreationActivated = false;
 
     //Controllers
-    private CreateNodeController createNodeController;
-    private NodeController nodeController;
-    private EdgeController edgeController;
-    private GraphController graphController;
-    private SketchController sketchController;
-    private RecognizeController recognizeController;
+    CreateNodeController createNodeController;
+    NodeController nodeController;
+    EdgeController edgeController;
+    GraphController graphController;
+    SketchController sketchController;
+    RecognizeController recognizeController;
+    SelectController selectController;
 
     private Graph graph;
     private Stage aStage;
 
     //Node lists and maps
-    private ArrayList<AbstractNodeView> selectedNodes = new ArrayList<>();
-    private ArrayList<AbstractEdgeView> selectedEdges = new ArrayList<>();
-    private ArrayList<Sketch> selectedSketches = new ArrayList<>();
-    private ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
-    private ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
-    private ArrayList<AnchorPane> allDialogs = new ArrayList<>();
+    ArrayList<AbstractNodeView> selectedNodes = new ArrayList<>();
+    ArrayList<AbstractEdgeView> selectedEdges = new ArrayList<>();
+    ArrayList<Sketch> selectedSketches = new ArrayList<>();
+    ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
+    ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
+    ArrayList<AnchorPane> allDialogs = new ArrayList<>();
 
 
     private HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
     //Copy nodes logic
-    private ArrayList<AbstractNode> currentlyCopiedNodes = new ArrayList<>();
-    private ArrayList<AbstractEdge> currentlyCopiedEdges = new ArrayList<>();
-    private HashMap<AbstractNode, double[]> copyDeltas = new HashMap<>();
-    private double[] copyPasteCoords;
-
-    //For drag-selecting nodes
-    private double selectStartX, selectStartY;
-    private Rectangle selectRectangle;
+    ArrayList<AbstractNode> currentlyCopiedNodes = new ArrayList<>();
+    ArrayList<AbstractEdge> currentlyCopiedEdges = new ArrayList<>();
+    HashMap<AbstractNode, double[]> copyDeltas = new HashMap<>();
+    double[] copyPasteCoords;
 
     //For drawing
-    private ArrayList<Sketch> allSketches = new ArrayList<>();
+    ArrayList<Sketch> allSketches = new ArrayList<>();
     //private Path drawPath;
-    private Map<Integer, Path> currentPaths = new HashMap<>();
+    Map<Integer, Path> currentPaths = new HashMap<>();
 
-    private boolean selected = false; //A node is currently selected
-    private double currentScale = 1;
+    boolean selected = false; //A node is currently selected
+    double currentScale = 1;
 
     private UndoManager undoManager;
 
+    //Mode
     private Mode mode = Mode.NO_MODE;
-    private enum Mode {
+    public enum Mode {
         NO_MODE, SELECTING, DRAGGING, RESIZING, ZOOMING, MOVING, DRAWING, CREATING, CONTEXT_MENU
     }
+    public Mode getMode(){
+        return mode;
+    }
+    public void setMode(Mode pMode){
+        mode = pMode;
+    }
 
+    //Tool
     private ToolEnum tool = ToolEnum.CREATE;
     public enum ToolEnum{
         CREATE, SELECT, DRAW, PACKAGE, EDGE, MOVE_SCENE
+    }
+    public ToolEnum getTool(){
+        return tool;
+    }
+    public void setTool(ToolEnum pTool){
+        tool = pTool;
     }
 
     //Views
@@ -113,13 +124,6 @@ public class MainController {
 
     @FXML
     public void initialize() {
-
-        selectRectangle = new Rectangle();
-        selectRectangle.setFill(null);
-        selectRectangle.setStroke(Color.BLACK);
-        selectRectangle.getStrokeDashArray().addAll(4.0,5.0,4.0,5.0);
-
-
         initDrawPaneActions();
         initToolBarActions();
         initContextMenu();
@@ -133,6 +137,7 @@ public class MainController {
         edgeController = new EdgeController(aDrawPane, this);
         sketchController = new SketchController(aDrawPane, this);
         recognizeController = new RecognizeController(aDrawPane, this);
+        selectController = new SelectController(aDrawPane, this);
 
         undoManager = new UndoManager();
 
@@ -153,38 +158,6 @@ public class MainController {
         return allDialogs;
     }
 
-    //Code copied, sorry!
-    private double distanceToLine(Line l, double pointX, double pointY){
-        double y1 = l.getStartY();
-        double y2 = l.getEndY();
-        double x1 = l.getStartX();
-        double x2 = l.getEndX();
-
-        double px = x2-x1;
-        double py = y2-y1;
-
-        double something = px*px + py*py;
-
-        double u =  ((pointX - x1) * px + (pointY - y1) * py) / something;
-
-        if (u > 1){
-            u = 1;
-        }
-        else if (u < 0){
-            u = 0;
-        }
-
-        double x = x1 + u * px;
-        double y = y1 + u * py;
-
-        double dx = x - pointX;
-        double dy = y - pointY;
-
-        double dist = Math.sqrt(dx*dx + dy*dy);
-
-        return dist;
-
-    }
 
     private void initDrawPaneActions() {
         aBorderPane.setPickOnBounds(false);
@@ -199,58 +172,10 @@ public class MainController {
                         copyPasteCoords = new double[]{event.getX(), event.getY()};
                         aContextMenu.show(aDrawPane, event.getScreenX(), event.getScreenY());
                     }
-                    else if (tool == ToolEnum.EDGE)
-                    {
-                        for(AbstractEdgeView edgeView : allEdgeViews){
-                            if (distanceToLine(edgeView.getLine(), event.getX(), event.getY()) < 15){
-                                selected = true;
-                                selectedEdges.add(edgeView);
-                                if(event.getClickCount() > 1){
-                                    edgeController.showEdgeEditDialog(edgeView.getRefEdge());
-                                    tool = ToolEnum.SELECT;
-                                    setButtonClicked(selectBtn);
-                                }
-                            }
-                        }
-
-                        mode = Mode.CREATING;
-                        edgeController.onMousePressed(event);
+                    else if (tool == ToolEnum.SELECT || tool == ToolEnum.EDGE){
+                        selectController.onMousePressed(event);
                     }
-                    else if (tool == ToolEnum.SELECT)
-                    {
-                        for(AbstractEdgeView edgeView : allEdgeViews){
-                            if (distanceToLine(edgeView.getLine(), event.getX(), event.getY()) < 15){
-                                selected = true;
-                                selectedEdges.add(edgeView);
-                                if(event.getClickCount() > 1){
-                                    edgeController.showEdgeEditDialog(edgeView.getRefEdge());
-                                    tool = ToolEnum.SELECT;
-                                    setButtonClicked(selectBtn);
-                                }
-                            }
-                        }
 
-                        mode = Mode.SELECTING;
-                        //TODO This should not be needed, should be in nodeView.initActions().
-                        for(AbstractNodeView nodeView : allNodeViews){
-                            if (nodeView.getBoundsInParent().contains(event.getX(), event.getY()))
-                            {
-                                selectedNodes.add(nodeView);
-                                selected = true;
-                            }
-                        }
-
-
-
-                        selectStartX = event.getX();
-                        selectStartY = event.getY();
-                        selectRectangle.setX(event.getX());
-                        selectRectangle.setY(event.getY());
-                        if (!aDrawPane.getChildren().contains(selectRectangle)) {
-                            aDrawPane.getChildren().add(selectRectangle);
-                        }
-
-                    }
                     //--------- MOUSE EVENT FOR TESTING ---------- TODO
                     else if((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mouseCreationActivated){
                         System.out.println("Mouse in drawPane");
@@ -284,15 +209,9 @@ public class MainController {
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING)
                 {
-                    selectRectangle.setX(Math.min(selectStartX, event.getX()));
-                    selectRectangle.setY(Math.min(selectStartY, event.getY()));
-                    selectRectangle.setWidth(Math.abs(selectStartX - event.getX()));
-                    selectRectangle.setHeight(Math.abs(selectStartY - event.getY()));
-
-
-                    selectRectangle.setHeight(Math.max(event.getY() - selectStartY, selectStartY - event.getY()));
-                    //drawSelected();
+                    selectController.onMouseDragged(event);
                 }
+
                 //--------- MOUSE EVENT FOR TESTING ---------- TODO
                 else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING && mouseCreationActivated) {
                     createNodeController.onMouseDragged(event);
@@ -320,49 +239,7 @@ public class MainController {
                 }
                 else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING)
                 {
-                    for(AbstractNodeView nodeView : allNodeViews) {
-                        if (selectRectangle.getBoundsInParent().contains(nodeView.getBoundsInParent()))
-                        {
-                            selected = true;
-                            selectedNodes.add(nodeView);
-                        }
-                    }
-                    for (AbstractEdgeView edgeView: allEdgeViews) {
-                        if (selectRectangle.getBoundsInParent().intersects(edgeView.getBoundsInParent()))
-                        {
-                            selected = true;
-                            selectedEdges.add(edgeView);
-                        }
-                    }
-                    for (Sketch sketch : allSketches) {
-                        if (selectRectangle.getBoundsInParent().intersects(sketch.getPath().getBoundsInParent())) {
-                            selected = true;
-                            selectedSketches.add(sketch);
-                        }
-                    }
-                    /* //TODO Selectable nodes
-                    for (javafx.scene.Node p : allSketches)
-                    {
-                        if (selectRectangle.getBoundsInParent().contains(p.getBoundsInParent()))
-                        {
-                            selected = true;
-                            selectedNodes.add(p);
-                        }
-                    }*/
-
-                    //If no nodes were contained, remove all selections
-                    if (!selected) {
-                        selectedNodes.clear();
-                        selectedEdges.clear();
-                        selectedSketches.clear();
-                    }
-
-                    drawSelected();
-                    selectRectangle.setWidth(0);
-                    selectRectangle.setHeight(0);
-                    aDrawPane.getChildren().remove(selectRectangle);
-                    selected = false;
-                    mode = Mode.NO_MODE;
+                    selectController.onMouseReleased(event);
                 }
                 // -------------- MOUSE EVENT FOR TESTING ---------------- TODO
                 if (tool == ToolEnum.CREATE && mode == Mode.CREATING && mouseCreationActivated)
@@ -488,7 +365,7 @@ public class MainController {
     }
 
 
-    private void drawSelected(){
+    void drawSelected(){
         for(AbstractNodeView nodeView : allNodeViews){
             if (selectedNodes.contains(nodeView))
             {
@@ -1085,17 +962,17 @@ public class MainController {
     }
 
 
-    @FXML private Button createBtn;
-    @FXML private Button packageBtn;
-    @FXML private Button edgeBtn;
-    @FXML private Button selectBtn;
-    @FXML private Button drawBtn;
-    @FXML private Button undoBtn;
-    @FXML private Button redoBtn;
-    @FXML private Button moveBtn;
-    @FXML private Button deleteBtn;
-    @FXML private Button recognizeBtn;
-    private Button buttonInUse;
+    @FXML Button createBtn;
+    @FXML Button packageBtn;
+    @FXML Button edgeBtn;
+    @FXML Button selectBtn;
+    @FXML Button drawBtn;
+    @FXML Button undoBtn;
+    @FXML Button redoBtn;
+    @FXML Button moveBtn;
+    @FXML Button deleteBtn;
+    @FXML Button recognizeBtn;
+    Button buttonInUse;
 
     private void initToolBarActions() {
 
@@ -1220,7 +1097,7 @@ public class MainController {
 
     }
 
-    private void setButtonClicked(Button b){
+    void setButtonClicked(Button b){
         buttonInUse.getStyleClass().remove("button-in-use");
         buttonInUse = b;
         buttonInUse.getStyleClass().add("button-in-use");

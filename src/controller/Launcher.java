@@ -27,8 +27,7 @@ public class Launcher extends Application {
         mainController.setStage(stage);
         stage.setScene(new Scene(root, 1000, 800));
         stage.setTitle("Penguin");
-        stage.setFullScreen(true);
+        //stage.setFullScreen(true);
         stage.show();
-        //FlatterFX.style();
     }
 }

@@ -108,6 +108,7 @@ public class MainController {
     private ContextMenu aContextMenu;
 
     private AbstractNodeView nodeClicked;
+    private MainController instance = this;
 
 
     @FXML
@@ -474,7 +475,7 @@ public class MainController {
                     initSketchActions(sketch);
                     allSketches.add(sketch);
                     graph.addSketch(sketch);
-                    undoManager.add(new AddDeleteSketchCommand(aDrawPane, sketch, true));
+                    undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
 
                     //We only want to move out of drawing mode if there are no other current drawings
                     if(!sketchController.currentlyDrawing()){
@@ -789,7 +790,7 @@ public class MainController {
                     initSketchActions(sketch);
                     allSketches.add(sketch);
                     graph.addSketch(sketch);
-                    undoManager.add(new AddDeleteSketchCommand(aDrawPane, sketch, true));
+                    undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
 
                     //We only want to move out of drawing mode if there are no other current drawings
                     if(!sketchController.currentlyDrawing()){
@@ -886,7 +887,11 @@ public class MainController {
         }
     }
 
-    private void deleteSketch(Sketch sketch, CompoundCommand pCommand) {
+    public ArrayList getAllSketches() {
+        return allSketches;
+    }
+
+    public void deleteSketch(Sketch sketch, CompoundCommand pCommand) {
         CompoundCommand command;
         //TODO Maybe not necessary for sketches.
         if (pCommand == null) {
@@ -898,7 +903,8 @@ public class MainController {
         getGraphModel().removeSketch(sketch);
         aDrawPane.getChildren().remove(sketch.getPath());
         allSketches.remove(sketch);
-        command.add(new AddDeleteSketchCommand(aDrawPane, sketch, false));
+        selectedSketches.remove(sketch);
+        command.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
     }
 
     /**
@@ -1247,7 +1253,7 @@ public class MainController {
         }
         //Add the removal of sketches to UndoManager:
         for (Sketch sketch : recognizeController.getSketchesToBeRemoved()) {
-            recognizeCompoundCommand.add(new AddDeleteSketchCommand(aDrawPane, sketch, false));
+            recognizeCompoundCommand.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
             aDrawPane.getChildren().remove(sketch);
             graph.removeSketch(sketch);
         }
@@ -1595,6 +1601,11 @@ public class MainController {
         return edgeView;
     }
 
+    /**
+     *
+     * @param edge
+     * @return null if graph already hasEdge or start/endnodeview is null. Otherwise the created AbstractEdgeView.
+     */
     public AbstractEdgeView addEdgeView(AbstractEdge edge){
         //TODO Really ugly
         AbstractNodeView startNodeView = null;

@@ -120,6 +120,7 @@ public class MainController {
 
     ContextMenu aContextMenu;
 
+    private AbstractNodeView nodeClicked;
     private MainController instance = this;
 
 
@@ -855,6 +856,7 @@ public class MainController {
     }
 
 
+    //------------ Init Button ---------------------
     @FXML
     Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn;
     Button buttonInUse;
@@ -904,81 +906,45 @@ public class MainController {
         buttonInUse = createBtn;
         buttonInUse.getStyleClass().add("button-in-use");
 
-        createBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                tool = ToolEnum.CREATE;
-                setButtonClicked(createBtn);
-            }
+
+        //---------------------- Actions for buttons ----------------------------
+        createBtn.setOnAction(event -> {
+            tool = ToolEnum.CREATE;
+            setButtonClicked(createBtn);
         });
 
-        packageBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                tool = ToolEnum.PACKAGE;
-                setButtonClicked(packageBtn);
-            }
+        packageBtn.setOnAction(event -> {
+            tool = ToolEnum.PACKAGE;
+            setButtonClicked(packageBtn);
         });
 
-        edgeBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                tool = ToolEnum.EDGE;
-                setButtonClicked(edgeBtn);
-            }
+        edgeBtn.setOnAction(event -> {
+            tool = ToolEnum.EDGE;
+            setButtonClicked(edgeBtn);
         });
 
-        selectBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                tool = ToolEnum.SELECT;
-                setButtonClicked(selectBtn);
-            }
+        selectBtn.setOnAction(event -> {
+            tool = ToolEnum.SELECT;
+            setButtonClicked(selectBtn);
         });
 
-        drawBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                tool = ToolEnum.DRAW;
-                setButtonClicked(drawBtn);
-            }
+        drawBtn.setOnAction(event -> {
+            tool = ToolEnum.DRAW;
+            setButtonClicked(drawBtn);
         });
 
-        undoBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                undoManager.undoCommand();
-            }
+        moveBtn.setOnAction(event -> {
+            setButtonClicked(moveBtn);
+            tool = ToolEnum.MOVE_SCENE;
         });
 
-        redoBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                undoManager.redoCommand();
-            }
-        });
+        undoBtn.setOnAction(event -> undoManager.undoCommand());
 
-        moveBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                setButtonClicked(moveBtn);
-                tool = ToolEnum.MOVE_SCENE;
-            }
-        });
+        redoBtn.setOnAction(event -> undoManager.redoCommand());
 
-        deleteBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                deleteSelected();
-            }
-        });
+        deleteBtn.setOnAction(event -> deleteSelected());
 
-        recognizeBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                recognize();
-            }
-        });
+        recognizeBtn.setOnAction(event -> recognize());
 
     }
 

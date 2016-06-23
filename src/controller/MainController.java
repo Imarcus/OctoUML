@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import model.*;
 import util.Constants;
 import util.commands.*;
+import util.insertIMG.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
@@ -25,10 +26,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import util.persistence.PersistenceManager;
 import view.*;
-
+import java.util.*;
 import java.awt.geom.Point2D;
 import java.io.File;
-import java.util.*;
+
+
+
 
 /**
  * Created by marcusisaksson on 2016-02-11.
@@ -160,6 +163,7 @@ public class MainController {
     public ArrayList<AnchorPane> getAllDialogs() {
         return allDialogs;
     }
+
 
 
     private void initDrawPaneActions() {
@@ -342,6 +346,9 @@ public class MainController {
             }
         });
     }
+
+
+
 
     private void initNodeActions(AbstractNodeView nodeView) {
         nodeView.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -604,6 +611,10 @@ public class MainController {
             }
         });
     }
+
+
+
+
 
     void drawSelected() {
         for (AbstractNodeView nodeView : allNodeViews) {
@@ -1252,7 +1263,7 @@ public class MainController {
     }
 
     /**
-    * Resets the program, removes everything on the canvas
+     * Resets the program, removes everything on the canvas
      */
     private void reset() {
         graph = new Graph();
@@ -1381,4 +1392,22 @@ public class MainController {
     public UndoManager getUndoManager() {
         return undoManager;
     }
+
+    //------------------------------Insert Image ------------------------------------------
+
+
+
+    public void handleMenuActionInsert (){
+
+
+        InsertIMG insertIMG = new InsertIMG(aStage, aDrawPane);
+        insertIMG.openFileChooser();
+
+
+
+
+    }
+
+
 }
+

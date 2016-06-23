@@ -50,6 +50,12 @@
                                 <CheckMenuItem fx:id="sketchesMenuItem" text="Sketches" onAction="#handleMenuActionSketches" selected="true"/>
                                 <CheckMenuItem fx:id="gridMenuItem" text="Grid" onAction="#handleMenuActionGrid" selected="true"/>
                             </items>
+                        </Menu >
+
+                        <Menu text="Insert">
+                            <items>
+                                <MenuItem fx:id="insertImg" text="Img" onAction="#handleMenuActionInsert"/>
+                            </items>
                         </Menu>
                     </menus>
                 </MenuBar>

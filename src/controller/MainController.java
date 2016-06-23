@@ -1088,7 +1088,7 @@ public class MainController {
         } else {
             fileChooser.setInitialFileName("mydiagram.xml");
         }
-        PersistenceManager.saveFile(graph, file.getAbsolutePath());
+        PersistenceManager.exportXMI(graph, file.getAbsolutePath());
     }
 
     public void handleMenuActionLoad() {

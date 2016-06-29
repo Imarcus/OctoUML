@@ -3,34 +3,44 @@ package util.insertIMG;
 /**
  * Created by chalmers on 2016-06-23.
  */
+
 import java.awt.Desktop;
+import java.awt.geom.Point2D;
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import ecologylab.standalone.researchnotebook.compositionTS.Image;
+import java.awt.image.BufferedImage;
+import controller.MainController;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javax.imageio.ImageIO;
 
-public class InsertIMG  {
+public class InsertIMG {
 
+    ImageView myImageView;
     private Desktop desktop = Desktop.getDesktop();
     Stage aStage;
     Pane aDrawPane;
+    private MainController controller;
+    private Point2D.Double point;
 
-    public InsertIMG (Stage pStage, Pane pDrawPane){
+    public InsertIMG(Stage pStage, Pane pDrawPane) {
         aStage = pStage;
         aDrawPane = pDrawPane;
     }
 
-    public void openFileChooser(){
+    public void openFileChooser(MainController controller, Point2D.Double point) {
+        this.point = point;
+        this.controller = controller;
+
         final FileChooser fileChooser = new FileChooser();
 
         configureFileChooser(fileChooser);
-        File file = fileChooser.showOpenDialog(aStage);
+        File file = fileChooser.showOpenDialog(aStage.getScene().getWindow());
         if (file != null) {
             openFile(file);
         }
@@ -51,15 +61,20 @@ public class InsertIMG  {
 
     private void openFile(File file) {
         try {
-            desktop.open(file);
+
+            myImageView = new ImageView();
+            BufferedImage bufferedImage = ImageIO.read(file);
+            Image image = SwingFXUtils.toFXImage(bufferedImage, null);
+            myImageView.setImage(image);
+            controller.createPictureView(myImageView, image, point);
 
 
-           aDrawPane.getChildren().add(ImageView.class.cast(file));
-
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(InsertIMG.class.getName()).log(
                     Level.SEVERE, null, ex
             );
         }
     }
+
+
 }

@@ -1,18 +1,12 @@
 package controller;
 
-import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Line;
-import model.AbstractEdge;
-import model.AbstractNode;
-import model.Edge;
 import model.GraphElement;
-import javafx.scene.input.TouchEvent;
-import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.Pane;
+import view.PictureNodeView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,6 +23,8 @@ public class GraphController {
     private HashMap<Line, Double> yInitTranslateMapGrid = new HashMap<>();
     private HashMap<AnchorPane, Double> xDialogInitTranslateMap = new HashMap<>();
     private HashMap<AnchorPane, Double> yDialogInitTranslateMap = new HashMap<>();
+    private HashMap<PictureNodeView, Double> xPictureInitTranslateMap = new HashMap<>();
+    private HashMap<PictureNodeView, Double> yPictureInitTranslateMap = new HashMap<>();
 
     private double initPaneTranslateX;
     private double initPaneTranslateY;
@@ -51,7 +47,7 @@ public class GraphController {
     }
 
     public void movePaneStart(List<GraphElement> elements, MouseEvent event)
-    {
+        {
 
         initMoveX = event.getSceneX();
         initMoveY = event.getSceneY();
@@ -73,6 +69,13 @@ public class GraphController {
             xDialogInitTranslateMap.put(dialog, dialog.getTranslateX());
             yDialogInitTranslateMap.put(dialog, dialog.getTranslateY());
         }
+
+        for (PictureNodeView picture : aMainController.allPictureNodeViews){
+            xPictureInitTranslateMap.put(picture,picture.getTranslateX());
+            yPictureInitTranslateMap.put(picture,picture.getTranslateY());
+        }
+
+
     }
 
     public void movePane(List<GraphElement> elements, MouseEvent event)
@@ -127,6 +130,13 @@ public class GraphController {
             dialog.setTranslateX(xDialogInitTranslateMap.get(dialog) + offsetX);
             dialog.setTranslateY(yDialogInitTranslateMap.get(dialog) + offsetY);
         }
+
+        for (PictureNodeView picture : aMainController.allPictureNodeViews){
+           picture.setTranslateX(xPictureInitTranslateMap.get(picture)+ offsetX);
+            picture.setTranslateY(yPictureInitTranslateMap.get(picture)+ offsetY);
+
+        }
+
     }
 
     public void movePaneFinished(MouseEvent event)

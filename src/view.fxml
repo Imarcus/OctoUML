@@ -52,11 +52,7 @@
                             </items>
                         </Menu >
 
-                        <Menu text="Insert">
-                            <items>
-                                <MenuItem fx:id="insertImg" text="Img" onAction="#handleMenuActionInsert"/>
-                            </items>
-                        </Menu>
+
                     </menus>
                 </MenuBar>
                 <ToolBar fx:id="aToolBar" orientation="HORIZONTAL">

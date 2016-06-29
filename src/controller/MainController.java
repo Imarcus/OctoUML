@@ -38,7 +38,9 @@ import java.io.File;
  */
 public class MainController {
     //For testing with mouse and keyboard
-    boolean mouseCreationActivated = false;
+    private Graph graph;
+    private Stage aStage;
+    boolean mouseCreationActivated = true;
 
     //Controllers
     CreateNodeController createNodeController;
@@ -50,23 +52,21 @@ public class MainController {
     SelectController selectController;
     CopyPasteController copyPasteController;
 
-    private Graph graph;
-    private Stage aStage;
-
     //Node lists and maps
     ArrayList<AbstractNodeView> selectedNodes = new ArrayList<>();
+    ArrayList<PictureNodeView> selectedPictures = new ArrayList<>();
     ArrayList<AbstractEdgeView> selectedEdges = new ArrayList<>();
     ArrayList<Sketch> selectedSketches = new ArrayList<>();
     ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
     ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
     ArrayList<AnchorPane> allDialogs = new ArrayList<>();
-
-
+    ArrayList<PictureNodeView> allPictureNodeViews = new ArrayList<>();
     HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
 
     //For drawing
     ArrayList<Sketch> allSketches = new ArrayList<>();
+
     //private Path drawPath;
     Map<Integer, Path> currentPaths = new HashMap<>();
 
@@ -122,7 +122,8 @@ public class MainController {
     private BorderPane aBorderPane;
 
     ContextMenu aContextMenu;
-
+    double orgSceneX, orgSceneY;
+    double orgTranslateX, orgTranslateY;
     private AbstractNodeView nodeClicked;
     private MainController instance = this;
 
@@ -165,6 +166,50 @@ public class MainController {
     }
 
 
+    /*private void initPictureViewActions(PictureNodeView view){
+
+        view.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if(mode == Mode.NO_MODE && tool == ToolEnum.SELECT){
+                    mode = Mode.DRAGGING;
+                    orgSceneX = event.getSceneX();
+                    orgSceneY = event.getSceneY();
+                    orgTranslateX = ((PictureNodeView)(event.getSource())).getTranslateX();
+                    orgTranslateY = ((PictureNodeView)(event.getSource())).getTranslateY();
+
+
+                    if (!selectedPictures.contains(view)) {
+                        selectedPictures.add(view);
+                    }
+                    drawSelected();
+                }
+
+            }
+        });
+
+        view.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if(mode == Mode.DRAGGING && tool == ToolEnum.SELECT){
+                    double offsetX =( event.getSceneX() - orgSceneX) * 100/getZoomScale();
+                    double offsetY = (event.getSceneY() - orgSceneY )* 100/getZoomScale();
+                    double newTranslateX = orgTranslateX + offsetX;
+                    double newTranslateY = orgTranslateY + offsetY;
+
+                    ((PictureNodeView)(event.getSource())).setTranslateX(newTranslateX);
+                    ((PictureNodeView)(event.getSource())).setTranslateY(newTranslateY);
+                }
+            }
+        });
+
+        view.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                mode = Mode.NO_MODE;
+            }
+        });
+    }*/
 
     private void initDrawPaneActions() {
         aBorderPane.setPickOnBounds(false);
@@ -272,6 +317,7 @@ public class MainController {
             }
         });
 
+        ////////////////////////////////////////////////////////////////
 
         aDrawPane.setOnTouchPressed(new EventHandler<TouchEvent>() {
             @Override
@@ -347,10 +393,8 @@ public class MainController {
         });
     }
 
-
-
-
     private void initNodeActions(AbstractNodeView nodeView) {
+
         nodeView.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -375,7 +419,7 @@ public class MainController {
                     if (!(nodeView instanceof PackageNodeView)) {
                         nodeView.toFront();
                     }
-                    if (mode == Mode.NO_MODE) //Resize, rectangles only
+                    if (mode == Mode.NO_MODE) //Resize
                     {
                         Point2D.Double eventPoint = new Point2D.Double(event.getX(), event.getY());
                         Point2D.Double cornerPoint = new Point2D.Double(nodeView.getWidth(), nodeView.getHeight());
@@ -388,6 +432,7 @@ public class MainController {
 
                     if (mode == Mode.NO_MODE) //Move, any kind of node
                     {
+
                         mode = Mode.DRAGGING;
                         if (!selectedNodes.contains(nodeView)) {
                             selectedNodes.add(nodeView);
@@ -532,6 +577,7 @@ public class MainController {
         });
 
         ////////////////////////////////////////////////////////////////
+
         nodeView.setOnTouchPressed(new EventHandler<TouchEvent>() {
             @Override
             public void handle(TouchEvent event) {
@@ -612,10 +658,6 @@ public class MainController {
         });
     }
 
-
-
-
-
     void drawSelected() {
         for (AbstractNodeView nodeView : allNodeViews) {
             if (selectedNodes.contains(nodeView)) {
@@ -640,6 +682,13 @@ public class MainController {
                 sketch.getPath().toFront();
             }
         }
+        for (PictureNodeView imageView : allPictureNodeViews) {
+            if (selectedEdges.contains(imageView)) {
+                imageView.setSelected(true);
+            } else {
+                imageView.setSelected(false);
+            }
+        }
     }
 
     /**
@@ -656,7 +705,6 @@ public class MainController {
         for (Sketch sketch : selectedSketches) {
             deleteSketch(sketch, command);
         }
-
         selectedNodes.clear();
         selectedEdges.clear();
         selectedSketches.clear();
@@ -867,7 +915,8 @@ public class MainController {
     }
 
 
-    //------------ Init Button ---------------------
+    //------------ Init Button -------------------------------------------
+
     @FXML
     Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn;
     Button buttonInUse;
@@ -1007,7 +1056,7 @@ public class MainController {
     }
 
 
-    //---------------------- MENU HANDLERS -----------------------------------------------------------------------------
+    //---------------------- MENU HANDLERS ---------------------------------
 
 
     public void handleMenuActionUML() {
@@ -1079,7 +1128,7 @@ public class MainController {
         selectBtn.fire();
     }
 
-    //------------------------- SAVE-LOAD FEATURE --------------------------------------------------------------------
+    //------------------------- SAVE-LOAD FEATURE ---------------------------
 
     public void handleMenuActionMouse() {
         mouseCreationActivated = !mouseCreationActivated;
@@ -1120,7 +1169,7 @@ public class MainController {
     }
 
 
-    //------------------------- Context Menu --------------------------------------------------------------------
+    //------------------------- Context Menu ---------------------------------
     private void initContextMenu() {
         aContextMenu = new ContextMenu();
 
@@ -1152,7 +1201,19 @@ public class MainController {
                 mode = Mode.NO_MODE;
             }
         });
-        aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste, cmItemDelete);
+
+        MenuItem cmItemInsertImg = new MenuItem("Insert Image");
+        cmItemInsertImg.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Point2D.Double point = new Point2D.Double(copyPasteController.copyPasteCoords[0], copyPasteController.copyPasteCoords[1]);
+                InsertIMG insertImg = new InsertIMG(aStage, aDrawPane);
+                insertImg.openFileChooser(MainController.this, point);
+            }
+
+            });
+
+        aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste, cmItemDelete,cmItemInsertImg);
     }
 
     /**
@@ -1192,6 +1253,21 @@ public class MainController {
         allNodeViews.add(nodeView);
 
         return nodeView;
+    }
+
+    public PictureNodeView createPictureView (ImageView view, Image image, Point2D.Double point){
+        PictureNode picNode = new PictureNode(image, point.getX(), point.getY(), view.getImage().getWidth(), view.getImage().getHeight());
+        PictureNodeView picView = new PictureNodeView(view, picNode);
+        picNode.setTranslateX(point.getX());
+        picNode.setTranslateY(point.getY());
+        picView.setX(point.getX());
+        picView.setY(point.getY());
+        aDrawPane.getChildren().add(picView);
+        initNodeActions(picView);
+        allPictureNodeViews.add(picView);
+        graph.addNode(picNode);
+        nodeMap.put(picView, picNode);
+        return picView;
     }
 
     /**
@@ -1276,7 +1352,6 @@ public class MainController {
         drawGrid();
     }
 
-
     private void load(Graph graph) {
         reset();
 
@@ -1292,7 +1367,8 @@ public class MainController {
         }
     }
 
-    //------------------------------------ GRID -------------------------------------
+    //------------------------------------ GRID -------------------------------
+
     private ArrayList<Line> grid = new ArrayList<>();
 
     public ArrayList<Line> getGrid() {
@@ -1337,7 +1413,8 @@ public class MainController {
         }
     }
 
-    //------------------------ Zoom-feature ------------------------------------------------------------------------
+    //------------------------ Zoom-feature -------------------------------------
+
     private void initZoomSlider() {
 
         zoomSlider.valueProperty().addListener(new ChangeListener<Number>() {
@@ -1356,7 +1433,8 @@ public class MainController {
         return zoomSlider.getValue();
     }
 
-    //------------------------ misc. getters ------------------------------------------
+    //------------------------ misc. getters -------------------------------------
+
     public Stage getStage() {
         return aStage;
     }
@@ -1380,6 +1458,10 @@ public class MainController {
     public ArrayList<AbstractNodeView> getAllNodeViews() {
         return allNodeViews;
     }
+    public ArrayList<PictureNodeView> getAllPictureNodeViews() {
+        return allPictureNodeViews;
+    }
+
 
     public ArrayList<AbstractEdgeView> getAllEdgeViews() {
         return allEdgeViews;
@@ -1393,21 +1475,13 @@ public class MainController {
         return undoManager;
     }
 
-    //------------------------------Insert Image ------------------------------------------
-
-
+    //------------------------------Insert Image ----------------------------------
 
     public void handleMenuActionInsert (){
-
-
         InsertIMG insertIMG = new InsertIMG(aStage, aDrawPane);
-        insertIMG.openFileChooser();
-
-
-
-
+        insertIMG.openFileChooser(this, new Point2D.Double(0,0));
     }
 
-
+// end
 }
 

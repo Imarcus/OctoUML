@@ -10,6 +10,9 @@ import java.io.Serializable;
  */
 public abstract class AbstractNode implements Node, Serializable
 {
+    private static int objectCount = 0; //Used to ID instance
+    private int id = 0;
+
     private final double MIN_WIDTH = 80;
     private final double MIN_HEIGHT = 70;
     private StringProperty aTitle = new SimpleStringProperty();
@@ -35,6 +38,8 @@ public abstract class AbstractNode implements Node, Serializable
         translateY.setValue(y);
         scaleX.setValue(1.0d);
         scaleY.setValue(1.0d);
+
+        id = ++objectCount;
     }
 
     public void setIsChild(boolean pIsChild){
@@ -187,5 +192,9 @@ public abstract class AbstractNode implements Node, Serializable
      */
     public AbstractNode(){
 
+    }
+
+    public String getId(){
+        return "NODE_" + id;
     }
 }

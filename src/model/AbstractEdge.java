@@ -11,6 +11,10 @@ import javafx.beans.property.*;
  * Abstract Edge to hide some basic Edge-functionality.
  */
 public abstract class AbstractEdge implements Edge, Serializable {
+
+    private static int objectCount = 0;  //Used to ID instance
+    private int id = 0;
+
     private Node startNode;
     private Node endNode;
     private DoubleProperty zoom = new SimpleDoubleProperty(1);
@@ -27,6 +31,8 @@ public abstract class AbstractEdge implements Edge, Serializable {
         this.startNode = startNode;
         this.endNode = endNode;
         direction.setValue(Direction.NO_DIRECTION);
+
+        id = ++objectCount;
     }
 
     public void setDirection(Direction direction) {
@@ -102,5 +108,9 @@ public abstract class AbstractEdge implements Edge, Serializable {
      * No-arg constructor for JavaBean convention
      */
     public AbstractEdge(){
+    }
+
+    public String getId(){
+        return "EDGE_" + id;
     }
 }

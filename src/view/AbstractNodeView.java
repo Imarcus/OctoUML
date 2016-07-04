@@ -11,6 +11,8 @@ import model.AbstractNode;
  */
 public abstract class AbstractNodeView extends Group implements NodeView {
 
+    private static int objectCounter = 0;
+
     private AbstractNode refNode;
 
     private double x;
@@ -19,6 +21,7 @@ public abstract class AbstractNodeView extends Group implements NodeView {
     private double height;
 
     public AbstractNodeView(AbstractNode node){
+        this.setId("VIEWCLASS_" + objectCounter);
         this.refNode = node;
 
         setX(refNode.getX());
@@ -109,8 +112,6 @@ public abstract class AbstractNodeView extends Group implements NodeView {
             }
         });
     }
-
-
 }
 
 

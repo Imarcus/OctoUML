@@ -10,6 +10,10 @@ import java.util.List;
  * Model-representation of a Graph.
  */
 public class Graph implements Serializable {
+
+    private static int objectCount = 0;
+    private int id = 0;
+
     private List<AbstractNode> allNodes = new ArrayList<>();
     private List<Edge> allEdges = new ArrayList<>();
     private List<Sketch> allSketches = new ArrayList<>();
@@ -17,6 +21,7 @@ public class Graph implements Serializable {
     private String name = "";
 
     public Graph() {
+        id = ++ objectCount;
     }
 
     public void setName(String name){
@@ -177,5 +182,9 @@ public class Graph implements Serializable {
     public void setAllSketches(List<Sketch> allSketches) {
         this.allSketches.clear();
         this.allSketches.addAll(allSketches);
+    }
+
+    public String getId(){
+        return "GRAPH_" + id;
     }
 }

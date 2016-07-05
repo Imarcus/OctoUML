@@ -47,11 +47,13 @@ public class PersistenceManager {
         encoder.close();
     }
 
-    private static void addClassNode(Document doc, ClassNode node, Element parent, Graph pGraph){
-        System.out.println("INVOKED");
-
+    private static void addClassNode(Document doc, ClassNode node, Element parent, Graph pGraph, boolean isChild){
         Element umlClass = doc.createElement("UML:Class");
-        umlClass.setAttribute("namespace", pGraph.getId());
+        if(isChild){
+            umlClass.setAttribute("namespace", ((Element)parent.getParentNode()).getAttribute("xmi.id"));
+        } else {
+            umlClass.setAttribute("namespace", pGraph.getId());
+        }
         umlClass.setAttribute("name", node.getTitle());
         umlClass.setAttribute("xmi.id", node.getId());
         Element classifierFeature = doc.createElement("UML:Classifier.feature");
@@ -141,7 +143,7 @@ public class PersistenceManager {
 
             for(AbstractNode node : pGraph.getAllNodes()){
                 if(node instanceof ClassNode && !node.isChild()){
-                    addClassNode(doc, (ClassNode)node, umlNamespace, pGraph);
+                    addClassNode(doc, (ClassNode)node, umlNamespace, pGraph, false);
                 } else if (node instanceof PackageNode){
                     Element umlPackage = doc.createElement("UML:Package");
                     umlPackage.setAttribute("isAbstract", "false");
@@ -152,7 +154,7 @@ public class PersistenceManager {
                     Element packageOwnedElement = doc.createElement("UML:Namespace.ownedElement");
                     umlPackage.appendChild(packageOwnedElement);
                     for(AbstractNode childNode : ((PackageNode)node).getChildNodes()){
-                        addClassNode(doc, (ClassNode)childNode, packageOwnedElement, pGraph); //TODO Package nodes in package nodes
+                        addClassNode(doc, (ClassNode)childNode, packageOwnedElement, pGraph, true); //TODO Package nodes in package nodes
                     }
                     umlNamespace.appendChild(umlPackage);
                 }
@@ -161,7 +163,7 @@ public class PersistenceManager {
                 umlElement.setAttribute("xmi.id", "NODEVIEWID");
                 umlElement.setAttribute("subject", node.getId());
                 umlElement.setAttribute("geometry", node.getTranslateX() + "," + node.getTranslateY() + "," +
-                        node.getTranslateX()+node.getWidth() + "," + node.getTranslateY()+node.getHeight());
+                        (node.getTranslateX()+node.getWidth()) + "," + (node.getTranslateY()+node.getHeight()));
                 umlElement.setAttribute("style", "LineColor.Red=128,LineColor.Green=0,LineColor.Blue=0,FillColor.Red=255,FillColor.Green=255,FillColor.Blue=185,Font.Red=0,Font.Green=0,Font.Blue=0,Font.FaceName=Tahoma,Font.Size=8,Font.Bold=0,Font.Italic=0,Font.Underline=0,Font.Strikethrough=0,AutomaticResize=0,ShowAllAttributes=1,SuppressAttributes=0,ShowAllOperations=1,SuppressOperations=0,ShowOperationSignature=1,");
                 umlDiagramElement.appendChild(umlElement);
             }
@@ -176,6 +178,7 @@ public class PersistenceManager {
                 Element associationConnection = doc.createElement("UML:Association.connection");
                 umlAssociation.appendChild(associationConnection);
 
+                //TODO Duplicate code
                 //Start
                 Element associationEnd1 = doc.createElement("UML:AssociationEnd");
                 associationEnd1.setAttribute("xmi.id", "end0");
@@ -241,6 +244,7 @@ public class PersistenceManager {
     public static Graph importXMI(String path){
 
         Graph graph = new Graph();
+
         try{
 
             File xmiFile = new File(path);
@@ -252,22 +256,33 @@ public class PersistenceManager {
             Element umlModel = ((Element)nList.item(0));
             String modelNamespace = umlModel.getAttribute("xmi.id");
 
-            nList = doc.getElementsByTagName("UML:Class");
-            System.out.println(nList.getLength());
+            //Add packages
+            nList = doc.getElementsByTagName("UML:Package");
             for(int i = 0; i < nList.getLength(); i++){
-                Element element = ((Element)nList.item(i));
-                if(element.getAttribute("namespace").equals("GRAPH_1")){
-                    NodeList viewList = doc.getElementsByTagName("UML:DiagramElement");
-                    for(int j = 0; j < viewList.getLength(); j++){
-                        Element diagramElement = ((Element)viewList.item(j);
-                        if(diagramElement.getAttribute("subject").equals(element.getAttribute("xmi.id"))){
-
-                            ClassNode classNode = new ClassNode(diagramElement.getAttribute())
-                        }
+                Element modelElement = ((Element)nList.item(i));
+                NodeList viewList = doc.getElementsByTagName("UML:DiagramElement");
+                for(int j = 0; j < viewList.getLength(); j++){
+                    Element viewElement = ((Element)viewList.item(j));
+                    if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
+                        Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
+                        PackageNode packageNode = (PackageNode)createAbstractNode(viewElement, modelElement, false, isChild);
                     }
                 }
             }
-            String s = "";
+
+            //Add classes
+            nList = doc.getElementsByTagName("UML:Class");
+            for(int i = 0; i < nList.getLength(); i++){
+                Element modelElement = ((Element)nList.item(i));
+                NodeList viewList = doc.getElementsByTagName("UML:DiagramElement");
+                for(int j = 0; j < viewList.getLength(); j++){ //Find its corresponding view
+                    Element viewElement = ((Element)viewList.item(j));
+                    if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
+                        Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
+                        ClassNode classNode = (ClassNode)createAbstractNode(viewElement, modelElement, false, isChild);
+                    }
+                }
+            }
 
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
@@ -280,30 +295,35 @@ public class PersistenceManager {
         return new Graph();
     }
 
-    private static ClassNode createClassNode(Element view, Element model){
+    private static AbstractNode createAbstractNode(Element view, Element model, boolean isChild, boolean isPackage){
         String[] geometry = view.getAttribute("geometry").split(",");
         double x = Double.parseDouble(geometry[0]);
         double y = Double.parseDouble(geometry[1]);
-        double width = Double.parseDouble(geometry[3]) - x;
-        double height = Double.parseDouble(geometry[4]) - y;
+        double width = Double.parseDouble(geometry[2]) - x;
+        double height = Double.parseDouble(geometry[3]) - y;
 
-        ClassNode classNode = new ClassNode(x, y, width, height);
-        NodeList attsOps = ((Element) model.getChildNodes().item(0)).getChildNodes();
-        String attributes = "";
-        String operations = "";
-        for(int i = 0; i < attsOps.getLength(); i++){
-            Element item = ((Element)attsOps.item(i));
-            if(item.getNodeName().equals("UML:Attribute")){
-                attributes.concat(item.getAttribute("name") + "\\n");
-            } else if(attsOps.item(i).getNodeName().equals("UML:Operation")){
-                operations.concat(item.getAttribute("name") + "\\n");
+        AbstractNode abstractNode;
+        if(!isPackage){
+            abstractNode = new ClassNode(x, y, width, height);
+            NodeList attsOps = ((Element) model.getChildNodes().item(0)).getChildNodes();
+            String attributes = "";
+            String operations = "";
+            for(int i = 0; i < attsOps.getLength(); i++){
+                Element item = ((Element)attsOps.item(i));
+                if(item.getNodeName().equals("UML:Attribute")){
+                    String att = item.getAttribute("name");
+                    attributes = attributes + att + System.getProperty("line.separator");
+                } else if(item.getNodeName().equals("UML:Operation")){
+                    String op = item.getAttribute("name");
+                    operations = operations + op + System.getProperty("line.separator");
+                }
             }
+        } else {
+            abstractNode = new PackageNode(x, y, width, height);
         }
-        
-        classNode.setAttributes(attributes);
-        classNode.setOperations(operations);
+        abstractNode.setIsChild(isChild);
 
-        return classNode;
+        return abstractNode;
     }
 
     public static Graph loadFile(String path){

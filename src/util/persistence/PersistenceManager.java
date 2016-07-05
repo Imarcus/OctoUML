@@ -19,7 +19,9 @@ import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Marcus on 2016-03-03.
@@ -244,6 +246,8 @@ public class PersistenceManager {
     public static Graph importXMI(String path){
 
         Graph graph = new Graph();
+        //IDs are generated when AbstractNodes are created, we need to keep track of the nodes IDs in the xmi were when referenced elsewhere.
+        Map<String, AbstractNode> idMap = new HashMap<String, AbstractNode>();
 
         try{
 
@@ -261,11 +265,13 @@ public class PersistenceManager {
             for(int i = 0; i < nList.getLength(); i++){
                 Element modelElement = ((Element)nList.item(i));
                 NodeList viewList = doc.getElementsByTagName("UML:DiagramElement");
-                for(int j = 0; j < viewList.getLength(); j++){
+                for(int j = 0; j < viewList.getLength(); j++){ //Find its corresponding view
                     Element viewElement = ((Element)viewList.item(j));
                     if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                         Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
-                        PackageNode packageNode = (PackageNode)createAbstractNode(viewElement, modelElement, false, isChild);
+                        AbstractNode node = (PackageNode)createAbstractNode(viewElement, modelElement, false, isChild);
+                        idMap.put(modelElement.getAttribute("xmi.id"), node);
+                        graph.addNode(node);
                     }
                 }
             }
@@ -279,9 +285,20 @@ public class PersistenceManager {
                     Element viewElement = ((Element)viewList.item(j));
                     if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                         Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
-                        ClassNode classNode = (ClassNode)createAbstractNode(viewElement, modelElement, false, isChild);
+                        AbstractNode node = (ClassNode)createAbstractNode(viewElement, modelElement, false, isChild);
+                        idMap.put(modelElement.getAttribute("xmi.id"), node);
+                        graph.addNode(node);
                     }
                 }
+            }
+
+            //Add associations
+            nList = doc.getElementsByTagName("UML:Association");
+            for(int i = 0; i < nList.getLength(); i++){
+                String startNodeId = ((Element)((Element)nList.item(i)).getChildNodes().item(0)).getAttribute("type");
+                String endNodeId = ((Element)((Element)nList.item(i)).getChildNodes().item(1)).getAttribute("type");
+                AssociationEdge edge = new AssociationEdge(idMap.get(startNodeId), idMap.get(endNodeId));
+                graph.addEdge(edge);
             }
 
         } catch (ParserConfigurationException pce) {
@@ -292,10 +309,11 @@ public class PersistenceManager {
             saxe.printStackTrace();
         }
 
-        return new Graph();
+        return graph;
     }
 
     private static AbstractNode createAbstractNode(Element view, Element model, boolean isChild, boolean isPackage){
+        System.out.println(view.getAttribute("geometry"));
         String[] geometry = view.getAttribute("geometry").split(",");
         double x = Double.parseDouble(geometry[0]);
         double y = Double.parseDouble(geometry[1]);

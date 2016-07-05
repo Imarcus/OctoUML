@@ -1101,7 +1101,7 @@ public class MainController {
         if (file != null) {
             graph = PersistenceManager.importXMI(file.getAbsolutePath());
         }
-        //load(graph);
+        load(graph);
     }
 
     public void handleMenuActionNew() {

@@ -4,6 +4,8 @@ import jdk.nashorn.internal.ir.ObjectNode;
 import model.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -91,7 +93,7 @@ public class PersistenceManager {
             doc.appendChild(rootElement);
 
             Element xmiHeader = doc.createElement("XMI.header");
-             rootElement.appendChild(xmiHeader);
+            rootElement.appendChild(xmiHeader);
             Element xmiDocumentation = doc.createElement("XMI.documenation");
             xmiHeader.appendChild(xmiDocumentation);
 
@@ -113,7 +115,7 @@ public class PersistenceManager {
             Element xmiContent = doc.createElement("XMI.content");
             rootElement.appendChild(xmiContent);
 
-            Element umlModel = doc.createElement("UML:model");
+            Element umlModel = doc.createElement("UML:Model");
             xmiContent.appendChild(umlModel);
             umlModel.setAttribute("isAbstract", "false");
             umlModel.setAttribute("isLeaf", "false");
@@ -122,7 +124,7 @@ public class PersistenceManager {
             umlModel.setAttribute("isSpecification", "false");
             umlModel.setAttribute("visibility", "public");
             umlModel.setAttribute("name", "Design Model");
-            umlModel.setAttribute("xmi.id", "UMLModel.3");
+            umlModel.setAttribute("xmi.id", pGraph.getId());
             Element umlNamespace = doc.createElement("UML:Namespace.ownedElement");
             umlModel.appendChild(umlNamespace);
 
@@ -149,7 +151,6 @@ public class PersistenceManager {
                     umlPackage.setAttribute("xmi.id", node.getId());
                     Element packageOwnedElement = doc.createElement("UML:Namespace.ownedElement");
                     umlPackage.appendChild(packageOwnedElement);
-                    System.out.println("LEngth: " + ((PackageNode)node).getChildNodes().size());
                     for(AbstractNode childNode : ((PackageNode)node).getChildNodes()){
                         addClassNode(doc, (ClassNode)childNode, packageOwnedElement, pGraph); //TODO Package nodes in package nodes
                     }
@@ -228,8 +229,6 @@ public class PersistenceManager {
 
             transformer.transform(source, result);
 
-            System.out.println("File saved!");
-
 
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
@@ -237,6 +236,74 @@ public class PersistenceManager {
             tfe.printStackTrace();
         }
 
+    }
+
+    public static Graph importXMI(String path){
+
+        Graph graph = new Graph();
+        try{
+
+            File xmiFile = new File(path);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(xmiFile);
+
+            NodeList nList = doc.getElementsByTagName("UML:Model");
+            Element umlModel = ((Element)nList.item(0));
+            String modelNamespace = umlModel.getAttribute("xmi.id");
+
+            nList = doc.getElementsByTagName("UML:Class");
+            System.out.println(nList.getLength());
+            for(int i = 0; i < nList.getLength(); i++){
+                Element element = ((Element)nList.item(i));
+                if(element.getAttribute("namespace").equals("GRAPH_1")){
+                    NodeList viewList = doc.getElementsByTagName("UML:DiagramElement");
+                    for(int j = 0; j < viewList.getLength(); j++){
+                        Element diagramElement = ((Element)viewList.item(j);
+                        if(diagramElement.getAttribute("subject").equals(element.getAttribute("xmi.id"))){
+
+                            ClassNode classNode = new ClassNode(diagramElement.getAttribute())
+                        }
+                    }
+                }
+            }
+            String s = "";
+
+        } catch (ParserConfigurationException pce) {
+            pce.printStackTrace();
+        } catch (IOException ioe){
+            ioe.printStackTrace();
+        } catch (SAXException saxe){
+            saxe.printStackTrace();
+        }
+
+        return new Graph();
+    }
+
+    private static ClassNode createClassNode(Element view, Element model){
+        String[] geometry = view.getAttribute("geometry").split(",");
+        double x = Double.parseDouble(geometry[0]);
+        double y = Double.parseDouble(geometry[1]);
+        double width = Double.parseDouble(geometry[3]) - x;
+        double height = Double.parseDouble(geometry[4]) - y;
+
+        ClassNode classNode = new ClassNode(x, y, width, height);
+        NodeList attsOps = ((Element) model.getChildNodes().item(0)).getChildNodes();
+        String attributes = "";
+        String operations = "";
+        for(int i = 0; i < attsOps.getLength(); i++){
+            Element item = ((Element)attsOps.item(i));
+            if(item.getNodeName().equals("UML:Attribute")){
+                attributes.concat(item.getAttribute("name") + "\\n");
+            } else if(attsOps.item(i).getNodeName().equals("UML:Operation")){
+                operations.concat(item.getAttribute("name") + "\\n");
+            }
+        }
+        
+        classNode.setAttributes(attributes);
+        classNode.setOperations(operations);
+
+        return classNode;
     }
 
     public static Graph loadFile(String path){

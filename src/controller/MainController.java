@@ -35,7 +35,7 @@ import java.util.*;
  */
 public class MainController {
     //For testing with mouse and keyboard
-    boolean mouseCreationActivated = false;
+    boolean mouseCreationActivated = true;
 
     //Controllers
     CreateNodeController createNodeController;
@@ -1099,9 +1099,9 @@ public class MainController {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
         Graph graph = null;
         if (file != null) {
-            graph = PersistenceManager.loadFile(file.getAbsolutePath());
+            graph = PersistenceManager.importXMI(file.getAbsolutePath());
         }
-        load(graph);
+        //load(graph);
     }
 
     public void handleMenuActionNew() {

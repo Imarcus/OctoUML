@@ -179,7 +179,6 @@ public class MainController {
 
                     //--------- MOUSE EVENT FOR TESTING ---------- TODO
                     else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mouseCreationActivated) {
-                        System.out.println("Mouse in drawPane");
                         mode = Mode.CREATING;
                         createNodeController.onMousePressed(event);
                     } else if (tool == ToolEnum.MOVE_SCENE) {
@@ -703,7 +702,7 @@ public class MainController {
         }
 
         AbstractEdge edge = edgeView.getRefEdge();
-        getGraphModel().removeEdge(edge);
+        graph.removeEdge(edge);
         aDrawPane.getChildren().remove(edgeView);
         allEdgeViews.remove(edgeView);
         if (!undo) {
@@ -1216,7 +1215,7 @@ public class MainController {
     public AbstractEdgeView addEdgeView(AbstractEdgeView edgeView) {
         if (edgeView != null) {
             aDrawPane.getChildren().add(edgeView);
-            graph.addEdge(edgeView.getRefEdge());
+            //graph.addEdge(edgeView.getRefEdge());
             //initEdgeActions(edgeView);
             allEdgeViews.add(edgeView);
         }
@@ -1239,11 +1238,23 @@ public class MainController {
                 endNodeView = nodeView;
             }
         }
-        if (startNodeView == null || endNodeView == null || graph.hasEdge(edge)) {
+        if (startNodeView == null || endNodeView == null /*|| graph.hasEdge(edge)*/) {
             System.out.println("Failed to find start or end node, or graph already has edge.");
             return null;
         } else {
-            AssociationEdgeView edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
+            AbstractEdgeView edgeView;
+            if(edge instanceof AssociationEdge) {
+                edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
+            } else if (edge instanceof AggregationEdge){
+                edgeView = new AggregationEdgeView(edge, startNodeView, endNodeView);
+            } else if (edge instanceof CompositionEdge) {
+                edgeView = new CompositionEdgeView(edge, startNodeView, endNodeView);
+            } else if (edge instanceof InheritanceEdge) {
+                edgeView = new InheritanceEdgeView(edge, startNodeView, endNodeView);
+            } else {
+                System.out.println("Edge type not recognised. In addEdgeView(AbstractEdge edge).");
+                return null;
+            }
             //initEdgeActions(edgeView);
             allEdgeViews.add(edgeView);
             aDrawPane.getChildren().add(edgeView);

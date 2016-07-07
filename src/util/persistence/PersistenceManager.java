@@ -1,6 +1,5 @@
 package util.persistence;
 
-import jdk.nashorn.internal.ir.ObjectNode;
 import model.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -18,13 +17,11 @@ import javax.xml.transform.stream.StreamResult;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Marcus on 2016-03-03.
+ * Class with static methods for importing and exporting xmi models.
  */
 public class PersistenceManager {
 
@@ -49,40 +46,7 @@ public class PersistenceManager {
         encoder.close();
     }
 
-    private static void addClassNode(Document doc, ClassNode node, Element parent, Graph pGraph, boolean isChild){
-        Element umlClass = doc.createElement("UML:Class");
-        if(isChild){
-            umlClass.setAttribute("namespace", ((Element)parent.getParentNode()).getAttribute("xmi.id"));
-        } else {
-            umlClass.setAttribute("namespace", pGraph.getId());
-        }
-        umlClass.setAttribute("name", node.getTitle());
-        umlClass.setAttribute("xmi.id", node.getId());
-        Element classifierFeature = doc.createElement("UML:Classifier.feature");
-        umlClass.appendChild(classifierFeature);
 
-        int attIdCount = 0;
-        int opIdCount = 0;
-        if(node.getAttributes() != null){
-            String attributes[] = node.getAttributes().split("\\r?\\n");
-            for(String att : attributes){
-                Element attribute = doc.createElement("UML:Attribute");
-                attribute.setAttribute("name", att);
-                attribute.setAttribute("xmi.id", "att" + ++attIdCount + "_" + node.getId());
-                classifierFeature.appendChild(attribute);
-            }
-        }
-        if(node.getOperations() != null){
-            String operations[] = node.getOperations().split("\\r?\\n");
-            for(String op : operations) {
-                Element operation = doc.createElement("UML:Operation");
-                operation.setAttribute("name", op);
-                operation.setAttribute("xmi.id", "oper" + ++opIdCount + "_" + node.getId());
-                classifierFeature.appendChild(operation);
-            }
-        }
-        parent.appendChild(umlClass);
-    }
 
     public static void exportXMI(Graph pGraph, String path){
         try{
@@ -177,44 +141,15 @@ public class PersistenceManager {
                 umlAssociation.setAttribute("namespace", pGraph.getId());
                 umlAssociation.setAttribute("name", "");  //TODO label for edges
                 umlAssociation.setAttribute("xmi.id", ((AbstractEdge)edge).getId());
+                umlAssociation.setAttribute("relation", edge.getType());
+                umlAssociation.setAttribute("direction", ((AbstractEdge) edge).getDirection().toString());
+
+
                 Element associationConnection = doc.createElement("UML:Association.connection");
                 umlAssociation.appendChild(associationConnection);
 
-                //TODO Duplicate code
-                //Start
-                Element associationEnd1 = doc.createElement("UML:AssociationEnd");
-                associationEnd1.setAttribute("xmi.id", "end0");
-                associationEnd1.setAttribute("type", ((AbstractNode)edge.getStartNode()).getId());
-                associationEnd1.setAttribute("association", "ass0");
-                Element associationEnd1Mulitplicity = doc.createElement("UML:AssociationEnd.multiplicity");
-                associationEnd1.appendChild(associationEnd1Mulitplicity);
-                Element multiplicity1 = doc.createElement("UML:multiplicity");
-                associationEnd1Mulitplicity.appendChild(multiplicity1);
-                Element multiplicityRange1 = doc.createElement("UML:Multiplicity.range");
-                multiplicity1.appendChild(multiplicityRange1);
-                Element multiplicityRange11 = doc.createElement("UML:MultiplicityRange");
-                multiplicityRange11.setAttribute("upper", ""); //TODO
-                multiplicityRange11.setAttribute("lower", "");
-                multiplicityRange1.appendChild(multiplicityRange11);
-
-                //End
-                Element associationEnd2 = doc.createElement("UML:AssociationEnd");
-                associationEnd2.setAttribute("xmi.id", "end0");
-                associationEnd2.setAttribute("type", ((AbstractNode)edge.getEndNode()).getId());
-                associationEnd2.setAttribute("association", "ass0");
-                Element associationEnd2Mulitplicity = doc.createElement("UML:AssociationEnd.multiplicity");
-                associationEnd2.appendChild(associationEnd2Mulitplicity);
-                Element multiplicity2 = doc.createElement("UML:multiplicity");
-                associationEnd2Mulitplicity.appendChild(multiplicity2);
-                Element multiplicityRange2 = doc.createElement("UML:Multiplicity.range");
-                multiplicity2.appendChild(multiplicityRange2);
-                Element multiplicityRange22 = doc.createElement("UML:MultiplicityRange");
-                multiplicityRange22.setAttribute("upper", ""); //TODO
-                multiplicityRange22.setAttribute("lower", "");
-                multiplicityRange2.appendChild(multiplicityRange22);
-
-                associationConnection.appendChild(associationEnd1);
-                associationConnection.appendChild(associationEnd2);
+                addAssociatonEnd(((AbstractNode) edge.getStartNode()).getId(), associationConnection, doc, "true");
+                addAssociatonEnd(((AbstractNode) edge.getEndNode()).getId(), associationConnection, doc, "false");
 
                 umlNamespace.appendChild(umlAssociation);
 
@@ -222,7 +157,7 @@ public class PersistenceManager {
                 Element umlElementAssociation = doc.createElement("UML:DiagramElement");
                 umlDiagramElement.appendChild(umlElementAssociation);
                 umlElementAssociation.setAttribute("xmi.id", "ID");
-                umlElementAssociation.setAttribute("subject", ((AbstractNode)edge.getEndNode()).getId());
+                umlElementAssociation.setAttribute("subject", ((AbstractEdge) edge).getId());
                 umlElementAssociation.setAttribute("style", "Association:LineColor.Red=128,LineColor.Green=0,LineColor.Blue=0,Font.Red=0,Font.Green=0,Font.Blue=0,Font.FaceName=Tahoma,Font.Size=8,Font.Bold=0,Font.Italic=0,Font.Underline=0,Font.Strikethrough=0,");
             }
 
@@ -241,6 +176,60 @@ public class PersistenceManager {
             tfe.printStackTrace();
         }
 
+    }
+
+    private static void addClassNode(Document doc, ClassNode node, Element parent, Graph pGraph, boolean isChild){
+        Element umlClass = doc.createElement("UML:Class");
+        if(isChild){
+            umlClass.setAttribute("namespace", ((Element)parent.getParentNode()).getAttribute("xmi.id"));
+        } else {
+            umlClass.setAttribute("namespace", pGraph.getId());
+        }
+        umlClass.setAttribute("name", node.getTitle());
+        umlClass.setAttribute("xmi.id", node.getId());
+        Element classifierFeature = doc.createElement("UML:Classifier.feature");
+        umlClass.appendChild(classifierFeature);
+
+        int attIdCount = 0;
+        int opIdCount = 0;
+        if(node.getAttributes() != null){
+            String attributes[] = node.getAttributes().split("\\r?\\n");
+            for(String att : attributes){
+                Element attribute = doc.createElement("UML:Attribute");
+                attribute.setAttribute("name", att);
+                attribute.setAttribute("xmi.id", "att" + ++attIdCount + "_" + node.getId());
+                classifierFeature.appendChild(attribute);
+            }
+        }
+        if(node.getOperations() != null){
+            String operations[] = node.getOperations().split("\\r?\\n");
+            for(String op : operations) {
+                Element operation = doc.createElement("UML:Operation");
+                operation.setAttribute("name", op);
+                operation.setAttribute("xmi.id", "oper" + ++opIdCount + "_" + node.getId());
+                classifierFeature.appendChild(operation);
+            }
+        }
+        parent.appendChild(umlClass);
+    }
+
+    private static void addAssociatonEnd(String nodeId, Element association, Document doc, String isStart){
+        Element associationEnd = doc.createElement("UML:AssociationEnd");
+        associationEnd.setAttribute("xmi.id", "end0");
+        associationEnd.setAttribute("type", nodeId);
+        associationEnd.setAttribute("association", "ass0");
+        associationEnd.setAttribute("isStart", isStart);
+        Element associationEnd1Mulitplicity = doc.createElement("UML:AssociationEnd.multiplicity");
+        associationEnd.appendChild(associationEnd1Mulitplicity);
+        Element multiplicity1 = doc.createElement("UML:multiplicity");
+        associationEnd1Mulitplicity.appendChild(multiplicity1);
+        Element multiplicityRange1 = doc.createElement("UML:Multiplicity.range");
+        multiplicity1.appendChild(multiplicityRange1);
+        Element multiplicityRange11 = doc.createElement("UML:MultiplicityRange");
+        multiplicityRange11.setAttribute("upper", ""); //TODO
+        multiplicityRange11.setAttribute("lower", "");
+        multiplicityRange1.appendChild(multiplicityRange11);
+        association.appendChild(associationEnd);
     }
 
     public static Graph importXMI(String path){
@@ -269,7 +258,7 @@ public class PersistenceManager {
                     Element viewElement = ((Element)viewList.item(j));
                     if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                         Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
-                        AbstractNode node = (PackageNode)createAbstractNode(viewElement, modelElement, false, isChild);
+                        AbstractNode node = (PackageNode)createAbstractNode(viewElement, modelElement, isChild, true);
                         idMap.put(modelElement.getAttribute("xmi.id"), node);
                         graph.addNode(node);
                     }
@@ -285,7 +274,7 @@ public class PersistenceManager {
                     Element viewElement = ((Element)viewList.item(j));
                     if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                         Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
-                        AbstractNode node = (ClassNode)createAbstractNode(viewElement, modelElement, false, isChild);
+                        AbstractNode node = createAbstractNode(viewElement, modelElement, isChild, false);
                         idMap.put(modelElement.getAttribute("xmi.id"), node);
                         graph.addNode(node);
                     }
@@ -295,9 +284,28 @@ public class PersistenceManager {
             //Add associations
             nList = doc.getElementsByTagName("UML:Association");
             for(int i = 0; i < nList.getLength(); i++){
-                String startNodeId = ((Element)((Element)nList.item(i)).getChildNodes().item(0)).getAttribute("type");
-                String endNodeId = ((Element)((Element)nList.item(i)).getChildNodes().item(1)).getAttribute("type");
-                AssociationEdge edge = new AssociationEdge(idMap.get(startNodeId), idMap.get(endNodeId));
+                Element associationElement = (Element) nList.item(i);
+                String startNodeId = ((Element)((Element)associationElement.getChildNodes().item(0)).getChildNodes().item(0)).getAttribute("type");
+                String endNodeId = ((Element)((Element)associationElement.getChildNodes().item(0)).getChildNodes().item(1)).getAttribute("type");
+
+                AbstractEdge edge = null;
+                String relation = associationElement.getAttribute("relation");
+                String direction = associationElement.getAttribute("direction");
+                if (relation.equals("Association")){
+                    edge = new AssociationEdge(idMap.get(startNodeId), idMap.get(endNodeId));
+                    edge.setDirection(AbstractEdge.Direction.valueOf(direction));
+                } else if (relation.equals("Inheritance")){
+                    edge = new InheritanceEdge(idMap.get(startNodeId), idMap.get(endNodeId));
+                    edge.setDirection(AbstractEdge.Direction.valueOf(direction));
+                } else if (relation.equals("Aggregation")){
+                    edge = new AggregationEdge(idMap.get(startNodeId), idMap.get(endNodeId));
+                    edge.setDirection(AbstractEdge.Direction.valueOf(direction));
+                } else if (relation.equals("Composition")){
+                    edge = new CompositionEdge(idMap.get(startNodeId), idMap.get(endNodeId));
+                    edge.setDirection(AbstractEdge.Direction.valueOf(direction));
+                } else { //Standard is Assocation
+                    edge = new AssociationEdge(idMap.get(startNodeId), idMap.get(endNodeId));
+                }
                 graph.addEdge(edge);
             }
 
@@ -313,7 +321,6 @@ public class PersistenceManager {
     }
 
     private static AbstractNode createAbstractNode(Element view, Element model, boolean isChild, boolean isPackage){
-        System.out.println(view.getAttribute("geometry"));
         String[] geometry = view.getAttribute("geometry").split(",");
         double x = Double.parseDouble(geometry[0]);
         double y = Double.parseDouble(geometry[1]);
@@ -336,9 +343,12 @@ public class PersistenceManager {
                     operations = operations + op + System.getProperty("line.separator");
                 }
             }
+            ((ClassNode)abstractNode).setAttributes(attributes);
+            ((ClassNode)abstractNode).setOperations(operations);
         } else {
             abstractNode = new PackageNode(x, y, width, height);
         }
+        abstractNode.setTitle(model.getAttribute("name"));
         abstractNode.setIsChild(isChild);
 
         return abstractNode;

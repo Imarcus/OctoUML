@@ -704,6 +704,8 @@ public class MainController {
         AbstractEdge edge = edgeView.getRefEdge();
         graph.removeEdge(edge);
         aDrawPane.getChildren().remove(edgeView);
+        selectedEdges.remove(edgeView);
+        edgeView.setSelected(false);
         allEdgeViews.remove(edgeView);
         if (!undo) {
             command.add(new AddDeleteEdgeCommand(this, edgeView, edge, false));
@@ -1215,7 +1217,7 @@ public class MainController {
     public AbstractEdgeView addEdgeView(AbstractEdgeView edgeView) {
         if (edgeView != null) {
             aDrawPane.getChildren().add(edgeView);
-            //graph.addEdge(edgeView.getRefEdge());
+            graph.addEdge(edgeView.getRefEdge());
             //initEdgeActions(edgeView);
             allEdgeViews.add(edgeView);
         }

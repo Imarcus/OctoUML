@@ -11,6 +11,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import model.*;
+import util.commands.DirectionChangeEdgeCommand;
 import util.commands.ReplaceEdgeCommand;
 import view.*;
 
@@ -120,31 +121,42 @@ public class EdgeController {
 
             EdgeEditDialogController controller = loader.getController();
             controller.setEdge(edge);
-            ChoiceBox box = controller.getDirectionBox();
-            ChoiceBox type = controller.getTypeBox();
+            ChoiceBox directionBox = controller.getDirectionBox();
+            ChoiceBox typeBox = controller.getTypeBox();
             controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    if (box.getValue() != null) {
-                        edge.setDirection(AbstractEdge.Direction.valueOf(box.getValue().toString()));
-                    }
-                    edge.setStartMultiplicity(controller.getStartMultiplicity());
-                    edge.setEndMultiplicity(controller.getEndMultiplicity());
-                    if (type.getValue() != null) {
-                        if (type.getValue().equals("Inheritance") && !(edge instanceof InheritanceEdge)) {
-                            InheritanceEdge newEdge = new InheritanceEdge(edge.getStartNode(), edge.getEndNode());
-                            replaceEdge(edge, newEdge);
-                        } else if (type.getValue().equals("Association") && !(edge instanceof AssociationEdge)) {
-                            AssociationEdge newEdge = new AssociationEdge(edge.getStartNode(), edge.getEndNode());
-                            replaceEdge(edge, newEdge);
-                        } else if (type.getValue().equals("Aggregation") && !(edge instanceof AggregationEdge)) {
-                            AggregationEdge newEdge = new AggregationEdge(edge.getStartNode(), edge.getEndNode());
-                            replaceEdge(edge, newEdge);
-                        } else if (type.getValue().equals("Composition") && !(edge instanceof CompositionEdge)) {
-                            CompositionEdge newEdge = new CompositionEdge(edge.getStartNode(), edge.getEndNode());
-                            replaceEdge(edge, newEdge);
+                    //If no change in type of edge we just change direction of old edge
+                    if(typeBox.getValue().equals(edge.getType()) || typeBox.getValue() == null){
+
+                        edge.setStartMultiplicity(controller.getStartMultiplicity());
+                        edge.setEndMultiplicity(controller.getEndMultiplicity());
+                        if (directionBox.getValue() != null) {
+                            mainController.getUndoManager().add(new DirectionChangeEdgeCommand(edge, edge.getDirection(),
+                                    AbstractEdge.Direction.valueOf(directionBox.getValue().toString())));
+                            edge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
                         }
+
+
+                    } else { //Else we create a new one to replace the old
+                        AbstractEdge newEdge = null;
+                        if (typeBox.getValue().equals("Inheritance")) {
+                            newEdge = new InheritanceEdge(edge.getStartNode(), edge.getEndNode());
+                        } else if (typeBox.getValue().equals("Association") ) {
+                            newEdge = new AssociationEdge(edge.getStartNode(), edge.getEndNode());
+                        } else if (typeBox.getValue().equals("Aggregation")) {
+                            newEdge = new AggregationEdge(edge.getStartNode(), edge.getEndNode());
+                        } else if (typeBox.getValue().equals("Composition")) {
+                            newEdge = new CompositionEdge(edge.getStartNode(), edge.getEndNode());
+                        }
+                        newEdge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
+                        newEdge.setStartMultiplicity(controller.getStartMultiplicity());
+                        newEdge.setEndMultiplicity(controller.getEndMultiplicity());
+                        replaceEdge(edge, newEdge);
                     }
+
+
+
                     aDrawPane.getChildren().remove(dialog);
                     mainController.removeDialog(dialog);
                 }
@@ -180,10 +192,10 @@ public class EdgeController {
         }
         mainController.deleteEdgeView(oldEdgeView, null, true);
 
-        newEdge.setDirection(oldEdge.getDirection());
-        newEdge.setStartMultiplicity(oldEdge.getStartMultiplicity());
-        newEdge.setEndMultiplicity(oldEdge.getEndMultiplicity());
-        mainController.getGraphModel().addEdge(newEdge);
+        //newEdge.setDirection(oldEdge.getDirection());
+        //newEdge.setStartMultiplicity(oldEdge.getStartMultiplicity());
+        //newEdge.setEndMultiplicity(oldEdge.getEndMultiplicity());
+        //mainController.getGraphModel().addEdge(newEdge);
 
         AbstractEdgeView newEdgeView = mainController.createEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
 

@@ -125,7 +125,7 @@ public class MainController {
     @FXML
     public void initialize() {
         initDrawPaneActions();
-        //initToolBarActions();
+        initToolBarActions();
         initContextMenu();
         initZoomSlider();
 

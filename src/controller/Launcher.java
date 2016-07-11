@@ -8,6 +8,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.io.IOException;
 public class Launcher extends Application {
 
     public void start(Stage stage) throws IOException { //TODO HANDLE EXCEPTION
-        BorderPane tabView = null;
+        VBox tabView = null;
         FXMLLoader loader;
         TabController tabController = null;
         try {
@@ -40,8 +41,8 @@ public class Launcher extends Application {
         }
 
         Scene scene = new Scene(tabView, 1000, 800);
-        tabView.prefHeightProperty().bind(scene.heightProperty());
-        tabView.prefWidthProperty().bind(scene.widthProperty());
+        //tabView.prefHeightProperty().bind(scene.heightProperty());
+        //tabView.prefWidthProperty().bind(scene.widthProperty());
         tabController.setStage(stage);
 
         stage.setScene(scene);

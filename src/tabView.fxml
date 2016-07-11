@@ -6,41 +6,38 @@
 <?import javafx.scene.control.CheckMenuItem?>
 
 <?import javafx.scene.control.TabPane?>
-<BorderPane fx:controller="controller.TabController" xmlns:fx="http://javafx.com/fxml">
-    <top>
-        <MenuBar fx:id="menuBar">
-            <menus>
-                <Menu text="File">
-                    <items>
-                        <MenuItem text="New" onAction="#handleMenuActionNew"/>
-                        <MenuItem text="Open" onAction="#handleMenuActionLoad"/>
-                        <MenuItem text="Save" onAction="#handleMenuActionSave"/>
-                        <SeparatorMenuItem/>
-                        <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
-                        <SeparatorMenuItem/>
-                        <MenuItem text="Exit" onAction="#handleMenuActionExit"/>
-                    </items>
-                </Menu>
-                <Menu text="Edit">
-                    <items>
-                        <MenuItem text="Copy"/>
-                        <MenuItem text="Cut"/>
-                        <MenuItem text="Paste"/>
-                    </items>
-                </Menu>
-                <Menu text="View">
-                    <items>
-                        <CheckMenuItem fx:id="umlMenuItem" text="UML" onAction="#handleMenuActionUML" selected="true"/>
-                        <CheckMenuItem fx:id="sketchesMenuItem" text="Sketches" onAction="#handleMenuActionSketches" selected="true"/>
-                        <CheckMenuItem fx:id="gridMenuItem" text="Grid" onAction="#handleMenuActionGrid" selected="true"/>
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
-    </top>
-    <center>
-        <TabPane fx:id="tabPane">
+<?import javafx.scene.layout.VBox?>
+<VBox fx:controller="controller.TabController" xmlns:fx="http://javafx.com/fxml">
+    <MenuBar fx:id="menuBar">
+        <menus>
+            <Menu text="File">
+                <items>
+                    <MenuItem text="New" onAction="#handleMenuActionNew"/>
+                    <MenuItem text="Open" onAction="#handleMenuActionLoad"/>
+                    <MenuItem text="Save" onAction="#handleMenuActionSave"/>
+                    <SeparatorMenuItem/>
+                    <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem text="Exit" onAction="#handleMenuActionExit"/>
+                </items>
+            </Menu>
+            <Menu text="Edit">
+                <items>
+                    <MenuItem text="Copy"/>
+                    <MenuItem text="Cut"/>
+                    <MenuItem text="Paste"/>
+                </items>
+            </Menu>
+            <Menu text="View">
+                <items>
+                    <CheckMenuItem fx:id="umlMenuItem" text="UML" onAction="#handleMenuActionUML" selected="true"/>
+                    <CheckMenuItem fx:id="sketchesMenuItem" text="Sketches" onAction="#handleMenuActionSketches" selected="true"/>
+                    <CheckMenuItem fx:id="gridMenuItem" text="Grid" onAction="#handleMenuActionGrid" selected="true"/>
+                </items>
+            </Menu>
+        </menus>
+    </MenuBar>
+    <TabPane fx:id="tabPane">
 
-        </TabPane>
-    </center>
-</BorderPane>
+    </TabPane>
+</VBox>

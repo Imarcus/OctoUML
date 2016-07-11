@@ -1,0 +1,46 @@
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.CheckMenuItem?>
+
+<?import javafx.scene.control.TabPane?>
+<BorderPane fx:controller="controller.TabController" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <MenuBar fx:id="menuBar">
+            <menus>
+                <Menu text="File">
+                    <items>
+                        <MenuItem text="New" onAction="#handleMenuActionNew"/>
+                        <MenuItem text="Open" onAction="#handleMenuActionLoad"/>
+                        <MenuItem text="Save" onAction="#handleMenuActionSave"/>
+                        <SeparatorMenuItem/>
+                        <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem text="Exit" onAction="#handleMenuActionExit"/>
+                    </items>
+                </Menu>
+                <Menu text="Edit">
+                    <items>
+                        <MenuItem text="Copy"/>
+                        <MenuItem text="Cut"/>
+                        <MenuItem text="Paste"/>
+                    </items>
+                </Menu>
+                <Menu text="View">
+                    <items>
+                        <CheckMenuItem fx:id="umlMenuItem" text="UML" onAction="#handleMenuActionUML" selected="true"/>
+                        <CheckMenuItem fx:id="sketchesMenuItem" text="Sketches" onAction="#handleMenuActionSketches" selected="true"/>
+                        <CheckMenuItem fx:id="gridMenuItem" text="Grid" onAction="#handleMenuActionGrid" selected="true"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <center>
+        <TabPane fx:id="tabPane">
+
+        </TabPane>
+    </center>
+</BorderPane>

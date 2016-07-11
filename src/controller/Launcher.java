@@ -2,7 +2,11 @@ package controller;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -14,18 +18,33 @@ import java.io.IOException;
 public class Launcher extends Application {
 
     public void start(Stage stage) throws IOException { //TODO HANDLE EXCEPTION
-        StackPane root = null; //TODO FIX
-        FXMLLoader loader = null;
+        BorderPane tabView = null;
+        FXMLLoader loader;
+        TabController tabController = null;
+        try {
+            loader = new FXMLLoader(getClass().getClassLoader().getResource("tabView.fxml"));
+            tabView = loader.load();
+            tabController = loader.getController();
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        StackPane canvasView = null; //TODO FIX
+        MainController mainController = null;
         try {
             loader = new FXMLLoader(getClass().getClassLoader().getResource("view.fxml"));
-            root = (StackPane) loader.load();
+            canvasView = (StackPane) loader.load();
+            mainController = (MainController) loader.getController();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
 
-        MainController mainController = (MainController) loader.getController();
-        mainController.setStage(stage);
-        stage.setScene(new Scene(root, 1000, 800));
+        Scene scene = new Scene(tabView, 1000, 800);
+        tabView.prefHeightProperty().bind(scene.heightProperty());
+        tabView.prefWidthProperty().bind(scene.widthProperty());
+        tabController.setStage(stage);
+
+        stage.setScene(scene);
         stage.setTitle("Penguin");
         //stage.setFullScreen(true);
         stage.show();

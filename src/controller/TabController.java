@@ -5,6 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -40,7 +42,7 @@ public class TabController {
         stage = pStage;
     }
 
-    public void addTab(){
+    public Tab addTab(){
         StackPane canvasView = null; //TODO FIX
         MainController mainController = null;
         FXMLLoader loader;
@@ -57,9 +59,16 @@ public class TabController {
         tab.setContent(canvasView);
         tabMap.put(tab, mainController);
         tab.setText("Tab " + tabMap.size());
+        /*Image image = new Image("/icons/classw.png");
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(1);
+        imageView.setFitHeight(1);
+        imageView.setImage(image);
+        tab.setGraphic(new ImageView(image));*/
 
         tabPane.getTabs().add(tab);
         mainController.setStage(stage);
+        return tab;
     }
 
     public void handleMenuActionUML() {
@@ -84,7 +93,8 @@ public class TabController {
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionLoad();
     }
     public void handleMenuActionNew() {
-        addTab();
+        Tab tab = addTab();
+        tabPane.getSelectionModel().select(tab);
     }
 
 }

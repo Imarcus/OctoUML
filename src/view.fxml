@@ -12,7 +12,7 @@
 
 <StackPane fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
 
-    <Pane fx:id="aDrawPane" prefHeight="8000" prefWidth="10000" minWidth="10000" minHeight="8000">
+    <Pane fx:id="aDrawPane" prefHeight="8000" prefWidth="10000" >
 
     </Pane>
     <BorderPane fx:id="aBorderPane">
@@ -51,8 +51,4 @@
             </ToolBar>
         </bottom>
     </BorderPane>
-
-    <stylesheets>
-        <URL value="@main.css" />
-    </stylesheets>
 </StackPane>

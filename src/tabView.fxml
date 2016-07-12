@@ -7,6 +7,7 @@
 
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 <VBox fx:controller="controller.TabController" xmlns:fx="http://javafx.com/fxml">
     <MenuBar fx:id="menuBar">
         <menus>
@@ -40,4 +41,7 @@
     <TabPane fx:id="tabPane">
 
     </TabPane>
+    <stylesheets>
+        <URL value="@main.css" />
+    </stylesheets>
 </VBox>

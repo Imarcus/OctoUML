@@ -70,11 +70,6 @@ public class GraphController {
             yDialogInitTranslateMap.put(dialog, dialog.getTranslateY());
         }
 
-        for (PictureNodeView picture : aMainController.allPictureNodeViews){
-            xPictureInitTranslateMap.put(picture,picture.getTranslateX());
-            yPictureInitTranslateMap.put(picture,picture.getTranslateY());
-        }
-
 
     }
 
@@ -129,12 +124,6 @@ public class GraphController {
         for (AnchorPane dialog : aMainController.getAllDialogs()) {
             dialog.setTranslateX(xDialogInitTranslateMap.get(dialog) + offsetX);
             dialog.setTranslateY(yDialogInitTranslateMap.get(dialog) + offsetY);
-        }
-
-        for (PictureNodeView picture : aMainController.allPictureNodeViews){
-           picture.setTranslateX(xPictureInitTranslateMap.get(picture)+ offsetX);
-            picture.setTranslateY(yPictureInitTranslateMap.get(picture)+ offsetY);
-
         }
 
     }

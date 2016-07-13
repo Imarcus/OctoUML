@@ -54,13 +54,11 @@ public class MainController {
 
     //Node lists and maps
     ArrayList<AbstractNodeView> selectedNodes = new ArrayList<>();
-    ArrayList<PictureNodeView> selectedPictures = new ArrayList<>();
     ArrayList<AbstractEdgeView> selectedEdges = new ArrayList<>();
     ArrayList<Sketch> selectedSketches = new ArrayList<>();
     ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
     ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
     ArrayList<AnchorPane> allDialogs = new ArrayList<>();
-    ArrayList<PictureNodeView> allPictureNodeViews = new ArrayList<>();
     HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
 
@@ -165,52 +163,6 @@ public class MainController {
         return allDialogs;
     }
 
-
-    /*private void initPictureViewActions(PictureNodeView view){
-
-        view.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(mode == Mode.NO_MODE && tool == ToolEnum.SELECT){
-                    mode = Mode.DRAGGING;
-                    orgSceneX = event.getSceneX();
-                    orgSceneY = event.getSceneY();
-                    orgTranslateX = ((PictureNodeView)(event.getSource())).getTranslateX();
-                    orgTranslateY = ((PictureNodeView)(event.getSource())).getTranslateY();
-
-
-                    if (!selectedPictures.contains(view)) {
-                        selectedPictures.add(view);
-                    }
-                    drawSelected();
-                }
-
-            }
-        });
-
-        view.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(mode == Mode.DRAGGING && tool == ToolEnum.SELECT){
-                    double offsetX =( event.getSceneX() - orgSceneX) * 100/getZoomScale();
-                    double offsetY = (event.getSceneY() - orgSceneY )* 100/getZoomScale();
-                    double newTranslateX = orgTranslateX + offsetX;
-                    double newTranslateY = orgTranslateY + offsetY;
-
-                    ((PictureNodeView)(event.getSource())).setTranslateX(newTranslateX);
-                    ((PictureNodeView)(event.getSource())).setTranslateY(newTranslateY);
-                }
-            }
-        });
-
-        view.setOnMouseReleased(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                mode = Mode.NO_MODE;
-            }
-        });
-    }*/
-
     private void initDrawPaneActions() {
         aBorderPane.setPickOnBounds(false);
 
@@ -228,7 +180,6 @@ public class MainController {
 
                     //--------- MOUSE EVENT FOR TESTING ---------- TODO
                     else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mouseCreationActivated) {
-                        System.out.println("Mouse in drawPane");
                         mode = Mode.CREATING;
                         createNodeController.onMousePressed(event);
                     } else if (tool == ToolEnum.MOVE_SCENE) {
@@ -323,7 +274,6 @@ public class MainController {
             @Override
             public void handle(TouchEvent event) {
                 if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && !mouseCreationActivated) {
-                    System.out.println("Touch in drawPane");
                     mode = Mode.CREATING;
                     createNodeController.onTouchPressed(event);
                 } else if (tool == ToolEnum.DRAW) {
@@ -407,10 +357,6 @@ public class MainController {
                     mode = Mode.MOVING;
                     graphController.movePaneStart(graph.getAllGraphElements(), event);
                     event.consume();
-                } else if (tool == ToolEnum.MOVE_SCENE) {
-                    mode = Mode.MOVING;
-                    graphController.movePaneStart(graph.getAllGraphElements(), event);
-                    event.consume();
                 } else if (event.getButton() == MouseButton.SECONDARY) {
                     nodeClicked = nodeView;
                     copyPasteController.copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
@@ -432,7 +378,6 @@ public class MainController {
 
                     if (mode == Mode.NO_MODE) //Move, any kind of node
                     {
-
                         mode = Mode.DRAGGING;
                         if (!selectedNodes.contains(nodeView)) {
                             selectedNodes.add(nodeView);
@@ -661,9 +606,9 @@ public class MainController {
     void drawSelected() {
         for (AbstractNodeView nodeView : allNodeViews) {
             if (selectedNodes.contains(nodeView)) {
-                nodeView.setFill(Constants.selected_color);
+                nodeView.setSelected(true);
             } else {
-                nodeView.setFill(Constants.not_selected_color);
+                nodeView.setSelected(false);
             }
         }
         for (AbstractEdgeView edgeView : allEdgeViews) {
@@ -680,13 +625,6 @@ public class MainController {
             } else {
                 sketch.setSelected(false);
                 sketch.getPath().toFront();
-            }
-        }
-        for (PictureNodeView imageView : allPictureNodeViews) {
-            if (selectedEdges.contains(imageView)) {
-                imageView.setSelected(true);
-            } else {
-                imageView.setSelected(false);
             }
         }
     }
@@ -1264,7 +1202,7 @@ public class MainController {
         picView.setY(point.getY());
         aDrawPane.getChildren().add(picView);
         initNodeActions(picView);
-        allPictureNodeViews.add(picView);
+        allNodeViews.add(picView);
         graph.addNode(picNode);
         nodeMap.put(picView, picNode);
         return picView;
@@ -1457,9 +1395,6 @@ public class MainController {
 
     public ArrayList<AbstractNodeView> getAllNodeViews() {
         return allNodeViews;
-    }
-    public ArrayList<PictureNodeView> getAllPictureNodeViews() {
-        return allPictureNodeViews;
     }
 
 

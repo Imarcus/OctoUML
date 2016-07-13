@@ -110,7 +110,6 @@ public abstract class AbstractNodeView extends Group implements NodeView {
         });
     }
 
-
 }
 
 

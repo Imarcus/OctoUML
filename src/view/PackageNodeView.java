@@ -12,12 +12,14 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import model.AbstractNode;
 import model.Node;
 import model.PackageNode;
+import util.Constants;
 
 /**
  * Created by marcusisaksson on 2016-02-17.
@@ -27,13 +29,16 @@ public class PackageNodeView extends AbstractNodeView {
     private PackageNode refNode;
     private Text title;
     private VBox container;
-    private StackPane topStackPane;
+    private StackPane bodyStackPane;
     private Rectangle top;
     private Rectangle body;
     private final double TOP_HEIGHT_RATIO = 0.2;
     private final double TOP_WIDTH_RATIO = 0.66;
     private final double TOP_MAX_HEIGHT = 50;
     private final double TOP_MAX_WIDTH = 200;
+
+    Line shortHandleLine;
+    Line longHandleLine;
 
     public PackageNodeView(PackageNode node) {
         super(node);
@@ -43,24 +48,24 @@ public class PackageNodeView extends AbstractNodeView {
         //TODO Ugly solution, hardcoded value.
         title.setWrappingWidth(node.getWidth() - 7);
         container = new VBox();
-        topStackPane = new StackPane();
+        bodyStackPane = new StackPane();
 
         container.setSpacing(0);
 
         createRectangles();
 
 
-        topStackPane.getChildren().addAll(top, title);
-        container.getChildren().add(topStackPane);
-        container.getChildren().add(body);
-        StackPane.setAlignment(title, Pos.CENTER);
+        container.getChildren().add(top);
+        bodyStackPane.getChildren().addAll(body, title);
+        container.getChildren().addAll(bodyStackPane);
+        StackPane.setAlignment(title, Pos.TOP_CENTER);
         StackPane.setAlignment(top, Pos.CENTER_LEFT);
         setTitleSize();
-        //TODO Hardcoded values.
-        //stackPane.setMargin(title, new Insets(7, 7, 7, 7));
         this.getChildren().add(container);
         this.setTranslateX(node.getTranslateX());
         this.setTranslateY(node.getTranslateY());
+
+        createHandles();
     }
 
     private void setTitleSize(){
@@ -85,6 +90,23 @@ public class PackageNodeView extends AbstractNodeView {
 
     }
 
+    private void createHandles(){
+
+        shortHandleLine = new Line();
+        longHandleLine = new Line();
+
+        shortHandleLine.startXProperty().bind(body.widthProperty().subtract(7));
+        shortHandleLine.startYProperty().bind(body.heightProperty().add(top.heightProperty().subtract(3)));
+        shortHandleLine.endXProperty().bind(body.widthProperty().subtract(3));
+        shortHandleLine.endYProperty().bind(body.heightProperty().add(top.heightProperty().subtract(7)));
+        longHandleLine.startXProperty().bind(body.widthProperty().subtract(15));
+        longHandleLine.startYProperty().bind(body.heightProperty().add(top.heightProperty().subtract(3)));
+        longHandleLine.endXProperty().bind(body.widthProperty().subtract(3));
+        longHandleLine.endYProperty().bind(body.heightProperty().add(top.heightProperty().subtract(15)));
+
+        this.getChildren().addAll(shortHandleLine, longHandleLine);
+    }
+
     @Override
     public boolean contains(double x, double y) {
         //If there is a childNode inside this PackageNode, we should return false.
@@ -107,6 +129,16 @@ public class PackageNodeView extends AbstractNodeView {
     public void setStroke(Paint p) {
         top.setStroke(p);
         body.setStroke(p);
+    }
+
+    public void setSelected(boolean selected){
+        if(selected){
+            setStroke(Constants.selected_color);
+            setStrokeWidth(2);
+        } else {
+            setStroke(Color.BLACK);
+            setStrokeWidth(1);
+        }
     }
 
     public Bounds getBounds(){

@@ -137,7 +137,6 @@ public class SelectController {
             mainController.selectedNodes.clear();
             mainController.selectedEdges.clear();
             mainController.selectedSketches.clear();
-            mainController.selectedPictures.clear();
         }
 
         mainController.drawSelected();

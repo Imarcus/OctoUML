@@ -40,6 +40,7 @@ public class MainController {
     //For testing with mouse and keyboard
     private Graph graph;
     private Stage aStage;
+
     boolean mouseCreationActivated = true;
 
     //Controllers
@@ -700,8 +701,10 @@ public class MainController {
         }
 
         AbstractEdge edge = edgeView.getRefEdge();
-        getGraphModel().removeEdge(edge);
+        graph.removeEdge(edge);
         aDrawPane.getChildren().remove(edgeView);
+        selectedEdges.remove(edgeView);
+        edgeView.setSelected(false);
         allEdgeViews.remove(edgeView);
         if (!undo) {
             command.add(new AddDeleteEdgeCommand(this, edgeView, edge, false));
@@ -1086,7 +1089,7 @@ public class MainController {
         } else {
             fileChooser.setInitialFileName("mydiagram.xml");
         }
-        PersistenceManager.saveFile(graph, file.getAbsolutePath());
+        PersistenceManager.exportXMI(graph, file.getAbsolutePath());
     }
 
     public void handleMenuActionLoad() {
@@ -1097,7 +1100,7 @@ public class MainController {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
         Graph graph = null;
         if (file != null) {
-            graph = PersistenceManager.loadFile(file.getAbsolutePath());
+            graph = PersistenceManager.importXMI(file.getAbsolutePath());
         }
         load(graph);
     }
@@ -1264,11 +1267,23 @@ public class MainController {
                 endNodeView = nodeView;
             }
         }
-        if (startNodeView == null || endNodeView == null || graph.hasEdge(edge)) {
+        if (startNodeView == null || endNodeView == null /*|| graph.hasEdge(edge)*/) {
             System.out.println("Failed to find start or end node, or graph already has edge.");
             return null;
         } else {
-            AssociationEdgeView edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
+            AbstractEdgeView edgeView;
+            if(edge instanceof AssociationEdge) {
+                edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
+            } else if (edge instanceof AggregationEdge){
+                edgeView = new AggregationEdgeView(edge, startNodeView, endNodeView);
+            } else if (edge instanceof CompositionEdge) {
+                edgeView = new CompositionEdgeView(edge, startNodeView, endNodeView);
+            } else if (edge instanceof InheritanceEdge) {
+                edgeView = new InheritanceEdgeView(edge, startNodeView, endNodeView);
+            } else {
+                System.out.println("Edge type not recognised. In addEdgeView(AbstractEdge edge).");
+                return null;
+            }
             //initEdgeActions(edgeView);
             allEdgeViews.add(edgeView);
             aDrawPane.getChildren().add(edgeView);

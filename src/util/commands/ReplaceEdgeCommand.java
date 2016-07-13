@@ -16,6 +16,9 @@ public class ReplaceEdgeCommand implements Command {
     private MainController aController;
     private Graph aGraph;
 
+    private AddDeleteEdgeCommand oldEdgeCommand;
+    private AddDeleteEdgeCommand newEdgeCommand;
+
     /**
      * Creates the command.
      */
@@ -29,6 +32,9 @@ public class ReplaceEdgeCommand implements Command {
         newEdgeView = pNewEdgeView;
         aController = pController;
         aGraph = pGraph;
+
+        oldEdgeCommand = new AddDeleteEdgeCommand(aController, oldEdgeView, oldEdge, false);
+        newEdgeCommand = new AddDeleteEdgeCommand(aController, newEdgeView, newEdge, true);
     }
 
     /**
@@ -36,11 +42,8 @@ public class ReplaceEdgeCommand implements Command {
      */
     public void undo()
     {
-        aGraph.removeEdge(newEdge);
-        aController.deleteEdgeView(newEdgeView, null, true);
-
-        aGraph.addEdge(oldEdge);
-        aController.addEdgeView(oldEdgeView);
+        oldEdgeCommand.undo();
+        newEdgeCommand.undo();
     }
 
     /**
@@ -48,11 +51,8 @@ public class ReplaceEdgeCommand implements Command {
      */
     public void execute()
     {
-        aGraph.removeEdge(oldEdge);
-        aController.deleteEdgeView(oldEdgeView, null, true);
-
-        aGraph.addEdge(newEdge);
-        aController.addEdgeView(newEdgeView);
+        oldEdgeCommand.execute();
+        newEdgeCommand.execute();
     }
 
 }

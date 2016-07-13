@@ -14,6 +14,8 @@ import util.Constants;
  * Created by chris on 2016-02-18.
  */
 public abstract class AbstractEdgeView extends Group implements EdgeView{
+    private static int objectCounter = 0;
+
     private AbstractEdge refEdge;
     private AbstractNodeView startNode;
     private boolean selected = false;
@@ -31,6 +33,9 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
 
     public AbstractEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
         super();
+
+        setId("VIEWASSOCIATION_" + ++objectCounter);
+
         this.refEdge = edge;
         this.startNode = startNode;
         this.endNode = endNode;

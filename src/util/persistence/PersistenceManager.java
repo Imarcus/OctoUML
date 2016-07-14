@@ -2,6 +2,7 @@ package util.persistence;
 
 import edu.tamu.core.sketch.Point;
 import edu.tamu.core.sketch.Stroke;
+import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
@@ -176,10 +177,18 @@ public class PersistenceManager {
 
                 Element pathElement = doc.createElement("Path");
                 for(PathElement el : sketchPath.getElements()){
-                    Element moveTo = doc.createElement("MoveTo");
-                    moveTo.setAttribute("xPoint", Double.toString(((MoveTo)el).getX()));
-                    moveTo.setAttribute("yPoint", Double.toString(((MoveTo)el).getY()));
-                    pathElement.appendChild(moveTo);
+                    if(el instanceof MoveTo){
+                        Element moveTo = doc.createElement("MoveTo");
+                        moveTo.setAttribute("xPoint", Double.toString(((MoveTo)el).getX()));
+                        moveTo.setAttribute("yPoint", Double.toString(((MoveTo)el).getY()));
+                        pathElement.appendChild(moveTo);
+                    } else if(el instanceof LineTo){
+                        Element lineTo = doc.createElement("LineTo");
+                        lineTo.setAttribute("xPoint", Double.toString(((LineTo)el).getX()));
+                        lineTo.setAttribute("yPoint", Double.toString(((LineTo)el).getY()));
+                        pathElement.appendChild(lineTo);
+                    }
+
                 }
                 sketchElement.appendChild(pathElement);
 

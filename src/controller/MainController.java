@@ -328,11 +328,8 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
                 } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    Sketch sketch = sketchController.onTouchReleased(event);
-                    initSketchActions(sketch);
-                    allSketches.add(sketch);
-                    graph.addSketch(sketch);
-                    undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
+                    addSketch(sketchController.onTouchReleased(event), false);
+
 
                     //We only want to move out of drawing mode if there are no other current drawings
                     if (!sketchController.currentlyDrawing()) {
@@ -342,6 +339,17 @@ public class MainController {
                 event.consume();
             }
         });
+    }
+
+    public void addSketch(Sketch sketch, boolean isImport){
+        initSketchActions(sketch);
+        allSketches.add(sketch);
+        graph.addSketch(sketch);
+        if(isImport){
+            aDrawPane.getChildren().add(sketch.getPath());
+        } else {
+            undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
+        }
     }
 
     private void initNodeActions(AbstractNodeView nodeView) {
@@ -1316,6 +1324,10 @@ public class MainController {
 
             for (Edge edge : this.graph.getAllEdges()) {
                 addEdgeView((AbstractEdge) edge);
+            }
+
+            for(Sketch sketch : this.graph.getAllSketches()){
+                addSketch(sketch, true);
             }
         }
     }

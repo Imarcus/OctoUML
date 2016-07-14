@@ -2,6 +2,7 @@ package util.persistence;
 
 import edu.tamu.core.sketch.Point;
 import edu.tamu.core.sketch.Stroke;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -354,17 +355,42 @@ public class PersistenceManager {
                 graph.addEdge(edge);
             }
 
+
+
+
+
             nList = doc.getElementsByTagName("Sketch");
-            for(int i = 0; i < nList.getLength(); i++){
+            for(int i = 0; i < nList.getLength(); i++) {
+                Path sketchPath = new Path();
+                sketchPath.setStrokeWidth(2);
+                sketchPath.setStroke(Color.BLACK);
+                Sketch sketch = new Sketch(sketchPath);
+
                 Element sketchElement = (Element) nList.item(i);
-                Element pathElement = (Element)sketchElement.getChildNodes().item(0);
+                Element pathElement = (Element) sketchElement.getChildNodes().item(0);
                 NodeList pathList = pathElement.getChildNodes();
-                for(int j = 0; j < pathList.getLength(); j++){
-                    
+                for (int j = 0; j < pathList.getLength(); j++) {
+                    Element point = (Element) pathList.item(j);
+                    if (point.getTagName().equals("MoveTo")) {
+                        sketchPath.getElements().add(new MoveTo(Double.parseDouble(point.getAttribute("pointX")),
+                                Double.parseDouble(point.getAttribute("pointY"))));
+                    } else if (point.getTagName().equals("LineTo")) {
+                        sketchPath.getElements().add(new LineTo(Double.parseDouble(point.getAttribute("pointX")),
+                                Double.parseDouble(point.getAttribute("pointY"))));
+                    }
                 }
+
+                Stroke stroke = new Stroke();
+                Element strokeElement = (Element) sketchElement.getChildNodes().item(1);
+                NodeList strokeList = strokeElement.getChildNodes();
+                for (int j = 0; j < strokeList.getLength(); j++) {
+                    Element point = (Element) strokeList.item(j);
+                    stroke.addPoint(new Point(new Point(Double.parseDouble(point.getAttribute("x")),
+                            Double.parseDouble(point.getAttribute("y")))));
+                }
+                sketch.setStroke(stroke);
+                graph.addSketch(sketch);
             }
-
-
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
         } catch (IOException ioe){

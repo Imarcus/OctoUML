@@ -7,6 +7,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by chalmers on 2016-07-07.
+ * The class controlling the top menu and the tabs.
  */
 public class TabController {
 
@@ -43,13 +44,13 @@ public class TabController {
     }
 
     public Tab addTab(){
-        StackPane canvasView = null; //TODO FIX
+        BorderPane canvasView = null; //TODO FIX
         MainController mainController = null;
         FXMLLoader loader;
 
         try {
             loader = new FXMLLoader(getClass().getClassLoader().getResource("view.fxml"));
-            canvasView = (StackPane) loader.load();
+            canvasView = (BorderPane) loader.load();
             mainController = (MainController) loader.getController();
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -59,12 +60,6 @@ public class TabController {
         tab.setContent(canvasView);
         tabMap.put(tab, mainController);
         tab.setText("Tab " + tabMap.size());
-        /*Image image = new Image("/icons/classw.png");
-        ImageView imageView = new ImageView();
-        imageView.setFitWidth(1);
-        imageView.setFitHeight(1);
-        imageView.setImage(image);
-        tab.setGraphic(new ImageView(image));*/
 
         tabPane.getTabs().add(tab);
         mainController.setStage(stage);

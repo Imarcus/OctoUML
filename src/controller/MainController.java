@@ -115,6 +115,8 @@ public class MainController {
     private Slider zoomSlider;
     @FXML
     private BorderPane aBorderPane;
+    @FXML
+    private ScrollPane aScrollPane;
 
     ContextMenu aContextMenu;
 
@@ -128,6 +130,12 @@ public class MainController {
         initToolBarActions();
         initContextMenu();
         initZoomSlider();
+
+        // center the scroll contents.
+        aScrollPane.setHvalue(aScrollPane.getHmin() + (aScrollPane.getHmax() - aScrollPane.getHmin()) / 2);
+        aScrollPane.setVvalue(aScrollPane.getVmin() + (aScrollPane.getVmax() - aScrollPane.getVmin()) / 2);
+        aScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        aScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         graph = new Graph();
 
@@ -1390,5 +1398,9 @@ public class MainController {
 
     public UndoManager getUndoManager() {
         return undoManager;
+    }
+
+    public ScrollPane getScrollPane(){
+        return aScrollPane;
     }
 }

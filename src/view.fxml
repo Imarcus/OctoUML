@@ -10,45 +10,52 @@
 <?import javafx.scene.layout.HBox?>
 
 
-<StackPane fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
-
-    <Pane fx:id="aDrawPane" prefHeight="8000" prefWidth="10000" >
-
-    </Pane>
-    <BorderPane fx:id="aBorderPane">
-        <top>
-            <VBox>
-                <ToolBar fx:id="aToolBar" orientation="HORIZONTAL">
-                    <HBox fx:id="umlBox">
-                        <Button text="Create" fx:id="createBtn"/>
-                        <Button text="Package" fx:id="packageBtn"/>
-                        <Button text="Edge" fx:id="edgeBtn"/>
-                        <Button text="Draw" fx:id="drawBtn"/>
-                    </HBox>
-                    <HBox fx:id="utilBox">
-                        <Button text="Select" fx:id="selectBtn"/>
-                        <Button text="Move" fx:id="moveBtn"/>
-                    </HBox>
-                    <HBox fx:id="undoBox">
-                        <Button text="Delete" fx:id="deleteBtn"/>
-                        <Button text="Undo" fx:id="undoBtn"/>
-                        <Button text="Redo" fx:id="redoBtn"/>
-                    </HBox>
-                    <HBox fx:id="recognizeBox">
-                        <Button text="Recognize" fx:id="recognizeBtn"/>
-                    </HBox>
-                </ToolBar>
-            </VBox>
-        </top>
-        <bottom>
-            <ToolBar>
-                <Pane HBox.hgrow="ALWAYS" />
-                <VBox alignment="CENTER">
-                    <Slider fx:id="zoomSlider" min="10"  max="200" value="100"/>
-                    <Label text="Zoom"/>
-                </VBox>
-                <Pane HBox.hgrow="ALWAYS" />
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<BorderPane fx:id="aBorderPane" fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <VBox>
+            <ToolBar fx:id="aToolBar" orientation="HORIZONTAL">
+                <HBox fx:id="umlBox">
+                    <Button text="Create" fx:id="createBtn"/>
+                    <Button text="Package" fx:id="packageBtn"/>
+                    <Button text="Edge" fx:id="edgeBtn"/>
+                    <Button text="Draw" fx:id="drawBtn"/>
+                </HBox>
+                <HBox fx:id="utilBox">
+                    <Button text="Select" fx:id="selectBtn"/>
+                    <Button text="Move" fx:id="moveBtn"/>
+                </HBox>
+                <HBox fx:id="undoBox">
+                    <Button text="Delete" fx:id="deleteBtn"/>
+                    <Button text="Undo" fx:id="undoBtn"/>
+                    <Button text="Redo" fx:id="redoBtn"/>
+                </HBox>
+                <HBox fx:id="recognizeBox">
+                    <Button text="Recognize" fx:id="recognizeBtn"/>
+                </HBox>
             </ToolBar>
-        </bottom>
-    </BorderPane>
-</StackPane>
+        </VBox>
+    </top>
+    <bottom>
+        <ToolBar>
+            <Pane HBox.hgrow="ALWAYS" />
+            <VBox alignment="CENTER">
+                <Slider fx:id="zoomSlider" min="10"  max="200" value="100"/>
+                <Label text="Zoom"/>
+            </VBox>
+            <Pane HBox.hgrow="ALWAYS" />
+        </ToolBar>
+    </bottom>
+    <center>
+        <ScrollPane fx:id="aScrollPane" pannable="true" prefViewportHeight="800.0" prefViewportWidth="1000.0" BorderPane.alignment="CENTER">
+            <content>
+                <Pane fx:id="aDrawPane" prefHeight="8000.0" prefWidth="8000.0">
+                </Pane>
+            </content>
+        </ScrollPane>
+    </center>
+    <!--<padding>
+        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+    </padding>-->
+</BorderPane>

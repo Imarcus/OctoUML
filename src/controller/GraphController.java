@@ -1,6 +1,7 @@
 package controller;
 
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Line;
@@ -56,7 +57,7 @@ public class GraphController {
         initMoveX = event.getSceneX();
         initMoveY = event.getSceneY();
 
-        initPaneTranslateX = aDrawPane.getTranslateX();
+        /*initPaneTranslateX = aDrawPane.getTranslateX();
         initPaneTranslateY = aDrawPane.getTranslateY();
 
         for(GraphElement gElement : elements){
@@ -72,61 +73,77 @@ public class GraphController {
         for (AnchorPane dialog : aMainController.getAllDialogs()) {
             xDialogInitTranslateMap.put(dialog, dialog.getTranslateX());
             yDialogInitTranslateMap.put(dialog, dialog.getTranslateY());
-        }
+        }*/
     }
 
     public void movePane(List<GraphElement> elements, MouseEvent event)
     {
-        double offsetX = 0;
-        double offsetY = 0;
-        if(event.getSource() instanceof javafx.scene.Node){
-            offsetX = (event.getSceneX() - initMoveX) * 100/aMainController.getZoomScale();
-            offsetY = (event.getSceneY() - initMoveY) * 100/aMainController.getZoomScale();
-            drawPaneXOffset += (initMoveX - event.getSceneX());
-            drawPaneYOffset += (initMoveY - event.getSceneY());
-        } else {
-            offsetX = (event.getX() - initMoveX) * 100/aMainController.getZoomScale();
-            offsetY = (event.getY() - initMoveY) * 100/aMainController.getZoomScale();
-            drawPaneXOffset += (initMoveX - event.getX());
-            drawPaneYOffset += (initMoveY - event.getY());
-        }
+        ScrollPane scrollPane = aMainController.getScrollPane();
+        double xScroll =  (initMoveX - event.getSceneX())/8000; //8000 is the size of aDrawPane set in view.fxml
+        double yScroll = (initMoveY - event.getSceneY())/8000;
+        System.out.println("X:" +(xScroll));
+        System.out.println("Y:" +(yScroll));
+        System.out.println("------");
 
-        //TODO Limit graph panningg
 
-        //Drag all nodes
-        for (GraphElement gElement : elements)
-        {
-            //Limit to moving the pane
-            //If we are inside the limit OR we are moving away from the limit we allow moving
-            /*if(Math.abs(drawPaneXOffset + offsetX) < aDrawPane.getWidth()/2 ||
-                    (drawPaneXOffset > 0 && offsetX > 0) ||
-                    (drawPaneXOffset < 0 && offsetX < 0)){*/
-                gElement.setTranslateX(xInitTranslateMap.get(gElement) + offsetX);
-           //}
-            /*if(Math.abs(drawPaneYOffset+ offsetY) < aDrawPane.getHeight()/2 ||
-                    (drawPaneYOffset > 0 && offsetY > 0) ||
-                    (drawPaneYOffset < 0 && offsetY < 0)){*/
-                gElement.setTranslateY(yInitTranslateMap.get(gElement) + offsetY);
-            //}
-        }
 
-        for(Line line : aMainController.getGrid()){
-            /*if(Math.abs(drawPaneXOffset + offsetX) < aDrawPane.getWidth()/2 ||
-                    (drawPaneXOffset > 0 && offsetX > 0) ||
-                    (drawPaneXOffset < 0 && offsetX < 0)) {*/
-                line.setTranslateX(xInitTranslateMapGrid.get(line) + offsetX);
-            //}
-            /*if(Math.abs(drawPaneYOffset + offsetY) < aDrawPane.getHeight()/2 ||
-                    (drawPaneYOffset > 0 && offsetY > 0) ||
-                    (drawPaneYOffset < 0 && offsetY < 0)){*/
-                line.setTranslateY(yInitTranslateMapGrid.get(line) + offsetY);
-            //}
-        }
 
-        for (AnchorPane dialog : aMainController.getAllDialogs()) {
-            dialog.setTranslateX(xDialogInitTranslateMap.get(dialog) + offsetX);
-            dialog.setTranslateY(yDialogInitTranslateMap.get(dialog) + offsetY);
-        }
+        scrollPane.setHvalue(scrollPane.getHvalue() + xScroll);
+        scrollPane.setVvalue(scrollPane.getVvalue() + yScroll);
+
+        initMoveX = event.getSceneX();
+        initMoveY = event.getSceneY();
+
+//        double offsetX = 0;
+//        double offsetY = 0;
+//        if(event.getSource() instanceof javafx.scene.Node){
+//            offsetX = (event.getSceneX() - initMoveX) * 100/aMainController.getZoomScale();
+//            offsetY = (event.getSceneY() - initMoveY) * 100/aMainController.getZoomScale();
+//            drawPaneXOffset += (initMoveX - event.getSceneX());
+//            drawPaneYOffset += (initMoveY - event.getSceneY());
+//        } else {
+//            offsetX = (event.getX() - initMoveX) * 100/aMainController.getZoomScale();
+//            offsetY = (event.getY() - initMoveY) * 100/aMainController.getZoomScale();
+//            drawPaneXOffset += (initMoveX - event.getX());
+//            drawPaneYOffset += (initMoveY - event.getY());
+//        }
+//
+//        //TODO Limit graph panning
+//
+//        //Drag all nodes
+//        for (GraphElement gElement : elements)
+//        {
+//            //Limit to moving the pane
+//            //If we are inside the limit OR we are moving away from the limit we allow moving
+//            /*if(Math.abs(drawPaneXOffset + offsetX) < aDrawPane.getWidth()/2 ||
+//                    (drawPaneXOffset > 0 && offsetX > 0) ||
+//                    (drawPaneXOffset < 0 && offsetX < 0)){*/
+//                gElement.setTranslateX(xInitTranslateMap.get(gElement) + offsetX);
+//           //}
+//            /*if(Math.abs(drawPaneYOffset+ offsetY) < aDrawPane.getHeight()/2 ||
+//                    (drawPaneYOffset > 0 && offsetY > 0) ||
+//                    (drawPaneYOffset < 0 && offsetY < 0)){*/
+//                gElement.setTranslateY(yInitTranslateMap.get(gElement) + offsetY);
+//            //}
+//        }
+//
+//        for(Line line : aMainController.getGrid()){
+//            /*if(Math.abs(drawPaneXOffset + offsetX) < aDrawPane.getWidth()/2 ||
+//                    (drawPaneXOffset > 0 && offsetX > 0) ||
+//                    (drawPaneXOffset < 0 && offsetX < 0)) {*/
+//                line.setTranslateX(xInitTranslateMapGrid.get(line) + offsetX);
+//            //}
+//            /*if(Math.abs(drawPaneYOffset + offsetY) < aDrawPane.getHeight()/2 ||
+//                    (drawPaneYOffset > 0 && offsetY > 0) ||
+//                    (drawPaneYOffset < 0 && offsetY < 0)){*/
+//                line.setTranslateY(yInitTranslateMapGrid.get(line) + offsetY);
+//            //}
+//        }
+//
+//        for (AnchorPane dialog : aMainController.getAllDialogs()) {
+//            dialog.setTranslateX(xDialogInitTranslateMap.get(dialog) + offsetX);
+//            dialog.setTranslateY(yDialogInitTranslateMap.get(dialog) + offsetY);
+//        }
     }
 
     public void movePaneFinished(MouseEvent event)

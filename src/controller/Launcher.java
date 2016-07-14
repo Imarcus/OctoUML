@@ -30,15 +30,6 @@ public class Launcher extends Application {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        StackPane canvasView = null; //TODO FIX
-        MainController mainController = null;
-        try {
-            loader = new FXMLLoader(getClass().getClassLoader().getResource("view.fxml"));
-            canvasView = (StackPane) loader.load();
-            mainController = (MainController) loader.getController();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
 
         Scene scene = new Scene(tabView, 1000, 800);
         //tabView.prefHeightProperty().bind(scene.heightProperty());

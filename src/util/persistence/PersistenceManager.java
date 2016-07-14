@@ -1,5 +1,10 @@
 package util.persistence;
 
+import edu.tamu.core.sketch.Point;
+import edu.tamu.core.sketch.Stroke;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.PathElement;
 import model.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -160,6 +165,37 @@ public class PersistenceManager {
                 umlElementAssociation.setAttribute("subject", ((AbstractEdge) edge).getId());
                 umlElementAssociation.setAttribute("style", "Association:LineColor.Red=128,LineColor.Green=0,LineColor.Blue=0,Font.Red=0,Font.Green=0,Font.Blue=0,Font.FaceName=Tahoma,Font.Size=8,Font.Bold=0,Font.Italic=0,Font.Underline=0,Font.Strikethrough=0,");
             }
+
+            for(Sketch sketch : pGraph.getAllSketches()){
+                Element sketchElement = doc.createElement("PUML:Sketch");
+                Path sketchPath = sketch.getPath();
+                sketchElement.setAttribute("translateX", Double.toString(sketchPath.getTranslateX()));
+                sketchElement.setAttribute("translateY", Double.toString(sketchPath.getTranslateY()));
+                sketchElement.setAttribute("scaleX", Double.toString(sketchPath.getScaleX()));
+                sketchElement.setAttribute("scaleY", Double.toString(sketchPath.getScaleY()));
+
+                Element pathElement = doc.createElement("Path");
+                for(PathElement el : sketchPath.getElements()){
+                    Element moveTo = doc.createElement("MoveTo");
+                    moveTo.setAttribute("xPoint", Double.toString(((MoveTo)el).getX()));
+                    moveTo.setAttribute("yPoint", Double.toString(((MoveTo)el).getY()));
+                    pathElement.appendChild(moveTo);
+                }
+                sketchElement.appendChild(pathElement);
+
+                Stroke sketchStroke = sketch.getStroke();
+                Element strokeElement = doc.createElement("Stroke");
+                for(Point point : sketchStroke.getPoints()){
+                    Element pointElement = doc.createElement("Point");
+                    pointElement.setAttribute("xPoint", Double.toString(point.getX()));
+                    pointElement.setAttribute("yPoint", Double.toString(point.getY()));
+                    strokeElement.appendChild(pointElement);
+                }
+                sketchElement.appendChild(strokeElement);
+
+                rootElement.appendChild(sketchElement);
+            }
+
 
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();

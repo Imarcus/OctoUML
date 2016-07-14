@@ -168,7 +168,7 @@ public class PersistenceManager {
             }
 
             for(Sketch sketch : pGraph.getAllSketches()){
-                Element sketchElement = doc.createElement("PUML:Sketch");
+                Element sketchElement = doc.createElement("Sketch");
                 Path sketchPath = sketch.getPath();
                 sketchElement.setAttribute("translateX", Double.toString(sketchPath.getTranslateX()));
                 sketchElement.setAttribute("translateY", Double.toString(sketchPath.getTranslateY()));
@@ -353,6 +353,17 @@ public class PersistenceManager {
                 }
                 graph.addEdge(edge);
             }
+
+            nList = doc.getElementsByTagName("Sketch");
+            for(int i = 0; i < nList.getLength(); i++){
+                Element sketchElement = (Element) nList.item(i);
+                Element pathElement = (Element)sketchElement.getChildNodes().item(0);
+                NodeList pathList = pathElement.getChildNodes();
+                for(int j = 0; j < pathList.getLength(); j++){
+                    
+                }
+            }
+
 
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();

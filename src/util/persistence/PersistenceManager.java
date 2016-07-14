@@ -359,7 +359,7 @@ public class PersistenceManager {
 
 
 
-            nList = doc.getElementsByTagName("Sketch");
+            nList = doc.getElementsByTagName("PUML:Sketch");
             for(int i = 0; i < nList.getLength(); i++) {
                 Path sketchPath = new Path();
                 sketchPath.setStrokeWidth(2);
@@ -372,11 +372,11 @@ public class PersistenceManager {
                 for (int j = 0; j < pathList.getLength(); j++) {
                     Element point = (Element) pathList.item(j);
                     if (point.getTagName().equals("MoveTo")) {
-                        sketchPath.getElements().add(new MoveTo(Double.parseDouble(point.getAttribute("pointX")),
-                                Double.parseDouble(point.getAttribute("pointY"))));
+                        sketchPath.getElements().add(new MoveTo(Double.parseDouble(point.getAttribute("xPoint")),
+                                Double.parseDouble(point.getAttribute("yPoint"))));
                     } else if (point.getTagName().equals("LineTo")) {
-                        sketchPath.getElements().add(new LineTo(Double.parseDouble(point.getAttribute("pointX")),
-                                Double.parseDouble(point.getAttribute("pointY"))));
+                        sketchPath.getElements().add(new LineTo(Double.parseDouble(point.getAttribute("xPoint")),
+                                Double.parseDouble(point.getAttribute("yPoint"))));
                     }
                 }
 
@@ -385,8 +385,8 @@ public class PersistenceManager {
                 NodeList strokeList = strokeElement.getChildNodes();
                 for (int j = 0; j < strokeList.getLength(); j++) {
                     Element point = (Element) strokeList.item(j);
-                    stroke.addPoint(new Point(new Point(Double.parseDouble(point.getAttribute("x")),
-                            Double.parseDouble(point.getAttribute("y")))));
+                    stroke.addPoint(new Point(Double.parseDouble(point.getAttribute("xPoint")),
+                            Double.parseDouble(point.getAttribute("yPoint"))));
                 }
                 sketch.setStroke(stroke);
                 graph.addSketch(sketch);

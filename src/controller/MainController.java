@@ -344,10 +344,10 @@ public class MainController {
     public void addSketch(Sketch sketch, boolean isImport){
         initSketchActions(sketch);
         allSketches.add(sketch);
-        graph.addSketch(sketch);
         if(isImport){
             aDrawPane.getChildren().add(sketch.getPath());
         } else {
+            graph.addSketch(sketch);
             undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
         }
     }
@@ -734,7 +734,6 @@ public class MainController {
         getGraphModel().removeSketch(sketch);
         aDrawPane.getChildren().remove(sketch.getPath());
         allSketches.remove(sketch);
-        selectedSketches.remove(sketch);
         command.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
     }
 
@@ -1313,20 +1312,21 @@ public class MainController {
         drawGrid();
     }
 
-    private void load(Graph graph) {
+
+    private void load(Graph pGraph) {
         reset();
 
-        if (graph != null) {
-            this.graph = graph;
-            for (AbstractNode node : this.graph.getAllNodes()) {
+        if (pGraph != null) {
+            this.graph = pGraph;
+            for (AbstractNode node : graph.getAllNodes()) {
                 createNodeView(node);
             }
 
-            for (Edge edge : this.graph.getAllEdges()) {
+            for (Edge edge : graph.getAllEdges()) {
                 addEdgeView((AbstractEdge) edge);
             }
 
-            for(Sketch sketch : this.graph.getAllSketches()){
+            for(Sketch sketch : graph.getAllSketches()){
                 addSketch(sketch, true);
             }
         }

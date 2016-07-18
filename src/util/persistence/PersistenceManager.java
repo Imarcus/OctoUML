@@ -193,7 +193,7 @@ public class PersistenceManager {
                 }
                 sketchElement.appendChild(pathElement);
 
-                Stroke sketchStroke = sketch.getStroke();
+                /*Stroke sketchStroke = sketch.getStroke();
                 Element strokeElement = doc.createElement("Stroke");
                 for(Point point : sketchStroke.getPoints()){
                     Element pointElement = doc.createElement("Point");
@@ -201,7 +201,7 @@ public class PersistenceManager {
                     pointElement.setAttribute("yPoint", Double.toString(point.getY()));
                     strokeElement.appendChild(pointElement);
                 }
-                sketchElement.appendChild(strokeElement);
+                sketchElement.appendChild(strokeElement);*/
 
                 rootElement.appendChild(sketchElement);
             }
@@ -295,7 +295,7 @@ public class PersistenceManager {
             Element umlModel = ((Element)nList.item(0));
             String modelNamespace = umlModel.getAttribute("xmi.id");
 
-            //Add packages
+            //Import packages
             nList = doc.getElementsByTagName("UML:Package");
             for(int i = 0; i < nList.getLength(); i++){
                 Element modelElement = ((Element)nList.item(i));
@@ -311,7 +311,7 @@ public class PersistenceManager {
                 }
             }
 
-            //Add classes
+            //Import classes
             nList = doc.getElementsByTagName("UML:Class");
             for(int i = 0; i < nList.getLength(); i++){
                 Element modelElement = ((Element)nList.item(i));
@@ -327,7 +327,7 @@ public class PersistenceManager {
                 }
             }
 
-            //Add associations
+            //Import associations
             nList = doc.getElementsByTagName("UML:Association");
             for(int i = 0; i < nList.getLength(); i++){
                 Element associationElement = (Element) nList.item(i);
@@ -358,8 +358,8 @@ public class PersistenceManager {
 
 
 
-
-            nList = doc.getElementsByTagName("PUML:Sketch");
+            //Import sketches
+            nList = doc.getElementsByTagName("Sketch");
             for(int i = 0; i < nList.getLength(); i++) {
                 Path sketchPath = new Path();
                 sketchPath.setStrokeWidth(2);
@@ -368,25 +368,22 @@ public class PersistenceManager {
 
                 Element sketchElement = (Element) nList.item(i);
                 Element pathElement = (Element) sketchElement.getChildNodes().item(0);
+                Stroke stroke = new Stroke();
+                Element strokeElement = (Element) sketchElement.getChildNodes().item(1);
                 NodeList pathList = pathElement.getChildNodes();
                 for (int j = 0; j < pathList.getLength(); j++) {
                     Element point = (Element) pathList.item(j);
                     if (point.getTagName().equals("MoveTo")) {
                         sketchPath.getElements().add(new MoveTo(Double.parseDouble(point.getAttribute("xPoint")),
                                 Double.parseDouble(point.getAttribute("yPoint"))));
+                        stroke.addPoint(new Point(Double.parseDouble(point.getAttribute("xPoint")),
+                                Double.parseDouble(point.getAttribute("yPoint"))));
                     } else if (point.getTagName().equals("LineTo")) {
                         sketchPath.getElements().add(new LineTo(Double.parseDouble(point.getAttribute("xPoint")),
                                 Double.parseDouble(point.getAttribute("yPoint"))));
+                        stroke.addPoint(new Point(Double.parseDouble(point.getAttribute("xPoint")),
+                                Double.parseDouble(point.getAttribute("yPoint"))));
                     }
-                }
-
-                Stroke stroke = new Stroke();
-                Element strokeElement = (Element) sketchElement.getChildNodes().item(1);
-                NodeList strokeList = strokeElement.getChildNodes();
-                for (int j = 0; j < strokeList.getLength(); j++) {
-                    Element point = (Element) strokeList.item(j);
-                    stroke.addPoint(new Point(Double.parseDouble(point.getAttribute("xPoint")),
-                            Double.parseDouble(point.getAttribute("yPoint"))));
                 }
                 sketch.setStroke(stroke);
                 graph.addSketch(sketch);

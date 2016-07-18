@@ -26,4 +26,6 @@ public interface NodeView
     public double getWidth();
 
     public double getHeight();
+
+    public void setSelected(boolean selected);
 }

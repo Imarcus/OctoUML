@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 
 
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
 <BorderPane fx:id="aBorderPane" fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">

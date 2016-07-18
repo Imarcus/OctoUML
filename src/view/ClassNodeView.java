@@ -7,14 +7,17 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.ClassNode;
+import util.Constants;
 
 /**
  * Created by chris on 2016-02-16.
@@ -34,6 +37,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     private Separator firstLine;
     private Separator secondLine;
 
+    private Line shortHandleLine;
+    private Line longHandleLine;
+
     private final double TOP_MAX_HEIGHT = 50;
     private final double TOP_HEIGHT_RATIO = 0.2;
     private final int STROKE_WIDTH = 1;
@@ -52,13 +58,15 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         createRectangles();
         changeHeight(node.getHeight());
         changeWidth(node.getWidth());
-
         initLooks();
 
         this.getChildren().add(container);
 
         this.setTranslateX(node.getTranslateX());
         this.setTranslateY(node.getTranslateY());
+        createHandles();
+
+
     }
 
     private void createRectangles(){
@@ -97,6 +105,23 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         operations.setPrefWidth(width);
     }
 
+    private void createHandles(){
+
+        shortHandleLine = new Line();
+        longHandleLine = new Line();
+
+        shortHandleLine.startXProperty().bind(rectangle.widthProperty().subtract(7));
+        shortHandleLine.startYProperty().bind(rectangle.heightProperty().subtract(3));
+        shortHandleLine.endXProperty().bind(rectangle.widthProperty().subtract(3));
+        shortHandleLine.endYProperty().bind(rectangle.heightProperty().subtract(7));
+        longHandleLine.startXProperty().bind(rectangle.widthProperty().subtract(15));
+        longHandleLine.startYProperty().bind(rectangle.heightProperty().subtract(3));
+        longHandleLine.endXProperty().bind(rectangle.widthProperty().subtract(3));
+        longHandleLine.endYProperty().bind(rectangle.heightProperty().subtract(15));
+
+        this.getChildren().addAll(shortHandleLine, longHandleLine);
+    }
+
     private void initVBox(){
         ClassNode node = (ClassNode) getRefNode();
 
@@ -116,7 +141,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
         } else {
-            firstLine.setVisible(false);
+            //firstLine.setVisible(false);
         }
         title.setAlignment(Pos.CENTER);
 
@@ -142,6 +167,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         StackPane.setAlignment(title, Pos.CENTER);
         VBox.setMargin(attributes, new Insets(5,0,0,5));
         VBox.setMargin(operations, new Insets(5,0,0,5));
+    }
+
+    public void setSelected(boolean selected){
+        if(selected){
+            rectangle.setStrokeWidth(2);
+            setStroke(Constants.selected_color);
+        } else {
+            rectangle.setStrokeWidth(1);
+            setStroke(Color.BLACK);
+        }
     }
 
     public void setStrokeWidth(double scale){

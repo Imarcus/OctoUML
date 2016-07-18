@@ -91,7 +91,7 @@ public class PersistenceManager {
             umlModel.setAttribute("namespace", "UMLModel.2");
             umlModel.setAttribute("isSpecification", "false");
             umlModel.setAttribute("visibility", "public");
-            umlModel.setAttribute("name", "Design Model");
+            umlModel.setAttribute("name", pGraph.getName());
             umlModel.setAttribute("xmi.id", pGraph.getId());
             Element umlNamespace = doc.createElement("UML:Namespace.ownedElement");
             umlModel.appendChild(umlNamespace);
@@ -100,7 +100,7 @@ public class PersistenceManager {
             xmiContent.appendChild(umlDiagram);
             umlDiagram.setAttribute("name", "UMLExport");
             umlDiagram.setAttribute("xmi.id", "UMLDIAGRAMID");
-            umlDiagram.setAttribute("owner", "UMLModel.3"); //xmi.id in umlModel
+            umlDiagram.setAttribute("owner", pGraph.getId()); //xmi.id in umlModel
             umlDiagram.setAttribute("toolName", "PenguinUML");
             umlDiagram.setAttribute("diagramType", "ClassDiagram");
             Element umlDiagramElement = doc.createElement("UML:Diagram.element");
@@ -247,6 +247,7 @@ public class PersistenceManager {
 
             NodeList nList = doc.getElementsByTagName("UML:Model");
             Element umlModel = ((Element)nList.item(0));
+            graph.setName(umlModel.getAttribute("name"));
             String modelNamespace = umlModel.getAttribute("xmi.id");
 
             //Add packages

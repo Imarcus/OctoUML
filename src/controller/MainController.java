@@ -1088,12 +1088,13 @@ public class MainController {
     public void handleMenuActionSave() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Diagram");
-        File file = fileChooser.showSaveDialog(getStage());
-        if (graph.getName().equals("")) {
+        if (!graph.getName().equals("")) {
             fileChooser.setInitialFileName(graph.getName() + ".xml");
         } else {
             fileChooser.setInitialFileName("mydiagram.xml");
         }
+        File file = fileChooser.showSaveDialog(getStage());
+        graph.setName(file.getName());
         PersistenceManager.exportXMI(graph, file.getAbsolutePath());
     }
 

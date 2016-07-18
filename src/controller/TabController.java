@@ -59,7 +59,7 @@ public class TabController {
         Tab tab = new Tab();
         tab.setContent(canvasView);
         tabMap.put(tab, mainController);
-        tab.setText("Tab " + tabMap.size());
+        tab.setText("Diagram " + tabMap.size());
 
         tabPane.getTabs().add(tab);
         mainController.setStage(stage);
@@ -84,8 +84,10 @@ public class TabController {
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSave();
     }
     public void handleMenuActionLoad() {
-        addTab();
-        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionLoad();
+        Tab tab = addTab();
+        tabPane.getSelectionModel().select(tab);
+        tabMap.get(tab).handleMenuActionLoad();
+        tab.setText(tabMap.get(tab).getGraphModel().getName());
     }
     public void handleMenuActionNew() {
         Tab tab = addTab();

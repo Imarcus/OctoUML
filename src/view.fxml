@@ -5,13 +5,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Label?>
-<?import java.net.URL?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.HBox?>
-
-
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
 <BorderPane fx:id="aBorderPane" fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
     <top>
@@ -49,14 +44,11 @@
         </ToolBar>
     </bottom>
     <center>
-        <ScrollPane fx:id="aScrollPane" pannable="true" prefViewportHeight="800.0" prefViewportWidth="1000.0" BorderPane.alignment="CENTER">
+        <ScrollPane fx:id="aScrollPane" pannable="true" BorderPane.alignment="CENTER">
             <content>
                 <Pane fx:id="aDrawPane" prefHeight="8000.0" prefWidth="8000.0">
                 </Pane>
             </content>
         </ScrollPane>
     </center>
-    <!--<padding>
-        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-    </padding>-->
 </BorderPane>

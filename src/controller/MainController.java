@@ -1347,10 +1347,10 @@ public class MainController {
     }
 
     private void drawGrid() {
-        for (int i = 0; i < 10000; i += 20) {
-            Line line1 = new Line(i, 0, i, 18000);
+        for (int i = 0; i < 8000; i += 20) {
+            Line line1 = new Line(i, 0, i, 8000);
             line1.setStroke(Color.LIGHTGRAY);
-            Line line2 = new Line(0, i, 15000, i);
+            Line line2 = new Line(0, i, 8000, i);
             line2.setStroke(Color.LIGHTGRAY);
             grid.add(line1);
             grid.add(line2);

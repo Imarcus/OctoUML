@@ -192,17 +192,6 @@ public class PersistenceManager {
 
                 }
                 sketchElement.appendChild(pathElement);
-
-                /*Stroke sketchStroke = sketch.getStroke();
-                Element strokeElement = doc.createElement("Stroke");
-                for(Point point : sketchStroke.getPoints()){
-                    Element pointElement = doc.createElement("Point");
-                    pointElement.setAttribute("xPoint", Double.toString(point.getX()));
-                    pointElement.setAttribute("yPoint", Double.toString(point.getY()));
-                    strokeElement.appendChild(pointElement);
-                }
-                sketchElement.appendChild(strokeElement);*/
-
                 rootElement.appendChild(sketchElement);
             }
 

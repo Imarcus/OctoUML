@@ -114,11 +114,11 @@ public class MainController {
     @FXML
     private Pane aDrawPane;
     @FXML
-    private CheckMenuItem umlMenuItem, sketchesMenuItem, mouseMenuItem, gridMenuItem;
-    @FXML
     private Slider zoomSlider;
     @FXML
     private BorderPane aBorderPane;
+    @FXML
+    private ScrollPane aScrollPane;
 
     ContextMenu aContextMenu;
     double orgSceneX, orgSceneY;
@@ -134,6 +134,12 @@ public class MainController {
         initContextMenu();
         initZoomSlider();
 
+        // center the scroll contents.
+        aScrollPane.setHvalue(aScrollPane.getHmin() + (aScrollPane.getHmax() - aScrollPane.getHmin()) / 2);
+        aScrollPane.setVvalue(aScrollPane.getVmin() + (aScrollPane.getVmax() - aScrollPane.getVmin()) / 2);
+        aScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        aScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
         graph = new Graph();
 
         createNodeController = new CreateNodeController(aDrawPane, this);
@@ -148,7 +154,7 @@ public class MainController {
         undoManager = new UndoManager();
 
         drawGrid();
-        mouseMenuItem.setSelected(mouseCreationActivated);
+        //mouseMenuItem.setSelected(mouseCreationActivated);
     }
 
     public void addDialog(AnchorPane dialog) {
@@ -953,7 +959,6 @@ public class MainController {
         deleteBtn.setOnAction(event -> deleteSelected());
 
         recognizeBtn.setOnAction(event -> recognize());
-
     }
 
     void setButtonClicked(Button b) {
@@ -1018,7 +1023,7 @@ public class MainController {
                 aDrawPane.getChildren().remove(edgView);
             }
             setButtons(true, umlButtons);
-            umlMenuItem.setSelected(false);
+            //umlMenuItem.setSelected(false);
             umlVisible = false;
         } else {
             for (AbstractNodeView nodeView : allNodeViews) {
@@ -1028,7 +1033,7 @@ public class MainController {
                 aDrawPane.getChildren().add(edgView);
             }
             setButtons(false, umlButtons);
-            umlMenuItem.setSelected(true);
+            //umlMenuItem.setSelected(true);
             umlVisible = true;
             sketchesToFront();
         }
@@ -1042,7 +1047,7 @@ public class MainController {
 
             setButtons(true, Arrays.asList(drawBtn));
 
-            sketchesMenuItem.setSelected(false);
+            //sketchesMenuItem.setSelected(false);
             sketchesVisible = false;
         } else {
             for (Sketch sketch : allSketches) {
@@ -1050,7 +1055,7 @@ public class MainController {
             }
 
             setButtons(false, Arrays.asList(drawBtn));
-            sketchesMenuItem.setSelected(true);
+            //sketchesMenuItem.setSelected(true);
             sketchesVisible = true;
         }
     }
@@ -1080,7 +1085,7 @@ public class MainController {
 
     public void handleMenuActionMouse() {
         mouseCreationActivated = !mouseCreationActivated;
-        mouseMenuItem.setSelected(mouseCreationActivated);
+        //mouseMenuItem.setSelected(mouseCreationActivated);
     }
 
     public void handleMenuActionExit() {
@@ -1090,12 +1095,13 @@ public class MainController {
     public void handleMenuActionSave() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Diagram");
-        File file = fileChooser.showSaveDialog(getStage());
-        if (graph.getName().equals("")) {
+        if (!graph.getName().equals("")) {
             fileChooser.setInitialFileName(graph.getName() + ".xml");
         } else {
             fileChooser.setInitialFileName("mydiagram.xml");
         }
+        File file = fileChooser.showSaveDialog(getStage());
+        graph.setName(file.getName());
         PersistenceManager.exportXMI(graph, file.getAbsolutePath());
     }
 
@@ -1365,7 +1371,7 @@ public class MainController {
             line.setVisible(visible);
         }
         isGridVisible = visible;
-        gridMenuItem.setSelected(visible);
+        //gridMenuItem.setSelected(visible);
     }
 
     public boolean isGridVisible() {
@@ -1437,6 +1443,9 @@ public class MainController {
         return undoManager;
     }
 
+    public ScrollPane getScrollPane(){
+        return aScrollPane;
+    }
     //------------------------------Insert Image ----------------------------------
 
     public void handleMenuActionInsert (){

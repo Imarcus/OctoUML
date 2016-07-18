@@ -141,7 +141,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
         } else {
-            firstLine.setVisible(false);
+            //firstLine.setVisible(false);
         }
         title.setAlignment(Pos.CENTER);
 

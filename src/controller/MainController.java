@@ -15,6 +15,8 @@ import javafx.scene.shape.Path;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
+import network.Client;
+import network.Server;
 import util.Constants;
 import util.commands.*;
 import util.insertIMG.*;
@@ -26,11 +28,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import util.persistence.PersistenceManager;
 import view.*;
+
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.*;
 import java.awt.geom.Point2D;
-import java.io.File;
-
-
 
 
 /**
@@ -1120,6 +1123,22 @@ public class MainController {
 
     public void handleMenuActionNew() {
         reset();
+    }
+
+    public void handleMenuActionServer(){
+        try
+        {
+            Thread t = new Server(4444);
+            t.start();
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void handleMenuActionClient(){
+            Thread t = new Client("localhost",4444);
+            t.start();
     }
 
 

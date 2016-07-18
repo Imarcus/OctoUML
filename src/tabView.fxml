@@ -16,6 +16,8 @@
                     <MenuItem text="New" onAction="#handleMenuActionNew"/>
                     <MenuItem text="Open" onAction="#handleMenuActionLoad"/>
                     <MenuItem text="Save" onAction="#handleMenuActionSave"/>
+                    <MenuItem text="Server" onAction="#handleMenuActionServer"/>
+                    <MenuItem text="Client" onAction="#handleMenuActionClient"/>
                     <SeparatorMenuItem/>
                     <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
                     <SeparatorMenuItem/>

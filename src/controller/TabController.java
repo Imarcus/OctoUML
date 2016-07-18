@@ -94,4 +94,12 @@ public class TabController {
         tabPane.getSelectionModel().select(tab);
     }
 
+    public void handleMenuActionServer(){
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionServer();
+    }
+
+    public void handleMenuActionClient(){
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionClient();
+    }
+
 }

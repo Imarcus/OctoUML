@@ -61,9 +61,6 @@ public class GraphController {
         ScrollPane scrollPane = aMainController.getScrollPane();
         double xScroll =  (initMoveX - event.getSceneX())/8000; //8000 is the size of aDrawPane set in view.fxml
         double yScroll = (initMoveY - event.getSceneY())/8000;
-        System.out.println("X:" +(xScroll));
-        System.out.println("Y:" +(yScroll));
-        System.out.println("------");
 
 
 

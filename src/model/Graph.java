@@ -2,9 +2,12 @@ package model;
 
 import javafx.geometry.Point2D;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 /**
  * Model-representation of a Graph.
@@ -13,6 +16,8 @@ public class Graph implements Serializable {
 
     private static int objectCount = 0;
     private int id = 0;
+
+    private PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
     private List<AbstractNode> allNodes = new ArrayList<>();
     private List<Edge> allEdges = new ArrayList<>();
@@ -26,6 +31,7 @@ public class Graph implements Serializable {
 
     public void setName(String name){
         this.name = name;
+
     }
 
     public String getName(){
@@ -48,6 +54,7 @@ public class Graph implements Serializable {
                 }
             }
         }
+        changes.firePropertyChange("AddNode", null, null);
         return allNodes.add(n);
     }
 
@@ -57,6 +64,7 @@ public class Graph implements Serializable {
      */
     public boolean addEdge(Edge e){
         assert e != null;
+        changes.firePropertyChange("AddEdge", null, null);
         return allEdges.add(e);
     }
 
@@ -66,6 +74,7 @@ public class Graph implements Serializable {
      */
     public void addSketch(Sketch s) {
         assert s != null;
+        changes.firePropertyChange("AddSketch", null, null);
         allSketches.add(s);
     }
 
@@ -86,6 +95,7 @@ public class Graph implements Serializable {
      */
     public boolean removeNode(Node n) {
         assert n != null;
+        changes.firePropertyChange("RemoveNode", null, null);
         return allNodes.remove(n);
     }
 
@@ -96,6 +106,7 @@ public class Graph implements Serializable {
      */
     public boolean removeEdge(Edge e) {
         assert e != null;
+        changes.firePropertyChange("RemoveEdge", null, null);
         return allEdges.remove(e);
     }
 
@@ -186,5 +197,13 @@ public class Graph implements Serializable {
 
     public String getId(){
         return "GRAPH_" + id;
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        changes.addPropertyChangeListener(l);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        changes.removePropertyChangeListener(l);
     }
 }

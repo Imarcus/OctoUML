@@ -35,18 +35,16 @@ public class Server extends Thread {
     public void run()
     {
         try {
+            System.out.println("Waiting for client on port " +
+                    serverSocket.getLocalPort() + "...");
+            Socket socket = null;
 
             while (true) {
-
-                System.out.println("Waiting for client on port " +
-                        serverSocket.getLocalPort() + "...");
-                Socket socket = null;
                 try {
                     socket = serverSocket.accept();
                 } catch (IOException e) {
                     System.out.println("Can't accept client connection. ");
                 }
-
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                 Document doc = PersistenceManager.createXmi(graph);
                 StringWriter sw = new StringWriter();
@@ -70,6 +68,7 @@ public class Server extends Thread {
                 out.close();
                 socket.close();
             }
+
         } catch(SocketTimeoutException s)
         {
             System.out.println("Socket timed out!");

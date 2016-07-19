@@ -1116,7 +1116,7 @@ public class MainController {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML", "*.xml"));
         Graph graph = null;
         if (file != null) {
-            graph = PersistenceManager.importXMI(file.getAbsolutePath());
+            graph = PersistenceManager.importXMIFromPath(file.getAbsolutePath());
         }
         load(graph);
     }
@@ -1128,8 +1128,15 @@ public class MainController {
     public void handleMenuActionServer(){
         try
         {
-            Thread t = new Server(4444);
-            t.start();
+            TextInputDialog dialog = new TextInputDialog("4444");
+            dialog.setTitle("Server Port");
+            dialog.setHeaderText("Choose server port to create");
+            dialog.setContentText("Port:");
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()){
+                Thread t = new Server(Integer.parseInt(result.get()), graph);
+                t.start();            }
+
         }catch(IOException e)
         {
             e.printStackTrace();
@@ -1137,8 +1144,15 @@ public class MainController {
     }
 
     public void handleMenuActionClient(){
-            Thread t = new Client("localhost",4444);
+        TextInputDialog dialog = new TextInputDialog("4444");
+        dialog.setTitle("Server Port");
+        dialog.setHeaderText("Choose server port to connect");
+        dialog.setContentText("Port:");
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            Thread t = new Client("localhost", Integer.parseInt(result.get()), this);
             t.start();
+        }
     }
 
 
@@ -1338,7 +1352,7 @@ public class MainController {
     }
 
 
-    private void load(Graph pGraph) {
+    public void load(Graph pGraph) {
         reset();
 
         if (pGraph != null) {

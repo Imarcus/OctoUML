@@ -7,11 +7,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 /**
  * Created by marcusisaksson on 2016-02-12.
  */
-public class ClassNode extends AbstractNode
+public class ClassNode extends AbstractNode implements Serializable
 {
     private SimpleStringProperty attributes = new SimpleStringProperty();
     private SimpleStringProperty operations = new SimpleStringProperty();

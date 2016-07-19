@@ -95,10 +95,12 @@ public class TabController {
     }
 
     public void handleMenuActionServer(){
+        addTab();
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionServer();
     }
 
     public void handleMenuActionClient(){
+        addTab();
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionClient();
     }
 

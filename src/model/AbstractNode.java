@@ -10,6 +10,7 @@ import java.io.Serializable;
  */
 public abstract class AbstractNode implements Node, Serializable
 {
+    private static final long serialVersionUID = 1L;
     private static int objectCount = 0; //Used to ID instance
     private int id = 0;
 

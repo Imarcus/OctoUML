@@ -5,7 +5,7 @@ import model.AbstractEdge;
 /**
  * Created by chalmers on 2016-07-07.
  */
-public class DirectionChangeEdgeCommand implements Command{
+public class DirectionChangeEdgeCommand implements Command {
 
     AbstractEdge aEdge;
     AbstractEdge.Direction aOldDirection;

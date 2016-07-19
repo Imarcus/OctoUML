@@ -3,6 +3,8 @@ package model;
 import javafx.beans.property.*;
 import javafx.geometry.Rectangle2D;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
 /**
@@ -13,6 +15,8 @@ public abstract class AbstractNode implements Node, Serializable
     private static final long serialVersionUID = 1L;
     private static int objectCount = 0; //Used to ID instance
     private int id = 0;
+
+    protected PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
     private final double MIN_WIDTH = 80;
     private final double MIN_HEIGHT = 70;
@@ -45,6 +49,7 @@ public abstract class AbstractNode implements Node, Serializable
 
     public void setIsChild(boolean pIsChild){
         aIsChild = pIsChild;
+        changes.firePropertyChange("Change", null, null);
     }
 
     public boolean isChild(){
@@ -53,10 +58,12 @@ public abstract class AbstractNode implements Node, Serializable
 
     public void setX(double x){
         this.x.setValue(x);
+        changes.firePropertyChange("Change", null, null);
     }
 
     public void setY(double y){
         this.y.setValue(y);
+        changes.firePropertyChange("Change", null, null);
     }
 
     /**
@@ -65,6 +72,7 @@ public abstract class AbstractNode implements Node, Serializable
      */
     public void setHeight(double height){
         this.height.setValue(height < MIN_HEIGHT ? MIN_HEIGHT : height);
+        changes.firePropertyChange("Change", null, null);
     }
 
     /**
@@ -73,6 +81,7 @@ public abstract class AbstractNode implements Node, Serializable
      */
     public void setWidth(double width){
         this.width.setValue(width < MIN_WIDTH ? MIN_WIDTH : width);
+        changes.firePropertyChange("Change", null, null);
     }
 
     public DoubleProperty xProperty() {
@@ -159,26 +168,31 @@ public abstract class AbstractNode implements Node, Serializable
 
     public void setTitle(String aTitle) {
         this.aTitle.setValue(aTitle);
+        changes.firePropertyChange("Change", null, null);
     }
 
     @Override
     public void setTranslateX(double x) {
         translateX.setValue(x);
+        changes.firePropertyChange("Change", null, null);
     }
 
     @Override
     public void setTranslateY(double y) {
         translateY.setValue(y);
+        changes.firePropertyChange("Change", null, null);
     }
 
     @Override
     public void setScaleX(double x) {
         scaleX.setValue(x);
+        changes.firePropertyChange("Change", null, null);
     }
 
     @Override
     public void setScaleY(double y) {
         scaleY.setValue(y);
+        changes.firePropertyChange("Change", null, null);
     }
 
     public abstract AbstractNode copy();
@@ -197,5 +211,13 @@ public abstract class AbstractNode implements Node, Serializable
 
     public String getId(){
         return "NODE_" + id;
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        changes.addPropertyChangeListener(l);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        changes.removePropertyChangeListener(l);
     }
 }

@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
 
+import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 /**
@@ -32,11 +33,12 @@ public class ClassNode extends AbstractNode implements Serializable
     }
 
     public void setAttributes(String pAttributes){
-
+        changes.firePropertyChange("Change", null, null);
         attributes.setValue(pAttributes);
     }
 
     public void setOperations(String pOperations){
+        changes.firePropertyChange("Change", null, null);
         operations.setValue(pOperations);
     }
 

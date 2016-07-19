@@ -2,6 +2,7 @@ package model;
 
 import javafx.geometry.Point2D;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
@@ -12,7 +13,7 @@ import java.util.Observable;
 /**
  * Model-representation of a Graph.
  */
-public class Graph implements Serializable {
+public class Graph implements Serializable, PropertyChangeListener {
 
     private static int objectCount = 0;
     private int id = 0;
@@ -54,6 +55,7 @@ public class Graph implements Serializable {
                 }
             }
         }
+        n.addPropertyChangeListener(this);
         changes.firePropertyChange("AddNode", null, null);
         return allNodes.add(n);
     }
@@ -205,5 +207,10 @@ public class Graph implements Serializable {
 
     public void removePropertyChangeListener(PropertyChangeListener l) {
         changes.removePropertyChangeListener(l);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        changes.firePropertyChange(evt);
     }
 }

@@ -94,4 +94,8 @@ public class TabController {
         tabPane.getSelectionModel().select(tab);
     }
 
+    public void handleMenuActionImage(){
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionImage();
+
+    }
 }

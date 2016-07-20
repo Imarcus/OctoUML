@@ -1,16 +1,10 @@
 package network;
 
+import com.google.gson.Gson;
 import controller.MainController;
 import javafx.application.Platform;
+import model.ClassNode;
 import model.Graph;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import util.persistence.PersistenceManager;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.net.*;
 import java.io.*;
 
@@ -30,31 +24,20 @@ public class Client extends Thread {
     public void run() {
         try {
             Socket socket = new Socket(serverName, port);
-
-            while (true) {
-                //System.out.println("Connecting to " + serverName + " on port " + port);
-
-                DataInputStream dataInput = new DataInputStream(socket.getInputStream());
-                String graph = dataInput.readUTF();
-                //System.out.println(graph);
-                try {
-                    DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                    InputSource is = new InputSource();
-                    is.setCharacterStream(new StringReader(graph));
-
-                    final Document doc = db.parse(is);
-                    Platform.runLater(() -> { mainController.load(PersistenceManager.importXMI(doc));});
-
-                } catch (ParserConfigurationException e) {
-                    e.printStackTrace();
-                } catch (SAXException e) {
-                    e.printStackTrace();
+            //System.out.println("Connecting to " + serverName + " on port " + port);
+            while(true){
+                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String input = br.readLine();
+                if(input != null){
+                    System.out.println(input);
+                    Gson gson = new Gson();
+                    ClassNode newNode = gson.fromJson(input, ClassNode.class);
+                    Platform.runLater(() -> mainController.createNodeView(newNode));
                 }
-
-
-                //socket.close();
             }
-        }   catch(IOException e) {
+            //socket.close();
+
+        } catch(IOException e) {
             e.printStackTrace();
         }
 

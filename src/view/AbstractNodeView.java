@@ -86,13 +86,13 @@ public abstract class AbstractNodeView extends Group implements NodeView, Proper
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if(evt.getNewValue().equals(Constants.changeNodeTranslateX)) {
+        if(evt.getPropertyName().equals(Constants.changeNodeTranslateX)) {
             setTranslateX((double)evt.getNewValue());
-        } else if(evt.getNewValue().equals(Constants.changeNodeTranslateY)) {
+        } else if(evt.getPropertyName().equals(Constants.changeNodeTranslateY)) {
             setTranslateY((double)evt.getNewValue());
-        } else if(evt.getNewValue().equals(Constants.changeNodeScaleX)) {
+        } else if(evt.getPropertyName().equals(Constants.changeNodeScaleX)) {
             setScaleX((double)evt.getNewValue());
-        } else if(evt.getNewValue().equals(Constants.changeNodeScaleY)) {
+        } else if(evt.getPropertyName().equals(Constants.changeNodeScaleY)) {
             setScaleY((double)evt.getNewValue());
         }
     }

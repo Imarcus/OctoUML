@@ -161,6 +161,7 @@ public class PackageNodeView extends AbstractNodeView {
     }
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        super.propertyChange(evt);
         if (evt.getPropertyName().equals(Constants.changeNodeX)) {
             setX((double) evt.getNewValue());
         } else if (evt.getPropertyName().equals(Constants.changeNodeY)) {

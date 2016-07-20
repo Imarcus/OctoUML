@@ -15,6 +15,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by Marcus on 2016-07-18.
@@ -53,40 +54,17 @@ public class Server extends Thread implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-
-
         if(clientSocket != null){
-
-            //try {
-                if(evt.getPropertyName().equals("AddNode")){
-                    Gson gson = new Gson();
-                    ClassNode node = (ClassNode) evt.getNewValue();
-                    //AddNode:x=X:y=Y:width=WIDTH:height=HEIGHT:title=TITLE:attributes=ATTRIBUTES:operations=OPERATIONS
-                    String data = gson.toJson(node);
-                    System.out.println(data);
-                }
-                /*DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
-                Document doc = PersistenceManager.createXmi(graph);
-                StringWriter sw = new StringWriter();
-                try {
-                    TransformerFactory tf = TransformerFactory.newInstance();
-                    Transformer transformer = tf.newTransformer();
-                    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-                    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-                    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-                    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-                    transformer.transform(new DOMSource(doc), new StreamResult(sw));
-                } catch (TransformerConfigurationException e){
-                    e.printStackTrace();
-                } catch (TransformerException e) {
-                    e.printStackTrace();
-                }
-                String data = sw.toString();
-
-                out.writeUTF(data);
-                out.flush();
-                //out.close();*/
-            /*} catch (IOException e) {
+            String data = "";
+            if(evt.getPropertyName().equals("AddNode")) {
+                Gson gson = new Gson();
+                ClassNode node = (ClassNode) evt.getNewValue();
+                data = gson.toJson(node);
+            }
+            try(OutputStreamWriter out = new OutputStreamWriter(
+                    clientSocket.getOutputStream(), StandardCharsets.UTF_8)) {
+                out.write(data);
+            } catch (IOException e) {
                 try {
                     clientSocket.close();
                     clientSocket = null;
@@ -94,7 +72,7 @@ public class Server extends Thread implements PropertyChangeListener {
                     System.out.println("Couldn't close client socket");
                 }
                 e.printStackTrace();
-            }*/
+            }
         }
     }
 }

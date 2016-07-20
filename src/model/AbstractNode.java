@@ -17,7 +17,7 @@ public abstract class AbstractNode implements Node, Serializable
     private static int objectCount = 0; //Used to ID instance
     private int id = 0;
 
-    protected PropertyChangeSupport changes = new PropertyChangeSupport(this);
+    protected transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
     private final double MIN_WIDTH = 80;
     private final double MIN_HEIGHT = 70;

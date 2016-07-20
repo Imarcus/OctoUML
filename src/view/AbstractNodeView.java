@@ -5,11 +5,15 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import model.AbstractNode;
+import util.Constants;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * Created by marcusisaksson on 2016-02-17.
  */
-public abstract class AbstractNodeView extends Group implements NodeView {
+public abstract class AbstractNodeView extends Group implements NodeView, PropertyChangeListener {
 
     private static int objectCounter = 0;
 
@@ -28,20 +32,19 @@ public abstract class AbstractNodeView extends Group implements NodeView {
         setY(refNode.getY());
         setHeight(refNode.getHeight());
         setWidth(refNode.getWidth());
-
-        setChangeListeners();
+        refNode.addPropertyChangeListener(this);
+        //setChangeListeners();
     }
 
     protected AbstractNode getRefNode(){
         return refNode;
     }
 
-    //TODO Shouldn't be used, as this should only get changes from model.
+
     public void setX(double x) {
         this.x = x;
     }
 
-    //TODO Shouldn't be used, as this should only get changes from model.
     public void setY(double y) {
         this.y = y;
     }
@@ -81,8 +84,21 @@ public abstract class AbstractNodeView extends Group implements NodeView {
 
     public abstract Bounds getBounds();
 
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(evt.getNewValue().equals(Constants.changeNodeTranslateX)) {
+            setTranslateX((double)evt.getNewValue());
+        } else if(evt.getNewValue().equals(Constants.changeNodeTranslateY)) {
+            setTranslateY((double)evt.getNewValue());
+        } else if(evt.getNewValue().equals(Constants.changeNodeScaleX)) {
+            setScaleX((double)evt.getNewValue());
+        } else if(evt.getNewValue().equals(Constants.changeNodeScaleY)) {
+            setScaleY((double)evt.getNewValue());
+        }
+    }
+
     //TODO Maybe needs some Nullchecks etc?
-    private void setChangeListeners() {
+   /* private void setChangeListeners() {
 
         refNode.translateXProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -111,7 +127,7 @@ public abstract class AbstractNodeView extends Group implements NodeView {
                 setScaleY(newValue.doubleValue());
             }
         });
-    }
+    }*/
 }
 
 

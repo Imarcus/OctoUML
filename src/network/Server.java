@@ -1,5 +1,7 @@
 package network;
 
+import com.google.gson.Gson;
+import model.ClassNode;
 import model.Graph;
 import org.w3c.dom.Document;
 import util.persistence.PersistenceManager;
@@ -12,7 +14,7 @@ import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
+import java.net.SocketException;
 
 /**
  * Created by Marcus on 2016-07-18.
@@ -21,7 +23,7 @@ public class Server extends Thread implements PropertyChangeListener {
 
     private ServerSocket serverSocket;
     private Graph graph;
-    private Socket socket = null;
+    private Socket clientSocket = null;
 
 
 
@@ -33,7 +35,6 @@ public class Server extends Thread implements PropertyChangeListener {
             System.out.println("Can't setup server on this port number: " + port);
         }
         graph = pGraph;
-        //serverSocket.setSoTimeout(10000);
     }
 
     public void run()
@@ -43,7 +44,7 @@ public class Server extends Thread implements PropertyChangeListener {
         try {
             System.out.println("Waiting for client on port " +
                     serverSocket.getLocalPort() + "...");
-            socket = serverSocket.accept();
+            clientSocket = serverSocket.accept();
         } catch (IOException e) {
             System.out.println("Can't accept client connection. ");
         }
@@ -52,9 +53,19 @@ public class Server extends Thread implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if(socket != null){
-            try {
-                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+
+        if(clientSocket != null){
+
+            //try {
+                if(evt.getPropertyName().equals("AddNode")){
+                    Gson gson = new Gson();
+                    ClassNode node = (ClassNode) evt.getNewValue();
+                    //AddNode:x=X:y=Y:width=WIDTH:height=HEIGHT:title=TITLE:attributes=ATTRIBUTES:operations=OPERATIONS
+                    String data = gson.toJson(node);
+                    System.out.println(data);
+                }
+                /*DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
                 Document doc = PersistenceManager.createXmi(graph);
                 StringWriter sw = new StringWriter();
                 try {
@@ -74,10 +85,16 @@ public class Server extends Thread implements PropertyChangeListener {
 
                 out.writeUTF(data);
                 out.flush();
-                out.close();
-            } catch (IOException e) {
+                //out.close();*/
+            /*} catch (IOException e) {
+                try {
+                    clientSocket.close();
+                    clientSocket = null;
+                } catch (IOException x) {
+                    System.out.println("Couldn't close client socket");
+                }
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 }

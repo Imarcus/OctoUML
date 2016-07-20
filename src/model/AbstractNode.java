@@ -2,6 +2,7 @@ package model;
 
 import javafx.beans.property.*;
 import javafx.geometry.Rectangle2D;
+import util.Constants;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -20,36 +21,36 @@ public abstract class AbstractNode implements Node, Serializable
 
     private final double MIN_WIDTH = 80;
     private final double MIN_HEIGHT = 70;
-    private StringProperty aTitle = new SimpleStringProperty();
-    private DoubleProperty x = new SimpleDoubleProperty();
-    private DoubleProperty y = new SimpleDoubleProperty();
-    private DoubleProperty width = new SimpleDoubleProperty();
-    private DoubleProperty height = new SimpleDoubleProperty();
-    private DoubleProperty translateX = new SimpleDoubleProperty();
-    private DoubleProperty translateY = new SimpleDoubleProperty();
-    private DoubleProperty scaleX = new SimpleDoubleProperty();
-    private DoubleProperty scaleY = new SimpleDoubleProperty();
+    private String aTitle;
+    private double x;
+    private double y;
+    private double width;
+    private double height;
+    private double translateX;
+    private double translateY;
+    private double scaleX;
+    private double scaleY;
     private boolean aIsChild;
 
     public AbstractNode(double x, double y, double width, double height){
-        this.x.setValue(x);
-        this.y.setValue(y);
+        this.x = x;
+        this.y = y;
 
         //Don't accept nodes with size less than MIN_WIDTH * MIN_HEIGHT.
-        this.width.setValue(width < MIN_WIDTH ? MIN_WIDTH : width);
-        this.height.setValue(height < MIN_HEIGHT ? MIN_HEIGHT : height);
+        this.width = width < MIN_WIDTH ? MIN_WIDTH : width;
+        this.height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
 
-        translateX.setValue(x);
-        translateY.setValue(y);
-        scaleX.setValue(1.0d);
-        scaleY.setValue(1.0d);
+        translateX = x;
+        translateY = y;
+        scaleX = 1.0d;
+        scaleY = 1.0d;
 
         id = ++objectCount;
     }
 
     public void setIsChild(boolean pIsChild){
         aIsChild = pIsChild;
-        changes.firePropertyChange("Change", null, null);
+        changes.firePropertyChange(Constants.changeNodeIsChild, null, aIsChild);
     }
 
     public boolean isChild(){
@@ -57,13 +58,13 @@ public abstract class AbstractNode implements Node, Serializable
     }
 
     public void setX(double x){
-        this.x.setValue(x);
-        changes.firePropertyChange("Change", null, null);
+        this.x = x;
+        changes.firePropertyChange(Constants.changeNodeX, null, this.x);
     }
 
     public void setY(double y){
-        this.y.setValue(y);
-        changes.firePropertyChange("Change", null, null);
+        this.y = y;
+        changes.firePropertyChange(Constants.changeNodeY, null, this.y);
     }
 
     /**
@@ -71,8 +72,8 @@ public abstract class AbstractNode implements Node, Serializable
      * @param height
      */
     public void setHeight(double height){
-        this.height.setValue(height < MIN_HEIGHT ? MIN_HEIGHT : height);
-        changes.firePropertyChange("Change", null, null);
+        this.height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
+        changes.firePropertyChange(Constants.changeNodeHeight, null, this.height);
     }
 
     /**
@@ -80,120 +81,84 @@ public abstract class AbstractNode implements Node, Serializable
      * @param width
      */
     public void setWidth(double width){
-        this.width.setValue(width < MIN_WIDTH ? MIN_WIDTH : width);
-        changes.firePropertyChange("Change", null, null);
+        this.width = width < MIN_WIDTH ? MIN_WIDTH : width;
+        changes.firePropertyChange(Constants.changeNodeWidth, null, this.width);
     }
 
-    public DoubleProperty xProperty() {
-        return x;
-    }
-
-    public DoubleProperty yProperty() {
-        return y;
-    }
-
-    public DoubleProperty widthProperty() {
-        return width;
-    }
-
-    public DoubleProperty heightProperty() {
-        return height;
-    }
-
-    public StringProperty titleProperty() {
-        return aTitle;
-    }
-
-    public double getTranslateX() {
-        return translateX.get();
-    }
-
-    public DoubleProperty translateXProperty() {
-        return translateX;
-    }
-
-    public double getTranslateY() {
-        return translateY.get();
-    }
-
-    public DoubleProperty translateYProperty() {
-        return translateY;
-    }
-
-    public double getScaleX() {
-        return scaleX.get();
-    }
-
-    public DoubleProperty scaleXProperty() {
-        return scaleX;
-    }
-
-    public double getScaleY() {
-        return scaleY.get();
-    }
-
-    public DoubleProperty scaleYProperty() {
-        return scaleY;
-    }
-
-
-    @Override
-    public double getX() {
-        return x.getValue();
-    }
-
-    @Override
-    public double getY() {
-        return y.getValue();
-    }
-
-    @Override
-    public double getWidth() {
-        return width.get();
-    }
-
-    @Override
-    public double getHeight() {
-        return height.get();
-    }
-
-    @Override
-    public Rectangle2D getBounds() {
-        return new Rectangle2D(x.get(), y.get(), width.get(), height.get());
-    }
-
-    public String getTitle() {
-        return aTitle.get();
-    }
-
-    public void setTitle(String aTitle) {
-        this.aTitle.setValue(aTitle);
-        changes.firePropertyChange("Change", null, null);
+    public void setTitle(String pTitle) {
+        this.aTitle = pTitle;
+        changes.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
     }
 
     @Override
     public void setTranslateX(double x) {
-        translateX.setValue(x);
-        changes.firePropertyChange("Change", null, null);
+        translateX = x;
+        changes.firePropertyChange(Constants.changeNodeTranslateX, null, translateX);
     }
 
     @Override
     public void setTranslateY(double y) {
-        translateY.setValue(y);
-        changes.firePropertyChange("Change", null, null);
+        translateY = y;
+        changes.firePropertyChange(Constants.changeNodeTranslateY, null, translateY);
     }
 
     @Override
     public void setScaleX(double x) {
-        scaleX.setValue(x);
-        changes.firePropertyChange("Change", null, null);
+        scaleX = x;
+        changes.firePropertyChange(Constants.changeNodeScaleX, null, scaleX);
     }
 
     @Override
     public void setScaleY(double y) {
-        scaleY.setValue(y);
-        changes.firePropertyChange("Change", null, null);
+        scaleY = y;
+        changes.firePropertyChange(Constants.changeNodeScaleY, null, scaleY);
     }
+
+    public double getX(){
+        return x;
+    }
+
+    public double getY(){
+        return y;
+    }
+
+    public double getWidth(){
+        return width;
+    }
+
+    public double getHeight(){
+        return height;
+    }
+
+    @Override
+    public double getTranslateX() {
+        return translateX;
+    }
+
+    @Override
+    public double getTranslateY() {
+        return translateY;
+    }
+
+    @Override
+    public double getScaleX() {
+        return scaleX;
+    }
+
+    @Override
+    public double getScaleY() {
+        return scaleY;
+    }
+
+    public String getTitle() {
+        return aTitle;
+    }
+
+    @Override
+    public Rectangle2D getBounds() {
+        return new Rectangle2D(x, y, width, height);
+    }
+
 
     public abstract AbstractNode copy();
 

@@ -56,7 +56,7 @@ public class Graph implements Serializable, PropertyChangeListener {
             }
         }
         n.addPropertyChangeListener(this);
-        changes.firePropertyChange("AddNode", null, null);
+        changes.firePropertyChange("AddNode", null, n);
         return allNodes.add(n);
     }
 

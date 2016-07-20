@@ -19,6 +19,8 @@ import javafx.scene.text.FontWeight;
 import model.ClassNode;
 import util.Constants;
 
+import java.beans.PropertyChangeEvent;
+
 /**
  * Created by chris on 2016-02-16.
  */
@@ -46,7 +48,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
     public ClassNodeView(ClassNode node) {
         super(node);
-        setChangeListeners();
+        //setChangeListeners();
 
         container = new StackPane();
         rectangle = new Rectangle();
@@ -195,66 +197,35 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         return container.getBoundsInParent();
     }
 
-    //TODO Maybe needs some Nullchecks etc?
-    private void setChangeListeners() {
-        ClassNode refNode = (ClassNode) getRefNode();
-        refNode.xProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setX(newValue.doubleValue());
-            }
-        });
 
-        refNode.yProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setY(newValue.doubleValue());
-            }
-        });
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
 
-        refNode.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                changeHeight(newValue.doubleValue());
+        super.propertyChange(evt);
+        if (evt.getPropertyName().equals(Constants.changeNodeX)) {
+            setX((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeY)) {
+            setY((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeWidth)) {
+            changeWidth((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeHeight)) {
+            changeHeight((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
+            title.setText((String) evt.getNewValue());
+            if (title.getText() == null || title.getText().equals("")) {
+                firstLine.setVisible(false);
+            } else {
+                firstLine.setVisible(true);
             }
-        });
-
-        refNode.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                changeWidth(newValue.doubleValue());
+        } else if (evt.getPropertyName().equals(Constants.changeClassNodeAttributes)) {
+            attributes.setText((String) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeClassNodeOperations)) {
+            operations.setText((String) evt.getNewValue());
+            if (operations.getText() == null || operations.getText().equals("")) {
+                secondLine.setVisible(false);
+            } else {
+                secondLine.setVisible(true);
             }
-        });
-
-        refNode.titleProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                title.setText(newValue);
-                if(title.getText() == null || title.getText().equals("")){
-                    firstLine.setVisible(false);
-                } else {
-                    firstLine.setVisible(true);
-                }
-            }
-        });
-
-        refNode.attributesProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                attributes.setText(newValue);
-            }
-        });
-
-        refNode.operationsProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                operations.setText(newValue);
-                if(operations.getText() == null || operations.getText().equals("")){
-                    secondLine.setVisible(false);
-                } else {
-                    secondLine.setVisible(true);
-                }
-            }
-        });
+        }
     }
 }

@@ -21,6 +21,8 @@ import model.Node;
 import model.PackageNode;
 import util.Constants;
 
+import java.beans.PropertyChangeEvent;
+
 /**
  * Created by marcusisaksson on 2016-02-17.
  */
@@ -43,7 +45,6 @@ public class PackageNodeView extends AbstractNodeView {
     public PackageNodeView(PackageNode node) {
         super(node);
         refNode = node;
-        setChangeListeners();
         title = new Text(node.getTitle());
         //TODO Ugly solution, hardcoded value.
         title.setWrappingWidth(node.getWidth() - 7);
@@ -158,44 +159,19 @@ public class PackageNodeView extends AbstractNodeView {
         title.setWrappingWidth(width - 7);
 
     }
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(Constants.changeNodeX)) {
+            setX((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeY)) {
+            setY((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeWidth)) {
+            changeWidth((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeHeight)) {
+            changeHeight((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
+            title.setText((String) evt.getNewValue());
 
-    private void setChangeListeners() {
-        getRefNode().titleProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                //TODO Check how long the new string is, and handle that!
-                title.setText(newValue);
-            }
-        });
-
-        getRefNode().xProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setX(newValue.doubleValue());
-            }
-        });
-
-        getRefNode().yProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setY(newValue.doubleValue());
-            }
-        });
-
-        getRefNode().heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                changeHeight(newValue.doubleValue());
-                //setTitleSize();
-            }
-        });
-
-        getRefNode().widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                changeWidth(newValue.doubleValue());
-                //setTitleSize();
-            }
-        });
+        }
     }
 }

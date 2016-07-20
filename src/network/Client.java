@@ -29,9 +29,9 @@ public class Client extends Thread {
 
     public void run() {
         try {
+            Socket socket = new Socket(serverName, port);
 
             while (true) {
-                Socket socket = new Socket(serverName, port);
                 //System.out.println("Connecting to " + serverName + " on port " + port);
 
                 DataInputStream dataInput = new DataInputStream(socket.getInputStream());
@@ -52,12 +52,9 @@ public class Client extends Thread {
                 }
 
 
-                sleep(100);
-                socket.close();
+                //socket.close();
             }
         }   catch(IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 

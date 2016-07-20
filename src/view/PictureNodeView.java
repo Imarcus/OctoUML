@@ -12,6 +12,8 @@ import model.PackageNode;
 import model.PictureNode;
 import util.Constants;
 
+import java.beans.PropertyChangeEvent;
+
 
 /**
  * Created by anasm on 2016-06-27.
@@ -32,7 +34,6 @@ public class PictureNodeView extends AbstractNodeView {
         imageView = v;
         imageView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);");
         getChildren().add(v);
-        setChangeListeners();
         createHandles();
     }
 
@@ -123,21 +124,17 @@ public class PictureNodeView extends AbstractNodeView {
 
         }
     }
-
-    private void setChangeListeners() {
-        PictureNode refNode = (PictureNode) getRefNode();
-        refNode.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                changeHeight(newValue.doubleValue());
-            }
-        });
-
-        refNode.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                changeWidth(newValue.doubleValue());
-            }
-        });
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(Constants.changeNodeX)) {
+            setX((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeY)) {
+            setY((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeWidth)) {
+            changeWidth((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeHeight)) {
+            changeHeight((double) evt.getNewValue());
+        }
     }
+
 }

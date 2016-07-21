@@ -4,8 +4,12 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
 import javafx.beans.property.ObjectProperty;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import javafx.beans.property.*;
+import util.Constants;
 
 /**
  * Abstract Edge to hide some basic Edge-functionality.
@@ -14,60 +18,57 @@ public abstract class AbstractEdge implements Edge, Serializable {
 
     private static int objectCount = 0;  //Used to ID instance
     private int id = 0;
+    private static final long serialVersionUID = 1L;
+
+
+    protected transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
+
 
     private Node startNode;
     private Node endNode;
-    private DoubleProperty zoom = new SimpleDoubleProperty(1);
-    private StringProperty startMultiplicity = new SimpleStringProperty();
-    private StringProperty endMultiplicity = new SimpleStringProperty();
+    private double zoom;
+    private String startMultiplicity, endMultiplicity;
 
     public enum Direction {
         NO_DIRECTION, START_TO_END, END_TO_START, BIDIRECTIONAL
     }
 
-    private ObjectProperty<Direction> direction = new SimpleObjectProperty<>();
+    private Direction direction;
 
     public AbstractEdge(Node startNode, Node endNode) {
         this.startNode = startNode;
         this.endNode = endNode;
-        direction.setValue(Direction.NO_DIRECTION);
+        direction = Direction.NO_DIRECTION;
 
         id = ++objectCount;
     }
 
     public void setDirection(Direction direction) {
-        this.direction.setValue(direction);
+        this.direction = direction;
+        changes.firePropertyChange(Constants.changeEdgeDirection, null, direction);
     }
 
     public Direction getDirection() {
-        return direction.getValue();
-    }
-
-    public ObjectProperty<Direction> getDirectionProperty() {
         return direction;
     }
 
-    public void setStartMultiplicity(String startMultiplicity) {
-        this.startMultiplicity.set(startMultiplicity);
+
+    public void setStartMultiplicity(String pStartMultiplicity) {
+        startMultiplicity = pStartMultiplicity;
+        changes.firePropertyChange(Constants.changeEdgeStartMultiplicity, null, pStartMultiplicity);
     }
 
-    public void setEndMultiplicity(String endMultiplicity) {
-        this.endMultiplicity.set(endMultiplicity);
+    public void setEndMultiplicity(String pEndMultiplicity) {
+        changes.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, pEndMultiplicity);
+        endMultiplicity = pEndMultiplicity;
     }
 
     public String getStartMultiplicity() {
-        return startMultiplicity.get();
-    }
-
-    public StringProperty startMultiplicityProperty() {
         return startMultiplicity;
     }
 
-    public String getEndMultiplicity() {
-        return endMultiplicity.get();
-    }
 
-    public StringProperty endMultiplicityProperty() {
+    public String getEndMultiplicity() {
         return endMultiplicity;
     }
 
@@ -76,6 +77,7 @@ public abstract class AbstractEdge implements Edge, Serializable {
     }
 
     public void setStartNode(Node node) {
+        changes.firePropertyChange(Constants.changeEdgeStartNode, null, node);
         this.startNode = node;
     }
 
@@ -84,18 +86,16 @@ public abstract class AbstractEdge implements Edge, Serializable {
     }
 
     public void setEndNode(Node node) {
+        changes.firePropertyChange(Constants.changeEdgeEndNode, null, node);
         this.endNode = node;
     }
 
     public void setZoom(double scale){
-        zoom.setValue(scale);
+        changes.firePropertyChange(Constants.changeEdgeZoom, null, scale);
+        zoom = scale;
     }
 
     public double getZoom(){
-        return zoom.getValue();
-    }
-
-    public DoubleProperty zoomProperty() {
         return zoom;
     }
 
@@ -112,5 +112,14 @@ public abstract class AbstractEdge implements Edge, Serializable {
 
     public String getId(){
         return "EDGE_" + id;
+    }
+
+
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        changes.addPropertyChangeListener(l);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        changes.removePropertyChangeListener(l);
     }
 }

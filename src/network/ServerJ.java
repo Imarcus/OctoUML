@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Created by Marcus on 2016-07-18.
  */
-public class Server extends Thread implements PropertyChangeListener {
+public class ServerJ extends Thread implements PropertyChangeListener {
 
     private ServerSocket serverSocket;
     private Graph graph;
@@ -28,7 +28,7 @@ public class Server extends Thread implements PropertyChangeListener {
 
 
 
-    public Server(int port, Graph pGraph) throws IOException
+    public ServerJ(int port, Graph pGraph) throws IOException
     {
         try {
             serverSocket = new ServerSocket(port);

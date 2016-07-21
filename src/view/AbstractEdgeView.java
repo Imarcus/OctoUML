@@ -10,16 +10,19 @@ import javafx.scene.text.Text;
 import model.AbstractEdge;
 import util.Constants;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 /**
  * Created by chris on 2016-02-18.
  */
-public abstract class AbstractEdgeView extends Group implements EdgeView{
+public abstract class AbstractEdgeView extends Group implements EdgeView, PropertyChangeListener {
     private static int objectCounter = 0;
 
     private AbstractEdge refEdge;
     private AbstractNodeView startNode;
     private boolean selected = false;
-    public final double STROKE_WIDTH = 2;
+    public final double STROKE_WIDTH = 1;
     public enum Position{
         ABOVE, BELOW, RIGHT, LEFT, NONE
     }
@@ -44,9 +47,12 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
         this.getChildren().add(line);
         startMultiplicity = new Text(edge.getStartMultiplicity());
         endMultiplicity = new Text(edge.getEndMultiplicity());
-        setChangeListeners();
         setPosition();
         line.setStrokeWidth(STROKE_WIDTH);
+
+        refEdge.addPropertyChangeListener(this);
+        startNode.getRefNode().addPropertyChangeListener(this);
+        endNode.getRefNode().addPropertyChangeListener(this);
     }
 
     protected void draw() {
@@ -196,53 +202,20 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
         this.endNode = endNode;
     }
 
-    private void setChangeListeners() {
-        startNode.translateXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setPosition();
-            }
-        });
-        startNode.translateYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setPosition();
-            }
-        });
-        endNode.translateXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setPosition();
-            }
-        });
-        endNode.translateYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setPosition();
-            }
-        });
-        refEdge.zoomProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setStrokeWidth(newValue.doubleValue());
-                setPosition();
-            }
-        });
 
-        refEdge.startMultiplicityProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                startMultiplicity.setText(newValue);
-                draw();
-            }
-        });
-
-        refEdge.endMultiplicityProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                endMultiplicity.setText(newValue);
-                draw();
-            }
-        });
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(evt.getPropertyName().equals(Constants.changeNodeTranslateX) || evt.getPropertyName().equals(Constants.changeNodeTranslateY)){
+            setPosition();
+        } else if(evt.getPropertyName().equals(Constants.changeEdgeZoom)) {
+            setStrokeWidth((double)evt.getNewValue());
+            setPosition();
+        } else if(evt.getPropertyName().equals(Constants.changeEdgeStartMultiplicity)) {
+            startMultiplicity.setText((String)evt.getNewValue());
+            draw();
+        } else if(evt.getPropertyName().equals(Constants.changeEdgeEndMultiplicity)){
+            endMultiplicity.setText((String)evt.getNewValue());
+            draw();
+        }
     }
 }

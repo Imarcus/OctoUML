@@ -9,6 +9,7 @@ import javafx.scene.shape.Polygon;
 import model.AbstractEdge;
 import util.Constants;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -26,7 +27,6 @@ public class CompositionEdgeView extends AbstractEdgeView {
         this.refEdge = edge;
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
-        setChangeListeners();
         draw();
     }
 
@@ -132,7 +132,15 @@ public class CompositionEdgeView extends AbstractEdgeView {
         }
     }
 
-    private void setChangeListeners() {
+    public void propertyChange(PropertyChangeEvent evt){
+        super.propertyChange(evt);
+        if(evt.getPropertyName().equals(Constants.changeNodeTranslateX) || evt.getPropertyName().equals(Constants.changeNodeTranslateY) ||
+                evt.getPropertyName().equals(Constants.changeEdgeDirection)) {
+            draw();
+        }
+    }
+
+    /*private void setChangeListeners() {
         super.getLine().endXProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -168,5 +176,5 @@ public class CompositionEdgeView extends AbstractEdgeView {
                 draw();
             }
         });
-    }
+    }*/
 }

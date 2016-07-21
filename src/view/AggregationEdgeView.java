@@ -9,6 +9,7 @@ import javafx.scene.shape.Polygon;
 import model.AbstractEdge;
 import util.Constants;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -24,7 +25,6 @@ public class AggregationEdgeView extends AbstractEdgeView {
         this.refEdge = edge;
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
-        setChangeListeners();
         draw();
     }
 
@@ -121,41 +121,11 @@ public class AggregationEdgeView extends AbstractEdgeView {
         }
     }
 
-    private void setChangeListeners() {
-        super.getLine().endXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().endYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().startXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().startYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        refEdge.getDirectionProperty().addListener(new ChangeListener<AbstractEdge.Direction>() {
-            @Override
-            public void changed(ObservableValue<? extends AbstractEdge.Direction> observable,
-                                AbstractEdge.Direction oldValue, AbstractEdge.Direction newValue) {
-                draw();
-            }
-        });
+    public void propertyChange(PropertyChangeEvent evt){
+        super.propertyChange(evt);
+        if(evt.getPropertyName().equals(Constants.changeNodeTranslateX) || evt.getPropertyName().equals(Constants.changeNodeTranslateY) ||
+                evt.getPropertyName().equals(Constants.changeEdgeDirection)) {
+            draw();
+        }
     }
 }

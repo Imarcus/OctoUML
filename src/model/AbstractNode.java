@@ -22,14 +22,7 @@ public abstract class AbstractNode implements Node, Serializable
     private final double MIN_WIDTH = 80;
     private final double MIN_HEIGHT = 70;
     private String aTitle;
-    private double x;
-    private double y;
-    private double width;
-    private double height;
-    private double translateX;
-    private double translateY;
-    private double scaleX;
-    private double scaleY;
+    private double x, y, width, height, translateX, translateY, scaleX, scaleY;
     private boolean aIsChild;
 
     public AbstractNode(double x, double y, double width, double height){

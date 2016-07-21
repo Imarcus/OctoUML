@@ -33,7 +33,6 @@ public abstract class AbstractNodeView extends Group implements NodeView, Proper
         setHeight(refNode.getHeight());
         setWidth(refNode.getWidth());
         refNode.addPropertyChangeListener(this);
-        //setChangeListeners();
     }
 
     protected AbstractNode getRefNode(){
@@ -96,38 +95,6 @@ public abstract class AbstractNodeView extends Group implements NodeView, Proper
             setScaleY((double)evt.getNewValue());
         }
     }
-
-    //TODO Maybe needs some Nullchecks etc?
-   /* private void setChangeListeners() {
-
-        refNode.translateXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setTranslateX(newValue.doubleValue());
-            }
-        });
-
-        refNode.translateYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setTranslateY(newValue.doubleValue());
-            }
-        });
-
-        refNode.scaleXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setScaleX(newValue.doubleValue());
-            }
-        });
-
-        refNode.scaleYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setScaleY(newValue.doubleValue());
-            }
-        });
-    }*/
 }
 
 

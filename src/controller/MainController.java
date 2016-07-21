@@ -15,9 +15,10 @@ import javafx.scene.shape.Path;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
-import network.Client;
-import network.Server;
-import util.Constants;
+import network.ClientJ;
+import network.ClientK;
+import network.ServerJ;
+import network.ServerK;
 import util.commands.*;
 import util.insertIMG.*;
 import javafx.event.ActionEvent;
@@ -30,8 +31,6 @@ import util.persistence.PersistenceManager;
 import view.*;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.*;
 import java.awt.geom.Point2D;
 
@@ -1126,7 +1125,7 @@ public class MainController {
     }
 
     public void handleMenuActionServer(){
-        try
+        /*try
         {
             TextInputDialog dialog = new TextInputDialog("4444");
             dialog.setTitle("Server Port");
@@ -1134,25 +1133,27 @@ public class MainController {
             dialog.setContentText("Port:");
             Optional<String> result = dialog.showAndWait();
             if (result.isPresent()){
-                Thread t = new Server(Integer.parseInt(result.get()), graph);
+                Thread t = new ServerJ(Integer.parseInt(result.get()), graph);
                 t.start();            }
 
         }catch(IOException e)
         {
             e.printStackTrace();
-        }
+        }*/
+        ServerK server = new ServerK(graph);
     }
 
     public void handleMenuActionClient(){
-        TextInputDialog dialog = new TextInputDialog("4444");
+        /*TextInputDialog dialog = new TextInputDialog("4444");
         dialog.setTitle("Server Port");
         dialog.setHeaderText("Choose server port to connect");
         dialog.setContentText("Port:");
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
-            Thread t = new Client("localhost", Integer.parseInt(result.get()), this);
+            Thread t = new ClientJ("localhost", Integer.parseInt(result.get()), this);
             t.start();
-        }
+        }*/
+        ClientK client = new ClientK(this);
     }
 
 

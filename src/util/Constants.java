@@ -29,4 +29,12 @@ public class Constants {
     public static String changeClassNodeAttributes = "ClassNodeAttributes";
     public static String changeClassNodeOperations = "ClassNodeOperations";
     public static String changeNodeIsChild = "ClassNodeIsChild";
+
+
+    public static String changeEdgeDirection = "EdgeDirection";
+    public static String changeEdgeStartNode = "EdgeStartNode";
+    public static String changeEdgeEndNode = "EdgeEndNode";
+    public static String changeEdgeZoom = "EdgeZoom";
+    public static String changeEdgeStartMultiplicity = "EdgeStartMultiplicity";
+    public static String changeEdgeEndMultiplicity = "EdgeEndMultiplicity";
 }

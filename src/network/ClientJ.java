@@ -8,13 +8,13 @@ import model.Graph;
 import java.net.*;
 import java.io.*;
 
-public class Client extends Thread {
+public class ClientJ extends Thread {
 
     private String serverName;
     private int port;
     private MainController mainController;
 
-    public Client(String pServerName, int pPort, MainController pMainController)
+    public ClientJ(String pServerName, int pPort, MainController pMainController)
     {
         serverName = pServerName;
         port = pPort;

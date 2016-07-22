@@ -10,10 +10,8 @@ public class Constants {
     public static Color selected_color = Color.web("#FF6D70");
     public static Color selected_sketch_color = Color.web("#884FA8");
 
-    public static String ClassNodeAdd = "ClassNodeAdd";
-    public static String ClassNodeRemove = "ClassNodeRemove";
-    public static String PackageNodeAdd = "PackageNodeAdd";
-    public static String PackageNodeRemove = "PackageNodeRemove";
+    public static String NodeAdd = "NodeAdd";
+    public static String NodeRemove = "NodeRemove";
     public static String EdgeAdd = "EdgeAdd";
     public static String EdgeRemove = "EdgeRemove";
 

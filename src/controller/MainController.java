@@ -15,10 +15,7 @@ import javafx.scene.shape.Path;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
-import network.ClientJ;
-import network.ClientK;
-import network.ServerJ;
-import network.ServerK;
+import util.Constants;
 import util.commands.*;
 import util.insertIMG.*;
 import javafx.event.ActionEvent;
@@ -673,7 +670,7 @@ public class MainController {
      * Deletes nodes and its associated edges
      *
      * @param nodeView
-     * @param pCommand Compound command from deleting all selected, if not null we create our own command.
+     * @param pCommand Compound command from deleting all selected, if null we create our own command.
      * @param undo     If true this is an undo and no command should be created
      */
     public void deleteNode(AbstractNodeView nodeView, CompoundCommand pCommand, boolean undo) {
@@ -761,7 +758,7 @@ public class MainController {
                 aDrawPane.getChildren().remove(edgeView);
                 selectedEdges.remove(edgeView);
                 edgeViewsToBeDeleted.add(edgeView);
-                if (!undo) {
+                if (!undo && command != null) {
                     command.add(new AddDeleteEdgeCommand(this, edgeView, edgeView.getRefEdge(), false));
                 }
             }
@@ -1125,35 +1122,12 @@ public class MainController {
     }
 
     public void handleMenuActionServer(){
-        /*try
-        {
-            TextInputDialog dialog = new TextInputDialog("4444");
-            dialog.setTitle("Server Port");
-            dialog.setHeaderText("Choose server port to create");
-            dialog.setContentText("Port:");
-            Optional<String> result = dialog.showAndWait();
-            if (result.isPresent()){
-                Thread t = new ServerJ(Integer.parseInt(result.get()), graph);
-                t.start();            }
-
-        }catch(IOException e)
-        {
-            e.printStackTrace();
-        }*/
-        ServerK server = new ServerK(graph);
+        //TODO how to handle these?
+        ServerController server = new ServerController(graph, this);
     }
 
     public void handleMenuActionClient(){
-        /*TextInputDialog dialog = new TextInputDialog("4444");
-        dialog.setTitle("Server Port");
-        dialog.setHeaderText("Choose server port to connect");
-        dialog.setContentText("Port:");
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()) {
-            Thread t = new ClientJ("localhost", Integer.parseInt(result.get()), this);
-            t.start();
-        }*/
-        ClientK client = new ClientK(this);
+        ClientController client = new ClientController(this);
     }
 
 
@@ -1224,6 +1198,9 @@ public class MainController {
             newView.toBack();
             gridToBack();
         }
+        if(!graph.getAllNodes().contains(node)){
+            graph.addNode(node);
+        }
         return addNodeView(newView, node);
     }
 
@@ -1239,7 +1216,6 @@ public class MainController {
         initNodeActions(nodeView);
         nodeMap.put(nodeView, node);
         allNodeViews.add(nodeView);
-
         return nodeView;
     }
 
@@ -1256,6 +1232,75 @@ public class MainController {
         graph.addNode(picNode);
         nodeMap.put(picView, picNode);
         return picView;
+    }
+
+    /**
+     * Called when the model has been modified remotely.
+     * @param dataArray
+     * [0] = Type of change
+     * [1] = id of node
+     * [2+] = Optional new values
+     */
+    public void remoteCommand(String[] dataArray){
+        if(dataArray[0].equals(Constants.changeNodeTranslateY) || dataArray[0].equals(Constants.changeNodeTranslateX)){
+            for(AbstractNode node : graph.getAllNodes()){
+                if(dataArray[1].equals(node.getId())){
+                    node.setTranslateX(Double.parseDouble(dataArray[2]));
+                    node.setTranslateY(Double.parseDouble(dataArray[3]));
+                    node.setX(Double.parseDouble(dataArray[2]));
+                    node.setY(Double.parseDouble(dataArray[3]));
+                    break;
+                }
+            }
+        } else if (dataArray[0].equals(Constants.changeNodeWidth) || dataArray[0].equals(Constants.changeNodeHeight)) {
+            for(AbstractNode node : graph.getAllNodes()){
+                if(dataArray[1].equals(node.getId())){
+                    node.setWidth(Double.parseDouble(dataArray[2]));
+                    node.setHeight(Double.parseDouble(dataArray[3]));
+                    break;
+                }
+            }
+        } else if (dataArray[0].equals(Constants.changeNodeTitle)){
+            for(AbstractNode node : graph.getAllNodes()){
+                if(dataArray[1].equals(node.getId())){
+                    node.setTitle(dataArray[2]);
+                    break;
+                }
+            }
+        } else if (dataArray[0].equals(Constants.NodeRemove)) {
+            AbstractNodeView nodeToBeDeleted = null;
+            for(AbstractNodeView nodeView : allNodeViews){
+                if(dataArray[1].equals(nodeView.getRefNode().getId())){
+                    nodeToBeDeleted = nodeView; //ConcurrentModificationException fix
+                    break;
+                }
+            }
+            deleteNode(nodeToBeDeleted, null, false);
+        } else if (dataArray[0].equals(Constants.EdgeRemove)) {
+            AbstractEdgeView edgeToBeDeleted = null;
+            for(AbstractEdgeView edgeView : allEdgeViews){
+                if(dataArray[1].equals(edgeView.getRefEdge().getId())){
+                    edgeToBeDeleted = edgeView;
+                    break;
+                }
+            }
+            deleteEdgeView(edgeToBeDeleted, null, false);
+        } else if (dataArray[0].equals(Constants.changeClassNodeAttributes) ||dataArray[0].equals(Constants.changeClassNodeOperations)){
+            for(AbstractNode node : graph.getAllNodes()){
+                if(dataArray[1].equals(node.getId())){
+                    ((ClassNode)node).setAttributes(dataArray[2]);
+                    ((ClassNode)node).setOperations(dataArray[3]);
+                    break;
+                }
+            }
+        } else if (dataArray[0].equals(Constants.changeEdgeStartMultiplicity) || dataArray[0].equals(Constants.changeEdgeEndMultiplicity)){
+            for(Edge edge : graph.getAllEdges()){
+                if(dataArray[1].equals(edge.getId())){
+                    ((AbstractEdge) edge).setStartMultiplicity(dataArray[2]);
+                    ((AbstractEdge) edge).setEndMultiplicity(dataArray[3]);
+                }
+            }
+        }
     }
 
     /**
@@ -1304,38 +1349,44 @@ public class MainController {
      * @return null if graph already hasEdge or start/endnodeview is null. Otherwise the created AbstractEdgeView.
      */
     public AbstractEdgeView addEdgeView(AbstractEdge edge) {
-        //TODO Really ugly
         AbstractNodeView startNodeView = null;
         AbstractNodeView endNodeView = null;
+        AbstractNode tempNode;
         for (AbstractNodeView nodeView : allNodeViews) {
-            if (edge.getStartNode() == nodeMap.get(nodeView)) {
+            tempNode = nodeMap.get(nodeView);
+            if (edge.getStartNode() == tempNode) {
                 startNodeView = nodeView;
-            } else if (edge.getEndNode() == nodeMap.get(nodeView)) {
+            } else if (edge.getEndNode() ==tempNode) {
+                endNodeView = nodeView;
+            } //Necessary because the kryo-serialization doesn't make the edges refer to the correct nodes
+            else if (((AbstractNode)edge.getStartNode()).getId().equals(tempNode.getId())) {
+                edge.setStartNode(tempNode);
+                startNodeView = nodeView;
+            } else if (((AbstractNode)edge.getEndNode()).getId().equals(tempNode.getId())) {
+                edge.setEndNode(tempNode);
                 endNodeView = nodeView;
             }
         }
-        if (startNodeView == null || endNodeView == null /*|| graph.hasEdge(edge)*/) {
-            System.out.println("Failed to find start or end node, or graph already has edge.");
-            return null;
+        AbstractEdgeView edgeView;
+        if(edge instanceof AssociationEdge) {
+            edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
+        } else if (edge instanceof AggregationEdge){
+            edgeView = new AggregationEdgeView(edge, startNodeView, endNodeView);
+        } else if (edge instanceof CompositionEdge) {
+            edgeView = new CompositionEdgeView(edge, startNodeView, endNodeView);
+        } else if (edge instanceof InheritanceEdge) {
+            edgeView = new InheritanceEdgeView(edge, startNodeView, endNodeView);
         } else {
-            AbstractEdgeView edgeView;
-            if(edge instanceof AssociationEdge) {
-                edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
-            } else if (edge instanceof AggregationEdge){
-                edgeView = new AggregationEdgeView(edge, startNodeView, endNodeView);
-            } else if (edge instanceof CompositionEdge) {
-                edgeView = new CompositionEdgeView(edge, startNodeView, endNodeView);
-            } else if (edge instanceof InheritanceEdge) {
-                edgeView = new InheritanceEdgeView(edge, startNodeView, endNodeView);
-            } else {
-                System.out.println("Edge type not recognised. In addEdgeView(AbstractEdge edge).");
-                return null;
-            }
-            //initEdgeActions(edgeView);
-            allEdgeViews.add(edgeView);
-            aDrawPane.getChildren().add(edgeView);
-            return edgeView;
+            System.out.println("Edge type not recognised. In addEdgeView(AbstractEdge edge).");
+            return null;
         }
+        //initEdgeActions(edgeView);
+        allEdgeViews.add(edgeView);
+        aDrawPane.getChildren().add(edgeView);
+        if(!graph.getAllEdges().contains(edge)){
+            graph.getAllEdges().add(edge);
+        }
+        return edgeView;
     }
 
     /**
@@ -1351,7 +1402,6 @@ public class MainController {
         undoManager = new UndoManager();
         drawGrid();
     }
-
 
     public void load(Graph pGraph) {
         reset();

@@ -59,8 +59,8 @@ public abstract class AbstractEdge implements Edge, Serializable {
     }
 
     public void setEndMultiplicity(String pEndMultiplicity) {
-        changes.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, pEndMultiplicity);
         endMultiplicity = pEndMultiplicity;
+        changes.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, pEndMultiplicity);
     }
 
     public String getStartMultiplicity() {

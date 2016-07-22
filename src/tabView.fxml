@@ -16,6 +16,7 @@
                     <MenuItem text="New" onAction="#handleMenuActionNew"/>
                     <MenuItem text="Open" onAction="#handleMenuActionLoad"/>
                     <MenuItem text="Save" onAction="#handleMenuActionSave"/>
+                    <SeparatorMenuItem/>
                     <MenuItem text="Server" onAction="#handleMenuActionServer"/>
                     <MenuItem text="Client" onAction="#handleMenuActionClient"/>
                     <SeparatorMenuItem/>

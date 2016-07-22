@@ -14,6 +14,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import model.AbstractNode;
@@ -46,6 +48,7 @@ public class PackageNodeView extends AbstractNodeView {
         super(node);
         refNode = node;
         title = new Text(node.getTitle());
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         //TODO Ugly solution, hardcoded value.
         title.setWrappingWidth(node.getWidth() - 7);
         container = new VBox();

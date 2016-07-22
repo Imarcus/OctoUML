@@ -1,6 +1,7 @@
 package model;
 
 import javafx.geometry.Point2D;
+import util.Constants;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -16,13 +17,13 @@ import java.util.Observable;
 public class Graph implements Serializable, PropertyChangeListener {
 
     private static int objectCount = 0;
-    private int id = 0;
+    private int id;
 
-    private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+    private transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
     private List<AbstractNode> allNodes = new ArrayList<>();
     private List<Edge> allEdges = new ArrayList<>();
-    private List<Sketch> allSketches = new ArrayList<>();
+    private transient List<Sketch> allSketches = new ArrayList<>();
 
     private String name = "";
 
@@ -44,7 +45,7 @@ public class Graph implements Serializable, PropertyChangeListener {
      * that package. 
      * @param n, the Node that should be added.
      */
-    public boolean addNode(AbstractNode n){
+    public void addNode(AbstractNode n){
         assert n != null;
         for (AbstractNode node : allNodes) {
             if (node instanceof PackageNode) {
@@ -55,9 +56,9 @@ public class Graph implements Serializable, PropertyChangeListener {
                 }
             }
         }
+        allNodes.add(n);
+        changes.firePropertyChange(Constants.NodeAdd, null, n);
         n.addPropertyChangeListener(this);
-        changes.firePropertyChange("AddNode", null, n);
-        return allNodes.add(n);
     }
 
     /**
@@ -66,8 +67,9 @@ public class Graph implements Serializable, PropertyChangeListener {
      */
     public boolean addEdge(Edge e){
         assert e != null;
-        changes.firePropertyChange("AddEdge", null, null);
-        return allEdges.add(e);
+        boolean success = allEdges.add(e);
+        changes.firePropertyChange(Constants.EdgeAdd, null, e);
+        return success;
     }
 
     /**
@@ -97,7 +99,7 @@ public class Graph implements Serializable, PropertyChangeListener {
      */
     public boolean removeNode(Node n) {
         assert n != null;
-        changes.firePropertyChange("RemoveNode", null, null);
+        changes.firePropertyChange(Constants.NodeRemove, null, ((AbstractNode)n).getId());
         return allNodes.remove(n);
     }
 
@@ -108,7 +110,7 @@ public class Graph implements Serializable, PropertyChangeListener {
      */
     public boolean removeEdge(Edge e) {
         assert e != null;
-        changes.firePropertyChange("RemoveEdge", null, null);
+        changes.firePropertyChange(Constants.EdgeRemove, null, ((AbstractEdge)e).getId());
         return allEdges.remove(e);
     }
 
@@ -209,6 +211,10 @@ public class Graph implements Serializable, PropertyChangeListener {
         changes.removePropertyChangeListener(l);
     }
 
+    /**
+     * Only Server listens to this.
+     * @param evt
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         changes.firePropertyChange(evt);

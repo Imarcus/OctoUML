@@ -57,4 +57,8 @@ public class AggregationEdge extends AbstractEdge {
     public String getType(){
         return "Aggregation";
     }
+
+    public AggregationEdge(){
+
+    }
 }

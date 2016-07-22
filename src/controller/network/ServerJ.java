@@ -1,4 +1,4 @@
-package network;
+package controller.network;
 
 import com.google.gson.Gson;
 import model.ClassNode;

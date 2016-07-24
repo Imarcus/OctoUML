@@ -1234,6 +1234,7 @@ public class MainController {
         return picView;
     }
 
+    //TODO Have this somewhere else?
     /**
      * Called when the model has been modified remotely.
      * @param dataArray

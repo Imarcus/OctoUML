@@ -6,6 +6,7 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.google.gson.Gson;
 import controller.MainController;
+import javafx.application.Platform;
 import model.*;
 import util.Constants;
 
@@ -38,19 +39,8 @@ public class ServerController implements PropertyChangeListener {
             e.printStackTrace();
         }
 
-        Kryo kryo = server.getKryo();
-        kryo.register(ClassNode.class);
-        kryo.register(AbstractNode.class);
-        kryo.register(PackageNode.class);
-        kryo.register(AbstractEdge.class);
-        kryo.register(InheritanceEdge.class);
-        kryo.register(CompositionEdge.class);
-        kryo.register(AssociationEdge.class);
-        kryo.register(AggregationEdge.class);
-        kryo.register(Graph.class);
-        kryo.register(ArrayList.class);
-        kryo.register(model.AbstractEdge.Direction.class);
-        kryo.register(String[].class);
+        initKryo(server.getKryo());
+
 
         server.addListener(new Listener() {
             public void received (Connection connection, Object object) {
@@ -59,6 +49,19 @@ public class ServerController implements PropertyChangeListener {
                     if(request.equals("RequestGraph")){
                         connection.sendTCP(mainController.getGraphModel());
                     }
+                }
+                else if (object instanceof AbstractNode) {
+                    Platform.runLater(() -> mainController.createNodeView((AbstractNode)object));
+                }
+                else if (object instanceof AbstractEdge) {
+                    Platform.runLater(() -> mainController.addEdgeView((AbstractEdge)object));
+                }
+                else if (object instanceof Graph){
+                    Graph graph = (Graph) object;
+                    Platform.runLater(() -> mainController.load(graph));
+                }
+                else if (object instanceof String[]){
+                    Platform.runLater(() -> mainController.remoteCommand((String[])object));
                 }
             }
         });
@@ -69,7 +72,7 @@ public class ServerController implements PropertyChangeListener {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        System.out.println("PropertyChange: " + evt.getPropertyName());
+        System.out.println("Server PropertyChange: " + evt.getPropertyName());
         String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
@@ -81,7 +84,6 @@ public class ServerController implements PropertyChangeListener {
         }
         else if (propertyName.equals(Constants.EdgeAdd)){
             AbstractEdge edge = (AbstractEdge) evt.getNewValue();
-            edge.addPropertyChangeListener(this);
             server.sendToAllTCP(edge);
         }
         else if(propertyName.equals(Constants.EdgeRemove)) {
@@ -113,5 +115,20 @@ public class ServerController implements PropertyChangeListener {
             String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(), edge.getEndMultiplicity()};
             server.sendToAllTCP(dataArray);
         }
+    }
+
+    private void initKryo(Kryo kryo){
+        kryo.register(ClassNode.class);
+        kryo.register(AbstractNode.class);
+        kryo.register(PackageNode.class);
+        kryo.register(AbstractEdge.class);
+        kryo.register(InheritanceEdge.class);
+        kryo.register(CompositionEdge.class);
+        kryo.register(AssociationEdge.class);
+        kryo.register(AggregationEdge.class);
+        kryo.register(Graph.class);
+        kryo.register(ArrayList.class);
+        kryo.register(model.AbstractEdge.Direction.class);
+        kryo.register(String[].class);
     }
 }

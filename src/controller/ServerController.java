@@ -6,7 +6,9 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.google.gson.Gson;
 import controller.MainController;
+import edu.tamu.core.sketch.Stroke;
 import javafx.application.Platform;
+import javafx.geometry.Point2D;
 import model.*;
 import util.Constants;
 
@@ -46,7 +48,10 @@ public class ServerController implements PropertyChangeListener {
 
         server.addListener(new Listener() {
             public void received (Connection connection, Object object) {
-                if (object instanceof String) {
+                if (object instanceof Sketch) {
+                    Platform.runLater(() -> mainController.addSketch((Sketch)object, false, true));
+                }
+                else if (object instanceof String) {
                     String request = (String)object;
                     if(request.equals("RequestGraph")){
                         connection.sendTCP(mainController.getGraphModel());
@@ -75,7 +80,31 @@ public class ServerController implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propertyName = evt.getPropertyName();
-        if(propertyName.equals(Constants.NodeAdd)) {
+        if(propertyName.equals(Constants.sketchAdd)){
+            Sketch sketch = (Sketch) evt.getNewValue();
+            server.sendToAllTCP(sketch);
+        }
+        else if (propertyName.equals(Constants.changeSketchPoint)){
+            Sketch sketch = (Sketch) evt.getSource();
+            Point2D point = (Point2D) evt.getNewValue();
+            String[] dataArray = {Constants.changeSketchPoint, Integer.toString(sketch.getId()),
+                    Double.toString(point.getX()), Double.toString(point.getY())};
+            server.sendToAllTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeSketchStart)) {
+            Sketch sketch = (Sketch) evt.getSource();
+            Point2D point = (Point2D) evt.getNewValue();
+            String[] dataArray = {Constants.changeSketchStart, Integer.toString(sketch.getId()),
+                Double.toString(point.getX()), Double.toString(point.getY())};
+            server.sendToAllTCP(dataArray);
+        }
+        /*else if (propertyName.equals(Constants.changeSketchStroke)) {
+            Sketch sketch = (Sketch) evt.getSource();
+            Stroke stroke = (Stroke) evt.getNewValue();
+            String[] dataArray = {Constants.changeSketchStroke, Integer.toString(sketch.getId()),
+                }
+        }*/
+        else if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
             server.sendToAllTCP(node);
         }

@@ -14,6 +14,8 @@ public class Constants {
     public static String NodeRemove = "NodeRemove";
     public static String EdgeAdd = "EdgeAdd";
     public static String EdgeRemove = "EdgeRemove";
+    public static String sketchAdd = "SketchAdd";
+    public static String sketchRemove = "SketchRemove";
 
     public static String changeNodeX = "NodeX";
     public static String changeNodeY = "NodeY";
@@ -35,4 +37,9 @@ public class Constants {
     public static String changeEdgeZoom = "EdgeZoom";
     public static String changeEdgeStartMultiplicity = "EdgeStartMultiplicity";
     public static String changeEdgeEndMultiplicity = "EdgeEndMultiplicity";
+
+    public static String changeSketchStart = "SketchStart";
+    public static String changeSketchPoint = "SketchPoint";
+    public static String changeSketchStroke = "SketchStroke";
+
 }

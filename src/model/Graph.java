@@ -23,7 +23,7 @@ public class Graph implements Serializable, PropertyChangeListener {
 
     private List<AbstractNode> allNodes = new ArrayList<>();
     private List<Edge> allEdges = new ArrayList<>();
-    private transient List<Sketch> allSketches = new ArrayList<>();
+    private List<Sketch> allSketches = new ArrayList<>();
 
     private String name = "";
 
@@ -86,10 +86,15 @@ public class Graph implements Serializable, PropertyChangeListener {
      * Add a Sketch to the Graph
      * @param s, cannot be null.
      */
-    public void addSketch(Sketch s) {
+    public void addSketch(Sketch s, boolean remote) {
         assert s != null;
-        remoteChanges.firePropertyChange("AddSketch", null, null);
+        if(!remote){
+            remoteChanges.firePropertyChange(Constants.sketchAdd, null, s);
+        } else {
+            Sketch.incrementObjectCount();
+        }
         allSketches.add(s);
+        s.addPropertyChangeListener(this);
     }
 /*
     public boolean connect(Node startNode, Node endNode, Edge edge){
@@ -114,6 +119,7 @@ public class Graph implements Serializable, PropertyChangeListener {
         if(!remote) {
             remoteChanges.firePropertyChange(Constants.NodeRemove, null, ((AbstractNode)n).getId());
         }
+        ((AbstractNode)n).removePropertyChangeListener(this);
         return allNodes.remove(n);
     }
 
@@ -131,8 +137,11 @@ public class Graph implements Serializable, PropertyChangeListener {
         return allEdges.remove(e);
     }
 
-    public boolean removeSketch(Sketch s) {
+    public boolean removeSketch(Sketch s, boolean remote) {
         assert s != null;
+        if(!remote){
+            remoteChanges.firePropertyChange(Constants.sketchRemove, null, s.getId());
+        }
         return allSketches.remove(s);
     }
 

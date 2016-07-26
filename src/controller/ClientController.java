@@ -5,6 +5,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import javafx.application.Platform;
+import javafx.geometry.Point2D;
 import model.*;
 import util.Constants;
 
@@ -43,7 +44,8 @@ public class ClientController implements PropertyChangeListener {
 
         client.addListener(new Listener() {
             public void received (Connection connection, Object object) {
-                if (object instanceof String) {
+                if (object instanceof Sketch) {
+                    Platform.runLater(() -> mainController.addSketch((Sketch)object, false, true));
                 }
                 else if (object instanceof AbstractNode) {
                     Platform.runLater(() -> mainController.createNodeView((AbstractNode)object, true));
@@ -69,7 +71,25 @@ public class ClientController implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String propertyName = evt.getPropertyName();
-        if(propertyName.equals(Constants.NodeAdd)) {
+        if(propertyName.equals(Constants.sketchAdd)){
+            Sketch sketch = (Sketch) evt.getNewValue();
+            client.sendTCP(sketch);
+        }
+        else if (propertyName.equals(Constants.changeSketchPoint)){
+            Sketch sketch = (Sketch) evt.getSource();
+            Point2D point = (Point2D) evt.getNewValue();
+            String[] dataArray = {Constants.changeSketchPoint, Integer.toString(sketch.getId()),
+                    Double.toString(point.getX()), Double.toString(point.getY())};
+            client.sendTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeSketchStart)) {
+            Sketch sketch = (Sketch) evt.getSource();
+            Point2D point = (Point2D) evt.getNewValue();
+            String[] dataArray = {Constants.changeSketchStart, Integer.toString(sketch.getId()),
+                    Double.toString(point.getX()), Double.toString(point.getY())};
+            client.sendTCP(dataArray);
+        }
+        else if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
             client.sendTCP(node);
         }

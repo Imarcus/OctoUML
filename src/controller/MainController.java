@@ -335,7 +335,7 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
                 } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    addSketch(sketchController.onTouchReleased(event), false);
+                    addSketch(sketchController.onTouchReleased(event), false, false);
 
 
                     //We only want to move out of drawing mode if there are no other current drawings
@@ -348,13 +348,13 @@ public class MainController {
         });
     }
 
-    public void addSketch(Sketch sketch, boolean isImport){
+    public void addSketch(Sketch sketch, boolean isImport, boolean remote){
         initSketchActions(sketch);
         allSketches.add(sketch);
         if(isImport){
             aDrawPane.getChildren().add(sketch.getPath());
         } else {
-            graph.addSketch(sketch);
+            graph.addSketch(sketch, remote);
             undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
         }
     }
@@ -571,7 +571,7 @@ public class MainController {
                     Sketch sketch = sketchController.onTouchReleased(event);
                     initSketchActions(sketch);
                     allSketches.add(sketch);
-                    graph.addSketch(sketch);
+                    graph.addSketch(sketch, false);
                     undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
 
                     //We only want to move out of drawing mode if there are no other current drawings
@@ -625,7 +625,7 @@ public class MainController {
             deleteEdgeView(edgeView, command, false, false);
         }
         for (Sketch sketch : selectedSketches) {
-            deleteSketch(sketch, command);
+            deleteSketch(sketch, command, false);
         }
         selectedNodes.clear();
         selectedEdges.clear();
@@ -699,7 +699,7 @@ public class MainController {
         }
     }
 
-    public void deleteSketch(Sketch sketch, CompoundCommand pCommand) {
+    public void deleteSketch(Sketch sketch, CompoundCommand pCommand, boolean remote) {
         CompoundCommand command;
         //TODO Maybe not necessary for sketches.
         if (pCommand == null) {
@@ -708,7 +708,7 @@ public class MainController {
             command = pCommand;
         }
 
-        getGraphModel().removeSketch(sketch);
+        getGraphModel().removeSketch(sketch, remote);
         aDrawPane.getChildren().remove(sketch.getPath());
         allSketches.remove(sketch);
         command.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
@@ -968,7 +968,7 @@ public class MainController {
         for (Sketch sketch : recognizeController.getSketchesToBeRemoved()) {
             recognizeCompoundCommand.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
             aDrawPane.getChildren().remove(sketch);
-            graph.removeSketch(sketch);
+            graph.removeSketch(sketch, false);
         }
         allSketches.removeAll(recognizeController.getSketchesToBeRemoved());
         selectedSketches.removeAll(recognizeController.getSketchesToBeRemoved());
@@ -1251,7 +1251,21 @@ public class MainController {
      * [2+] = Optional new values
      */
     public void remoteCommand(String[] dataArray){
-        if(dataArray[0].equals(Constants.changeNodeTranslateY) || dataArray[0].equals(Constants.changeNodeTranslateX)){
+        if(dataArray[0].equals(Constants.changeSketchPoint)){
+            for(Sketch sketch : graph.getAllSketches()){
+                if(dataArray[1].equals(sketch.getId())){
+                    sketch.addPoint(Double.parseDouble(dataArray[2]), Double.parseDouble(dataArray[3]));
+                }
+            }
+        }
+        else if (dataArray[0].equals(Constants.changeSketchStart)){
+            for(Sketch sketch : graph.getAllSketches()){
+                if(dataArray[1].equals(sketch.getId())){
+                    sketch.setStart(Double.parseDouble(dataArray[2]), Double.parseDouble(dataArray[3]));
+                }
+            }
+        }
+        else if(dataArray[0].equals(Constants.changeNodeTranslateY) || dataArray[0].equals(Constants.changeNodeTranslateX)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
                     node.remoteSetTranslateX(Double.parseDouble(dataArray[2]));
@@ -1432,7 +1446,7 @@ public class MainController {
             }
 
             for(Sketch sketch : graph.getAllSketches()){
-                addSketch(sketch, remote);
+                addSketch(sketch, true, remote);
             }
         }
     }

@@ -58,8 +58,9 @@ public class SketchController {
             xPoint = event.getTouchPoint().getX();
             yPoint = event.getTouchPoint().getY();
         }
-        currentSketch.getPath().getElements()
-                .add(new MoveTo(xPoint, yPoint));
+        currentSketch.setStart(xPoint, yPoint);
+        /*currentSketch.getPath().getElements()
+                .add(new MoveTo(xPoint, yPoint));*/
 
         aDrawPane.getChildren().add(currentSketch.getPath());
         currentSketches.put(event.getTouchPoint().getId(), currentSketch);
@@ -80,8 +81,9 @@ public class SketchController {
             xPoint = event.getTouchPoint().getX();
             yPoint = event.getTouchPoint().getY();
         }
-        currentSketch.getPath().getElements()
-                .add(new LineTo(xPoint, yPoint));
+        currentSketch.addPoint(xPoint, yPoint);
+        /*currentSketch.getPath().getElements()
+                .add(new LineTo(xPoint, yPoint));*/
         currentStroke.addPoint(new Point(xPoint, yPoint));
     }
 

@@ -390,7 +390,7 @@ public class PersistenceManager {
                 }
             }
             sketch.setStroke(stroke);
-            graph.addSketch(sketch);
+            graph.addSketch(sketch, false);
         }
         return graph;
     }

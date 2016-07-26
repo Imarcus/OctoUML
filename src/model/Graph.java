@@ -19,7 +19,7 @@ public class Graph implements Serializable, PropertyChangeListener {
     private static int objectCount = 0;
     private int id;
 
-    private transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
+    private transient PropertyChangeSupport remoteChanges = new PropertyChangeSupport(this);
 
     private List<AbstractNode> allNodes = new ArrayList<>();
     private List<Edge> allEdges = new ArrayList<>();
@@ -44,8 +44,9 @@ public class Graph implements Serializable, PropertyChangeListener {
      * Adds a Node to the Graph. If the node is added inside a package, the node is also added as a child to
      * that package. 
      * @param n, the Node that should be added.
+     * @param remote, true if change comes from a remote server
      */
-    public void addNode(AbstractNode n){
+    public void addNode(AbstractNode n, boolean remote){
         assert n != null;
         for (AbstractNode node : allNodes) {
             if (node instanceof PackageNode) {
@@ -57,18 +58,27 @@ public class Graph implements Serializable, PropertyChangeListener {
             }
         }
         allNodes.add(n);
-        changes.firePropertyChange(Constants.NodeAdd, null, n);
-        n.addPropertyChangeListener(this);
+        if(!remote){
+            remoteChanges.firePropertyChange(Constants.NodeAdd, null, n);
+        } else {
+            AbstractNode.incrementObjectCount();
+        }
+        n.addRemotePropertyChangeListener(this);
     }
 
     /**
      * Add an Edge to the Graph.
+     * @param remote, true if change comes from a remote server
      * @param e, cannot be null.
      */
-    public boolean addEdge(Edge e){
+    public boolean addEdge(Edge e, boolean remote){
         assert e != null;
         boolean success = allEdges.add(e);
-        changes.firePropertyChange(Constants.EdgeAdd, null, e);
+        if(!remote){
+            remoteChanges.firePropertyChange(Constants.EdgeAdd, null, e);
+        } else {
+            AbstractEdge.incrementObjectCount();
+        }
         return success;
     }
 
@@ -78,39 +88,46 @@ public class Graph implements Serializable, PropertyChangeListener {
      */
     public void addSketch(Sketch s) {
         assert s != null;
-        changes.firePropertyChange("AddSketch", null, null);
+        remoteChanges.firePropertyChange("AddSketch", null, null);
         allSketches.add(s);
     }
-
+/*
     public boolean connect(Node startNode, Node endNode, Edge edge){
         if (startNode != null && endNode != null && edge != null) {
             if (allNodes.contains(startNode) && allNodes.contains(endNode)) {
-                return addEdge(edge);
+                return addEdge(edge, false);
             }
         }
         return false;
     }
+*/
 
 
     /**
      * Removes a Node from the graph.
      * @param n to remove
+     * @param remote, true if change comes from a remote server
      * @return true if the Node is removed, otherwise false.
      */
-    public boolean removeNode(Node n) {
+    public boolean removeNode(Node n, boolean remote) {
         assert n != null;
-        changes.firePropertyChange(Constants.NodeRemove, null, ((AbstractNode)n).getId());
+        if(!remote) {
+            remoteChanges.firePropertyChange(Constants.NodeRemove, null, ((AbstractNode)n).getId());
+        }
         return allNodes.remove(n);
     }
 
     /**
      * Removes an Edge from the Graph.
      * @param e, Edge to be removed.
+     * @param remote, true if change comes from a remote server
      * @return true if the Edge is successfully removed.
      */
-    public boolean removeEdge(Edge e) {
+    public boolean removeEdge(Edge e, boolean remote) {
         assert e != null;
-        changes.firePropertyChange(Constants.EdgeRemove, null, ((AbstractEdge)e).getId());
+        if(!remote){
+            remoteChanges.firePropertyChange(Constants.EdgeRemove, null, ((AbstractEdge)e).getId());
+        }
         return allEdges.remove(e);
     }
 
@@ -203,12 +220,12 @@ public class Graph implements Serializable, PropertyChangeListener {
         return "GRAPH_" + id;
     }
 
-    public void addPropertyChangeListener(PropertyChangeListener l) {
-        changes.addPropertyChangeListener(l);
+    public void addRemotePropertyChangeListener(PropertyChangeListener l) {
+        remoteChanges.addPropertyChangeListener(l);
     }
 
-    public void removePropertyChangeListener(PropertyChangeListener l) {
-        changes.removePropertyChangeListener(l);
+    public void removeRemotePropertyChangeListener(PropertyChangeListener l) {
+        remoteChanges.removePropertyChangeListener(l);
     }
 
     /**
@@ -217,6 +234,6 @@ public class Graph implements Serializable, PropertyChangeListener {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        changes.firePropertyChange(evt);
+        remoteChanges.firePropertyChange(evt);
     }
 }

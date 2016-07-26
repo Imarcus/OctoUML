@@ -25,16 +25,18 @@ public class ServerController implements PropertyChangeListener {
     private Graph graph;
     private Server server;
     private MainController mainController;
+    private int port;
 
-    public ServerController(Graph pGraph, MainController pMainController) {
+    public ServerController(Graph pGraph, MainController pMainController, int pPort) {
         mainController = pMainController;
+        port = pPort;
         graph = pGraph;
-        graph.addPropertyChangeListener(this);
+        graph.addRemotePropertyChangeListener(this);
 
         server = new Server();
         server.start();
         try {
-            server.bind(54555,54777);
+            server.bind(port,54777);
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -51,14 +53,14 @@ public class ServerController implements PropertyChangeListener {
                     }
                 }
                 else if (object instanceof AbstractNode) {
-                    Platform.runLater(() -> mainController.createNodeView((AbstractNode)object));
+                    Platform.runLater(() -> mainController.createNodeView((AbstractNode)object, true));
                 }
                 else if (object instanceof AbstractEdge) {
-                    Platform.runLater(() -> mainController.addEdgeView((AbstractEdge)object));
+                    Platform.runLater(() -> mainController.addEdgeView((AbstractEdge)object, true));
                 }
                 else if (object instanceof Graph){
                     Graph graph = (Graph) object;
-                    Platform.runLater(() -> mainController.load(graph));
+                    Platform.runLater(() -> mainController.load(graph, true));
                 }
                 else if (object instanceof String[]){
                     Platform.runLater(() -> mainController.remoteCommand((String[])object));
@@ -72,7 +74,6 @@ public class ServerController implements PropertyChangeListener {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        System.out.println("Server PropertyChange: " + evt.getPropertyName());
         String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
@@ -130,5 +131,9 @@ public class ServerController implements PropertyChangeListener {
         kryo.register(ArrayList.class);
         kryo.register(model.AbstractEdge.Direction.class);
         kryo.register(String[].class);
+    }
+
+    public void closeServer(){
+        server.close();
     }
 }

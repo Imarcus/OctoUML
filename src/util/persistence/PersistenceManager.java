@@ -311,7 +311,7 @@ public class PersistenceManager {
                     Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
                     AbstractNode node = (PackageNode)createAbstractNode(viewElement, modelElement, isChild, true);
                     idMap.put(modelElement.getAttribute("xmi.id"), node);
-                    graph.addNode(node);
+                    graph.addNode(node, false);
                 }
             }
         }
@@ -327,7 +327,7 @@ public class PersistenceManager {
                     Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
                     AbstractNode node = createAbstractNode(viewElement, modelElement, isChild, false);
                     idMap.put(modelElement.getAttribute("xmi.id"), node);
-                    graph.addNode(node);
+                    graph.addNode(node, false);
                 }
             }
         }
@@ -357,7 +357,7 @@ public class PersistenceManager {
             } else { //Standard is Assocation
                 edge = new AssociationEdge(idMap.get(startNodeId), idMap.get(endNodeId));
             }
-            graph.addEdge(edge);
+            graph.addEdge(edge, false);
         }
 
 

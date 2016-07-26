@@ -20,8 +20,10 @@ public abstract class AbstractEdge implements Edge, Serializable {
     private int id = 0;
     private static final long serialVersionUID = 1L;
 
-
+    //Listened to by the view, is always fired.
     protected transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
+    //Listened to by the server/client, only fired when the change comes from local interaction.
+    protected transient PropertyChangeSupport remoteChanges = new PropertyChangeSupport(this);
 
 
     private Node startNode;
@@ -43,30 +45,81 @@ public abstract class AbstractEdge implements Edge, Serializable {
         id = ++objectCount;
     }
 
-    public void setDirection(Direction direction) {
-        this.direction = direction;
+    public void setDirection(Direction pDirection) {
+        direction = pDirection;
         changes.firePropertyChange(Constants.changeEdgeDirection, null, direction);
+        remoteChanges.firePropertyChange(Constants.changeEdgeDirection, null, direction);
     }
 
-    public Direction getDirection() {
-        return direction;
-    }
 
 
     public void setStartMultiplicity(String pStartMultiplicity) {
         startMultiplicity = pStartMultiplicity;
-        changes.firePropertyChange(Constants.changeEdgeStartMultiplicity, null, pStartMultiplicity);
+        changes.firePropertyChange(Constants.changeEdgeStartMultiplicity, null, startMultiplicity);
+        remoteChanges.firePropertyChange(Constants.changeEdgeStartMultiplicity, null, startMultiplicity);
     }
 
     public void setEndMultiplicity(String pEndMultiplicity) {
         endMultiplicity = pEndMultiplicity;
-        changes.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, pEndMultiplicity);
+        changes.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, endMultiplicity);
+        remoteChanges.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, endMultiplicity);
+    }
+
+
+
+    public void setStartNode(Node pNode) {
+        this.startNode = pNode;
+        changes.firePropertyChange(Constants.changeEdgeStartNode, null, startNode);
+        remoteChanges.firePropertyChange(Constants.changeEdgeStartNode, null, startNode);
+    }
+
+    public void setEndNode(Node pNode) {
+        endNode = pNode;
+        changes.firePropertyChange(Constants.changeEdgeEndNode, null, endNode);
+        remoteChanges.firePropertyChange(Constants.changeEdgeEndNode, null, endNode);
+    }
+
+    public void setZoom(double scale){
+        zoom = scale;
+        changes.firePropertyChange(Constants.changeEdgeZoom, null, zoom);
+        remoteChanges.firePropertyChange(Constants.changeEdgeZoom, null, zoom);
+    }
+
+    public void remoteSetDirection(Direction pDirection) {
+        this.direction = pDirection;
+        changes.firePropertyChange(Constants.changeEdgeDirection, null, direction);
+    }
+
+
+
+    public void remoteSetStartMultiplicity(String pStartMultiplicity) {
+        startMultiplicity = pStartMultiplicity;
+        changes.firePropertyChange(Constants.changeEdgeStartMultiplicity, null, startMultiplicity);
+    }
+
+    public void remoteSetEndMultiplicity(String pEndMultiplicity) {
+        endMultiplicity = pEndMultiplicity;
+        changes.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, endMultiplicity);
+    }
+
+    public void remoteSetStartNode(Node pNode) {
+        this.startNode = pNode;
+        changes.firePropertyChange(Constants.changeEdgeStartNode, null, startNode);
+    }
+
+    public void remoteSetEndNode(Node pNode) {
+        this.endNode = pNode;
+        changes.firePropertyChange(Constants.changeEdgeEndNode, null, endNode);
+    }
+
+    public void remoteSetZoom(double scale){
+        zoom = scale;
+        changes.firePropertyChange(Constants.changeEdgeZoom, null, zoom);
     }
 
     public String getStartMultiplicity() {
         return startMultiplicity;
     }
-
 
     public String getEndMultiplicity() {
         return endMultiplicity;
@@ -76,28 +129,19 @@ public abstract class AbstractEdge implements Edge, Serializable {
         return startNode;
     }
 
-    public void setStartNode(Node node) {
-        changes.firePropertyChange(Constants.changeEdgeStartNode, null, node);
-        this.startNode = node;
-    }
-
     public Node getEndNode() {
         return endNode;
     }
 
-    public void setEndNode(Node node) {
-        changes.firePropertyChange(Constants.changeEdgeEndNode, null, node);
-        this.endNode = node;
-    }
-
-    public void setZoom(double scale){
-        changes.firePropertyChange(Constants.changeEdgeZoom, null, scale);
-        zoom = scale;
-    }
 
     public double getZoom(){
         return zoom;
     }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
 
     @Override
     public String toString() {
@@ -112,6 +156,10 @@ public abstract class AbstractEdge implements Edge, Serializable {
 
     public String getId(){
         return "EDGE_" + id;
+    }
+
+    public static void incrementObjectCount(){
+        objectCount++;
     }
 
 

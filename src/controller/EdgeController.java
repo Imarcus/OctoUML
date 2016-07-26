@@ -190,7 +190,7 @@ public class EdgeController {
         if (oldEdgeView == null) {
             return false;
         }
-        mainController.deleteEdgeView(oldEdgeView, null, true);
+        mainController.deleteEdgeView(oldEdgeView, null, true, false);
 
         //newEdge.setDirection(oldEdge.getDirection());
         //newEdge.setStartMultiplicity(oldEdge.getStartMultiplicity());

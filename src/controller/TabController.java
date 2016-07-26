@@ -1,5 +1,6 @@
 package controller;
 
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.CheckMenuItem;
@@ -11,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.beans.EventHandler;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +59,7 @@ public class TabController {
         }
 
         Tab tab = new Tab();
+
         tab.setContent(canvasView);
         tabMap.put(tab, mainController);
         tab.setText("Diagram " + tabMap.size());

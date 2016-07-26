@@ -126,7 +126,7 @@ public class CreateNodeController {
         ClassNodeView nodeView = new ClassNodeView(node);
         aDrawPane.getChildren().add(nodeView);
         putNodeInPackage(nodeView, node);
-        aMainController.getGraphModel().addNode(node);
+        aMainController.getGraphModel().addNode(node, false);
 
         return nodeView;
     }
@@ -135,7 +135,7 @@ public class CreateNodeController {
         PackageNodeView nodeView = new PackageNodeView(node);
         aDrawPane.getChildren().add(nodeView);
         putNodeInPackage(nodeView, node);
-        aMainController.getGraphModel().addNode(node);
+        aMainController.getGraphModel().addNode(node, false);
 
         return nodeView;
     }

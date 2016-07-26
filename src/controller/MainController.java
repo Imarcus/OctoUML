@@ -61,6 +61,8 @@ public class MainController {
     ArrayList<AnchorPane> allDialogs = new ArrayList<>();
     HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
+    ArrayList<ServerController> serverControllers = new ArrayList<>();
+    ArrayList<ClientController> clientControllers = new ArrayList<>();
 
     //For drawing
     ArrayList<Sketch> allSketches = new ArrayList<>();
@@ -491,45 +493,13 @@ public class MainController {
                     if (startNodeView != null && endNodeView != null && !graph.hasEdge(edge)) {
                         //initEdgeActions(edgeView);
                         allEdgeViews.add(edgeView);
-                        graph.addEdge(edge);
+                        graph.addEdge(edge, false);
                         aDrawPane.getChildren().add(edgeView);
                         undoManager.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
                     }
                     edgeController.removeDragLine();
 
-                } /*else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) { //TODO Draw on nodes
-                    allPaths.add(drawPath);
-                    //TODO Fix initNodeActions.
-                    //initNodeActions(drawPath);
-                    undoManager.add(new AddDeletePathCommand(aDrawPane, drawPath, true));
-                    drawPath = null;
-
-                }*/
-               /* else if (tool == ToolEnum.CREATE && mode == Mode.CREATING) //TODO create in nodes
-                {
-                    //Create ClassNode
-                    ClassNode node = createNodeController.createClassNode(event);
-
-                    //Use CreateController to create ClassNodeView.
-                    ClassNodeView nodeView = (ClassNodeView) createNodeController.onTouchReleased(node, currentScale);
-                    nodeMap.put(nodeView, node);
-                    initNodeActions(nodeView);
-
-                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
-
-                    mode = Mode.NO_MODE;
-
                 }
-                else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING)
-                { //TODO: combine duplicated code?
-                    PackageNode node = createNodeController.createPackageNode(event);
-                    PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node, currentScale);
-                    nodeMap.put(nodeView, node);
-                    initNodeActions(nodeView);
-                    undoManager.add(new AddDeleteNodeCommand(aDrawPane, nodeView, nodeMap.get(nodeView), graph, true));
-
-                    mode = Mode.NO_MODE;
-                }*/
                 mode = Mode.NO_MODE;
                 event.consume();
             }
@@ -649,10 +619,10 @@ public class MainController {
     void deleteSelected() {
         CompoundCommand command = new CompoundCommand();
         for (AbstractNodeView nodeView : selectedNodes) {
-            deleteNode(nodeView, command, false);
+            deleteNode(nodeView, command, false, false);
         }
         for (AbstractEdgeView edgeView : selectedEdges) {
-            deleteEdgeView(edgeView, command, false);
+            deleteEdgeView(edgeView, command, false, false);
         }
         for (Sketch sketch : selectedSketches) {
             deleteSketch(sketch, command);
@@ -672,8 +642,9 @@ public class MainController {
      * @param nodeView
      * @param pCommand Compound command from deleting all selected, if null we create our own command.
      * @param undo     If true this is an undo and no command should be created
+     * @param remote, If true this command was received from a remote server.
      */
-    public void deleteNode(AbstractNodeView nodeView, CompoundCommand pCommand, boolean undo) {
+    public void deleteNode(AbstractNodeView nodeView, CompoundCommand pCommand, boolean undo, boolean remote) {
         CompoundCommand command = null;
         if (pCommand == null && !undo) {
             command = new CompoundCommand();
@@ -683,8 +654,8 @@ public class MainController {
         }
 
         AbstractNode node = nodeMap.get(nodeView);
-        deleteNodeEdges(node, command, undo);
-        getGraphModel().removeNode(node);
+        deleteNodeEdges(node, command, undo, remote);
+        getGraphModel().removeNode(node, remote);
         aDrawPane.getChildren().remove(nodeView);
         allNodeViews.remove(nodeView);
 
@@ -701,9 +672,10 @@ public class MainController {
      *
      * @param edgeView
      * @param pCommand Compound command from deleting all selected, if null we create our own command.
+     * @param remote, true if change comes from a remote server
      * @param undo     If true this is an undo and no command should be created, also used by replaceEdge in EdgeController
      */
-    public void deleteEdgeView(AbstractEdgeView edgeView, CompoundCommand pCommand, boolean undo) {
+    public void deleteEdgeView(AbstractEdgeView edgeView, CompoundCommand pCommand, boolean undo, boolean remote) {
         CompoundCommand command = null;
         //TODO Ugly solution for replace.
         if (pCommand == null) {
@@ -714,7 +686,7 @@ public class MainController {
         }
 
         AbstractEdge edge = edgeView.getRefEdge();
-        graph.removeEdge(edge);
+        graph.removeEdge(edge, remote);
         aDrawPane.getChildren().remove(edgeView);
         selectedEdges.remove(edgeView);
         edgeView.setSelected(false);
@@ -747,14 +719,15 @@ public class MainController {
      *
      * @param node
      * @param command
+     * @param remote, true if change comes from a remote server
      */
-    public void deleteNodeEdges(AbstractNode node, CompoundCommand command, boolean undo) {
+    public void deleteNodeEdges(AbstractNode node, CompoundCommand command, boolean undo, boolean remote) {
         AbstractEdge edge;
         ArrayList<AbstractEdgeView> edgeViewsToBeDeleted = new ArrayList<>();
         for (AbstractEdgeView edgeView : allEdgeViews) {
             edge = edgeView.getRefEdge();
             if (edge.getEndNode().equals(node) || edge.getStartNode().equals(node)) {
-                getGraphModel().removeEdge(edgeView.getRefEdge());
+                getGraphModel().removeEdge(edgeView.getRefEdge(), remote);
                 aDrawPane.getChildren().remove(edgeView);
                 selectedEdges.remove(edgeView);
                 edgeViewsToBeDeleted.add(edgeView);
@@ -985,7 +958,7 @@ public class MainController {
             if (e2 instanceof AssociationEdge) {
                 AssociationEdge edge = (AssociationEdge) e2;
                 //Only add the edge to the graph if it connects two nodes.
-                AbstractEdgeView edgeView = addEdgeView(edge);
+                AbstractEdgeView edgeView = addEdgeView(edge, false);
                 if (edgeView != null) {
                     recognizeCompoundCommand.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
                 }
@@ -1114,7 +1087,7 @@ public class MainController {
         if (file != null) {
             graph = PersistenceManager.importXMIFromPath(file.getAbsolutePath());
         }
-        load(graph);
+        load(graph, false);
     }
 
     public void handleMenuActionNew() {
@@ -1122,14 +1095,49 @@ public class MainController {
     }
 
     public void handleMenuActionServer(){
+        TextInputDialog portDialog = new TextInputDialog("54555");
+        portDialog.setTitle("Server Port");
+        portDialog.setHeaderText("Please enter port number");
+        portDialog.setContentText("Port:");
+
+        Optional<String> port = portDialog.showAndWait();
+
         //TODO how to handle these?
-        ServerController server = new ServerController(graph, this);
+        ServerController server = new ServerController(graph, this, Integer.parseInt(port.get()));
+        serverControllers.add(server);
     }
 
     public void handleMenuActionClient(){
-        ClientController client = new ClientController(this);
+        TextInputDialog ipDialog = new TextInputDialog("127.0.0.1");
+        ipDialog.setTitle("Server IP");
+        ipDialog.setHeaderText("Please enter Server IP");
+        ipDialog.setContentText("Server IP:");
+
+        TextInputDialog portDialog = new TextInputDialog("54555");
+        portDialog.setTitle("Server Port");
+        portDialog.setHeaderText("Please enter port number");
+        portDialog.setContentText("Port:");
+
+        Optional<String> ip = ipDialog.showAndWait();
+        Optional<String> port = portDialog.showAndWait();
+
+        if (ip.isPresent() && port.isPresent()) {
+            ClientController client = new ClientController(this, ip.get(), Integer.parseInt(port.get()));
+            clientControllers.add(client);
+        }
     }
 
+    public void closeServers(){
+        for (ServerController server : serverControllers) {
+            server.closeServer();
+        }
+    }
+
+    public void closeClients(){
+        for(ClientController client : clientControllers){
+            client.closeClient();
+        }
+    }
 
     //------------------------- Context Menu ---------------------------------
     private void initContextMenu() {
@@ -1141,7 +1149,7 @@ public class MainController {
             public void handle(ActionEvent event) {
                 //TODO Is this really needed? Why just not delete all selected?
                 if (aContextMenu.getOwnerNode() instanceof AbstractNodeView) {
-                    deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false);
+                    deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false, false);
                 }
                 deleteSelected();
             }
@@ -1184,7 +1192,7 @@ public class MainController {
      * @param node
      * @return
      */
-    public AbstractNodeView createNodeView(AbstractNode node) {
+    public AbstractNodeView createNodeView(AbstractNode node, boolean remote) {
         AbstractNodeView newView;
         if (node instanceof ClassNode) {
             newView = new ClassNodeView((ClassNode) node);
@@ -1199,7 +1207,7 @@ public class MainController {
             gridToBack();
         }
         if(!graph.getAllNodes().contains(node)){
-            graph.addNode(node);
+            graph.addNode(node, remote);
         }
         return addNodeView(newView, node);
     }
@@ -1229,7 +1237,7 @@ public class MainController {
         aDrawPane.getChildren().add(picView);
         initNodeActions(picView);
         allNodeViews.add(picView);
-        graph.addNode(picNode);
+        graph.addNode(picNode, false);
         nodeMap.put(picView, picNode);
         return picView;
     }
@@ -1246,25 +1254,25 @@ public class MainController {
         if(dataArray[0].equals(Constants.changeNodeTranslateY) || dataArray[0].equals(Constants.changeNodeTranslateX)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    node.setTranslateX(Double.parseDouble(dataArray[2]));
-                    node.setTranslateY(Double.parseDouble(dataArray[3]));
-                    node.setX(Double.parseDouble(dataArray[2]));
-                    node.setY(Double.parseDouble(dataArray[3]));
+                    node.remoteSetTranslateX(Double.parseDouble(dataArray[2]));
+                    node.remoteSetTranslateY(Double.parseDouble(dataArray[3]));
+                    node.remoteSetX(Double.parseDouble(dataArray[2]));
+                    node.remoteSetY(Double.parseDouble(dataArray[3]));
                     break;
                 }
             }
         } else if (dataArray[0].equals(Constants.changeNodeWidth) || dataArray[0].equals(Constants.changeNodeHeight)) {
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    node.setWidth(Double.parseDouble(dataArray[2]));
-                    node.setHeight(Double.parseDouble(dataArray[3]));
+                    node.remoteSetWidth(Double.parseDouble(dataArray[2]));
+                    node.remoteSetHeight(Double.parseDouble(dataArray[3]));
                     break;
                 }
             }
         } else if (dataArray[0].equals(Constants.changeNodeTitle)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    node.setTitle(dataArray[2]);
+                    node.remoteSetTitle(dataArray[2]);
                     break;
                 }
             }
@@ -1276,7 +1284,7 @@ public class MainController {
                     break;
                 }
             }
-            deleteNode(nodeToBeDeleted, null, false);
+            deleteNode(nodeToBeDeleted, null, false, true);
         } else if (dataArray[0].equals(Constants.EdgeRemove)) {
             AbstractEdgeView edgeToBeDeleted = null;
             for(AbstractEdgeView edgeView : allEdgeViews){
@@ -1285,20 +1293,20 @@ public class MainController {
                     break;
                 }
             }
-            deleteEdgeView(edgeToBeDeleted, null, false);
+            deleteEdgeView(edgeToBeDeleted, null, false, true);
         } else if (dataArray[0].equals(Constants.changeClassNodeAttributes) ||dataArray[0].equals(Constants.changeClassNodeOperations)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    ((ClassNode)node).setAttributes(dataArray[2]);
-                    ((ClassNode)node).setOperations(dataArray[3]);
+                    ((ClassNode)node).remoteSetAttributes(dataArray[2]);
+                    ((ClassNode)node).remoteSetOperations(dataArray[3]);
                     break;
                 }
             }
         } else if (dataArray[0].equals(Constants.changeEdgeStartMultiplicity) || dataArray[0].equals(Constants.changeEdgeEndMultiplicity)){
             for(Edge edge : graph.getAllEdges()){
                 if(dataArray[1].equals(edge.getId())){
-                    ((AbstractEdge) edge).setStartMultiplicity(dataArray[2]);
-                    ((AbstractEdge) edge).setEndMultiplicity(dataArray[3]);
+                    ((AbstractEdge) edge).remoteSetStartMultiplicity(dataArray[2]);
+                    ((AbstractEdge) edge).remoteSetEndMultiplicity(dataArray[3]);
                 }
             }
         }
@@ -1312,7 +1320,8 @@ public class MainController {
      * @param endNodeView
      * @return
      */
-    public AbstractEdgeView createEdgeView(AbstractEdge edge, AbstractNodeView startNodeView, AbstractNodeView endNodeView) {
+    public AbstractEdgeView createEdgeView(AbstractEdge edge, AbstractNodeView startNodeView,
+                                           AbstractNodeView endNodeView) {
         AbstractEdgeView edgeView;
         if (edge instanceof AssociationEdge) {
             edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
@@ -1337,7 +1346,7 @@ public class MainController {
     public AbstractEdgeView addEdgeView(AbstractEdgeView edgeView) {
         if (edgeView != null) {
             aDrawPane.getChildren().add(edgeView);
-            graph.addEdge(edgeView.getRefEdge());
+            graph.addEdge(edgeView.getRefEdge(), false);
             //initEdgeActions(edgeView);
             allEdgeViews.add(edgeView);
         }
@@ -1347,9 +1356,10 @@ public class MainController {
 
     /**
      * @param edge
+     * @param remote, true if change comes from a remote server
      * @return null if graph already hasEdge or start/endnodeview is null. Otherwise the created AbstractEdgeView.
      */
-    public AbstractEdgeView addEdgeView(AbstractEdge edge) {
+    public AbstractEdgeView addEdgeView(AbstractEdge edge, boolean remote) {
         AbstractNodeView startNodeView = null;
         AbstractNodeView endNodeView = null;
         AbstractNode tempNode;
@@ -1381,11 +1391,10 @@ public class MainController {
             System.out.println("Edge type not recognised. In addEdgeView(AbstractEdge edge).");
             return null;
         }
-        //initEdgeActions(edgeView);
         allEdgeViews.add(edgeView);
         aDrawPane.getChildren().add(edgeView);
         if(!graph.getAllEdges().contains(edge)){
-            graph.getAllEdges().add(edge);
+            graph.addEdge(edge, remote);
         }
         return edgeView;
     }
@@ -1404,21 +1413,26 @@ public class MainController {
         drawGrid();
     }
 
-    public void load(Graph pGraph) {
+    /**
+     * Removes everything on the canvas and loads the given graph
+     * @param pGraph The graph to be loaded
+     * @param remote True if graph comes from a remote server
+     */
+    public void load(Graph pGraph, boolean remote) {
         reset();
 
         if (pGraph != null) {
             this.graph = pGraph;
             for (AbstractNode node : graph.getAllNodes()) {
-                createNodeView(node);
+                createNodeView(node, remote);
             }
 
             for (Edge edge : graph.getAllEdges()) {
-                addEdgeView((AbstractEdge) edge);
+                addEdgeView((AbstractEdge) edge, remote);
             }
 
             for(Sketch sketch : graph.getAllSketches()){
-                addSketch(sketch, true);
+                addSketch(sketch, remote);
             }
         }
     }

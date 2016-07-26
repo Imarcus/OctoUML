@@ -52,7 +52,7 @@ public class RecognizeController {
                     double width = s.getStroke().getBoundingBox().getWidth();
                     double height = s.getStroke().getBoundingBox().getHeight();
                     s.setRecognizedElement(new ClassNode(x, y, width, height));
-                    mainController.getGraphModel().addNode((ClassNode)s.getRecognizedElement());
+                    mainController.getGraphModel().addNode((ClassNode)s.getRecognizedElement(), false);
                     recognizedElements.add(s.getRecognizedElement());
                     sketchesToBeRemoved.add(s);
                     aDrawPane.getChildren().remove(s.getPath());

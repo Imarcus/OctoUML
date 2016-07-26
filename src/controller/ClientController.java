@@ -20,15 +20,19 @@ public class ClientController implements PropertyChangeListener {
 
     private MainController mainController;
     private Client client;
+    private String serverIp;
+    private int port;
 
 
-    public ClientController(MainController pMainController) {
+    public ClientController(MainController pMainController, String pServerIp, int pPort) {
         mainController = pMainController;
+        serverIp = pServerIp;
+        port = pPort;
 
         client = new Client();
         client.start();
         try {
-            client.connect(5000, "127.0.0.1", 54555, 54777);
+            client.connect(5000, pServerIp, port, 54777);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,15 +46,15 @@ public class ClientController implements PropertyChangeListener {
                 if (object instanceof String) {
                 }
                 else if (object instanceof AbstractNode) {
-                    Platform.runLater(() -> mainController.createNodeView((AbstractNode)object));
+                    Platform.runLater(() -> mainController.createNodeView((AbstractNode)object, true));
                 }
                 else if (object instanceof AbstractEdge) {
-                    Platform.runLater(() -> mainController.addEdgeView((AbstractEdge)object));
+                    Platform.runLater(() -> mainController.addEdgeView((AbstractEdge)object, true));
                 }
                 else if (object instanceof Graph){
                     Graph graph = (Graph) object;
-                    graph.addPropertyChangeListener(ClientController.this);
-                    Platform.runLater(() -> mainController.load(graph));
+                    graph.addRemotePropertyChangeListener(ClientController.this);
+                    Platform.runLater(() -> mainController.load(graph, true));
                 }
                 else if (object instanceof String[]){
                     Platform.runLater(() -> mainController.remoteCommand((String[])object));
@@ -64,7 +68,6 @@ public class ClientController implements PropertyChangeListener {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        System.out.println("Client PropertyChange: " + evt.getPropertyName());
         String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
@@ -122,5 +125,9 @@ public class ClientController implements PropertyChangeListener {
         kryo.register(ArrayList.class);
         kryo.register(model.AbstractEdge.Direction.class);
         kryo.register(String[].class);
+    }
+
+    public void closeClient(){
+        client.close();
     }
 }

@@ -94,7 +94,6 @@ public class Graph implements Serializable, PropertyChangeListener {
             Sketch.incrementObjectCount();
         }
         allSketches.add(s);
-        System.out.println("THIS HAPPENS");
         s.addPropertyChangeListener(this);
     }
 /*

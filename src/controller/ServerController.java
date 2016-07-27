@@ -48,6 +48,7 @@ public class ServerController implements PropertyChangeListener {
 
         server.addListener(new Listener() {
             public void received (Connection connection, Object object) {
+                System.out.println(object.toString());
                 if (object instanceof Sketch) {
                     Platform.runLater(() -> mainController.addSketch((Sketch)object, false, true));
                 }
@@ -81,29 +82,23 @@ public class ServerController implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.sketchAdd)){
-            Sketch sketch = (Sketch) evt.getNewValue();
-            server.sendToAllTCP(sketch);
+            String[] dataArray = {Constants.sketchAdd};
+            server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchPoint)){
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
-            String[] dataArray = {Constants.changeSketchPoint, Integer.toString(sketch.getId()),
+            String[] dataArray = {Constants.changeSketchPoint, sketch.getId(),
                     Double.toString(point.getX()), Double.toString(point.getY())};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchStart)) {
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
-            String[] dataArray = {Constants.changeSketchStart, Integer.toString(sketch.getId()),
+            String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
                 Double.toString(point.getX()), Double.toString(point.getY())};
             server.sendToAllTCP(dataArray);
         }
-        /*else if (propertyName.equals(Constants.changeSketchStroke)) {
-            Sketch sketch = (Sketch) evt.getSource();
-            Stroke stroke = (Stroke) evt.getNewValue();
-            String[] dataArray = {Constants.changeSketchStroke, Integer.toString(sketch.getId()),
-                }
-        }*/
         else if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
             server.sendToAllTCP(node);
@@ -160,6 +155,11 @@ public class ServerController implements PropertyChangeListener {
         kryo.register(ArrayList.class);
         kryo.register(model.AbstractEdge.Direction.class);
         kryo.register(String[].class);
+        kryo.register(Sketch.class);
+        kryo.register(javafx.scene.shape.Path.class);
+        kryo.register(com.sun.javafx.geom.RectBounds.class);
+        kryo.register(com.sun.javafx.scene.CssFlags.class);
+        kryo.register(javafx.scene.Node.class);
     }
 
     public void closeServer(){

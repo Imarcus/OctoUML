@@ -369,7 +369,7 @@ public class PersistenceManager {
             Path sketchPath = new Path();
             sketchPath.setStrokeWidth(2);
             sketchPath.setStroke(Color.BLACK);
-            Sketch sketch = new Sketch(sketchPath);
+            Sketch sketch = new Sketch();
 
             Element sketchElement = (Element) nList.item(i);
             Element pathElement = (Element) sketchElement.getChildNodes().item(0);

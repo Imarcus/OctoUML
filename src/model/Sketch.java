@@ -29,14 +29,14 @@ public class Sketch implements GraphElement, Serializable {
 
     public transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
 
-    /**
-     * Creates this Sketch
-     * @param path
-     */
-    public Sketch(Path path){
+
+    public Sketch(){
         //TODO, should this make a copy of the path?
-        this.path = path;
+        path = new Path();
+        stroke = new Stroke();
         path.toFront();
+        path.setStrokeWidth(2);
+        path.setStroke(Color.BLACK);
         id = ++objectCount;
     }
 
@@ -62,6 +62,7 @@ public class Sketch implements GraphElement, Serializable {
     public void addPoint(double x, double y) {
         path.getElements()
                 .add(new LineTo(x, y));
+        stroke.addPoint(new Point(x, y));
         changes.firePropertyChange(Constants.changeSketchPoint, null, new Point2D(x,y));
     }
 
@@ -149,8 +150,8 @@ public class Sketch implements GraphElement, Serializable {
         return path.getScaleY();
     }
 
-    public int getId(){
-        return id;
+    public String getId(){
+        return "SKETCH_" + id;
     }
 
     public static void incrementObjectCount(){

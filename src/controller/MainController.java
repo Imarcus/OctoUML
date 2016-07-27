@@ -201,6 +201,9 @@ public class MainController {
                         mode = Mode.MOVING;
                         graphController.movePaneStart(graph.getAllGraphElements(), event);
                         event.consume();
+                    } else if (tool == ToolEnum.DRAW) {
+                        mode = Mode.DRAWING;
+                        sketchController.onTouchPressed(event);
                     }
 
                 } else if (mode == Mode.CONTEXT_MENU) {
@@ -222,6 +225,8 @@ public class MainController {
                     edgeController.onMouseDragged(event);
                 } else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) {
                     selectController.onMouseDragged(event);
+                } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
+                    sketchController.onTouchMoved(event);
                 }
 
                 //--------- MOUSE EVENT FOR TESTING ---------- TODO
@@ -247,6 +252,14 @@ public class MainController {
                     edgeController.removeDragLine();
                 } else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) {
                     selectController.onMouseReleased(event);
+                } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
+                    addSketch(sketchController.onTouchReleased(event), false, false);
+
+
+                    //We only want to move out of drawing mode if there are no other current drawings
+                    if (!sketchController.currentlyDrawing()) {
+                        mode = Mode.NO_MODE;
+                    }
                 }
                 // -------------- MOUSE EVENT FOR TESTING ---------------- TODO
                 if (tool == ToolEnum.CREATE && mode == Mode.CREATING && mouseCreationActivated) {
@@ -744,16 +757,6 @@ public class MainController {
             }
         }
         allEdgeViews.removeAll(edgeViewsToBeDeleted);
-    }
-
-    private void handleOnEdgeViewPressedEvents(AbstractEdgeView edgeView) {
-        /*if (edgeView.isSelected()) {
-            selectedEdges.remove(edgeView);
-            edgeView.setSelected(false);
-        } else {
-            selectedEdges.add(edgeView);
-            edgeView.setSelected(true);
-        }*/
     }
 
     /**
@@ -1261,16 +1264,24 @@ public class MainController {
         if(dataArray[0].equals(Constants.changeSketchPoint)){
             for(Sketch sketch : graph.getAllSketches()){
                 if(dataArray[1].equals(sketch.getId())){
-                    sketch.addPoint(Double.parseDouble(dataArray[2]), Double.parseDouble(dataArray[3]));
+                    sketch.addPointRemote(Double.parseDouble(dataArray[2]), Double.parseDouble(dataArray[3]));
                 }
             }
         }
         else if (dataArray[0].equals(Constants.changeSketchStart)){
             for(Sketch sketch : graph.getAllSketches()){
                 if(dataArray[1].equals(sketch.getId())){
-                    sketch.setStart(Double.parseDouble(dataArray[2]), Double.parseDouble(dataArray[3]));
+                    sketch.setStartRemote(Double.parseDouble(dataArray[2]), Double.parseDouble(dataArray[3]));
                 }
             }
+        }
+        else if (dataArray[0].equals(Constants.sketchAdd)){
+            Sketch sketch = new Sketch();
+            initSketchActions(sketch);
+            allSketches.add(sketch);
+            aDrawPane.getChildren().add(sketch.getPath());
+            graph.addSketch(sketch, true);
+            undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
         }
         else if(dataArray[0].equals(Constants.changeNodeTranslateY) || dataArray[0].equals(Constants.changeNodeTranslateX)){
             for(AbstractNode node : graph.getAllNodes()){

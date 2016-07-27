@@ -40,7 +40,7 @@ public class ClientController implements PropertyChangeListener {
 
         initKryo(client.getKryo());
 
-        client.sendTCP("RequestGraph");
+        client.sendTCP(Constants.requestGraph);
 
         client.addListener(new Listener() {
             public void received (Connection connection, Object object) {
@@ -84,6 +84,10 @@ public class ClientController implements PropertyChangeListener {
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
                     Double.toString(point.getX()), Double.toString(point.getY())};
+            client.sendTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.sketchRemove)){
+            String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue()};
             client.sendTCP(dataArray);
         }
         else if(propertyName.equals(Constants.NodeAdd)) {

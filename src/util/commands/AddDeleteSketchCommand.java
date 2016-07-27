@@ -83,8 +83,8 @@ public class AddDeleteSketchCommand implements Command
 	private void delete() 
 	{
 		aPane.getChildren().remove(aSketch.getPath());
-		mainController.getAllSketches().remove(aSketch);
 		mainController.getSelectedSketches().remove(aSketch);
+		mainController.getGraphModel().removeSketch(aSketch, false);
 	}
 	
 	/**
@@ -92,11 +92,10 @@ public class AddDeleteSketchCommand implements Command
 	 */
 	private void add() 
 	{
-		if (!aPane.getChildren().contains(aSketch.getPath())) {
-			aPane.getChildren().add(aSketch.getPath());
-			mainController.getAllSketches().add(aSketch);
-			aSketch.getPath().toFront();
-		}
+        aPane.getChildren().add(aSketch.getPath());
+        aSketch.getPath().toFront();
+        mainController.getGraphModel().addSketch(aSketch, false);
+
 	}
 	
 }

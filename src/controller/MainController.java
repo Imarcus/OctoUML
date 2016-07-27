@@ -12,7 +12,6 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Path;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
@@ -65,12 +64,6 @@ public class MainController {
     ArrayList<ServerController> serverControllers = new ArrayList<>();
     ArrayList<ClientController> clientControllers = new ArrayList<>();
 
-    //For drawing
-    ArrayList<Sketch> allSketches = new ArrayList<>();
-
-    //private Path drawPath;
-    Map<Integer, Path> currentPaths = new HashMap<>();
-
     boolean selected = false; //A node is currently selected
     double currentScale = 1;
 
@@ -80,7 +73,7 @@ public class MainController {
     private Mode mode = Mode.NO_MODE;
 
     public enum Mode {
-        NO_MODE, SELECTING, DRAGGING, RESIZING, ZOOMING, MOVING, DRAWING, CREATING, CONTEXT_MENU
+        NO_MODE, SELECTING, DRAGGING, RESIZING, MOVING, DRAWING, CREATING, CONTEXT_MENU
     }
 
     public Mode getMode() {
@@ -123,8 +116,6 @@ public class MainController {
     private ScrollPane aScrollPane;
 
     ContextMenu aContextMenu;
-    double orgSceneX, orgSceneY;
-    double orgTranslateX, orgTranslateY;
     private AbstractNodeView nodeClicked;
     private MainController instance = this;
 
@@ -253,7 +244,7 @@ public class MainController {
                 } else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) {
                     selectController.onMouseReleased(event);
                 } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    addSketch(sketchController.onTouchReleased(event), false, false);
+                    sketchController.onTouchReleased(event);
 
 
                     //We only want to move out of drawing mode if there are no other current drawings
@@ -355,7 +346,7 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
                 } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    addSketch(sketchController.onTouchReleased(event), false, false);
+                    sketchController.onTouchReleased(event);
 
 
                     //We only want to move out of drawing mode if there are no other current drawings
@@ -370,12 +361,10 @@ public class MainController {
 
     public void addSketch(Sketch sketch, boolean isImport, boolean remote){
         initSketchActions(sketch);
-        allSketches.add(sketch);
-        if(isImport){
-            aDrawPane.getChildren().add(sketch.getPath());
-        } else {
-            graph.addSketch(sketch, remote);
+        aDrawPane.getChildren().add(sketch.getPath());
+        if(!isImport){
             undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
+            graph.addSketch(sketch, remote);
         }
     }
 
@@ -588,11 +577,7 @@ public class MainController {
                         mode = Mode.NO_MODE;
                     }
                 } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    Sketch sketch = sketchController.onTouchReleased(event);
-                    initSketchActions(sketch);
-                    allSketches.add(sketch);
-                    graph.addSketch(sketch, false);
-                    undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
+                    sketchController.onTouchReleased(event);
 
                     //We only want to move out of drawing mode if there are no other current drawings
                     if (!sketchController.currentlyDrawing()) {
@@ -622,7 +607,7 @@ public class MainController {
                 edgeView.setSelected(false);
             }
         }
-        for (Sketch sketch : allSketches) {
+        for (Sketch sketch : graph.getAllSketches()) {
             if (selectedSketches.contains(sketch)) {
                 sketch.setSelected(true);
                 sketch.getPath().toFront();
@@ -730,7 +715,6 @@ public class MainController {
 
         getGraphModel().removeSketch(sketch, remote);
         aDrawPane.getChildren().remove(sketch.getPath());
-        allSketches.remove(sketch);
         command.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
     }
 
@@ -953,6 +937,7 @@ public class MainController {
         ArrayList<GraphElement> recognized = recognizeController.recognize(selectedSketches);
         CompoundCommand recognizeCompoundCommand = new CompoundCommand();
 
+        //Recognize nodes first
         for (GraphElement e : recognized) {
             if (e instanceof ClassNode) {
                 ClassNodeView nodeView = new ClassNodeView((ClassNode) e);
@@ -964,6 +949,7 @@ public class MainController {
                 initNodeActions(nodeView);
             }
         }
+        //Recognize edges
         for (GraphElement e2 : recognized) {
             if (e2 instanceof AssociationEdge) {
                 AssociationEdge edge = (AssociationEdge) e2;
@@ -980,11 +966,10 @@ public class MainController {
             aDrawPane.getChildren().remove(sketch);
             graph.removeSketch(sketch, false);
         }
-        allSketches.removeAll(recognizeController.getSketchesToBeRemoved());
         selectedSketches.removeAll(recognizeController.getSketchesToBeRemoved());
         undoManager.add(recognizeCompoundCommand);
         //Bring all sketches to front:
-        for (Sketch sketch : allSketches) {
+        for (Sketch sketch : graph.getAllSketches()) {
             sketch.getPath().toFront();
         }
         mode = Mode.NO_MODE;
@@ -1023,7 +1008,7 @@ public class MainController {
 
     public void handleMenuActionSketches() {
         if (sketchesVisible) {
-            for (Sketch sketch : allSketches) {
+            for (Sketch sketch : graph.getAllSketches()) {
                 aDrawPane.getChildren().remove(sketch.getPath());
             }
 
@@ -1032,7 +1017,7 @@ public class MainController {
             //sketchesMenuItem.setSelected(false);
             sketchesVisible = false;
         } else {
-            for (Sketch sketch : allSketches) {
+            for (Sketch sketch : graph.getAllSketches()) {
                 aDrawPane.getChildren().add(sketch.getPath());
             }
 
@@ -1276,12 +1261,17 @@ public class MainController {
             }
         }
         else if (dataArray[0].equals(Constants.sketchAdd)){
-            Sketch sketch = new Sketch();
-            initSketchActions(sketch);
-            allSketches.add(sketch);
-            aDrawPane.getChildren().add(sketch.getPath());
-            graph.addSketch(sketch, true);
-            undoManager.add(new AddDeleteSketchCommand(instance, aDrawPane, sketch, true));
+            addSketch(new Sketch(), false, true);
+        }
+        else if (dataArray[0].equals(Constants.sketchRemove)){
+            Sketch sketchToBeDeleted = null;
+            for(Sketch sketch : graph.getAllSketches()){
+                if(dataArray[1].equals(sketch.getId())){
+                    sketchToBeDeleted = sketch; //ConcurrentModificationException fix
+                    break;
+                }
+            }
+            deleteSketch(sketchToBeDeleted, null, true);
         }
         else if(dataArray[0].equals(Constants.changeNodeTranslateY) || dataArray[0].equals(Constants.changeNodeTranslateX)){
             for(AbstractNode node : graph.getAllNodes()){
@@ -1510,7 +1500,7 @@ public class MainController {
     }
 
     public void sketchesToFront() {
-        for (Sketch sketch : allSketches) {
+        for (Sketch sketch : graph.getAllSketches()) {
             sketch.getPath().toFront();
         }
     }
@@ -1549,7 +1539,7 @@ public class MainController {
         return nodeMap;
     }
 
-    protected Graph getGraphModel() {
+    public Graph getGraphModel() {
         return graph;
     }
 
@@ -1564,10 +1554,6 @@ public class MainController {
 
     public ArrayList<AbstractEdgeView> getAllEdgeViews() {
         return allEdgeViews;
-    }
-
-    public ArrayList getAllSketches() {
-        return allSketches;
     }
 
     public UndoManager getUndoManager() {

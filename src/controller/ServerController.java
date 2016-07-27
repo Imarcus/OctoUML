@@ -48,13 +48,12 @@ public class ServerController implements PropertyChangeListener {
 
         server.addListener(new Listener() {
             public void received (Connection connection, Object object) {
-                System.out.println(object.toString());
                 if (object instanceof Sketch) {
                     Platform.runLater(() -> mainController.addSketch((Sketch)object, false, true));
                 }
                 else if (object instanceof String) {
                     String request = (String)object;
-                    if(request.equals("RequestGraph")){
+                    if(request.equals(Constants.requestGraph)){
                         connection.sendTCP(mainController.getGraphModel());
                     }
                 }
@@ -97,6 +96,10 @@ public class ServerController implements PropertyChangeListener {
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
                 Double.toString(point.getX()), Double.toString(point.getY())};
+            server.sendToAllTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.sketchRemove)){
+            String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.NodeAdd)) {

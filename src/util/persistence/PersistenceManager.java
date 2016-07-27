@@ -32,29 +32,6 @@ import java.util.Map;
  */
 public class PersistenceManager {
 
-    public static void saveFile(Graph pGraph, String path)
-    {
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(path);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        XMLEncoder encoder = new XMLEncoder(bos);
-        encoder.writeObject(pGraph);
-        /*for(AbstractNode node : pGraph.getAllNodes()){
-            encoder.writeObject(node);
-        }
-        for(Edge edge : pGraph.getAllEdges()){
-            encoder.writeObject(edge);
-        }*/
-
-        encoder.close();
-    }
-
-
-
     public static void exportXMI(Graph pGraph, String path){
         try{
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -366,9 +343,7 @@ public class PersistenceManager {
         //Import sketches
         nList = doc.getElementsByTagName("Sketch");
         for(int i = 0; i < nList.getLength(); i++) {
-            Path sketchPath = new Path();
-            sketchPath.setStrokeWidth(2);
-            sketchPath.setStroke(Color.BLACK);
+
             Sketch sketch = new Sketch();
 
             Element sketchElement = (Element) nList.item(i);
@@ -378,18 +353,13 @@ public class PersistenceManager {
             for (int j = 0; j < pathList.getLength(); j++) {
                 Element point = (Element) pathList.item(j);
                 if (point.getTagName().equals("MoveTo")) {
-                    sketchPath.getElements().add(new MoveTo(Double.parseDouble(point.getAttribute("xPoint")),
-                            Double.parseDouble(point.getAttribute("yPoint"))));
-                    stroke.addPoint(new Point(Double.parseDouble(point.getAttribute("xPoint")),
-                            Double.parseDouble(point.getAttribute("yPoint"))));
+                    sketch.setStart(Double.parseDouble(point.getAttribute("xPoint")),
+                            Double.parseDouble(point.getAttribute("yPoint")));
                 } else if (point.getTagName().equals("LineTo")) {
-                    sketchPath.getElements().add(new LineTo(Double.parseDouble(point.getAttribute("xPoint")),
-                            Double.parseDouble(point.getAttribute("yPoint"))));
-                    stroke.addPoint(new Point(Double.parseDouble(point.getAttribute("xPoint")),
-                            Double.parseDouble(point.getAttribute("yPoint"))));
+                    sketch.addPoint(Double.parseDouble(point.getAttribute("xPoint")),
+                            Double.parseDouble(point.getAttribute("yPoint")));
                 }
             }
-            sketch.setStroke(stroke);
             graph.addSketch(sketch, false);
         }
         return graph;
@@ -427,19 +397,5 @@ public class PersistenceManager {
         abstractNode.setIsChild(isChild);
 
         return abstractNode;
-    }
-
-    public static Graph loadFile(String path){
-
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(path);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        XMLDecoder decoder = new XMLDecoder(bis);
-        Graph graph = (Graph) decoder.readObject();
-        return graph;
     }
 }

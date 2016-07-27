@@ -75,10 +75,7 @@ public abstract class AbstractNodeView extends Group implements NodeView, Proper
 
 
     public boolean contains(double x, double y) {
-        if (x >= this.getTranslateX() && x <= this.getTranslateX() + this.width && y >= this.getTranslateY() && y <= this.getTranslateY() + this.height) {
-            return true;
-        }
-        return false;
+        return (x >= this.getTranslateX() && x <= this.getTranslateX() + this.width && y >= this.getTranslateY() && y <= this.getTranslateY() + this.height);
     }
 
     public abstract Bounds getBounds();

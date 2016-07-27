@@ -10,6 +10,7 @@ public class Constants {
     public static Color selected_color = Color.web("#FF6D70");
     public static Color selected_sketch_color = Color.web("#884FA8");
 
+    public static String requestGraph = "RequestGraph";
     public static String NodeAdd = "NodeAdd";
     public static String NodeRemove = "NodeRemove";
     public static String EdgeAdd = "EdgeAdd";

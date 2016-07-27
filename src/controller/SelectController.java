@@ -116,21 +116,12 @@ public class SelectController {
                 mainController.selectedEdges.add(edgeView);
             }
         }
-        for (Sketch sketch : mainController.allSketches) {
+        for (Sketch sketch : mainController.getGraphModel().getAllSketches()) {
             if (selectRectangle.getBoundsInParent().intersects(sketch.getPath().getBoundsInParent())) {
                 mainController.selected = true;
                 mainController.selectedSketches.add(sketch);
             }
         }
-                    /* //TODO Selectable sketches
-                    for (javafx.scene.Node p : allSketches)
-                    {
-                        if (selectRectangle.getBoundsInParent().contains(p.getBoundsInParent()))
-                        {
-                            selected = true;
-                            selectedNodes.add(p);
-                        }
-                    }*/
 
         //If no nodes were contained, remove all selections
         if (!mainController.selected) {

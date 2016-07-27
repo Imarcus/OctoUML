@@ -90,8 +90,6 @@ public class Graph implements Serializable, PropertyChangeListener {
         assert s != null;
         if(!remote){
             remoteChanges.firePropertyChange(Constants.sketchAdd, null, s);
-        } else {
-            Sketch.incrementObjectCount();
         }
         allSketches.add(s);
         s.addPropertyChangeListener(this);
@@ -172,7 +170,7 @@ public class Graph implements Serializable, PropertyChangeListener {
      */
     public boolean hasEdge(Edge edge) {
         if (edge == null || edge.getStartNode() == null || edge.getEndNode() == null) {
-            System.out.println("CRITICAL: Edge, edge.getStartNode or edge.getEndNode is null.");
+            System.out.println("Edge, edge.getStartNode or edge.getEndNode is null.");
             //TODO what should this return?
             return false;
         }
@@ -195,8 +193,6 @@ public class Graph implements Serializable, PropertyChangeListener {
         for (Node node : allNodes){
             if (node.getBounds().contains(point.getX(), point.getY())) {
                 if (node instanceof PackageNode && ((PackageNode) node).findNode(point) != null) {
-                    System.out.println("PackageNode found: x=" + node.getX() + " y=" + node.getY() +
-                            " width=" + node.getWidth() + " height=" + node.getHeight());
                     return ((PackageNode) node).findNode(point);
                 }
                 else {
@@ -243,7 +239,6 @@ public class Graph implements Serializable, PropertyChangeListener {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        System.out.println(evt.getPropertyName());
         remoteChanges.firePropertyChange(evt);
     }
 }

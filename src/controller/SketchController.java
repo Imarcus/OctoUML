@@ -43,8 +43,7 @@ public class SketchController {
     }
     public void onTouchPressed(InputEvent event) {
         Sketch sketch = new Sketch();
-        mController.getGraphModel().addSketch(sketch, false);
-
+        mController.addSketch(sketch, false, false);
 
         double x, y;
         if(event instanceof TouchEvent){
@@ -66,13 +65,11 @@ public class SketchController {
         }
         sketch.setStart(xPoint, yPoint);
 
-        aDrawPane.getChildren().add(sketch.getPath());
         if(event instanceof TouchEvent) {
             currentSketches.put(((TouchEvent)event).getTouchPoint().getId(), sketch);
         } else { //event instanceof mouseevent
             currentSketch = sketch;
         }
-
     }
 
     public void onTouchMoved(InputEvent event) {
@@ -106,18 +103,10 @@ public class SketchController {
         sketch.addPoint(xPoint, yPoint);
     }
 
-    public Sketch onTouchReleased(InputEvent event) {
-        Sketch sketch;
-        Stroke stroke;
+    public void onTouchReleased(InputEvent event) {
         if(event instanceof TouchEvent) {
-            sketch = currentSketches.get(((TouchEvent) event).getTouchPoint().getId());
             currentSketches.remove(((TouchEvent) event).getTouchPoint().getId());
-        } else { //event instanceof mouseevent
-            sketch = currentSketch;
         }
-
-        //sketch.setStroke(stroke);
-        return sketch;
     }
 
     public boolean currentlyDrawing() {

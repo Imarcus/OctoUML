@@ -43,7 +43,7 @@ import java.util.logging.Logger;
 
 
 /**
- * Created by marcusisaksson on 2016-02-11.
+ * Controls all user inputs and delegates work to other controllers.
  */
 public class MainController {
     //For testing with mouse and keyboard
@@ -177,197 +177,174 @@ public class MainController {
         aBorderPane.setPickOnBounds(false);
 
         //So that the pane doesn't scroll when using a touch screen.
-        aDrawPane.setOnScroll(new EventHandler<ScrollEvent>() {
-            @Override
-            public void handle(ScrollEvent event) {
-                event.consume();
-            }
-        });
+        aDrawPane.setOnScroll(event -> event.consume());
 
-        aDrawPane.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (mode == Mode.NO_MODE) {
-                    if (event.getButton() == MouseButton.SECONDARY) {
-                        mode = Mode.CONTEXT_MENU;
-                        copyPasteController.copyPasteCoords = new double[]{event.getX(), event.getY()};
-                        aContextMenu.show(aDrawPane, event.getScreenX(), event.getScreenY());
-                    } else if (tool == ToolEnum.SELECT || tool == ToolEnum.EDGE) {
-                        selectController.onMousePressed(event);
-                    }
-
-                    //--------- MOUSE EVENT FOR TESTING ---------- TODO
-                    else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mouseCreationActivated) {
-                        mode = Mode.CREATING;
-                        createNodeController.onMousePressed(event);
-                    } else if (tool == ToolEnum.MOVE_SCENE) {
-                        mode = Mode.MOVING;
-                        graphController.movePaneStart(graph.getAllGraphElements(), event);
-                        event.consume();
-                    } else if (tool == ToolEnum.DRAW) {
-                        mode = Mode.DRAWING;
-                        sketchController.onTouchPressed(event);
-                    }
-
-                } else if (mode == Mode.CONTEXT_MENU) {
-                    if (event.getButton() == MouseButton.SECONDARY) {
-                        copyPasteController.copyPasteCoords = new double[]{event.getX(), event.getY()};
-                        aContextMenu.show(aDrawPane, event.getScreenX(), event.getScreenY());
-                    } else {
-                        aContextMenu.hide();
-                    }
-                }
-                event.consume();
-            }
-        });
-
-        aDrawPane.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
-                    edgeController.onMouseDragged(event);
-                } else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) {
-                    selectController.onMouseDragged(event);
-                } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    sketchController.onTouchMoved(event);
+        aDrawPane.setOnMousePressed(event -> {
+            if (mode == Mode.NO_MODE) {
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    mode = Mode.CONTEXT_MENU;
+                    copyPasteController.copyPasteCoords = new double[]{event.getX(), event.getY()};
+                    aContextMenu.show(aDrawPane, event.getScreenX(), event.getScreenY());
+                } else if (tool == ToolEnum.SELECT || tool == ToolEnum.EDGE) {
+                    selectController.onMousePressed(event);
                 }
 
                 //--------- MOUSE EVENT FOR TESTING ---------- TODO
-                else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING && mouseCreationActivated) {
-                    createNodeController.onMouseDragged(event);
-                } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
-                    graphController.movePane(graph.getAllGraphElements(), event);
+                else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mouseCreationActivated) {
+                    mode = Mode.CREATING;
+                    createNodeController.onMousePressed(event);
+                } else if (tool == ToolEnum.MOVE_SCENE) {
+                    mode = Mode.MOVING;
+                    graphController.movePaneStart(event);
+                    event.consume();
+                } else if (tool == ToolEnum.DRAW) {
+                    mode = Mode.DRAWING;
+                    sketchController.onTouchPressed(event);
                 }
-                event.consume();
+
+            } else if (mode == Mode.CONTEXT_MENU) {
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    copyPasteController.copyPasteCoords = new double[]{event.getX(), event.getY()};
+                    aContextMenu.show(aDrawPane, event.getScreenX(), event.getScreenY());
+                } else {
+                    aContextMenu.hide();
+                }
             }
+            event.consume();
         });
 
-        aDrawPane.setOnMouseReleased(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
-                    //User is not creating an Edge between two nodes, so we don't handle that.
-                    edgeController.removeDragLine();
+        aDrawPane.setOnMouseDragged(event -> {
+            if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
+                edgeController.onMouseDragged(event);
+            } else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) {
+                selectController.onMouseDragged(event);
+            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
+                sketchController.onTouchMoved(event);
+            }
 
-                    mode = Mode.NO_MODE;
+            //--------- MOUSE EVENT FOR TESTING ---------- TODO
+            else if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING && mouseCreationActivated) {
+                createNodeController.onMouseDragged(event);
+            } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
+                graphController.movePane(event);
+            }
+            event.consume();
+        });
 
-                } else if (tool == ToolEnum.EDGE) {
-                    edgeController.removeDragLine();
-                } else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) {
-                    selectController.onMouseReleased(event);
-                } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    sketchController.onTouchReleased(event);
+        aDrawPane.setOnMouseReleased(event -> {
+            if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
+                //User is not creating an Edge between two nodes, so we don't handle that.
+                edgeController.removeDragLine();
+
+                mode = Mode.NO_MODE;
+
+            } else if (tool == ToolEnum.EDGE) {
+                edgeController.removeDragLine();
+            } else if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) {
+                selectController.onMouseReleased();
+            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
+                sketchController.onTouchReleased(event);
 
 
-                    //We only want to move out of drawing mode if there are no other current drawings
-                    if (!sketchController.currentlyDrawing()) {
-                        mode = Mode.NO_MODE;
-                    }
-                }
-                // -------------- MOUSE EVENT FOR TESTING ---------------- TODO
-                if (tool == ToolEnum.CREATE && mode == Mode.CREATING && mouseCreationActivated) {
-                    //Create ClassNode
-                    ClassNode node = createNodeController.createClassNodeMouse(event);
-
-                    //Use CreateController to create ClassNodeView.
-                    ClassNodeView nodeView = (ClassNodeView) createNodeController.onMouseReleased(event, node, currentScale);
-
-                    nodeMap.put(nodeView, node);
-                    allNodeViews.add(nodeView);
-                    initNodeActions(nodeView);
-
-                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
-                    if (!createNodeController.currentlyCreating()) {
-                        mode = Mode.NO_MODE;
-                    }
-
-                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING && mouseCreationActivated) { //TODO: combine double code
-                    PackageNode node = createNodeController.createPackageNodeMouse(event);
-                    PackageNodeView nodeView = (PackageNodeView) createNodeController.onMouseReleased(event, node, currentScale);
-                    nodeMap.put(nodeView, node);
-                    initNodeActions(nodeView);
-                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
-                    allNodeViews.add(nodeView);
-                    //
-                    if (!createNodeController.currentlyCreating()) {
-                        mode = Mode.NO_MODE;
-                    }
-                } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
-                    graphController.movePaneFinished(event);
+                //We only want to move out of drawing mode if there are no other current drawings
+                if (!sketchController.currentlyDrawing()) {
                     mode = Mode.NO_MODE;
                 }
+            }
+            // -------------- MOUSE EVENT FOR TESTING ---------------- TODO
+            if (tool == ToolEnum.CREATE && mode == Mode.CREATING && mouseCreationActivated) {
+                //Create ClassNode
+                ClassNode node = createNodeController.createClassNodeMouse(event);
+
+                //Use CreateController to create ClassNodeView.
+                ClassNodeView nodeView = (ClassNodeView) createNodeController.onMouseReleased(node);
+
+                nodeMap.put(nodeView, node);
+                allNodeViews.add(nodeView);
+                initNodeActions(nodeView);
+
+                undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
+                if (!createNodeController.currentlyCreating()) {
+                    mode = Mode.NO_MODE;
+                }
+
+            } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING && mouseCreationActivated) { //TODO: combine double code
+                PackageNode node = createNodeController.createPackageNodeMouse(event);
+                PackageNodeView nodeView = (PackageNodeView) createNodeController.onMouseReleased(node);
+                nodeMap.put(nodeView, node);
+                initNodeActions(nodeView);
+                undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
+                allNodeViews.add(nodeView);
+                //
+                if (!createNodeController.currentlyCreating()) {
+                    mode = Mode.NO_MODE;
+                }
+            } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
+                graphController.movePaneFinished();
+                mode = Mode.NO_MODE;
             }
         });
 
         ////////////////////////////////////////////////////////////////
 
-        aDrawPane.setOnTouchPressed(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
-                if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && !mouseCreationActivated) {
-                    mode = Mode.CREATING;
-                    createNodeController.onTouchPressed(event);
-                } else if (tool == ToolEnum.DRAW) {
-                    mode = Mode.DRAWING;
-                    sketchController.onTouchPressed(event);
-                }
+        aDrawPane.setOnTouchPressed(event -> {
+            if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && !mouseCreationActivated) {
+                mode = Mode.CREATING;
+                createNodeController.onTouchPressed(event);
+            } else if (tool == ToolEnum.DRAW) {
+                mode = Mode.DRAWING;
+                sketchController.onTouchPressed(event);
             }
         });
 
-        aDrawPane.setOnTouchMoved(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
-                if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING && !mouseCreationActivated) {
-                    createNodeController.onTouchDragged(event);
-                } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    sketchController.onTouchMoved(event);
-                }
-                event.consume();
-
+        aDrawPane.setOnTouchMoved(event -> {
+            if ((tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) && mode == Mode.CREATING && !mouseCreationActivated) {
+                createNodeController.onTouchDragged(event);
+            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
+                sketchController.onTouchMoved(event);
             }
+            event.consume();
+
         });
 
-        aDrawPane.setOnTouchReleased(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
-                if (tool == ToolEnum.CREATE && mode == Mode.CREATING && !mouseCreationActivated) {
-                    //Create ClassNode
-                    ClassNode node = createNodeController.createClassNode(event);
+        aDrawPane.setOnTouchReleased(event -> {
+            if (tool == ToolEnum.CREATE && mode == Mode.CREATING && !mouseCreationActivated) {
+                //Create ClassNode
+                ClassNode node = createNodeController.createClassNode(event);
 
-                    //Use CreateController to create ClassNodeView.
-                    ClassNodeView nodeView = (ClassNodeView) createNodeController.onTouchReleased(node, currentScale);
+                //Use CreateController to create ClassNodeView.
+                ClassNodeView nodeView = (ClassNodeView) createNodeController.onTouchReleased(node);
 
-                    nodeMap.put(nodeView, node);
-                    allNodeViews.add(nodeView);
-                    initNodeActions(nodeView);
+                nodeMap.put(nodeView, node);
+                allNodeViews.add(nodeView);
+                initNodeActions(nodeView);
 
-                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
-                    if (!createNodeController.currentlyCreating()) {
-                        mode = Mode.NO_MODE;
-                    }
-
-                } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING && !mouseCreationActivated) { //TODO: combine double code
-                    PackageNode node = createNodeController.createPackageNode(event);
-                    PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node, currentScale);
-                    nodeMap.put(nodeView, node);
-                    initNodeActions(nodeView);
-                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
-                    allNodeViews.add(nodeView);
-                    //
-                    if (!createNodeController.currentlyCreating()) {
-                        mode = Mode.NO_MODE;
-                    }
-                } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    sketchController.onTouchReleased(event);
-
-
-                    //We only want to move out of drawing mode if there are no other current drawings
-                    if (!sketchController.currentlyDrawing()) {
-                        mode = Mode.NO_MODE;
-                    }
+                undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
+                if (!createNodeController.currentlyCreating()) {
+                    mode = Mode.NO_MODE;
                 }
-                event.consume();
+
+            } else if (tool == ToolEnum.PACKAGE && mode == Mode.CREATING && !mouseCreationActivated) { //TODO: combine double code
+                PackageNode node = createNodeController.createPackageNode(event);
+                PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node);
+                nodeMap.put(nodeView, node);
+                initNodeActions(nodeView);
+                undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
+                allNodeViews.add(nodeView);
+                //
+                if (!createNodeController.currentlyCreating()) {
+                    mode = Mode.NO_MODE;
+                }
+            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
+                sketchController.onTouchReleased(event);
+
+
+                //We only want to move out of drawing mode if there are no other current drawings
+                if (!sketchController.currentlyDrawing()) {
+                    mode = Mode.NO_MODE;
+                }
             }
+            event.consume();
         });
     }
 
@@ -382,225 +359,207 @@ public class MainController {
 
     private void initNodeActions(AbstractNodeView nodeView) {
 
-        nodeView.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                //TODO Maybe needs some check here?
-                if (event.getClickCount() == 2) {
-                    nodeController.onDoubleClick(nodeView);
-                    tool = ToolEnum.SELECT;
-                    setButtonClicked(selectBtn);
-                } else if (tool == ToolEnum.MOVE_SCENE) {
-                    mode = Mode.MOVING;
-                    graphController.movePaneStart(graph.getAllGraphElements(), event);
-                    event.consume();
-                } else if (event.getButton() == MouseButton.SECONDARY) {
-                    nodeClicked = nodeView;
-                    copyPasteController.copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
-                    aContextMenu.show(nodeView, event.getScreenX(), event.getScreenY());
-                } else if (tool == ToolEnum.SELECT) {
-                    if (!(nodeView instanceof PackageNodeView)) {
-                        nodeView.toFront();
-                    }
-                    if (mode == Mode.NO_MODE) //Resize
-                    {
-                        Point2D.Double eventPoint = new Point2D.Double(event.getX(), event.getY());
-                        Point2D.Double cornerPoint = new Point2D.Double(nodeView.getWidth(), nodeView.getHeight());
-
-                        if (eventPoint.distance(cornerPoint) < 20) {
-                            mode = Mode.RESIZING;
-                            nodeController.resizeStart(nodeView, event);
-                        }
-                    }
-
-                    if (mode == Mode.NO_MODE) //Move, any kind of node
-                    {
-                        mode = Mode.DRAGGING;
-                        if (!selectedNodes.contains(nodeView)) {
-                            selectedNodes.add(nodeView);
-                        }
-                        drawSelected();
-
-                        nodeController.moveNodesStart(event);
-                        //TODO THis is for testing!!!
-                        sketchController.moveSketchStart(event);
-                    }
-                } else if (tool == ToolEnum.EDGE) {
-                    mode = Mode.CREATING;
-                    edgeController.onMousePressed(event);
-                }
+        nodeView.setOnMousePressed(event -> {
+            //TODO Maybe needs some check here?
+            if (event.getClickCount() == 2) {
+                nodeController.onDoubleClick(nodeView);
+                tool = ToolEnum.SELECT;
+                setButtonClicked(selectBtn);
+            } else if (tool == ToolEnum.MOVE_SCENE) {
+                mode = Mode.MOVING;
+                graphController.movePaneStart(event);
                 event.consume();
-            }
-        });
-
-        nodeView.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) {
-                    ArrayList<AbstractNode> selected = new ArrayList<>();
-                    for (AbstractNodeView n : selectedNodes) {
-                        selected.add(nodeMap.get(n));
-                    }
-                    nodeController.moveNodes(event);
-                    //TODO JUST FOR TESTING:
-                    sketchController.moveSketches(event);
-                    nodeWasDragged = true;
-
-
-                } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
-                    graphController.movePane(graph.getAllGraphElements(), event);
-                } else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING) {
-                    nodeController.resize(nodeView, event);
-                } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
-                    edgeController.onMouseDragged(event);
+            } else if (event.getButton() == MouseButton.SECONDARY) {
+                nodeClicked = nodeView;
+                copyPasteController.copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
+                aContextMenu.show(nodeView, event.getScreenX(), event.getScreenY());
+            } else if (tool == ToolEnum.SELECT) {
+                if (!(nodeView instanceof PackageNodeView)) {
+                    nodeView.toFront();
                 }
-                /*else if(mode == Mode.CREATING && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE))
+                if (mode == Mode.NO_MODE) //Resize
                 {
-                    createNodeController.onTouchMoved(event);
+                    Point2D.Double eventPoint = new Point2D.Double(event.getX(), event.getY());
+                    Point2D.Double cornerPoint = new Point2D.Double(nodeView.getWidth(), nodeView.getHeight());
 
-                }*/
-                event.consume();
+                    if (eventPoint.distance(cornerPoint) < 20) {
+                        mode = Mode.RESIZING;
+                        nodeController.resizeStart(nodeView);
+                    }
+                }
 
+                if (mode == Mode.NO_MODE) //Move, any kind of node
+                {
+                    mode = Mode.DRAGGING;
+                    if (!selectedNodes.contains(nodeView)) {
+                        selectedNodes.add(nodeView);
+                    }
+                    drawSelected();
+
+                    nodeController.moveNodesStart(event);
+                    //TODO THis is for testing!!!
+                    sketchController.moveSketchStart(event);
+                }
+            } else if (tool == ToolEnum.EDGE) {
+                mode = Mode.CREATING;
+                edgeController.onMousePressed(event);
             }
+            event.consume();
         });
 
-        nodeView.setOnMouseReleased(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) {
-                    double[] deltaTranslateVector = nodeController.moveNodesFinished(event);
-                    //TODO JUST FOR TESTING
-                    sketchController.moveSketchFinished(event);
-                    CompoundCommand compoundCommand = new CompoundCommand();
-                    for (AbstractNodeView movedView : selectedNodes) {
-                        compoundCommand.add(new MoveGraphElementCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
-                    }
-                    //TODO JUST FOR TESTING:
-                    for (Sketch sketch : selectedSketches) {
-                        compoundCommand.add(new MoveGraphElementCommand(sketch, deltaTranslateVector[0], deltaTranslateVector[1]));
-                    }
-                    undoManager.add(compoundCommand);
-                    if (!nodeWasDragged) {
-                        selectedNodes.remove(nodeView);
-                        drawSelected();
-                        nodeWasDragged = false;
-                    }
-                } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
-                    graphController.movePaneFinished(event);
-                    mode = Mode.NO_MODE;
-                } else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING) {
-                    nodeController.resizeFinished(nodeMap.get(nodeView), event);
-
-                } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
-                    AbstractNodeView startNodeView = null;
-                    AbstractNodeView endNodeView = null;
-                    model.Node startNode = null;
-                    model.Node endNode = null;
-                    for (AbstractNodeView nodeView : allNodeViews) {
-                        if (nodeView.contains(edgeController.getStartPoint())) {
-                            startNodeView = nodeView;
-                            startNode = graph.findNode(edgeController.getStartPoint());
-                        } else if (nodeView.contains(edgeController.getEndPoint())) {
-                            endNodeView = nodeView;
-                            endNode = graph.findNode(edgeController.getEndPoint());
-                        }
-                    }
-
-                    AssociationEdge edge = new AssociationEdge(startNode, endNode);
-
-                    AssociationEdgeView edgeView = (AssociationEdgeView) edgeController.
-                            onMouseReleased(edge, startNodeView, endNodeView);
-
-                    if (startNodeView != null && endNodeView != null && !graph.hasEdge(edge)) {
-                        //initEdgeActions(edgeView);
-                        allEdgeViews.add(edgeView);
-                        graph.addEdge(edge, false);
-                        aDrawPane.getChildren().add(edgeView);
-                        undoManager.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
-                    }
-                    edgeController.removeDragLine();
-
+        nodeView.setOnMouseDragged(event -> {
+            if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) {
+                ArrayList<AbstractNode> selected1 = new ArrayList<>();
+                for (AbstractNodeView n : selectedNodes) {
+                    selected1.add(nodeMap.get(n));
                 }
-                mode = Mode.NO_MODE;
-                event.consume();
+                nodeController.moveNodes(event);
+                //TODO JUST FOR TESTING:
+                sketchController.moveSketches(event);
+                nodeWasDragged = true;
+
+
+            } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
+                graphController.movePane(event);
+            } else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING) {
+                nodeController.resize(event);
+            } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
+                edgeController.onMouseDragged(event);
             }
+            /*else if(mode == Mode.CREATING && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE))
+            {
+                createNodeController.onTouchMoved(event);
+
+            }*/
+            event.consume();
+
+        });
+
+        nodeView.setOnMouseReleased(event -> {
+            if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) {
+                double[] deltaTranslateVector = nodeController.moveNodesFinished(event);
+                //TODO JUST FOR TESTING
+                sketchController.moveSketchFinished(event);
+                CompoundCommand compoundCommand = new CompoundCommand();
+                for (AbstractNodeView movedView : selectedNodes) {
+                    compoundCommand.add(new MoveGraphElementCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
+                }
+                //TODO JUST FOR TESTING:
+                for (Sketch sketch : selectedSketches) {
+                    compoundCommand.add(new MoveGraphElementCommand(sketch, deltaTranslateVector[0], deltaTranslateVector[1]));
+                }
+                undoManager.add(compoundCommand);
+                if (!nodeWasDragged) {
+                    selectedNodes.remove(nodeView);
+                    drawSelected();
+                    nodeWasDragged = false;
+                }
+            } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
+                graphController.movePaneFinished();
+                mode = Mode.NO_MODE;
+            } else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING) {
+                nodeController.resizeFinished(nodeMap.get(nodeView));
+
+            } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
+                AbstractNodeView startNodeView = null;
+                AbstractNodeView endNodeView = null;
+                Node startNode = null;
+                Node endNode = null;
+                for (AbstractNodeView nodeView1 : allNodeViews) {
+                    if (nodeView1.contains(edgeController.getStartPoint())) {
+                        startNodeView = nodeView1;
+                        startNode = graph.findNode(edgeController.getStartPoint());
+                    } else if (nodeView1.contains(edgeController.getEndPoint())) {
+                        endNodeView = nodeView1;
+                        endNode = graph.findNode(edgeController.getEndPoint());
+                    }
+                }
+
+                AssociationEdge edge = new AssociationEdge(startNode, endNode);
+
+                AssociationEdgeView edgeView = (AssociationEdgeView) edgeController.
+                        onMouseReleased(edge, startNodeView, endNodeView);
+
+                if (startNodeView != null && endNodeView != null && !graph.hasEdge(edge)) {
+                    //initEdgeActions(edgeView);
+                    allEdgeViews.add(edgeView);
+                    graph.addEdge(edge, false);
+                    aDrawPane.getChildren().add(edgeView);
+                    undoManager.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
+                }
+                edgeController.removeDragLine();
+
+            }
+            mode = Mode.NO_MODE;
+            event.consume();
         });
 
         ////////////////////////////////////////////////////////////////
 
-        nodeView.setOnTouchPressed(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
-                if (nodeView instanceof PackageNodeView && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE)) {
-                    mode = Mode.CREATING;
-                    createNodeController.onTouchPressed(event);
-                } else if (tool == ToolEnum.DRAW) {
-                    mode = Mode.DRAWING;
-                    sketchController.onTouchPressed(event);
-                }
-                event.consume();
+        nodeView.setOnTouchPressed(event -> {
+            if (nodeView instanceof PackageNodeView && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE)) {
+                mode = Mode.CREATING;
+                createNodeController.onTouchPressed(event);
+            } else if (tool == ToolEnum.DRAW) {
+                mode = Mode.DRAWING;
+                sketchController.onTouchPressed(event);
             }
+            event.consume();
         });
 
-        nodeView.setOnTouchMoved(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
-                if (nodeView instanceof PackageNodeView && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) &&
-                        mode == Mode.CREATING) {
-                    createNodeController.onTouchDragged(event);
-                } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    sketchController.onTouchMoved(event);
-                }
-                event.consume();
-
+        nodeView.setOnTouchMoved(event -> {
+            if (nodeView instanceof PackageNodeView && (tool == ToolEnum.CREATE || tool == ToolEnum.PACKAGE) &&
+                    mode == Mode.CREATING) {
+                createNodeController.onTouchDragged(event);
+            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
+                sketchController.onTouchMoved(event);
             }
+            event.consume();
+
         });
 
-        nodeView.setOnTouchReleased(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
-                if (nodeView instanceof PackageNodeView && tool == ToolEnum.CREATE && mode == Mode.CREATING) {
-                    //Create ClassNode
-                    ClassNode node = createNodeController.createClassNode(event);
+        nodeView.setOnTouchReleased(event -> {
+            if (nodeView instanceof PackageNodeView && tool == ToolEnum.CREATE && mode == Mode.CREATING) {
+                //Create ClassNode
+                ClassNode node = createNodeController.createClassNode(event);
 
-                    //Use CreateController to create ClassNodeView.
-                    ClassNodeView nodeView = (ClassNodeView) createNodeController.onTouchReleased(node, currentScale);
+                //Use CreateController to create ClassNodeView.
+                ClassNodeView nodeView1 = (ClassNodeView) createNodeController.onTouchReleased(node);
 
-                    nodeMap.put(nodeView, node);
-                    allNodeViews.add(nodeView);
-                    initNodeActions(nodeView);
-                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
+                nodeMap.put(nodeView1, node);
+                allNodeViews.add(nodeView1);
+                initNodeActions(nodeView1);
+                undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView1, nodeMap.get(nodeView1), true));
 
-                    //If someone else is creating at the same time.
-                    if (!createNodeController.currentlyCreating()) {
-                        mode = Mode.NO_MODE;
-                    }
-
-                } else if (nodeView instanceof PackageNodeView && tool == ToolEnum.PACKAGE && mode == Mode.CREATING) { //TODO: combine double code
-                    PackageNode node = createNodeController.createPackageNode(event);
-                    PackageNodeView nodeView = (PackageNodeView) createNodeController.onTouchReleased(node, currentScale);
-                    nodeMap.put(nodeView, node);
-                    initNodeActions(nodeView);
-                    undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView, nodeMap.get(nodeView), true));
-                    allNodeViews.add(nodeView);
-
-                    //If someone else is creating at the same time.
-                    if (!createNodeController.currentlyCreating()) {
-                        mode = Mode.NO_MODE;
-                    }
-                } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
-                    sketchController.onTouchReleased(event);
-
-                    //We only want to move out of drawing mode if there are no other current drawings
-                    if (!sketchController.currentlyDrawing()) {
-                        mode = Mode.NO_MODE;
-                    }
-                } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
-                    //graphController.movePaneFinished(event); TODO
+                //If someone else is creating at the same time.
+                if (!createNodeController.currentlyCreating()) {
                     mode = Mode.NO_MODE;
                 }
-                event.consume();
+
+            } else if (nodeView instanceof PackageNodeView && tool == ToolEnum.PACKAGE && mode == Mode.CREATING) { //TODO: combine double code
+                PackageNode node = createNodeController.createPackageNode(event);
+                PackageNodeView nodeView1 = (PackageNodeView) createNodeController.onTouchReleased(node);
+                nodeMap.put(nodeView1, node);
+                initNodeActions(nodeView1);
+                undoManager.add(new AddDeleteNodeCommand(MainController.this, graph, nodeView1, nodeMap.get(nodeView1), true));
+                allNodeViews.add(nodeView1);
+
+                //If someone else is creating at the same time.
+                if (!createNodeController.currentlyCreating()) {
+                    mode = Mode.NO_MODE;
+                }
+            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
+                sketchController.onTouchReleased(event);
+
+                //We only want to move out of drawing mode if there are no other current drawings
+                if (!sketchController.currentlyDrawing()) {
+                    mode = Mode.NO_MODE;
+                }
+            } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
+                //graphController.movePaneFinished(event); TODO
+                mode = Mode.NO_MODE;
             }
+            event.consume();
         });
     }
 
@@ -762,71 +721,59 @@ public class MainController {
      */
     private void initSketchActions(Sketch sketch) {
         //TODO Implement this.
-        sketch.getPath().setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (mouseCreationActivated) {
-                    handleOnSketchPressedEvents(sketch);
+        sketch.getPath().setOnMousePressed(event -> {
+            if (mouseCreationActivated) {
+                handleOnSketchPressedEvents(sketch);
 
-                    //TODO DUPLICATED CODE FROM nodeView.setOnMousePressed()
-                    if (tool == ToolEnum.SELECT) {
-                        if (mode == Mode.NO_MODE) //Move, any kind of node
-                        {
-                            mode = Mode.DRAGGING;
-                            if (!selectedSketches.contains(sketch)) {
-                                selectedSketches.add(sketch);
-                            }
-                            drawSelected();
-                            sketchController.moveSketchStart(event);
+                //TODO DUPLICATED CODE FROM nodeView.setOnMousePressed()
+                if (tool == ToolEnum.SELECT) {
+                    if (mode == Mode.NO_MODE) //Move, any kind of node
+                    {
+                        mode = Mode.DRAGGING;
+                        if (!selectedSketches.contains(sketch)) {
+                            selectedSketches.add(sketch);
                         }
-
+                        drawSelected();
+                        sketchController.moveSketchStart(event);
                     }
+
                 }
-                event.consume();
             }
+            event.consume();
         });
 
-        sketch.getPath().setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (mouseCreationActivated) {
-                    if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) {
-                        sketchController.moveSketches(event);
-                    }
-                }
-                event.consume();
-            }
-        });
-
-        sketch.getPath().setOnMouseReleased(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                //TODO DUPLICATED CODE FROM nodeView.setOnMouseReleased()
+        sketch.getPath().setOnMouseDragged(event -> {
+            if (mouseCreationActivated) {
                 if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) {
-                    double[] deltaTranslateVector = sketchController.moveSketchFinished(event);
-                    sketchController.moveSketchFinished(event);
-                    CompoundCommand compoundCommand = new CompoundCommand();
-                    for (AbstractNodeView movedView : selectedNodes) {
-                        compoundCommand.add(new MoveGraphElementCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
-                    }
-                    //TODO JUST FOR TESTING:
-                    for (Sketch sketch : selectedSketches) {
-                        compoundCommand.add(new MoveGraphElementCommand(sketch, deltaTranslateVector[0], deltaTranslateVector[1]));
-                    }
-                    undoManager.add(compoundCommand);
-                    drawSelected();
+                    sketchController.moveSketches(event);
                 }
-                mode = Mode.NO_MODE;
-                event.consume();
             }
+            event.consume();
         });
 
-        sketch.getPath().setOnTouchPressed(new EventHandler<TouchEvent>() {
-            @Override
-            public void handle(TouchEvent event) {
-                if (!mouseCreationActivated) {
-                    handleOnSketchPressedEvents(sketch);
+        sketch.getPath().setOnMouseReleased(event -> {
+            //TODO DUPLICATED CODE FROM nodeView.setOnMouseReleased()
+            if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) {
+                double[] deltaTranslateVector = sketchController.moveSketchFinished(event);
+                sketchController.moveSketchFinished(event);
+                CompoundCommand compoundCommand = new CompoundCommand();
+                for (AbstractNodeView movedView : selectedNodes) {
+                    compoundCommand.add(new MoveGraphElementCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
                 }
+                //TODO JUST FOR TESTING:
+                for (Sketch sketch1 : selectedSketches) {
+                    compoundCommand.add(new MoveGraphElementCommand(sketch1, deltaTranslateVector[0], deltaTranslateVector[1]));
+                }
+                undoManager.add(compoundCommand);
+                drawSelected();
+            }
+            mode = Mode.NO_MODE;
+            event.consume();
+        });
+
+        sketch.getPath().setOnTouchPressed(event -> {
+            if (!mouseCreationActivated) {
+                handleOnSketchPressedEvents(sketch);
             }
         });
 
@@ -1024,7 +971,7 @@ public class MainController {
                 aDrawPane.getChildren().remove(sketch.getPath());
             }
 
-            setButtons(true, Arrays.asList(drawBtn));
+            setButtons(true, Collections.singletonList(drawBtn));
 
             //sketchesMenuItem.setSelected(false);
             sketchesVisible = false;
@@ -1033,7 +980,7 @@ public class MainController {
                 aDrawPane.getChildren().add(sketch.getPath());
             }
 
-            setButtons(false, Arrays.asList(drawBtn));
+            setButtons(false, Collections.singletonList(drawBtn));
             //sketchesMenuItem.setSelected(true);
             sketchesVisible = true;
         }
@@ -1168,44 +1115,33 @@ public class MainController {
         aContextMenu = new ContextMenu();
 
         MenuItem cmItemDelete = new MenuItem("Delete");
-        cmItemDelete.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                //TODO Is this really needed? Why just not delete all selected?
-                if (aContextMenu.getOwnerNode() instanceof AbstractNodeView) {
-                    deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false, false);
-                }
-                deleteSelected();
+        cmItemDelete.setOnAction(event -> {
+            //TODO Is this really needed? Why just not delete all selected?
+            if (aContextMenu.getOwnerNode() instanceof AbstractNodeView) {
+                deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false, false);
             }
+            deleteSelected();
         });
 
 
         MenuItem cmItemCopy = new MenuItem("Copy");
-        cmItemCopy.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                copyPasteController.copy();
-                mode = Mode.NO_MODE;
-            }
+        cmItemCopy.setOnAction(e -> {
+            copyPasteController.copy();
+            mode = Mode.NO_MODE;
         });
 
         MenuItem cmItemPaste = new MenuItem("Paste");
-        cmItemPaste.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                copyPasteController.paste();
-                mode = Mode.NO_MODE;
-            }
+        cmItemPaste.setOnAction(e -> {
+            copyPasteController.paste();
+            mode = Mode.NO_MODE;
         });
 
         MenuItem cmItemInsertImg = new MenuItem("Insert Image");
-        cmItemInsertImg.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                Point2D.Double point = new Point2D.Double(copyPasteController.copyPasteCoords[0], copyPasteController.copyPasteCoords[1]);
-                InsertIMG insertImg = new InsertIMG(aStage, aDrawPane);
-                insertImg.openFileChooser(MainController.this, point);
-            }
-
-            });
+        cmItemInsertImg.setOnAction(event -> {
+            Point2D.Double point = new Point2D.Double(copyPasteController.copyPasteCoords[0], copyPasteController.copyPasteCoords[1]);
+            InsertIMG insertImg = new InsertIMG(aStage, aDrawPane);
+            insertImg.openFileChooser(MainController.this, point);
+        });
 
         aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste, cmItemDelete,cmItemInsertImg);
     }
@@ -1538,12 +1474,9 @@ public class MainController {
 
     private void initZoomSlider() {
 
-        zoomSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number> ov,
-                                Number old_val, Number new_val) {
-                if (zoomSlider.isValueChanging()) {
-                    graphController.zoomPane(old_val.doubleValue(), new_val.doubleValue());
-                }
+        zoomSlider.valueProperty().addListener((ov, old_val, new_val) -> {
+            if (zoomSlider.isValueChanging()) {
+                graphController.zoomPane(new_val.doubleValue());
             }
         });
         zoomSlider.setShowTickMarks(true);

@@ -4,7 +4,7 @@ import util.Constants;
 
 import java.io.Serializable;
 /**
- * Created by marcusisaksson on 2016-02-12.
+ * Represents a UML class.
  */
 public class ClassNode extends AbstractNode implements Serializable
 {

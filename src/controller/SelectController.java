@@ -12,7 +12,7 @@ import controller.MainController.ToolEnum;
 import controller.MainController.Mode;
 
 /**
- * Created by chris on 2016-02-15.
+ * Used by MainController for handling when a user tries to select elements in the graph.
  */
 //TODO Refactor code from MainController here.
 public class SelectController {
@@ -101,7 +101,7 @@ public class SelectController {
         //drawSelected();
     }
 
-    void onMouseReleased(MouseEvent event){
+    void onMouseReleased(){
         for(AbstractNodeView nodeView : mainController.allNodeViews) {
             if (selectRectangle.getBoundsInParent().contains(nodeView.getBoundsInParent()))
             {

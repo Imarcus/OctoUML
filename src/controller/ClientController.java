@@ -15,7 +15,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Created when attempting to connect to a server.
+ * Communicates changes in the graph to and from the host.
+ * Used by MainController when connecting to a host.
  */
 public class ClientController implements PropertyChangeListener {
 

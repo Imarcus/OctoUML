@@ -2,7 +2,7 @@ package model;
 import javafx.scene.image.Image;
 
 /**
- * Created by anasm on 2016-06-28.
+ * Represents an image in the graph.
  */
 public class PictureNode extends AbstractNode{
 
@@ -20,7 +20,7 @@ public class PictureNode extends AbstractNode{
     @Override
     public AbstractNode copy() {
         return null;
-    }
+    } //TODO
 
 
     public PictureNode (Image image, double x, double y, double width, double height)

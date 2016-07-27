@@ -1,7 +1,7 @@
 package model;
 
 /**
- * Created by chris on 2016-02-15.
+ * Represents an associate relationship between two UML-classes.
  */
 public class AssociationEdge extends AbstractEdge {
 

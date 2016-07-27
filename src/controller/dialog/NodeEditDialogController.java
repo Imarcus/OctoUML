@@ -1,13 +1,9 @@
 package controller.dialog;
 
-/**
- * Created by marcusisaksson on 2016-02-25.
- */
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
 import model.ClassNode;
 
 /**
@@ -88,8 +84,6 @@ public class NodeEditDialogController {
      */
     private void handleOk() {
         if (isInputValid()) {
-
-
             okClicked = true;
         }
     }

@@ -1,14 +1,9 @@
 package view;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
-import javafx.scene.Group;
 import javafx.scene.image.ImageView;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
-import model.PackageNode;
 import model.PictureNode;
 import util.Constants;
 
@@ -16,7 +11,7 @@ import java.beans.PropertyChangeEvent;
 
 
 /**
- * Created by anasm on 2016-06-27.
+ * Visual representation of PictureView.
  */
 public class PictureNodeView extends AbstractNodeView {
 

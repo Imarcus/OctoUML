@@ -1,7 +1,7 @@
 package model;
 
 /**
- * Created by Chris on 2016-03-16.
+ * Represents an aggregate relationship between two UML-classes.
  */
 public class AggregationEdge extends AbstractEdge {
 

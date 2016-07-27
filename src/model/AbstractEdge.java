@@ -1,14 +1,9 @@
 package model;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-
-import javafx.beans.property.ObjectProperty;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
-import javafx.beans.property.*;
+
 import util.Constants;
 
 /**

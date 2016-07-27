@@ -5,9 +5,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by chris on 2016-02-16.
- */
 public class ClassNodeViewTest {
 
     @Test

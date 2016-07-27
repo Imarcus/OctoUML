@@ -3,7 +3,7 @@ package util.commands;
 import model.AbstractEdge;
 
 /**
- * Created by chalmers on 2016-07-07.
+ * Command for changing the direction of an edge.
  */
 public class DirectionChangeEdgeCommand implements Command {
 

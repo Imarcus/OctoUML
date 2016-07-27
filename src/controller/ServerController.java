@@ -4,9 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
-import com.google.gson.Gson;
 import controller.MainController;
-import edu.tamu.core.sketch.Stroke;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import model.*;
@@ -15,12 +13,11 @@ import util.Constants;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
- * Created by Marcus on 2016-07-21.
+ * Forward changes in the graph to all clients.
+ * Used by MainController for turning the diagram in to a host for clients to connect to.
  */
 public class ServerController implements PropertyChangeListener {
 

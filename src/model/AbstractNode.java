@@ -1,6 +1,5 @@
 package model;
 
-import javafx.beans.property.*;
 import javafx.geometry.Rectangle2D;
 import util.Constants;
 

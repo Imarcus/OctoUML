@@ -1,7 +1,5 @@
 package view;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -14,7 +12,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- * Created by chris on 2016-02-18.
+ * Visual representation of AbstractEdge class.
  */
 public abstract class AbstractEdgeView extends Group implements EdgeView, PropertyChangeListener {
     private static int objectCounter = 0;

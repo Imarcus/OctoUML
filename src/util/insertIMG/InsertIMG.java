@@ -1,10 +1,9 @@
 package util.insertIMG;
 
 /**
- * Created by chalmers on 2016-06-23.
+ * Used by MainController for fetching a image to be used in the graph.
  */
 
-import java.awt.Desktop;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.logging.Level;
@@ -22,7 +21,6 @@ import javax.imageio.ImageIO;
 public class InsertIMG {
 
     ImageView myImageView;
-    private Desktop desktop = Desktop.getDesktop();
     Stage aStage;
     Pane aDrawPane;
     private MainController controller;

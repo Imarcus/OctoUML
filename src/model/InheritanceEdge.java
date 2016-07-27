@@ -1,7 +1,7 @@
 package model;
 
 /**
- * Created by chris on 2016-03-11.
+ * Represents an inheritance relationship between two classes.
  */
 public class InheritanceEdge extends AbstractEdge {
 

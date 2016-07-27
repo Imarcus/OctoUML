@@ -2,19 +2,14 @@ package controller;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 /**
- * Created by marcusisaksson on 2016-02-16.
+ * Launches application with main view "tabView.fxml"
  */
 public class Launcher extends Application {
 

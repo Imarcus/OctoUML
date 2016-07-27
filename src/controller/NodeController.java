@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Created by marcusisaksson on 2016-02-12.
+ * Used by MainController for handling moving and resizing Nodes, among other things.
  */
 public class NodeController {
     //For resizing rectangles
@@ -64,7 +64,7 @@ public class NodeController {
         dragRectangle.setScaleY(scaleY);
     }
 
-    public void resizeStart(AbstractNodeView nodeView, MouseEvent event){
+    public void resizeStart(AbstractNodeView nodeView){
         aDrawPane.getChildren().add(dragRectangle);
         dragRectangle.setWidth(nodeView.getWidth());
         dragRectangle.setHeight(nodeView.getHeight());
@@ -72,7 +72,7 @@ public class NodeController {
         dragRectangle.setY(nodeView.getTranslateY());
     }
 
-    public void resize(AbstractNodeView nodeView, MouseEvent event){
+    public void resize(MouseEvent event){
         dragRectangle.setWidth(event.getX());
         dragRectangle.setHeight(event.getY());
 
@@ -87,7 +87,7 @@ public class NodeController {
         }
     }
 
-    public void resizeFinished(AbstractNode node, MouseEvent event){ //TODO event parameter not needed
+    public void resizeFinished(AbstractNode node){ //TODO event parameter not needed
         node.setWidth(dragRectangle.getWidth());
         node.setHeight(dragRectangle.getHeight());
         dragRectangle.setHeight(0);
@@ -254,21 +254,13 @@ public class NodeController {
         VBox group = new VBox();
         TextField input = new TextField();
         Button okButton = new Button("Ok");
-        okButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                node.setTitle(input.getText());
-                aDrawPane.getChildren().remove(group);
-            }
+        okButton.setOnAction(event -> {
+            node.setTitle(input.getText());
+            aDrawPane.getChildren().remove(group);
         });
 
         Button cancelButton = new Button("Cancel");
-        cancelButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                aDrawPane.getChildren().remove(group);
-            }
-        });
+        cancelButton.setOnAction(event -> aDrawPane.getChildren().remove(group));
 
         Label label = new Label("Choose title");
         group.getChildren().add(label);
@@ -305,23 +297,17 @@ public class NodeController {
             NodeEditDialogController controller = loader.getController();
 
             controller.setNode(node);
-            controller.getOkButton().setOnMousePressed(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    node.setTitle(controller.getTitle());
-                    node.setAttributes(controller.getAttributes());
-                    node.setOperations(controller.getOperations());
-                    aDrawPane.getChildren().remove(dialog);
-                    aMainController.removeDialog(dialog);
-                }
+            controller.getOkButton().setOnMousePressed(event -> {
+                node.setTitle(controller.getTitle());
+                node.setAttributes(controller.getAttributes());
+                node.setOperations(controller.getOperations());
+                aDrawPane.getChildren().remove(dialog);
+                aMainController.removeDialog(dialog);
             });
 
-            controller.getCancelButton().setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    aDrawPane.getChildren().remove(dialog);
-                    aMainController.removeDialog(dialog);
-                }
+            controller.getCancelButton().setOnAction(event -> {
+                aDrawPane.getChildren().remove(dialog);
+                aMainController.removeDialog(dialog);
             });
             aDrawPane.getChildren().add(dialog);
             aMainController.addDialog(dialog);

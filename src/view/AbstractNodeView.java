@@ -1,7 +1,5 @@
 package view;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import model.AbstractNode;
@@ -11,7 +9,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- * Created by marcusisaksson on 2016-02-17.
+ * Visual representation of AbstractNode class.
  */
 public abstract class AbstractNodeView extends Group implements NodeView, PropertyChangeListener {
 

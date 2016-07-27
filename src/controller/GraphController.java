@@ -1,36 +1,16 @@
 package controller;
 
-import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.shape.Line;
-import model.GraphElement;
 import javafx.scene.layout.Pane;
-import view.PictureNodeView;
-
-import java.util.HashMap;
-import java.util.List;
 
 /**
- * Created by marcusisaksson on 2016-02-12.
+ * Used by MainController for zooming and panning the view.
  */
 public class GraphController {
 
     //For touch-moving the pane
     private double initMoveX, initMoveY;
-    private HashMap<GraphElement, Double>  xInitTranslateMap = new HashMap<>();
-    private HashMap<GraphElement, Double>  yInitTranslateMap = new HashMap<>();
-    private HashMap<Line, Double> xInitTranslateMapGrid = new HashMap<>();
-    private HashMap<Line, Double> yInitTranslateMapGrid = new HashMap<>();
-    private HashMap<AnchorPane, Double> xDialogInitTranslateMap = new HashMap<>();
-    private HashMap<AnchorPane, Double> yDialogInitTranslateMap = new HashMap<>();
-    private HashMap<PictureNodeView, Double> xPictureInitTranslateMap = new HashMap<>();
-    private HashMap<PictureNodeView, Double> yPictureInitTranslateMap = new HashMap<>();
-
-    private double initPaneTranslateX;
-    private double initPaneTranslateY;
-
 
     private Pane aDrawPane;
     private MainController aMainController;
@@ -48,7 +28,7 @@ public class GraphController {
 
     }
 
-    public void movePaneStart(List<GraphElement> elements, MouseEvent event)
+    public void movePaneStart(MouseEvent event)
         {
 
         initMoveX = event.getSceneX();
@@ -56,7 +36,7 @@ public class GraphController {
 
     }
 
-    public void movePane(List<GraphElement> elements, MouseEvent event)
+    public void movePane(MouseEvent event)
     {
         ScrollPane scrollPane = aMainController.getScrollPane();
         double xScroll =  (initMoveX - event.getSceneX())/8000; //8000 is the size of aDrawPane set in view.fxml
@@ -73,30 +53,17 @@ public class GraphController {
 
     }
 
-    public void movePaneFinished(MouseEvent event)
+    public void movePaneFinished()
     {
-        xInitTranslateMap.clear();
-        yInitTranslateMap.clear();
-        initPaneTranslateX = 0;
-        initPaneTranslateY = 0;
         initMoveX = 0;
         initMoveY = 0;
     }
-    public void zoomPaneStart()
-    {
-        //Not used
-    }
 
-    public void zoomPane(double oldZoom, double newZoom)
+    public void zoomPane(double newZoom)
     {
         double scale = newZoom/100;
         aDrawPane.setScaleX(scale);
         aDrawPane.setScaleY(scale);
-    }
-
-    public void zoomPaneFinished()
-    {
-        //Not used
     }
 
     public void resetDrawPaneOffset(){

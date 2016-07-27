@@ -1,7 +1,7 @@
 package model;
 
 /**
- * Created by Chris on 2016-03-16.
+ * Represents a composite relationship between two classes.
  */
 public class CompositionEdge extends AbstractEdge{
 

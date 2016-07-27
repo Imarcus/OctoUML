@@ -6,7 +6,7 @@ import model.Graph;
 import view.AbstractEdgeView;
 
 /**
- * Created by marcusisaksson on 2016-03-17.
+ * Commands used when switching between different kinds of edges.
  */
 public class ReplaceEdgeCommand implements Command {
     private AbstractEdge oldEdge;

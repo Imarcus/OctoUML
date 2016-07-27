@@ -3,13 +3,15 @@ package util;
 import javafx.scene.paint.Color;
 
 /**
- * Created by marcusisaksson on 2016-04-01.
+ * Constants used in the project.
  */
 public class Constants {
     public static Color not_selected_color = Color.web("#7EC6FF");
     public static Color selected_color = Color.web("#FF6D70");
     public static Color selected_sketch_color = Color.web("#884FA8");
 
+
+    //--------------------- Network Constants -----------------------------------
     public static String requestGraph = "RequestGraph";
     public static String NodeAdd = "NodeAdd";
     public static String NodeRemove = "NodeRemove";
@@ -30,7 +32,6 @@ public class Constants {
     public static String changeClassNodeAttributes = "ClassNodeAttributes";
     public static String changeClassNodeOperations = "ClassNodeOperations";
     public static String changeNodeIsChild = "ClassNodeIsChild";
-
 
     public static String changeEdgeDirection = "EdgeDirection";
     public static String changeEdgeStartNode = "EdgeStartNode";

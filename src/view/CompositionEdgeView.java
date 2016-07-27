@@ -1,7 +1,5 @@
 package view;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -14,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Created by Chris on 2016-03-16.
+ * Visual representation of CompositionEdge class.
  */
 public class CompositionEdgeView extends AbstractEdgeView {
     private AbstractEdge refEdge;
@@ -79,12 +77,10 @@ public class CompositionEdgeView extends AbstractEdgeView {
             rho = theta - phi;
         }
         diamondBackground = new Polygon();
-        diamondBackground.getPoints().setAll(new Double[] {
-                startX, startY,
+        diamondBackground.getPoints().setAll(startX, startY,
                 xs[0], ys[0],
                 x4, y4,
-                xs[1], ys[1]
-        });
+                xs[1], ys[1]);
         if(super.isSelected()){
             diamondBackground.setFill(Constants.selected_color);
         } else {
@@ -104,7 +100,7 @@ public class CompositionEdgeView extends AbstractEdgeView {
         group.getChildren().add(line2);
         group.getChildren().add(line3);
         group.getChildren().add(line4);
-        diamondLines.addAll(Arrays.asList(new Line[]{line1, line2, line3, line4}));
+        diamondLines.addAll(Arrays.asList(line1, line2, line3, line4));
         if(super.isSelected()){
             for(Line l : diamondLines){
                 l.setStroke(Constants.selected_color);

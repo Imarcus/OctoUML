@@ -161,12 +161,9 @@ public class EdgeController {
                     mainController.removeDialog(dialog);
                 }
             });
-            controller.getCancelButton().setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    aDrawPane.getChildren().remove(dialog);
-                    mainController.removeDialog(dialog);
-                }
+            controller.getCancelButton().setOnAction(event -> {
+                aDrawPane.getChildren().remove(dialog);
+                mainController.removeDialog(dialog);
             });
             mainController.addDialog(dialog);
             aDrawPane.getChildren().add(dialog);

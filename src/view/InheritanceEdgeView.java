@@ -1,7 +1,4 @@
 package view;
-
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -14,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Created by chris on 2016-03-11.
+ * Visual representation of InheritanceEdge class.
  */
 public class InheritanceEdgeView extends AbstractEdgeView{
     private AbstractEdge refEdge;
@@ -99,11 +96,9 @@ public class InheritanceEdgeView extends AbstractEdgeView{
         }
 
         Polygon background = new Polygon();
-        background.getPoints().addAll(new Double[] {
-                startX, startY,
+        background.getPoints().addAll(startX, startY,
                 xs[0], ys[0],
-                xs[1], ys[1]
-        });
+                xs[1], ys[1]);
         background.setFill(Color.WHITE);
         background.toBack();
         Line line1 = new Line(startX, startY, xs[0], ys[0]);
@@ -116,7 +111,7 @@ public class InheritanceEdgeView extends AbstractEdgeView{
         group.getChildren().add(line1);
         group.getChildren().add(line2);
         group.getChildren().add(line3);
-        arrowHeadLines.addAll(Arrays.asList(new Line[]{line1, line2, line3}));
+        arrowHeadLines.addAll(Arrays.asList(line1, line2, line3));
         if(super.isSelected()){
             for(Line l : arrowHeadLines){
                 l.setStroke(Constants.selected_color);

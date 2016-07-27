@@ -1,8 +1,6 @@
 package util.persistence;
 
-import edu.tamu.core.sketch.Point;
 import edu.tamu.core.sketch.Stroke;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -21,8 +19,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -143,7 +139,7 @@ public class PersistenceManager {
             Element umlAssociation = doc.createElement("UML:Association");
             umlAssociation.setAttribute("namespace", pGraph.getId());
             umlAssociation.setAttribute("name", "");  //TODO label for edges
-            umlAssociation.setAttribute("xmi.id", ((AbstractEdge)edge).getId());
+            umlAssociation.setAttribute("xmi.id", edge.getId());
             umlAssociation.setAttribute("relation", edge.getType());
             umlAssociation.setAttribute("direction", ((AbstractEdge) edge).getDirection().toString());
 
@@ -257,11 +253,7 @@ public class PersistenceManager {
         try {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             doc = dBuilder.parse(xmiFile);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
         return importXMI(doc);
@@ -270,7 +262,7 @@ public class PersistenceManager {
 
         Graph graph = new Graph();
         //IDs are generated when AbstractNodes are created, we need to keep track of the nodes IDs in the xmi were when referenced elsewhere.
-        Map<String, AbstractNode> idMap = new HashMap<String, AbstractNode>();
+        Map<String, AbstractNode> idMap = new HashMap<>();
 
         NodeList nList = doc.getElementsByTagName("UML:Model");
         Element umlModel = ((Element)nList.item(0));
@@ -286,7 +278,7 @@ public class PersistenceManager {
                 Element viewElement = ((Element)viewList.item(j));
                 if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                     Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
-                    AbstractNode node = (PackageNode)createAbstractNode(viewElement, modelElement, isChild, true);
+                    AbstractNode node = createAbstractNode(viewElement, modelElement, isChild, true);
                     idMap.put(modelElement.getAttribute("xmi.id"), node);
                     graph.addNode(node, false);
                 }
@@ -316,7 +308,7 @@ public class PersistenceManager {
             String startNodeId = ((Element)associationElement.getChildNodes().item(0).getChildNodes().item(0)).getAttribute("type");
             String endNodeId = ((Element)associationElement.getChildNodes().item(0).getChildNodes().item(1)).getAttribute("type");
 
-            AbstractEdge edge = null;
+            AbstractEdge edge;
             String relation = associationElement.getAttribute("relation");
             String direction = associationElement.getAttribute("direction");
             if (relation.equals("Association")){
@@ -348,7 +340,6 @@ public class PersistenceManager {
 
             Element sketchElement = (Element) nList.item(i);
             Element pathElement = (Element) sketchElement.getChildNodes().item(0);
-            Stroke stroke = new Stroke();
             NodeList pathList = pathElement.getChildNodes();
             for (int j = 0; j < pathList.getLength(); j++) {
                 Element point = (Element) pathList.item(j);

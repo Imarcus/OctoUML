@@ -1,7 +1,7 @@
 package view;
 
 /**
- * Created by chris on 2016-02-18.
+ * Interface used by all EdgeViews. Graphical representation of Edge.
  */
 public interface EdgeView {
 

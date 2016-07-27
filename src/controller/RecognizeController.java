@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by chris on 2016-02-23.
+ * Used by MainController for handling the recognition of drawn shapes and transforming them in to UML-notations.
  */
 public class RecognizeController {
     private Pane aDrawPane;

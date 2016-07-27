@@ -1,13 +1,10 @@
 package view;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -22,7 +19,7 @@ import util.Constants;
 import java.beans.PropertyChangeEvent;
 
 /**
- * Created by chris on 2016-02-16.
+ * Visual representation of ClassNode class.
  */
 public class ClassNodeView extends AbstractNodeView implements NodeView {
 
@@ -142,8 +139,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
-        } else {
-            //firstLine.setVisible(false);
         }
         title.setAlignment(Pos.CENTER);
 

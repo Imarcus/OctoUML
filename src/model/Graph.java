@@ -9,7 +9,6 @@ import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 
 /**
  * Model-representation of a Graph.

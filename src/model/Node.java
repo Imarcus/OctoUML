@@ -3,7 +3,7 @@ package model;
 import javafx.geometry.Rectangle2D;
 
 /**
- * Created by chris on 2016-02-15.
+ * Interface used by all Node-classes. Represents a UML-class.
  */
 public interface Node extends GraphElement {
     double getX();

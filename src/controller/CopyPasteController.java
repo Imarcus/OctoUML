@@ -1,9 +1,5 @@
 package controller;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.Pane;
 import model.AbstractEdge;
 import model.AbstractNode;
@@ -13,13 +9,11 @@ import util.commands.AddDeleteNodeCommand;
 import util.commands.CompoundCommand;
 import view.AbstractEdgeView;
 import view.AbstractNodeView;
-import controller.MainController.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Created by marcusisaksson on 2016-06-20.
+ * Used by MainController for handling the copying and pasting of elements.
  */
 public class CopyPasteController {
 

@@ -1,13 +1,9 @@
 package view;
 
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -17,16 +13,13 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import model.AbstractNode;
-import model.Node;
 import model.PackageNode;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;
 
 /**
- * Created by marcusisaksson on 2016-02-17.
+ * Visual representation of PackageNode-class.
  */
 public class PackageNodeView extends AbstractNodeView {
 

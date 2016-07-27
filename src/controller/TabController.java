@@ -1,18 +1,13 @@
 package controller;
 
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.beans.EventHandler;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,8 +47,8 @@ public class TabController {
 
         try {
             loader = new FXMLLoader(getClass().getClassLoader().getResource("view.fxml"));
-            canvasView = (BorderPane) loader.load();
-            mainController = (MainController) loader.getController();
+            canvasView = loader.load();
+            mainController = loader.getController();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }

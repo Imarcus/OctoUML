@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by marcusisaksson on 2016-02-12.
+ * Used by MainController for handling when a user creates a node using the class or package tool.
  */
 //TODO should be moved to NodeController!
 public class CreateNodeController {
@@ -82,17 +82,17 @@ public class CreateNodeController {
         }
     }
 
-    public NodeView onTouchReleased(AbstractNode node, Double currentScale)
+    public NodeView onTouchReleased(AbstractNode node)
     {
         AbstractNodeView nodeView = null;
         if (node instanceof PackageNode){
-            nodeView = createPackageFromDrag((PackageNode)node, currentScale);
+            nodeView = createPackageFromDrag((PackageNode)node);
             nodeView.toBack();
             aMainController.gridToBack();
         }
         else if (node instanceof ClassNode)
         {
-            nodeView = createClassNodeFromDrag((ClassNode)node, currentScale);
+            nodeView = createClassNodeFromDrag((ClassNode)node);
         }
         return nodeView;
     }
@@ -122,7 +122,7 @@ public class CreateNodeController {
     }
 
     //TODO Duplicate code
-    private ClassNodeView createClassNodeFromDrag(ClassNode node, Double currentScale){
+    private ClassNodeView createClassNodeFromDrag(ClassNode node){
         ClassNodeView nodeView = new ClassNodeView(node);
         aDrawPane.getChildren().add(nodeView);
         putNodeInPackage(nodeView, node);
@@ -131,7 +131,7 @@ public class CreateNodeController {
         return nodeView;
     }
 
-    private PackageNodeView createPackageFromDrag(PackageNode node, Double currentScale){
+    private PackageNodeView createPackageFromDrag(PackageNode node){
         PackageNodeView nodeView = new PackageNodeView(node);
         aDrawPane.getChildren().add(nodeView);
         putNodeInPackage(nodeView, node);
@@ -199,18 +199,18 @@ public class CreateNodeController {
         }
     }
 
-    public NodeView onMouseReleased(MouseEvent event, AbstractNode node, Double currentScale)
+    public NodeView onMouseReleased(AbstractNode node)
     {
         aDrawPane.getChildren().remove(mouseDragRectangle);
         AbstractNodeView nodeView = null;
         if (node instanceof PackageNode){
-            nodeView = createPackageFromDrag((PackageNode)node, currentScale);
+            nodeView = createPackageFromDrag((PackageNode)node);
             nodeView.toBack();
             aMainController.gridToBack();
         }
         else if (node instanceof ClassNode)
         {
-            nodeView = createClassNodeFromDrag((ClassNode)node, currentScale);
+            nodeView = createClassNodeFromDrag((ClassNode)node);
         }
         mouseDragRectangle.setWidth(0);
         mouseDragRectangle.setHeight(0);

@@ -6,7 +6,7 @@ import view.ClassNodeView;
 import java.util.ArrayList;
 
 /**
- * Created by marcusisaksson on 2016-02-17.
+ * Represents a UML-package.
  */
 public class PackageNode extends AbstractNode
 {

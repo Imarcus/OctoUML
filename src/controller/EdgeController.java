@@ -25,6 +25,8 @@ public class EdgeController {
     private Line dragLine;
     private Pane aDrawPane;
     private MainController mainController;
+    private AbstractNodeView startNodeView;
+    private AbstractNodeView endNodeView;
 
     public EdgeController(Pane pDrawPane, MainController mainController) {
         aDrawPane = pDrawPane;
@@ -35,15 +37,9 @@ public class EdgeController {
     }
 
     public void onMousePressed(MouseEvent event) {
-        aDrawPane.getChildren().remove(dragLine);
-        if(event.getSource() instanceof AbstractNodeView) {
-            dragStartX = event.getX() + ((AbstractNodeView) event.getSource()).getTranslateX();
-            dragStartY = event.getY() + ((AbstractNodeView) event.getSource()).getTranslateY();
-        } else {
-            dragStartX = event.getX();
-            dragStartY = event.getY();
-        }
-
+        dragStartX = event.getX() + ((AbstractNodeView) event.getSource()).getTranslateX();
+        dragStartY = event.getY() + ((AbstractNodeView) event.getSource()).getTranslateY();
+        startNodeView = (AbstractNodeView) event.getSource();
         aDrawPane.getChildren().add(dragLine);
     }
 
@@ -60,31 +56,27 @@ public class EdgeController {
         }
     }
 
-    public EdgeView onMouseReleased(AbstractEdge abstractEdge,
-                                               AbstractNodeView startNode,
-                                               AbstractNodeView endNode) {
-        if (startNode == null || endNode == null) {
-            return null;
+    public void onMouseReleased() {
+        for(AbstractNodeView nodeView : mainController.getAllNodeViews()){
+            if(nodeView.contains(getEndPoint())){
+                endNodeView = nodeView;
+            }
         }
-
-        AbstractEdgeView edgeView = null;
-        if (abstractEdge instanceof AssociationEdge) {
-            edgeView = createAssociationEdgeView(abstractEdge, startNode, endNode);
+        if(endNodeView != null){
+            AssociationEdge edge = new AssociationEdge(mainController.getNodeMap().get(startNodeView), mainController.getNodeMap().get(endNodeView));
+            mainController.createEdgeView(edge, startNodeView, endNodeView);
         }
-        aDrawPane.getChildren().remove(dragLine); //TODO why not use removeDragLine?
-        dragLine.setStartX(0);
-        dragLine.setStartY(0);
-        dragLine.setEndX(0);
-        dragLine.setEndY(0);
-        return edgeView;
+        finish();
     }
 
-    public void removeDragLine() {
+    public void finish() {
         dragLine.setStartX(0);
         dragLine.setStartY(0);
         dragLine.setEndX(0);
         dragLine.setEndY(0);
         aDrawPane.getChildren().remove(dragLine);
+        startNodeView = null;
+        endNodeView = null;
     }
 
 
@@ -94,18 +86,6 @@ public class EdgeController {
 
     public Point2D getEndPoint() {
         return new Point2D(dragLine.getEndX(), dragLine.getEndY());
-    }
-
-    //TODO Should have nullchecks?
-    private AssociationEdgeView createAssociationEdgeView(AbstractEdge edge,
-                                                          AbstractNodeView startNode,
-                                                          AbstractNodeView endNode) {
-        return new AssociationEdgeView(edge, startNode, endNode);
-    }
-
-    //TODO Not used?
-    private AssociationEdge createAssociationEdge(Node startNode, Node endNode) {
-        return new AssociationEdge(startNode, endNode);
     }
 
     public boolean showEdgeEditDialog(AbstractEdge edge) {

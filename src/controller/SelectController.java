@@ -49,9 +49,6 @@ public class SelectController {
                     }
                 }
             }
-
-            mainController.setMode(Mode.CREATING);
-            mainController.edgeController.onMousePressed(event);
         }
         else if (mainController.getTool() == ToolEnum.SELECT)
         {

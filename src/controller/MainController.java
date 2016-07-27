@@ -3,10 +3,15 @@ package controller;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
@@ -27,9 +32,14 @@ import javafx.scene.paint.Color;
 import util.persistence.PersistenceManager;
 import view.*;
 
-import java.io.*;
+
 import java.util.*;
 import java.awt.geom.Point2D;
+import javax.imageio.ImageIO;
+import java.io.IOException;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -166,12 +176,14 @@ public class MainController {
     private void initDrawPaneActions() {
         aBorderPane.setPickOnBounds(false);
 
+        //So that the pane doesn't scroll when using a touch screen.
         aDrawPane.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent event) {
                 event.consume();
             }
         });
+
         aDrawPane.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -1133,6 +1145,23 @@ public class MainController {
             client.closeClient();
         }
     }
+    public void handleMenuActionImage(){
+        try{
+
+            SnapshotParameters sp = new SnapshotParameters();
+            Bounds bounds = aScrollPane.getViewportBounds();
+            //Not sure why abs is needed, the minX/Y values are negative.
+            sp.setViewport(new Rectangle2D(Math.abs(bounds.getMinX()), Math.abs(bounds.getMinY()), bounds.getWidth(), bounds.getHeight()));
+            WritableImage image = aDrawPane.snapshot(sp, new WritableImage((int)bounds.getWidth(),(int)bounds.getHeight()));
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Image");
+            File output = fileChooser.showSaveDialog(getStage());
+            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", output);
+        } catch (IOException ex) {
+            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
 
     //------------------------- Context Menu ---------------------------------
     private void initContextMenu() {

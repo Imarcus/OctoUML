@@ -14,17 +14,25 @@ public class GraphController {
 
     private Pane aDrawPane;
     private MainController aMainController;
+    private ScrollPane aScrollPane;
 
     //For calculating zooming pivot point
     private double drawPaneXOffset;
     private double drawPaneYOffset;
 
-    public GraphController(Pane pDrawPane, MainController pMainController)
+    public GraphController(Pane pDrawPane, MainController pMainController, ScrollPane pScrollPane)
     {
         aDrawPane = pDrawPane;
         aMainController = pMainController;
+        aScrollPane = pScrollPane;
         drawPaneXOffset = 0;
         drawPaneYOffset = 0;
+
+        // center the scroll contents.
+        aScrollPane.setHvalue(aScrollPane.getHmin() + (aScrollPane.getHmax() - aScrollPane.getHmin()) / 2);
+        aScrollPane.setVvalue(aScrollPane.getVmin() + (aScrollPane.getVmax() - aScrollPane.getVmin()) / 2);
+        aScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        aScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
     }
 

@@ -6,6 +6,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
+import javafx.scene.control.Alert;
 import model.*;
 import util.Constants;
 
@@ -32,16 +33,8 @@ public class ClientController implements PropertyChangeListener {
         port = pPort;
 
         client = new Client();
-        client.start();
-        try {
-            client.connect(5000, pServerIp, port, 54777);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         initKryo(client.getKryo());
-
-        client.sendTCP(Constants.requestGraph);
 
         client.addListener(new Listener() {
             public void received (Connection connection, Object object) {
@@ -61,6 +54,28 @@ public class ClientController implements PropertyChangeListener {
                 }
             }
         });
+    }
+
+    public boolean connect(){
+        client.start();
+        try {
+            client.connect(5000, serverIp, port, 54777);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Connection Error");
+            alert.setHeaderText("Could not connect to server");
+            alert.setContentText("Unable to connect to: " + serverIp + ":" + port);
+            alert.showAndWait();
+            return false;
+        }
+
+        client.sendTCP(Constants.requestGraph);
+        return true;
+    }
+
+    public void close(){
+        client.close();
     }
 
     /**

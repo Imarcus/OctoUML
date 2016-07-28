@@ -96,8 +96,6 @@ public class MainController {
     @FXML
     private Slider zoomSlider;
     @FXML
-    private BorderPane aBorderPane;
-    @FXML
     private ScrollPane aScrollPane;
 
     ContextMenu aContextMenu;
@@ -173,9 +171,7 @@ public class MainController {
         });
 
         aDrawPane.setOnMouseDragged(event -> {
-            /*if (tool == ToolEnum.EDGE && mode == Mode.CREATING) { //Continue creation of edge
-                edgeController.onMouseDragged(event);
-            } else */if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) { //Continue selection of elements.
+            if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) { //Continue selection of elements.
                 selectController.onMouseDragged(event);
             } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) { //Continue drawing.
                 sketchController.onTouchMoved(event);
@@ -189,12 +185,7 @@ public class MainController {
         });
 
         aDrawPane.setOnMouseReleased(event -> {
-            /*if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
-                //User is not creating an Edge between two nodes, so we don't handle that.
-                edgeController.finish();
-                mode = Mode.NO_MODE;
-            }
-            else*/ if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) { //Finish selecting elements.
+            if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) { //Finish selecting elements.
                 selectController.onMouseReleased();
             }
             else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) { //Finish drawing.
@@ -315,10 +306,8 @@ public class MainController {
                     selected1.add(nodeMap.get(n));
                 }
                 nodeController.moveNodes(event);
-                //TODO JUST FOR TESTING:
                 sketchController.moveSketches(event);
                 nodeWasDragged = true;
-
 
             } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) {
                 graphController.movePane(event);
@@ -358,7 +347,6 @@ public class MainController {
                 mode = Mode.NO_MODE;
             } else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING) {
                 nodeController.resizeFinished(nodeMap.get(nodeView));
-
             } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) {
 
                 edgeController.onMouseReleased();
@@ -650,105 +638,6 @@ public class MainController {
         return selectedSketches;
     }
 
-
-    //------------ Init Button -------------------------------------------
-
-    @FXML
-    Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn;
-    Button buttonInUse;
-
-    private void initToolBarActions() {
-
-        Image image = new Image("/icons/classw.png");
-        createBtn.setGraphic(new ImageView(image));
-        createBtn.setText("");
-
-        image = new Image("/icons/packagew.png");
-        packageBtn.setGraphic(new ImageView(image));
-        packageBtn.setText("");
-
-        image = new Image("/icons/edgew.png");
-        edgeBtn.setGraphic(new ImageView(image));
-        edgeBtn.setText("");
-
-        image = new Image("/icons/selectw.png");
-        selectBtn.setGraphic(new ImageView(image));
-        selectBtn.setText("");
-
-        image = new Image("/icons/undow.png");
-        undoBtn.setGraphic(new ImageView(image));
-        undoBtn.setText("");
-
-        image = new Image("/icons/redow.png");
-        redoBtn.setGraphic(new ImageView(image));
-        redoBtn.setText("");
-
-        image = new Image("/icons/movew.png");
-        moveBtn.setGraphic(new ImageView(image));
-        moveBtn.setText("");
-
-        image = new Image("/icons/deletew.png");
-        deleteBtn.setGraphic(new ImageView(image));
-        deleteBtn.setText("");
-
-        image = new Image("/icons/draww.png");
-        drawBtn.setGraphic(new ImageView(image));
-        drawBtn.setText("");
-
-        image = new Image("/icons/recow.png");
-        recognizeBtn.setGraphic(new ImageView(image));
-        recognizeBtn.setText("");
-
-        buttonInUse = createBtn;
-        buttonInUse.getStyleClass().add("button-in-use");
-
-
-        //---------------------- Actions for buttons ----------------------------
-        createBtn.setOnAction(event -> {
-            tool = ToolEnum.CREATE;
-            setButtonClicked(createBtn);
-        });
-
-        packageBtn.setOnAction(event -> {
-            tool = ToolEnum.PACKAGE;
-            setButtonClicked(packageBtn);
-        });
-
-        edgeBtn.setOnAction(event -> {
-            tool = ToolEnum.EDGE;
-            setButtonClicked(edgeBtn);
-        });
-
-        selectBtn.setOnAction(event -> {
-            tool = ToolEnum.SELECT;
-            setButtonClicked(selectBtn);
-        });
-
-        drawBtn.setOnAction(event -> {
-            tool = ToolEnum.DRAW;
-            setButtonClicked(drawBtn);
-        });
-
-        moveBtn.setOnAction(event -> {
-            setButtonClicked(moveBtn);
-            tool = ToolEnum.MOVE_SCENE;
-        });
-
-        undoBtn.setOnAction(event -> undoManager.undoCommand());
-
-        redoBtn.setOnAction(event -> undoManager.redoCommand());
-
-        deleteBtn.setOnAction(event -> deleteSelected());
-
-        recognizeBtn.setOnAction(event -> recognize());
-    }
-
-    void setButtonClicked(Button b) {
-        buttonInUse.getStyleClass().remove("button-in-use");
-        buttonInUse = b;
-        buttonInUse.getStyleClass().add("button-in-use");
-    }
-
     private void recognize() {
         ArrayList<GraphElement> recognized = recognizeController.recognize(selectedSketches);
         CompoundCommand recognizeCompoundCommand = new CompoundCommand();
@@ -923,7 +812,7 @@ public class MainController {
         serverControllers.add(server);
     }
 
-    public void handleMenuActionClient(){
+    public boolean handleMenuActionClient(){
         TextInputDialog ipDialog = new TextInputDialog("127.0.0.1");
         ipDialog.setTitle("Server IP");
         ipDialog.setHeaderText("Please enter Server IP");
@@ -937,9 +826,21 @@ public class MainController {
         Optional<String> ip = ipDialog.showAndWait();
         Optional<String> port = portDialog.showAndWait();
 
-        if (ip.isPresent() && port.isPresent()) {
+        if (ip.isPresent() && port.isPresent() && !ip.get().equals("") && !port.get().equals("")) {
             ClientController client = new ClientController(this, ip.get(), Integer.parseInt(port.get()));
-            clientControllers.add(client);
+            if(!client.connect()){
+                client.close();
+                return false;
+            } else {
+                clientControllers.add(client);
+                return true;
+            }
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid input");
+            alert.setHeaderText("Invalip input. \nClosing diagram.");
+            alert.showAndWait();
+            return false;
         }
     }
 
@@ -1276,7 +1177,7 @@ public class MainController {
     }
 
     //------------------------------------ GRID -------------------------------
-
+    //TODO move this to graph controller
     private ArrayList<Line> grid = new ArrayList<>();
 
     public ArrayList<Line> getGrid() {
@@ -1400,6 +1301,104 @@ public class MainController {
 
     public ArrayList<AnchorPane> getAllDialogs() {
         return allDialogs;
+    }
+
+    //------------ Init Buttons -------------------------------------------
+
+    @FXML
+    Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn;
+    Button buttonInUse;
+
+    private void initToolBarActions() {
+
+        Image image = new Image("/icons/classw.png");
+        createBtn.setGraphic(new ImageView(image));
+        createBtn.setText("");
+
+        image = new Image("/icons/packagew.png");
+        packageBtn.setGraphic(new ImageView(image));
+        packageBtn.setText("");
+
+        image = new Image("/icons/edgew.png");
+        edgeBtn.setGraphic(new ImageView(image));
+        edgeBtn.setText("");
+
+        image = new Image("/icons/selectw.png");
+        selectBtn.setGraphic(new ImageView(image));
+        selectBtn.setText("");
+
+        image = new Image("/icons/undow.png");
+        undoBtn.setGraphic(new ImageView(image));
+        undoBtn.setText("");
+
+        image = new Image("/icons/redow.png");
+        redoBtn.setGraphic(new ImageView(image));
+        redoBtn.setText("");
+
+        image = new Image("/icons/movew.png");
+        moveBtn.setGraphic(new ImageView(image));
+        moveBtn.setText("");
+
+        image = new Image("/icons/deletew.png");
+        deleteBtn.setGraphic(new ImageView(image));
+        deleteBtn.setText("");
+
+        image = new Image("/icons/draww.png");
+        drawBtn.setGraphic(new ImageView(image));
+        drawBtn.setText("");
+
+        image = new Image("/icons/recow.png");
+        recognizeBtn.setGraphic(new ImageView(image));
+        recognizeBtn.setText("");
+
+        buttonInUse = createBtn;
+        buttonInUse.getStyleClass().add("button-in-use");
+
+
+        //---------------------- Actions for buttons ----------------------------
+        createBtn.setOnAction(event -> {
+            tool = ToolEnum.CREATE;
+            setButtonClicked(createBtn);
+        });
+
+        packageBtn.setOnAction(event -> {
+            tool = ToolEnum.PACKAGE;
+            setButtonClicked(packageBtn);
+        });
+
+        edgeBtn.setOnAction(event -> {
+            tool = ToolEnum.EDGE;
+            setButtonClicked(edgeBtn);
+        });
+
+        selectBtn.setOnAction(event -> {
+            tool = ToolEnum.SELECT;
+            setButtonClicked(selectBtn);
+        });
+
+        drawBtn.setOnAction(event -> {
+            tool = ToolEnum.DRAW;
+            setButtonClicked(drawBtn);
+        });
+
+        moveBtn.setOnAction(event -> {
+            setButtonClicked(moveBtn);
+            tool = ToolEnum.MOVE_SCENE;
+        });
+
+        undoBtn.setOnAction(event -> undoManager.undoCommand());
+
+        redoBtn.setOnAction(event -> undoManager.redoCommand());
+
+        deleteBtn.setOnAction(event -> deleteSelected());
+
+        recognizeBtn.setOnAction(event -> recognize());
+    }
+
+    void setButtonClicked(Button b) {
+        buttonInUse.getStyleClass().remove("button-in-use");
+        buttonInUse = b;
+        buttonInUse.getStyleClass().add("button-in-use");
     }
 
 }

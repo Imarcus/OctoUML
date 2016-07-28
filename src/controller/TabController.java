@@ -93,13 +93,17 @@ public class TabController {
     }
 
     public void handleMenuActionServer(){
-        addTab();
+        Tab tab = addTab();
+        tabPane.getSelectionModel().select(tab);
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionServer();
     }
 
     public void handleMenuActionClient(){
-        addTab();
-        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionClient();
+        Tab tab = addTab();
+        tabPane.getSelectionModel().select(tab);
+        if(!tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionClient()){
+            tabPane.getTabs().remove(tab);
+        }
     }
 
     public void handleMenuActionImage(){

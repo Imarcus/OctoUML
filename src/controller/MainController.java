@@ -2,6 +2,8 @@ package controller;
 
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Rectangle2D;
@@ -96,6 +98,8 @@ public class MainController {
     private Slider zoomSlider;
     @FXML
     private ScrollPane aScrollPane;
+    @FXML
+    private ColorPicker colorPicker;
 
     ContextMenu aContextMenu;
     private MainController instance = this;
@@ -107,6 +111,7 @@ public class MainController {
         initToolBarActions();
         initContextMenu();
         initZoomSlider();
+        initColorPicker();
 
         graph = new Graph();
 
@@ -1391,6 +1396,14 @@ public class MainController {
         recognizeBtn.setOnAction(event -> recognize());
     }
 
+    private void initColorPicker(){
+        colorPicker.setValue(Color.BLACK);
+        colorPicker.setOnAction(new EventHandler() {
+            public void handle(Event t) {
+                sketchController.color = colorPicker.getValue();
+            }
+        });
+    }
     void setButtonClicked(Button b) {
         buttonInUse.getStyleClass().remove("button-in-use");
         buttonInUse = b;

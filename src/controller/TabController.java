@@ -1,11 +1,12 @@
 package controller;
 
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class TabController {
     }
 
     public Tab addTab(){
-        BorderPane canvasView = null; //TODO FIX
+        BorderPane canvasView = null;
         MainController mainController = null;
         FXMLLoader loader;
 

@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ColorPicker?>
 <BorderPane fx:id="aBorderPane" fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
     <top>
         <VBox>
@@ -35,6 +36,7 @@
     </top>
     <bottom>
         <ToolBar>
+            <ColorPicker fx:id="colorPicker"></ColorPicker>
             <Pane HBox.hgrow="ALWAYS" />
             <VBox alignment="CENTER">
                 <Slider fx:id="zoomSlider" min="10"  max="200" value="100"/>

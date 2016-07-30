@@ -36,6 +36,8 @@ public class SketchController {
     private HashMap<Sketch, Point2D.Double> initTranslateMap = new HashMap<>();
     private ArrayList<Sketch> toBeMoved = new ArrayList<>();
 
+    public Color color = Color.BLACK;
+
     public SketchController(Pane pDrawPane, MainController mainController) {
         this.aDrawPane = pDrawPane;
         this.mController = mainController;
@@ -64,6 +66,7 @@ public class SketchController {
             yPoint = y;
         }
         sketch.setStart(xPoint, yPoint);
+        sketch.setColor(color);
 
         if(event instanceof TouchEvent) {
             currentSketches.put(((TouchEvent)event).getTouchPoint().getId(), sketch);

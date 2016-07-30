@@ -23,6 +23,8 @@ public class Sketch implements GraphElement, Serializable {
     private Stroke stroke;
     private boolean selected = false;
 
+    private Color color = Color.BLACK;
+
     private static final long serialVersionUID = 1L;
     private static int objectCount = 0; //Used to ID instance
     private int id = 0;
@@ -49,7 +51,7 @@ public class Sketch implements GraphElement, Serializable {
         if (selected) {
             path.setStroke(Constants.selected_sketch_color);
         } else {
-            path.setStroke(Color.BLACK);
+            path.setStroke(color);
         }
     }
 
@@ -174,4 +176,14 @@ public class Sketch implements GraphElement, Serializable {
     public void removePropertyChangelistener(PropertyChangeListener l){
         changes.removePropertyChangeListener(l);
     }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color pColor) {
+        this.color = pColor;
+        path.setStroke(color);
+    }
+
 }

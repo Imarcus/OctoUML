@@ -29,7 +29,9 @@ public class InheritanceEdgeView extends AbstractEdgeView{
     protected void draw() {
         AbstractEdge.Direction direction = refEdge.getDirection();
         getChildren().clear();
-        getChildren().add(getLine());
+        getChildren().add(getStartLine());
+        getChildren().add(getMiddleLine());
+        getChildren().add(getEndLine());
         super.draw();
         this.getChildren().add(super.getEndMultiplicity());
         this.getChildren().add(super.getStartMultiplicity());
@@ -40,14 +42,14 @@ public class InheritanceEdgeView extends AbstractEdgeView{
                 //Do nothing.
                 break;
             case START_TO_END:
-                this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
+                this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
                 break;
             case END_TO_START:
-                this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
+                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
                 break;
             case BIDIRECTIONAL:
-                this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
-                this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
+                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+                this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
                 break;
         }
     }
@@ -81,7 +83,7 @@ public class InheritanceEdgeView extends AbstractEdgeView{
         int barb = 20;
         double dy = startY - endY;
         double dx = startX - endX;
-        double theta = Math.atan2(dy, dx);
+        double theta = Math.atan2(dx, dy);
         double x, y, rho = theta + phi;
 
         double[] xs = new double[2];
@@ -101,22 +103,25 @@ public class InheritanceEdgeView extends AbstractEdgeView{
                 xs[1], ys[1]);
         background.setFill(Color.WHITE);
         background.toBack();
-        Line line1 = new Line(startX, startY, xs[0], ys[0]);
+        background.setStrokeWidth(STROKE_WIDTH);
+        background.setStroke(Color.BLACK);
+        /*Line line1 = new Line(startX, startY, xs[0], ys[0]);
         Line line2 = new Line(startX, startY, xs[1], ys[1]);
         Line line3 = new Line(xs[0], ys[0], xs[1], ys[1]);
         line1.setStrokeWidth(super.STROKE_WIDTH);
         line2.setStrokeWidth(super.STROKE_WIDTH);
-        line3.setStrokeWidth(super.STROKE_WIDTH);
+        line3.setStrokeWidth(super.STROKE_WIDTH);*/
         group.getChildren().add(background);
-        group.getChildren().add(line1);
+        /*group.getChildren().add(line1);
         group.getChildren().add(line2);
         group.getChildren().add(line3);
-        arrowHeadLines.addAll(Arrays.asList(line1, line2, line3));
+        arrowHeadLines.addAll(Arrays.asList(line1, line2, line3));*/
         if(super.isSelected()){
             for(Line l : arrowHeadLines){
                 l.setStroke(Constants.selected_color);
             }
         }
+
         return group;
     }
 

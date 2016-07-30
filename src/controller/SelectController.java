@@ -39,7 +39,9 @@ public class SelectController {
         if (mainController.getTool() == MainController.ToolEnum.EDGE)
         {
             for(AbstractEdgeView edgeView : mainController.allEdgeViews){
-                if (distanceToLine(edgeView.getLine(), event.getX(), event.getY()) < 15){
+                if (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
+                        distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
+                        distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
                     mainController.selected = true;
                     mainController.selectedEdges.add(edgeView);
                     if(event.getClickCount() > 1){
@@ -53,7 +55,9 @@ public class SelectController {
         else if (mainController.getTool() == ToolEnum.SELECT)
         {
             for(AbstractEdgeView edgeView : mainController.allEdgeViews){
-                if (distanceToLine(edgeView.getLine(), event.getX(), event.getY()) < 15){
+                if (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
+                        distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
+                        distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
                     mainController.selected = true;
                     mainController.selectedEdges.add(edgeView);
                     if(event.getClickCount() > 1){

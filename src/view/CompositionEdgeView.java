@@ -32,7 +32,9 @@ public class CompositionEdgeView extends AbstractEdgeView {
     protected void draw() {
         AbstractEdge.Direction direction = refEdge.getDirection();
         getChildren().clear();
-        getChildren().add(getLine());
+        getChildren().add(getStartLine());
+        getChildren().add(getMiddleLine());
+        getChildren().add(getEndLine());
         super.draw();
         this.getChildren().add(super.getEndMultiplicity());
         this.getChildren().add(super.getStartMultiplicity());
@@ -135,42 +137,4 @@ public class CompositionEdgeView extends AbstractEdgeView {
             draw();
         }
     }
-
-    /*private void setChangeListeners() {
-        super.getLine().endXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().endYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().startXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().startYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        refEdge.getDirectionProperty().addListener(new ChangeListener<AbstractEdge.Direction>() {
-            @Override
-            public void changed(ObservableValue<? extends AbstractEdge.Direction> observable,
-                                AbstractEdge.Direction oldValue, AbstractEdge.Direction newValue) {
-                draw();
-            }
-        });
-    }*/
 }

@@ -33,7 +33,9 @@ public class AssociationEdgeView extends AbstractEdgeView {
     protected void draw() {
         AbstractEdge.Direction direction = refEdge.getDirection();
         getChildren().clear();
-        getChildren().add(getLine());
+        getChildren().add(getStartLine());
+        getChildren().add(getMiddleLine());
+        getChildren().add(getEndLine());
         super.draw();
         this.getChildren().add(super.getEndMultiplicity());
         this.getChildren().add(super.getStartMultiplicity());

@@ -43,5 +43,7 @@ public class Constants {
     public static String changeSketchStart = "SketchStart";
     public static String changeSketchPoint = "SketchPoint";
     public static String changeSketchStroke = "SketchStroke";
+    public static String changeSketchTranslateX = "SketchTranslateX";
+    public static String changeSketchTranslateY = "SketchTranslateY";
 
 }

@@ -113,11 +113,13 @@ public class Sketch implements GraphElement, Serializable {
     @Override
     public void setTranslateX(double x) {
         path.setTranslateX(x);
+        changes.firePropertyChange(Constants.changeSketchTranslateX, null, x);
     }
 
     @Override
     public void setTranslateY(double y) {
         path.setTranslateY(y);
+        changes.firePropertyChange(Constants.changeSketchTranslateY, null, y);
     }
 
     @Override
@@ -130,7 +132,14 @@ public class Sketch implements GraphElement, Serializable {
         path.setScaleY(y);
     }
 
-    @Override
+    public void remoteSetTranslateX(double x) {
+        path.setTranslateX(x);
+    }
+
+    public void remoteSetTranslateY(double y) {
+        path.setTranslateY(y);
+    }
+
     public double getTranslateX() {
         return path.getTranslateX();
     }

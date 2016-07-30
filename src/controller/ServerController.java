@@ -55,16 +55,15 @@ public class ServerController implements PropertyChangeListener {
                     }
                 }
                 else if (object instanceof AbstractNode) {
+                    server.sendToAllExceptTCP(connection.getID(), object);
                     Platform.runLater(() -> mainController.createNodeView((AbstractNode)object, true));
                 }
                 else if (object instanceof AbstractEdge) {
+                    server.sendToAllExceptTCP(connection.getID(), object);
                     Platform.runLater(() -> mainController.addEdgeView((AbstractEdge)object, true));
                 }
-                else if (object instanceof Graph){
-                    Graph graph = (Graph) object;
-                    Platform.runLater(() -> mainController.load(graph, true));
-                }
                 else if (object instanceof String[]){
+                    server.sendToAllExceptTCP(connection.getID(), object);
                     Platform.runLater(() -> mainController.remoteCommand((String[])object));
                 }
             }
@@ -139,6 +138,14 @@ public class ServerController implements PropertyChangeListener {
             AbstractEdge edge = (AbstractEdge) evt.getSource();
             String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(), edge.getEndMultiplicity()};
             server.sendToAllTCP(dataArray);
+        } else if (propertyName.equals(Constants.changeSketchTranslateX)) {
+            Sketch sketch = (Sketch) evt.getSource();
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX())};
+            server.sendToAllTCP(dataArray);
+        } else if (propertyName.equals(Constants.changeSketchTranslateY)) {
+            Sketch sketch = (Sketch) evt.getSource();
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY())};
+            server.sendToAllTCP(dataArray);
         }
     }
 
@@ -155,11 +162,6 @@ public class ServerController implements PropertyChangeListener {
         kryo.register(ArrayList.class);
         kryo.register(model.AbstractEdge.Direction.class);
         kryo.register(String[].class);
-        kryo.register(Sketch.class);
-        kryo.register(javafx.scene.shape.Path.class);
-        kryo.register(com.sun.javafx.geom.RectBounds.class);
-        kryo.register(com.sun.javafx.scene.CssFlags.class);
-        kryo.register(javafx.scene.Node.class);
     }
 
     public void closeServer(){

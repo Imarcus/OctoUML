@@ -22,7 +22,7 @@ public class Graph implements Serializable, PropertyChangeListener {
 
     private List<AbstractNode> allNodes = new ArrayList<>();
     private List<Edge> allEdges = new ArrayList<>();
-    private List<Sketch> allSketches = new ArrayList<>();
+    private transient List<Sketch> allSketches = new ArrayList<>();
 
     private String name = "";
 
@@ -49,7 +49,6 @@ public class Graph implements Serializable, PropertyChangeListener {
         assert n != null;
         for (AbstractNode node : allNodes) {
             if (node instanceof PackageNode) {
-                //TODO this is weird, looking for graphical position in model
                 if (n.getX() >= node.getX() && n.getX() <= node.getX() + node.getWidth()
                         && n.getY() >= node.getY() && n.getY() <= node.getY() + node.getHeight() ) {
                     ((PackageNode) node).addChild(n);
@@ -93,16 +92,6 @@ public class Graph implements Serializable, PropertyChangeListener {
         allSketches.add(s);
         s.addPropertyChangeListener(this);
     }
-/*
-    public boolean connect(Node startNode, Node endNode, Edge edge){
-        if (startNode != null && endNode != null && edge != null) {
-            if (allNodes.contains(startNode) && allNodes.contains(endNode)) {
-                return addEdge(edge, false);
-            }
-        }
-        return false;
-    }
-*/
 
 
     /**
@@ -230,6 +219,15 @@ public class Graph implements Serializable, PropertyChangeListener {
 
     public void removeRemotePropertyChangeListener(PropertyChangeListener l) {
         remoteChanges.removePropertyChangeListener(l);
+    }
+
+    public void listenToElement(Object e){
+        if(e instanceof AbstractNode){
+            ((AbstractNode)e).addRemotePropertyChangeListener(this);
+        } else if (e instanceof Sketch){
+            ((Sketch) e).addPropertyChangeListener(this);
+        }
+
     }
 
     /**

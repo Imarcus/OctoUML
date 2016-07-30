@@ -67,6 +67,7 @@ public class ClientController implements PropertyChangeListener {
             alert.setHeaderText("Could not connect to server");
             alert.setContentText("Unable to connect to: " + serverIp + ":" + port);
             alert.showAndWait();
+            client.close();
             return false;
         }
 
@@ -145,6 +146,14 @@ public class ClientController implements PropertyChangeListener {
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){
             AbstractEdge edge = (AbstractEdge) evt.getSource();
             String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(), edge.getEndMultiplicity()};
+            client.sendTCP(dataArray);
+        } else if (propertyName.equals(Constants.changeSketchTranslateX)) {
+            Sketch sketch = (Sketch) evt.getSource();
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX())};
+            client.sendTCP(dataArray);
+        } else if (propertyName.equals(Constants.changeSketchTranslateY)) {
+            Sketch sketch = (Sketch) evt.getSource();
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY())};
             client.sendTCP(dataArray);
         }
     }

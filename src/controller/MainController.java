@@ -1007,6 +1007,18 @@ public class MainController {
                     ((AbstractEdge) edge).remoteSetEndMultiplicity(dataArray[3]);
                 }
             }
+        } else if (dataArray[0].equals(Constants.changeSketchTranslateX)) {
+            for(Sketch sketch : graph.getAllSketches()){
+                if(dataArray[1].equals(sketch.getId())){
+                    sketch.remoteSetTranslateX(Double.parseDouble(dataArray[2]));
+                }
+            }
+        } else if (dataArray[0].equals(Constants.changeSketchTranslateY)) {
+            for(Sketch sketch : graph.getAllSketches()){
+                if(dataArray[1].equals(sketch.getId())){
+                    sketch.remoteSetTranslateY(Double.parseDouble(dataArray[2]));
+                }
+            }
         }
     }
 
@@ -1113,15 +1125,20 @@ public class MainController {
         if (pGraph != null) {
             this.graph = pGraph;
             for (AbstractNode node : graph.getAllNodes()) {
+                AbstractNode.incrementObjectCount();
                 createNodeView(node, remote);
+                graph.listenToElement(node);
             }
 
             for (Edge edge : graph.getAllEdges()) {
+                AbstractEdge.incrementObjectCount();
                 addEdgeView((AbstractEdge) edge, remote);
             }
 
             for(Sketch sketch : graph.getAllSketches()){
+                Sketch.incrementObjectCount();
                 addSketch(sketch, true, remote);
+                graph.listenToElement(sketch);
             }
         }
     }

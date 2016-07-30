@@ -91,7 +91,7 @@ public class ServerController implements PropertyChangeListener {
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
-                Double.toString(point.getX()), Double.toString(point.getY())};
+                Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.sketchRemove)){

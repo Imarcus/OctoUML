@@ -51,7 +51,7 @@ public class SketchController {
         if(event instanceof TouchEvent){
             x = ((TouchEvent) event).getTouchPoint().getX();
             y = ((TouchEvent) event).getTouchPoint().getY();
-        } else { //event = mouseevent
+        } else { //event instanceof mouseevent
             x = ((MouseEvent)event).getX();
             y = ((MouseEvent)event).getY();
         }
@@ -65,8 +65,8 @@ public class SketchController {
             xPoint = x;
             yPoint = y;
         }
-        sketch.setStart(xPoint, yPoint);
         sketch.setColor(color);
+        sketch.setStart(xPoint, yPoint);
 
         if(event instanceof TouchEvent) {
             currentSketches.put(((TouchEvent)event).getTouchPoint().getId(), sketch);
@@ -77,7 +77,6 @@ public class SketchController {
 
     public void onTouchMoved(InputEvent event) {
         Sketch sketch;
-
         double xPoint;
         double yPoint;
 

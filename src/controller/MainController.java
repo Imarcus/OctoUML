@@ -938,6 +938,7 @@ public class MainController {
             for(Sketch sketch : graph.getAllSketches()){
                 if(dataArray[1].equals(sketch.getId())){
                     sketch.setStartRemote(Double.parseDouble(dataArray[2]), Double.parseDouble(dataArray[3]));
+                    sketch.setColor(Color.web(dataArray[4]));
                 }
             }
         }

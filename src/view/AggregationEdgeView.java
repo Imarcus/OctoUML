@@ -43,15 +43,15 @@ public class AggregationEdgeView extends AbstractEdgeView {
             case NO_DIRECTION:
                 //Do nothing.
                 break;
-            case END_TO_START:
-                this.getChildren().add(drawDiamond(getStartX(), getStartY(), getEndX(), getEndY()));
-                break;
             case START_TO_END:
-                this.getChildren().add(drawDiamond(getEndX(), getEndY(), getStartX(), getStartY()));
+                this.getChildren().add(drawDiamond(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+                break;
+            case END_TO_START:
+                this.getChildren().add(drawDiamond(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
                 break;
             case BIDIRECTIONAL:
-                this.getChildren().add(drawDiamond(getStartX(), getStartY(), getEndX(), getEndY()));
-                this.getChildren().add(drawDiamond(getEndX(), getEndY(), getStartX(), getStartY()));
+                this.getChildren().add(drawDiamond(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+                this.getChildren().add(drawDiamond(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
                 break;
         }
     }

@@ -171,11 +171,6 @@ public class ClientController implements PropertyChangeListener {
         kryo.register(ArrayList.class);
         kryo.register(model.AbstractEdge.Direction.class);
         kryo.register(String[].class);
-        kryo.register(Sketch.class);
-        kryo.register(javafx.scene.shape.Path.class);
-        kryo.register(com.sun.javafx.geom.RectBounds.class);
-        kryo.register(com.sun.javafx.scene.CssFlags.class);
-        kryo.register(javafx.scene.Node.class);
     }
 
     public void closeClient(){

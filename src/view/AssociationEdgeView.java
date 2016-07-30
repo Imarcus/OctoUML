@@ -46,14 +46,14 @@ public class AssociationEdgeView extends AbstractEdgeView {
                 //Do nothing.
                 break;
             case START_TO_END:
-                this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
+                this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
                 break;
             case END_TO_START:
-                this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
+                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
                 break;
             case BIDIRECTIONAL:
-                this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
-                this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
+                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+                this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
                 break;
         }
     }

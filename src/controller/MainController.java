@@ -6,6 +6,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
@@ -14,11 +15,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import model.*;
 import util.Constants;
+import util.NetworkUtils;
 import util.commands.*;
 import util.insertIMG.*;
 import javafx.scene.layout.Pane;
@@ -768,21 +772,11 @@ public class MainController {
     }
 
     public boolean handleMenuActionClient(){
-        TextInputDialog ipDialog = new TextInputDialog("127.0.0.1");
-        ipDialog.setTitle("Server IP");
-        ipDialog.setHeaderText("Please enter Server IP");
-        ipDialog.setContentText("Server IP:");
 
-        TextInputDialog portDialog = new TextInputDialog("54555");
-        portDialog.setTitle("Server Port");
-        portDialog.setHeaderText("Please enter port number");
-        portDialog.setContentText("Port:");
+        String[] result = NetworkUtils.queryServerPort();
 
-        Optional<String> ip = ipDialog.showAndWait();
-        Optional<String> port = portDialog.showAndWait();
-
-        if (ip.isPresent() && port.isPresent() && !ip.get().equals("") && !port.get().equals("")) {
-            ClientController client = new ClientController(this, ip.get(), Integer.parseInt(port.get()));
+        if (result != null) {
+            ClientController client = new ClientController(this, result[0], Integer.parseInt(result[1]));
             if(!client.connect()){
                 client.close();
                 return false;
@@ -791,10 +785,6 @@ public class MainController {
                 return true;
             }
         } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Invalid input");
-            alert.setHeaderText("Invalip input. \nClosing diagram.");
-            alert.showAndWait();
             return false;
         }
     }

@@ -25,6 +25,7 @@ public class ServerController implements PropertyChangeListener {
     private Server server;
     private MainController mainController;
     private int port;
+    private int nrClients = 0;
 
     public ServerController(Graph pGraph, MainController pMainController, int pPort) {
         mainController = pMainController;
@@ -40,6 +41,7 @@ public class ServerController implements PropertyChangeListener {
             e.printStackTrace();
         }
 
+        Platform.runLater(() -> mainController.setServerLabel("Clients: " + Integer.toString(nrClients)));
         initKryo(server.getKryo());
 
 
@@ -67,7 +69,18 @@ public class ServerController implements PropertyChangeListener {
                     Platform.runLater(() -> mainController.remoteCommand((String[])object));
                 }
             }
+
+            public void connected(Connection c){
+                nrClients++;
+                Platform.runLater(() -> mainController.setServerLabel("Clients: " + Integer.toString(nrClients)));
+            }
+
+            public void disconnected(Connection c){
+                nrClients--;
+                Platform.runLater(() -> mainController.setServerLabel("Clients: " + Integer.toString(nrClients)));
+            }
         });
+
     }
 
     /**

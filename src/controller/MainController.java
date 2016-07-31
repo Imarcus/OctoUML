@@ -6,7 +6,6 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
@@ -15,11 +14,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 import model.*;
 import util.Constants;
 import util.NetworkUtils;
@@ -104,6 +101,8 @@ public class MainController {
     private ScrollPane aScrollPane;
     @FXML
     private ColorPicker colorPicker;
+    @FXML
+    private Label serverLabel;
 
     ContextMenu aContextMenu;
     private MainController instance = this;
@@ -789,6 +788,10 @@ public class MainController {
         }
     }
 
+    public void setServerLabel(String s){
+        serverLabel.setText(s);
+    }
+
     public void closeServers(){
         for (ServerController server : serverControllers) {
             server.closeServer();
@@ -800,6 +803,7 @@ public class MainController {
             client.closeClient();
         }
     }
+
     public void handleMenuActionImage(){
         try{
 

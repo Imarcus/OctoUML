@@ -35,7 +35,7 @@ public class ServerController implements PropertyChangeListener {
         server = new Server();
         server.start();
         try {
-            server.bind(port,54777);
+            server.bind(port,port);
         } catch (IOException e){
             e.printStackTrace();
         }

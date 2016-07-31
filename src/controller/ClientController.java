@@ -59,7 +59,7 @@ public class ClientController implements PropertyChangeListener {
     public boolean connect(){
         client.start();
         try {
-            client.connect(5000, serverIp, port, 54777);
+            client.connect(5000, serverIp, port, port);
         } catch (IOException e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);

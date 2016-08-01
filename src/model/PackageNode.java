@@ -1,7 +1,6 @@
 package model;
 
 import javafx.geometry.Point2D;
-import view.ClassNodeView;
 
 import java.util.ArrayList;
 

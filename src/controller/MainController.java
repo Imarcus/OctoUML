@@ -868,11 +868,8 @@ public class MainController {
         AbstractNodeView newView;
         if (node instanceof ClassNode) {
             newView = new ClassNodeView((ClassNode) node);
-            newView.toFront();
         } else /*if (node instanceof PackageNode)*/ {
             newView = new PackageNodeView((PackageNode) node);
-            newView.toBack();
-            gridToBack();
         }
 
         if(!graph.getAllNodes().contains(node)){
@@ -894,6 +891,12 @@ public class MainController {
         initNodeActions(nodeView);
         nodeMap.put(nodeView, node);
         allNodeViews.add(nodeView);
+        if(nodeView instanceof ClassNodeView){
+            nodeView.toFront();
+        } else {//if (nodeView instanceof PackageNodeView)
+            nodeView.toBack();
+            gridToBack();
+        }
         return nodeView;
     }
 

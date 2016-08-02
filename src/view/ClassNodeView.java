@@ -139,8 +139,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
-        } else {
-            title.setText(node.getId());
         }
         title.setAlignment(Pos.CENTER);
 

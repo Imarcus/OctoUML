@@ -274,6 +274,8 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
         } else if(evt.getPropertyName().equals(Constants.changeEdgeEndMultiplicity)){
             endMultiplicity.setText((String)evt.getNewValue());
             draw();
+        } else if (evt.getPropertyName().equals(Constants.changeNodeWidth) || evt.getPropertyName().equals(Constants.changeNodeHeight)){
+            setPosition();
         }
     }
 }

@@ -32,7 +32,6 @@ public class Graph implements Serializable, PropertyChangeListener {
 
     public void setName(String name){
         this.name = name;
-
     }
 
     public String getName(){

@@ -731,7 +731,8 @@ public class MainController {
             fileChooser.setInitialFileName("mydiagram.xml");
         }
         File file = fileChooser.showSaveDialog(getStage());
-        graph.setName(file.getName());
+        String graphName = file.getName().subSequence(0, file.getName().indexOf('.')).toString();
+        graph.setName(graphName);
         PersistenceManager.exportXMI(graph, file.getAbsolutePath());
     }
 

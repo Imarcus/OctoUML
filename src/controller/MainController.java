@@ -269,7 +269,9 @@ public class MainController {
             } else if (event.getButton() == MouseButton.SECONDARY) { //Open context menu on left click.
                 copyPasteController.copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
                 aContextMenu.show(nodeView, event.getScreenX(), event.getScreenY());
-            } else if (tool == ToolEnum.SELECT) { //Select node
+            } else if (tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) { //Select node
+                setTool(ToolEnum.SELECT);
+                setButtonClicked(selectBtn);
                 if (!(nodeView instanceof PackageNodeView)) {
                     nodeView.toFront();
                 }
@@ -296,13 +298,13 @@ public class MainController {
         });
 
         nodeView.setOnMouseDragged(event -> {
-            if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) { //Continue dragging selected elements
+            if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.DRAGGING) { //Continue dragging selected elements
                 nodeController.moveNodes(event);
                 sketchController.moveSketches(event);
                 nodeWasDragged = true;
             } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) { //Continue panning graph.
                 graphController.movePane(event);
-            } else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING) { //Continue resizing node.
+            } else if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.RESIZING) { //Continue resizing node.
                 nodeController.resize(event);
             } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) { //Continue creating edge.
                 edgeController.onMouseDragged(event);
@@ -312,7 +314,7 @@ public class MainController {
         });
 
         nodeView.setOnMouseReleased(event -> {
-            if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) { //Finish dragging nodes and create a compound command.
+            if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.DRAGGING) { //Finish dragging nodes and create a compound command.
                 double[] deltaTranslateVector = nodeController.moveNodesFinished(event);
                 sketchController.moveSketchFinished(event);
                 CompoundCommand compoundCommand = new CompoundCommand();
@@ -331,7 +333,7 @@ public class MainController {
             } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) { //Finish panning of graph.
                 graphController.movePaneFinished();
                 mode = Mode.NO_MODE;
-            } else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING) { //Finish resizing node.
+            } else if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.RESIZING) { //Finish resizing node.
                 nodeController.resizeFinished(nodeMap.get(nodeView));
             } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) { //Finish creation of edge.
                 edgeController.onMouseReleased();

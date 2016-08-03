@@ -490,8 +490,8 @@ public class MainController {
         } else {
             command = pCommand;
         }
-
-        getGraphModel().removeSketch(sketch, remote);
+        
+        graph.removeSketch(sketch, remote);
         aDrawPane.getChildren().remove(sketch.getPath());
         command.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
     }
@@ -598,7 +598,7 @@ public class MainController {
         return selectedSketches;
     }
 
-    private void recognize() {
+    /*private void recognize() {
         ArrayList<GraphElement> recognized = recognizeController.recognize(selectedSketches);
         CompoundCommand recognizeCompoundCommand = new CompoundCommand();
 
@@ -637,8 +637,7 @@ public class MainController {
         for (Sketch sketch : graph.getAllSketches()) {
             sketch.getPath().toFront();
         }
-        mode = Mode.NO_MODE;
-    }
+    }*/
 
 
     //---------------------- MENU HANDLERS ---------------------------------
@@ -1394,7 +1393,7 @@ public class MainController {
 
         deleteBtn.setOnAction(event -> deleteSelected());
 
-        recognizeBtn.setOnAction(event -> recognize());
+        recognizeBtn.setOnAction(event -> recognizeController.recognize(selectedSketches));
     }
 
     private void initColorPicker(){

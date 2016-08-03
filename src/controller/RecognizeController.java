@@ -1,5 +1,6 @@
 package controller;
 
+import edu.tamu.core.sketch.BoundingBox;
 import edu.tamu.core.sketch.Point;
 import edu.tamu.core.sketch.Shape;
 import edu.tamu.core.sketch.Stroke;
@@ -8,6 +9,12 @@ import edu.tamu.recognition.paleo.PaleoSketchRecognizer;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import model.*;
+import util.commands.AddDeleteEdgeCommand;
+import util.commands.AddDeleteNodeCommand;
+import util.commands.AddDeleteSketchCommand;
+import util.commands.CompoundCommand;
+import view.AbstractEdgeView;
+import view.AbstractNodeView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +26,13 @@ public class RecognizeController {
     private Pane aDrawPane;
     private MainController mainController;
     private PaleoSketchRecognizer recognizer;
-    private ArrayList<Sketch> sketchesToBeRemoved;
+    private Graph graph;
 
 
-    public RecognizeController(Pane pDrawPane, MainController mController) {
+    public RecognizeController(Pane pDrawPane, MainController pController) {
         aDrawPane = pDrawPane;
-        this.mainController = mController;
+        mainController = pController;
+        graph = mainController.getGraphModel();
 
         //TODO Find a nicer solution for this:
         //This is to load the recognizer when starting app, not when starting to draw.
@@ -35,8 +43,12 @@ public class RecognizeController {
         recognizer.recognize().getBestShape();
     }
 
-    public synchronized ArrayList<GraphElement> recognize(List<Sketch> sketches) {
-        ArrayList<GraphElement> recognizedElements = new ArrayList<>();
+    public synchronized void recognize(List<Sketch> sketches) {
+        ArrayList<AbstractNode> recognizedNodes = new ArrayList();
+        ArrayList<Sketch> sketchesToBeRemoved = new ArrayList<>();
+        ArrayList<AbstractEdge> recognizedEdges = new ArrayList<>();
+        CompoundCommand recognizeCompoundCommand = new CompoundCommand();
+
         sketchesToBeRemoved = new ArrayList<>();
 
         //Go through all sketches to find Nodes.
@@ -47,15 +59,12 @@ public class RecognizeController {
                 Shape bestMatch = recognizer.recognize().getBestShape();
                 String bestMatchString = bestMatch.getInterpretation().label;
                 if (bestMatchString.equals("Square") || bestMatchString.equals("Rectangle")) {
-                    double x = s.getStroke().getBoundingBox().getX();
-                    double y = s.getStroke().getBoundingBox().getY();
-                    double width = s.getStroke().getBoundingBox().getWidth();
-                    double height = s.getStroke().getBoundingBox().getHeight();
-                    s.setRecognizedElement(new ClassNode(x, y, width, height));
-                    mainController.getGraphModel().addNode((ClassNode)s.getRecognizedElement(), false);
-                    recognizedElements.add(s.getRecognizedElement());
+                    BoundingBox box = s.getStroke().getBoundingBox();
+                    ClassNode node = new ClassNode(box.getX(), box.getY(),box.getWidth(), box.getHeight());
+                    s.setRecognizedElement(node);
+                    recognizedNodes.add(node);
                     sketchesToBeRemoved.add(s);
-                    aDrawPane.getChildren().remove(s.getPath());
+                    graph.addNode(node, false);
                 }
 
             }
@@ -65,25 +74,22 @@ public class RecognizeController {
         for (Sketch s : sketches) {
             if (s.getStroke() != null) {
                 recognizer.setStroke(s.getStroke());
-                Shape bestMatch = recognizer.recognize().getBestShape();
-                String bestMatchString = bestMatch.getInterpretation().label;
+                String bestMatchString = recognizer.recognize().getBestShape().getInterpretation().label;
 
-                if (bestMatchString.equals("Line") || bestMatchString.startsWith("Polyline") ||
-                        bestMatchString.equals("Arc") || bestMatchString.equals("Curve") ||
-                        bestMatchString.equals("Arrow")){
-                    //TODO Hmm, quite messy way to create Edges...
+                if (bestMatchString.equals("Line") || bestMatchString.startsWith("Polyline") || bestMatchString.equals("Arc") ||
+                        bestMatchString.equals("Curve") || bestMatchString.equals("Arrow")){
+
                     Point2D startPoint = new Point2D(s.getStroke().getFirstPoint().getX(), s.getStroke().getFirstPoint().getY());
                     Point2D endPoint = new Point2D(s.getStroke().getLastPoint().getX(), s.getStroke().getLastPoint().getY());
-
-                    Node startNode = mainController.getGraphModel().findNode(startPoint);
-                    Node endNode = mainController.getGraphModel().findNode(endPoint);
+                    Node startNode = graph.findNode(startPoint);
+                    Node endNode = graph.findNode(endPoint);
 
                     //For arrows, which don't have an endpoint
                     List<Point> points = s.getStroke().getPoints();
                     for (int i = points.size()-1; i > points.size()/2; i--) {
                         Point2D point = new Point2D(points.get(i).getX(), points.get(i).getY());
-                        if (mainController.getGraphModel().findNode(point) != null) {
-                            endNode = mainController.getGraphModel().findNode(point);
+                        if (graph.findNode(point) != null) {
+                            endNode = graph.findNode(point);
                             break;
                         }
                     }
@@ -94,17 +100,31 @@ public class RecognizeController {
                             newEdge.setDirection(AbstractEdge.Direction.END_TO_START);
                         }
                         s.setRecognizedElement(newEdge);
-                        recognizedElements.add(s.getRecognizedElement());
                         sketchesToBeRemoved.add(s);
-                        aDrawPane.getChildren().remove(s.getPath());
+                        recognizedEdges.add(newEdge);
                     }
                 }
             }
         }
-        return recognizedElements;
-    }
 
-    public ArrayList<Sketch> getSketchesToBeRemoved() {
-        return sketchesToBeRemoved;
+        for(AbstractNode node : recognizedNodes){
+            AbstractNodeView nodeView = mainController.createNodeView(node, false);
+            recognizeCompoundCommand.add(new AddDeleteNodeCommand(mainController, graph, nodeView, node, true));
+        }
+        for(AbstractEdge edge : recognizedEdges){
+            AbstractEdgeView edgeView = mainController.addEdgeView(edge, false);
+            if (edgeView != null) {
+                recognizeCompoundCommand.add(new AddDeleteEdgeCommand(mainController, edgeView, edge, true));
+            }
+        }
+
+        for(Sketch sketch : sketchesToBeRemoved){
+            mainController.deleteSketch(sketch, recognizeCompoundCommand, false);
+
+        }
+        if(recognizeCompoundCommand.size() > 0){
+            mainController.getUndoManager().add(recognizeCompoundCommand);
+        }
+
     }
 }

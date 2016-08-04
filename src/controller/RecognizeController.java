@@ -49,8 +49,6 @@ public class RecognizeController {
         ArrayList<AbstractEdge> recognizedEdges = new ArrayList<>();
         CompoundCommand recognizeCompoundCommand = new CompoundCommand();
 
-        sketchesToBeRemoved = new ArrayList<>();
-
         //Go through all sketches to find Nodes.
         for (Sketch s : sketches) {
             if (s.getStroke() != null && s.getStroke().getPoints() != null && !s.getStroke().getPoints().isEmpty()) {
@@ -64,13 +62,13 @@ public class RecognizeController {
                     s.setRecognizedElement(node);
                     recognizedNodes.add(node);
                     sketchesToBeRemoved.add(s);
-                    graph.addNode(node, false);
+                    graph.addNode(node, false); //Really don't want to do this until mainController.createNodeView but need to because of graph.findNode.
                 }
 
             }
         }
 
-        //Go through all sketches to find edges.
+        //Go through all sketches to find edges. Edges need to be recognized after nodes
         for (Sketch s : sketches) {
             if (s.getStroke() != null) {
                 recognizer.setStroke(s.getStroke());

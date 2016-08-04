@@ -7,13 +7,17 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -93,20 +97,16 @@ public class MainController {
     //Selection logic
     private boolean nodeWasDragged = true;
 
-    @FXML
-    private Pane aDrawPane;
-    @FXML
-    private Slider zoomSlider;
-    @FXML
-    private ScrollPane aScrollPane;
-    @FXML
-    private ColorPicker colorPicker;
-    @FXML
-    private Label serverLabel;
+
+    @FXML private BorderPane aBorderPane;
+    @FXML private Pane aDrawPane;
+    @FXML private Slider zoomSlider;
+    @FXML private ScrollPane aScrollPane;
+    @FXML private ColorPicker colorPicker;
+    @FXML private Label serverLabel;
 
     ContextMenu aContextMenu;
     private MainController instance = this;
-
 
     @FXML
     public void initialize() {
@@ -133,9 +133,14 @@ public class MainController {
     }
 
     private void initDrawPaneActions() {
-
         //Makes sure the pane doesn't scroll when using a touch screen.
         aDrawPane.setOnScroll(event -> event.consume());
+
+        //Controlls the look of the cursor
+        aDrawPane.addEventHandler(InputEvent.ANY, mouseEvent -> {
+            getStage().getScene().setCursor(Cursor.DEFAULT);
+            mouseEvent.consume();
+        });
 
         aDrawPane.setOnMousePressed(event -> {
             if (mode == Mode.NO_MODE) {
@@ -597,48 +602,6 @@ public class MainController {
     public List<Sketch> getSelectedSketches() {
         return selectedSketches;
     }
-
-    /*private void recognize() {
-        ArrayList<GraphElement> recognized = recognizeController.recognize(selectedSketches);
-        CompoundCommand recognizeCompoundCommand = new CompoundCommand();
-
-        //Recognize nodes first
-        for (GraphElement e : recognized) {
-            if (e instanceof ClassNode) {
-                ClassNodeView nodeView = new ClassNodeView((ClassNode) e);
-                recognizeCompoundCommand.add(
-                        new AddDeleteNodeCommand(MainController.this, graph, nodeView, (ClassNode) e, true));
-                nodeMap.put(nodeView, (ClassNode) e);
-                aDrawPane.getChildren().add(nodeView);
-                allNodeViews.add(nodeView);
-                initNodeActions(nodeView);
-            }
-        }
-        //Recognize edges
-        for (GraphElement e2 : recognized) {
-            if (e2 instanceof AssociationEdge) {
-                AssociationEdge edge = (AssociationEdge) e2;
-                //Only add the edge to the graph if it connects two nodes.
-                AbstractEdgeView edgeView = addEdgeView(edge, false);
-                if (edgeView != null) {
-                    recognizeCompoundCommand.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
-                }
-            }
-        }
-        //Add the removal of sketches to UndoManager:
-        for (Sketch sketch : recognizeController.getSketchesToBeRemoved()) {
-            recognizeCompoundCommand.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
-            aDrawPane.getChildren().remove(sketch);
-            graph.removeSketch(sketch, false);
-        }
-        selectedSketches.removeAll(recognizeController.getSketchesToBeRemoved());
-        undoManager.add(recognizeCompoundCommand);
-        //Bring all sketches to front:
-        for (Sketch sketch : graph.getAllSketches()) {
-            sketch.getPath().toFront();
-        }
-    }*/
-
 
     //---------------------- MENU HANDLERS ---------------------------------
 

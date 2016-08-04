@@ -97,7 +97,7 @@ public class RecognizeController {
                     if (startNode != null && endNode != null && !startNode.equals(endNode)) {
                         AssociationEdge newEdge = new AssociationEdge(startNode, endNode);
                         if (bestMatchString.equals("Arrow")) {
-                            newEdge.setDirection(AbstractEdge.Direction.END_TO_START);
+                            newEdge.setDirection(AbstractEdge.Direction.START_TO_END);
                         }
                         s.setRecognizedElement(newEdge);
                         sketchesToBeRemoved.add(s);
@@ -117,10 +117,8 @@ public class RecognizeController {
                 recognizeCompoundCommand.add(new AddDeleteEdgeCommand(mainController, edgeView, edge, true));
             }
         }
-
         for(Sketch sketch : sketchesToBeRemoved){
             mainController.deleteSketch(sketch, recognizeCompoundCommand, false);
-
         }
         if(recognizeCompoundCommand.size() > 0){
             mainController.getUndoManager().add(recognizeCompoundCommand);

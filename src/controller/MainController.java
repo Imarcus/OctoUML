@@ -490,7 +490,7 @@ public class MainController {
         } else {
             command = pCommand;
         }
-        
+        selectedSketches.remove(sketch);
         graph.removeSketch(sketch, remote);
         aDrawPane.getChildren().remove(sketch.getPath());
         command.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
@@ -654,7 +654,6 @@ public class MainController {
                 aDrawPane.getChildren().remove(edgView);
             }
             setButtons(true, umlButtons);
-            //umlMenuItem.setSelected(false);
             umlVisible = false;
         } else {
             for (AbstractNodeView nodeView : allNodeViews) {
@@ -664,7 +663,6 @@ public class MainController {
                 aDrawPane.getChildren().add(edgView);
             }
             setButtons(false, umlButtons);
-            //umlMenuItem.setSelected(true);
             umlVisible = true;
             sketchesToFront();
         }

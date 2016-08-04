@@ -94,6 +94,7 @@ public class AddDeleteSketchCommand implements Command
 	{
         aPane.getChildren().add(aSketch.getPath());
         aSketch.getPath().toFront();
+		aSketch.setColor(aSketch.getColor());
         mainController.getGraphModel().addSketch(aSketch, false);
 
 	}

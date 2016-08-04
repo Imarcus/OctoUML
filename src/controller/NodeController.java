@@ -13,6 +13,7 @@ import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -41,6 +42,8 @@ public class NodeController {
     private double initMoveX, initMoveY;
     private HashMap<AbstractNode, Point2D.Double> initTranslateMap = new HashMap<>();
     private ArrayList<AbstractNode> toBeMoved = new ArrayList<>();
+    private HashMap<AbstractNode, Line> xSnapIndicatorMap = new HashMap<>();
+    private HashMap<AbstractNode, Line> ySnapIndicatorMap = new HashMap<>();
 
     public NodeController(Pane pDrawPane, MainController pMainController){
 
@@ -76,8 +79,6 @@ public class NodeController {
         dragRectangle.setWidth(event.getX());
         dragRectangle.setHeight(event.getY());
 
-        //putNodeInPackage(nodeView);
-
         ArrayList<AbstractNodeView> selectedNodes = aMainController.getAllNodeViews();
         for(AbstractNodeView n : selectedNodes){
             if(n instanceof PackageNodeView){
@@ -112,6 +113,7 @@ public class NodeController {
                 initTranslate = new Point2D.Double(n.getTranslateX(), n.getTranslateY());
                 initTranslateMap.put(n, initTranslate);
                 toBeMoved.add(n);
+                createSnapIndicators(n);
                 if (n instanceof PackageNode) {
                     for (AbstractNode child : ((PackageNode) n).getChildNodes()) {
                         if (!selectedNodes.contains(child)) {
@@ -126,22 +128,54 @@ public class NodeController {
     }
 
     public void moveNodes(MouseEvent event){
-        double offsetX = (event.getSceneX() - initMoveX) * 100/aMainController.getZoomScale();
-        double offsetY = (event.getSceneY() - initMoveY) * 100/aMainController.getZoomScale();
+        double offsetX = event.getSceneX() - initMoveX;
+        double offsetY = event.getSceneY() - initMoveY;
 
         //Drag all selected nodes and their children
         for(AbstractNode n : toBeMoved)
         {
-            n.setTranslateX(initTranslateMap.get(n).getX() + offsetX);
-            n.setTranslateY(initTranslateMap.get(n).getY() + offsetY);
-            n.setX(initTranslateMap.get(n).getX() + offsetX);
-            n.setY(initTranslateMap.get(n).getY() + offsetY);
+            Double x = initTranslateMap.get(n).getX() + offsetX;
+            Double y = initTranslateMap.get(n).getY() + offsetY;
+            n.setTranslateX(x);
+            n.setTranslateY(y);
+            n.setX(x);
+            n.setY(y);
+
+            int xSnap = closestInteger(x.intValue(), 20);
+            int ySnap = closestInteger(y.intValue(), 20);
+            Line xSnapIndicator = xSnapIndicatorMap.get(n);
+            Line ySnapIndicator = ySnapIndicatorMap.get(n);
+
+            xSnapIndicator.setStartX(xSnap);
+            xSnapIndicator.setEndX(xSnap);
+            xSnapIndicator.setStartY(ySnap);
+            xSnapIndicator.setEndY(ySnap+20);
+
+            ySnapIndicator.setStartX(xSnap);
+            ySnapIndicator.setEndX(xSnap+20);
+            ySnapIndicator.setStartY(ySnap);
+            ySnapIndicator.setEndY(ySnap);
+
         }
     }
 
     public double[] moveNodesFinished(MouseEvent event){
+        double offsetX = event.getSceneX() - initMoveX;
+        double offsetY = event.getSceneY() - initMoveY;
+        for(AbstractNode n : toBeMoved) {
+            Double x = initTranslateMap.get(n).getX() + offsetX; //Calculate real position after move
+            Double y = initTranslateMap.get(n).getY() + offsetY;
+            int xSnap = closestInteger(x.intValue(), 20); //Snap to grid
+            int ySnap = closestInteger(y.intValue(), 20);
+            n.setTranslateX(xSnap);
+            n.setTranslateY(ySnap);
+            n.setX(xSnap);
+            n.setY(ySnap);
+        }
+
         toBeMoved.clear();
         initTranslateMap.clear();
+        removeSnapIndicators();
         double[] deltaTranslateVector = new double[2];
         deltaTranslateVector[0] = event.getSceneX() - initMoveX;
         deltaTranslateVector[1] = event.getSceneY() - initMoveY;
@@ -158,32 +192,18 @@ public class NodeController {
     }
 
     /**
-     * Brings up a dialog to give a title to a Node.
-     * @param node, the Node to give a Title
-     * @return false if node == null, otherwise true.
+     * @param a
+     * @param b
+     * @return Multiple of b that is closest to a. Used for "snapping to grid".
      */
-    public boolean addNodeTitle(AbstractNode node){
-        if (node == null)
-        {
-            return false;
+    static int closestInteger(int a, int b) { //TODO GRID DISTANCE CONSTANT
+        int c1 = a - (a % b);
+        int c2 = (a + b) - (a % b);
+        if (a - c1 > c2 - a) {
+            return c2;
+        } else {
+            return c1;
         }
-        Dialog <String> dialog = new TextInputDialog();
-        dialog.setTitle("Choose title");
-        dialog.setHeaderText("Choose title");
-
-        Optional<String> result = dialog.showAndWait();
-        String entered = "none.";
-
-        if (result.isPresent())
-        {
-            entered = result.get();
-        }
-
-        if(!entered.equals("none."))
-        {
-            node.setTitle(entered);
-        }
-        return true;
     }
 
     /**
@@ -230,6 +250,27 @@ public class NodeController {
                 packageNodeModel.getChildNodes().remove(potentialChildModel);
             }
         }
+    }
+
+    /**
+     * Initializes snap inidicators for AbstractNode.
+     * @param n
+     */
+    private void createSnapIndicators(AbstractNode n){
+        Line xSnapIndicator = new Line(0,0,0,0);
+        Line ySnapIndicator = new Line(0,0,0,0);
+        xSnapIndicator.setStroke(Color.BLUE);
+        ySnapIndicator.setStroke(Color.BLUE);
+        aDrawPane.getChildren().addAll(xSnapIndicator, ySnapIndicator);
+        xSnapIndicatorMap.put(n, xSnapIndicator);
+        ySnapIndicatorMap.put(n, ySnapIndicator);
+    }
+
+    private void removeSnapIndicators(){
+        aDrawPane.getChildren().removeAll(xSnapIndicatorMap.values());
+        aDrawPane.getChildren().removeAll(ySnapIndicatorMap.values());
+        xSnapIndicatorMap.clear();
+        ySnapIndicatorMap.clear();
     }
 
     public void onDoubleClick(AbstractNodeView nodeView){

@@ -36,6 +36,7 @@ public class RecognizeController {
 
         //TODO Find a nicer solution for this:
         //This is to load the recognizer when starting app, not when starting to draw.
+
         recognizer = new PaleoSketchRecognizer(PaleoConfig.allOn());
         Stroke init = new Stroke();
         init.addPoint(new Point(0,1));

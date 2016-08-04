@@ -25,6 +25,7 @@ public class ServerController implements PropertyChangeListener {
     private Server server;
     private MainController mainController;
     private int port;
+    private int nrClients = 0;
 
     public ServerController(Graph pGraph, MainController pMainController, int pPort) {
         mainController = pMainController;
@@ -35,11 +36,12 @@ public class ServerController implements PropertyChangeListener {
         server = new Server();
         server.start();
         try {
-            server.bind(port,54777);
+            server.bind(port,port);
         } catch (IOException e){
             e.printStackTrace();
         }
 
+        Platform.runLater(() -> mainController.setServerLabel("Clients: " + Integer.toString(nrClients)));
         initKryo(server.getKryo());
 
 
@@ -67,7 +69,18 @@ public class ServerController implements PropertyChangeListener {
                     Platform.runLater(() -> mainController.remoteCommand((String[])object));
                 }
             }
+
+            public void connected(Connection c){
+                nrClients++;
+                Platform.runLater(() -> mainController.setServerLabel("Clients: " + Integer.toString(nrClients)));
+            }
+
+            public void disconnected(Connection c){
+                nrClients--;
+                Platform.runLater(() -> mainController.setServerLabel("Clients: " + Integer.toString(nrClients)));
+            }
         });
+
     }
 
     /**
@@ -91,7 +104,7 @@ public class ServerController implements PropertyChangeListener {
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
-                Double.toString(point.getX()), Double.toString(point.getY())};
+                Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.sketchRemove)){

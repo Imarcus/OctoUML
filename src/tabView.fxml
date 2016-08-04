@@ -18,8 +18,8 @@
                     <MenuItem text="Save as XMI" onAction="#handleMenuActionSave"/>
                     <MenuItem text="Save as Image" onAction="#handleMenuActionImage"/>
                     <SeparatorMenuItem/>
-                    <MenuItem text="Server" onAction="#handleMenuActionServer"/>
-                    <MenuItem text="Client" onAction="#handleMenuActionClient"/>
+                    <MenuItem text="Launch Server" onAction="#handleMenuActionServer"/>
+                    <MenuItem text="Join as Client" onAction="#handleMenuActionClient"/>
                     <SeparatorMenuItem/>
                     <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
                     <SeparatorMenuItem/>

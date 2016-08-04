@@ -7,18 +7,23 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
 import util.Constants;
+import util.NetworkUtils;
 import util.commands.*;
 import util.insertIMG.*;
 import javafx.scene.layout.Pane;
@@ -92,18 +97,16 @@ public class MainController {
     //Selection logic
     private boolean nodeWasDragged = true;
 
-    @FXML
-    private Pane aDrawPane;
-    @FXML
-    private Slider zoomSlider;
-    @FXML
-    private ScrollPane aScrollPane;
-    @FXML
-    private ColorPicker colorPicker;
+
+    @FXML private BorderPane aBorderPane;
+    @FXML private Pane aDrawPane;
+    @FXML private Slider zoomSlider;
+    @FXML private ScrollPane aScrollPane;
+    @FXML private ColorPicker colorPicker;
+    @FXML private Label serverLabel;
 
     ContextMenu aContextMenu;
     private MainController instance = this;
-
 
     @FXML
     public void initialize() {
@@ -130,9 +133,14 @@ public class MainController {
     }
 
     private void initDrawPaneActions() {
-
         //Makes sure the pane doesn't scroll when using a touch screen.
         aDrawPane.setOnScroll(event -> event.consume());
+
+        //Controlls the look of the cursor
+        aDrawPane.addEventHandler(InputEvent.ANY, mouseEvent -> {
+            getStage().getScene().setCursor(Cursor.DEFAULT);
+            mouseEvent.consume();
+        });
 
         aDrawPane.setOnMousePressed(event -> {
             if (mode == Mode.NO_MODE) {
@@ -266,7 +274,9 @@ public class MainController {
             } else if (event.getButton() == MouseButton.SECONDARY) { //Open context menu on left click.
                 copyPasteController.copyPasteCoords = new double[]{nodeView.getX() + event.getX(), nodeView.getY() + event.getY()};
                 aContextMenu.show(nodeView, event.getScreenX(), event.getScreenY());
-            } else if (tool == ToolEnum.SELECT) { //Select node
+            } else if (tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) { //Select node
+                setTool(ToolEnum.SELECT);
+                setButtonClicked(selectBtn);
                 if (!(nodeView instanceof PackageNodeView)) {
                     nodeView.toFront();
                 }
@@ -293,13 +303,13 @@ public class MainController {
         });
 
         nodeView.setOnMouseDragged(event -> {
-            if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) { //Continue dragging selected elements
+            if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.DRAGGING) { //Continue dragging selected elements
                 nodeController.moveNodes(event);
                 sketchController.moveSketches(event);
                 nodeWasDragged = true;
             } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) { //Continue panning graph.
                 graphController.movePane(event);
-            } else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING) { //Continue resizing node.
+            } else if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.RESIZING) { //Continue resizing node.
                 nodeController.resize(event);
             } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) { //Continue creating edge.
                 edgeController.onMouseDragged(event);
@@ -309,7 +319,7 @@ public class MainController {
         });
 
         nodeView.setOnMouseReleased(event -> {
-            if (tool == ToolEnum.SELECT && mode == Mode.DRAGGING) { //Finish dragging nodes and create a compound command.
+            if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.DRAGGING) { //Finish dragging nodes and create a compound command.
                 double[] deltaTranslateVector = nodeController.moveNodesFinished(event);
                 sketchController.moveSketchFinished(event);
                 CompoundCommand compoundCommand = new CompoundCommand();
@@ -328,7 +338,7 @@ public class MainController {
             } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) { //Finish panning of graph.
                 graphController.movePaneFinished();
                 mode = Mode.NO_MODE;
-            } else if (tool == ToolEnum.SELECT && mode == Mode.RESIZING) { //Finish resizing node.
+            } else if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.RESIZING) { //Finish resizing node.
                 nodeController.resizeFinished(nodeMap.get(nodeView));
             } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) { //Finish creation of edge.
                 edgeController.onMouseReleased();
@@ -485,8 +495,8 @@ public class MainController {
         } else {
             command = pCommand;
         }
-
-        getGraphModel().removeSketch(sketch, remote);
+        selectedSketches.remove(sketch);
+        graph.removeSketch(sketch, remote);
         aDrawPane.getChildren().remove(sketch.getPath());
         command.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
     }
@@ -593,49 +603,6 @@ public class MainController {
         return selectedSketches;
     }
 
-    private void recognize() {
-        ArrayList<GraphElement> recognized = recognizeController.recognize(selectedSketches);
-        CompoundCommand recognizeCompoundCommand = new CompoundCommand();
-
-        //Recognize nodes first
-        for (GraphElement e : recognized) {
-            if (e instanceof ClassNode) {
-                ClassNodeView nodeView = new ClassNodeView((ClassNode) e);
-                recognizeCompoundCommand.add(
-                        new AddDeleteNodeCommand(MainController.this, graph, nodeView, (ClassNode) e, true));
-                nodeMap.put(nodeView, (ClassNode) e);
-                aDrawPane.getChildren().add(nodeView);
-                allNodeViews.add(nodeView);
-                initNodeActions(nodeView);
-            }
-        }
-        //Recognize edges
-        for (GraphElement e2 : recognized) {
-            if (e2 instanceof AssociationEdge) {
-                AssociationEdge edge = (AssociationEdge) e2;
-                //Only add the edge to the graph if it connects two nodes.
-                AbstractEdgeView edgeView = addEdgeView(edge, false);
-                if (edgeView != null) {
-                    recognizeCompoundCommand.add(new AddDeleteEdgeCommand(MainController.this, edgeView, edge, true));
-                }
-            }
-        }
-        //Add the removal of sketches to UndoManager:
-        for (Sketch sketch : recognizeController.getSketchesToBeRemoved()) {
-            recognizeCompoundCommand.add(new AddDeleteSketchCommand(this, aDrawPane, sketch, false));
-            aDrawPane.getChildren().remove(sketch);
-            graph.removeSketch(sketch, false);
-        }
-        selectedSketches.removeAll(recognizeController.getSketchesToBeRemoved());
-        undoManager.add(recognizeCompoundCommand);
-        //Bring all sketches to front:
-        for (Sketch sketch : graph.getAllSketches()) {
-            sketch.getPath().toFront();
-        }
-        mode = Mode.NO_MODE;
-    }
-
-
     //---------------------- MENU HANDLERS ---------------------------------
 
 
@@ -650,7 +617,6 @@ public class MainController {
                 aDrawPane.getChildren().remove(edgView);
             }
             setButtons(true, umlButtons);
-            //umlMenuItem.setSelected(false);
             umlVisible = false;
         } else {
             for (AbstractNodeView nodeView : allNodeViews) {
@@ -660,7 +626,6 @@ public class MainController {
                 aDrawPane.getChildren().add(edgView);
             }
             setButtons(false, umlButtons);
-            //umlMenuItem.setSelected(true);
             umlVisible = true;
             sketchesToFront();
         }
@@ -728,7 +693,8 @@ public class MainController {
             fileChooser.setInitialFileName("mydiagram.xml");
         }
         File file = fileChooser.showSaveDialog(getStage());
-        graph.setName(file.getName());
+        String graphName = file.getName().subSequence(0, file.getName().indexOf('.')).toString();
+        graph.setName(graphName);
         PersistenceManager.exportXMI(graph, file.getAbsolutePath());
     }
 
@@ -768,21 +734,11 @@ public class MainController {
     }
 
     public boolean handleMenuActionClient(){
-        TextInputDialog ipDialog = new TextInputDialog("127.0.0.1");
-        ipDialog.setTitle("Server IP");
-        ipDialog.setHeaderText("Please enter Server IP");
-        ipDialog.setContentText("Server IP:");
 
-        TextInputDialog portDialog = new TextInputDialog("54555");
-        portDialog.setTitle("Server Port");
-        portDialog.setHeaderText("Please enter port number");
-        portDialog.setContentText("Port:");
+        String[] result = NetworkUtils.queryServerPort();
 
-        Optional<String> ip = ipDialog.showAndWait();
-        Optional<String> port = portDialog.showAndWait();
-
-        if (ip.isPresent() && port.isPresent() && !ip.get().equals("") && !port.get().equals("")) {
-            ClientController client = new ClientController(this, ip.get(), Integer.parseInt(port.get()));
+        if (result != null) {
+            ClientController client = new ClientController(this, result[0], Integer.parseInt(result[1]));
             if(!client.connect()){
                 client.close();
                 return false;
@@ -791,12 +747,12 @@ public class MainController {
                 return true;
             }
         } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Invalid input");
-            alert.setHeaderText("Invalip input. \nClosing diagram.");
-            alert.showAndWait();
             return false;
         }
+    }
+
+    public void setServerLabel(String s){
+        serverLabel.setText(s);
     }
 
     public void closeServers(){
@@ -810,6 +766,7 @@ public class MainController {
             client.closeClient();
         }
     }
+
     public void handleMenuActionImage(){
         try{
 
@@ -874,11 +831,8 @@ public class MainController {
         AbstractNodeView newView;
         if (node instanceof ClassNode) {
             newView = new ClassNodeView((ClassNode) node);
-            newView.toFront();
         } else /*if (node instanceof PackageNode)*/ {
             newView = new PackageNodeView((PackageNode) node);
-            newView.toBack();
-            gridToBack();
         }
 
         if(!graph.getAllNodes().contains(node)){
@@ -900,6 +854,12 @@ public class MainController {
         initNodeActions(nodeView);
         nodeMap.put(nodeView, node);
         allNodeViews.add(nodeView);
+        if(nodeView instanceof ClassNodeView){
+            nodeView.toFront();
+        } else {//if (nodeView instanceof PackageNodeView)
+            nodeView.toBack();
+            gridToBack();
+        }
         return nodeView;
     }
 
@@ -938,6 +898,7 @@ public class MainController {
             for(Sketch sketch : graph.getAllSketches()){
                 if(dataArray[1].equals(sketch.getId())){
                     sketch.setStartRemote(Double.parseDouble(dataArray[2]), Double.parseDouble(dataArray[3]));
+                    sketch.setColor(Color.web(dataArray[4]));
                 }
             }
         }
@@ -1393,7 +1354,7 @@ public class MainController {
 
         deleteBtn.setOnAction(event -> deleteSelected());
 
-        recognizeBtn.setOnAction(event -> recognize());
+        recognizeBtn.setOnAction(event -> recognizeController.recognize(selectedSketches));
     }
 
     private void initColorPicker(){

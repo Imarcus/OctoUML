@@ -59,7 +59,7 @@ public class ClientController implements PropertyChangeListener {
     public boolean connect(){
         client.start();
         try {
-            client.connect(5000, serverIp, port, 54777);
+            client.connect(5000, serverIp, port, port);
         } catch (IOException e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -100,7 +100,7 @@ public class ClientController implements PropertyChangeListener {
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
-                    Double.toString(point.getX()), Double.toString(point.getY())};
+                    Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.sketchRemove)){

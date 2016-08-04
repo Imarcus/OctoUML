@@ -10,6 +10,8 @@ public class Constants {
     public static Color selected_color = Color.web("#FF6D70");
     public static Color selected_sketch_color = Color.web("#884FA8");
 
+    public static int GRID_DISTANCE = 20;
+
 
     //--------------------- Network Constants -----------------------------------
     public static String requestGraph = "RequestGraph";

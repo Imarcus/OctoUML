@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 import model.AbstractNode;
 import model.ClassNode;
 import model.PackageNode;
+import util.Constants;
 import view.AbstractNodeView;
 import view.ClassNodeView;
 import view.PackageNodeView;
@@ -140,21 +141,8 @@ public class NodeController {
             n.setTranslateY(y);
             n.setX(x);
             n.setY(y);
+            setSnapIndicators(closestInteger(x.intValue(), Constants.GRID_DISTANCE), closestInteger(y.intValue(), Constants.GRID_DISTANCE), n);
 
-            int xSnap = closestInteger(x.intValue(), 20);
-            int ySnap = closestInteger(y.intValue(), 20);
-            Line xSnapIndicator = xSnapIndicatorMap.get(n);
-            Line ySnapIndicator = ySnapIndicatorMap.get(n);
-
-            xSnapIndicator.setStartX(xSnap);
-            xSnapIndicator.setEndX(xSnap);
-            xSnapIndicator.setStartY(ySnap);
-            xSnapIndicator.setEndY(ySnap+20);
-
-            ySnapIndicator.setStartX(xSnap);
-            ySnapIndicator.setEndX(xSnap+20);
-            ySnapIndicator.setStartY(ySnap);
-            ySnapIndicator.setEndY(ySnap);
 
         }
     }
@@ -259,13 +247,37 @@ public class NodeController {
     private void createSnapIndicators(AbstractNode n){
         Line xSnapIndicator = new Line(0,0,0,0);
         Line ySnapIndicator = new Line(0,0,0,0);
-        xSnapIndicator.setStroke(Color.BLUE);
-        ySnapIndicator.setStroke(Color.BLUE);
+        xSnapIndicator.setStroke(Color.BLACK);
+        ySnapIndicator.setStroke(Color.BLACK);
         aDrawPane.getChildren().addAll(xSnapIndicator, ySnapIndicator);
         xSnapIndicatorMap.put(n, xSnapIndicator);
         ySnapIndicatorMap.put(n, ySnapIndicator);
     }
 
+    /**
+     * Places snap indicators to where the node would be snapped to.
+     * @param xSnap
+     * @param ySnap
+     * @param n
+     */
+    private void setSnapIndicators(int xSnap, int ySnap, AbstractNode n){
+        Line xSnapIndicator = xSnapIndicatorMap.get(n);
+        Line ySnapIndicator = ySnapIndicatorMap.get(n);
+
+        xSnapIndicator.setStartX(xSnap);
+        xSnapIndicator.setEndX(xSnap);
+        xSnapIndicator.setStartY(ySnap);
+        xSnapIndicator.setEndY(ySnap+Constants.GRID_DISTANCE);
+
+        ySnapIndicator.setStartX(xSnap);
+        ySnapIndicator.setEndX(xSnap+Constants.GRID_DISTANCE);
+        ySnapIndicator.setStartY(ySnap);
+        ySnapIndicator.setEndY(ySnap);
+    }
+
+    /**
+     * Removes all snap indicators from the view.
+     */
     private void removeSnapIndicators(){
         aDrawPane.getChildren().removeAll(xSnapIndicatorMap.values());
         aDrawPane.getChildren().removeAll(ySnapIndicatorMap.values());

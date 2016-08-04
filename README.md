@@ -1,5 +1,7 @@
 # PenguinUML
 
+![](https://giphy.com/gifs/l0HlPT6pjpTBLxBVm)
+
 PenguinUML is a **UML diagram creation tool**, designed with the intention of combining formal UML notations with informal notations, specifically drawings. The user can create diagram elements either by using the formal tools or by transforming drawings to UML. PenguinUML currently only supports class diagrams.
 The software is built using the MVC architecture in Java, utilizing JavaFX.
 

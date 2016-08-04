@@ -21,4 +21,6 @@ hs_err_pid*
 /JetUML-0.9/*
 /JetUML-0.9/.idea/workspace.xml
 *.iml
+logging
+META-INF
 

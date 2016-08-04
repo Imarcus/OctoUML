@@ -1,7 +1,5 @@
 package view;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,13 +9,17 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import model.ClassNode;
+import util.Constants;
+
+import java.beans.PropertyChangeEvent;
 
 /**
- * Created by chris on 2016-02-16.
+ * Visual representation of ClassNode class.
  */
 public class ClassNodeView extends AbstractNodeView implements NodeView {
 
@@ -34,13 +36,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     private Separator firstLine;
     private Separator secondLine;
 
+    private Line shortHandleLine;
+    private Line longHandleLine;
+
     private final double TOP_MAX_HEIGHT = 50;
     private final double TOP_HEIGHT_RATIO = 0.2;
     private final int STROKE_WIDTH = 1;
 
     public ClassNodeView(ClassNode node) {
         super(node);
-        setChangeListeners();
+        //setChangeListeners();
 
         container = new StackPane();
         rectangle = new Rectangle();
@@ -52,13 +57,15 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         createRectangles();
         changeHeight(node.getHeight());
         changeWidth(node.getWidth());
-
         initLooks();
 
         this.getChildren().add(container);
 
         this.setTranslateX(node.getTranslateX());
         this.setTranslateY(node.getTranslateY());
+        createHandles();
+
+
     }
 
     private void createRectangles(){
@@ -97,6 +104,23 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         operations.setPrefWidth(width);
     }
 
+    private void createHandles(){
+
+        shortHandleLine = new Line();
+        longHandleLine = new Line();
+
+        shortHandleLine.startXProperty().bind(rectangle.widthProperty().subtract(7));
+        shortHandleLine.startYProperty().bind(rectangle.heightProperty().subtract(3));
+        shortHandleLine.endXProperty().bind(rectangle.widthProperty().subtract(3));
+        shortHandleLine.endYProperty().bind(rectangle.heightProperty().subtract(7));
+        longHandleLine.startXProperty().bind(rectangle.widthProperty().subtract(15));
+        longHandleLine.startYProperty().bind(rectangle.heightProperty().subtract(3));
+        longHandleLine.endXProperty().bind(rectangle.widthProperty().subtract(3));
+        longHandleLine.endYProperty().bind(rectangle.heightProperty().subtract(15));
+
+        this.getChildren().addAll(shortHandleLine, longHandleLine);
+    }
+
     private void initVBox(){
         ClassNode node = (ClassNode) getRefNode();
 
@@ -116,7 +140,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
         } else {
-            firstLine.setVisible(false);
+            title.setText(node.getId());
         }
         title.setAlignment(Pos.CENTER);
 
@@ -144,6 +168,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         VBox.setMargin(operations, new Insets(5,0,0,5));
     }
 
+    public void setSelected(boolean selected){
+        if(selected){
+            rectangle.setStrokeWidth(2);
+            setStroke(Constants.selected_color);
+        } else {
+            rectangle.setStrokeWidth(1);
+            setStroke(Color.BLACK);
+        }
+    }
+
     public void setStrokeWidth(double scale){
         rectangle.setStrokeWidth(scale);
     }
@@ -160,66 +194,35 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         return container.getBoundsInParent();
     }
 
-    //TODO Maybe needs some Nullchecks etc?
-    private void setChangeListeners() {
-        ClassNode refNode = (ClassNode) getRefNode();
-        refNode.xProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setX(newValue.doubleValue());
-            }
-        });
 
-        refNode.yProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setY(newValue.doubleValue());
-            }
-        });
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
 
-        refNode.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                changeHeight(newValue.doubleValue());
+        super.propertyChange(evt);
+        if (evt.getPropertyName().equals(Constants.changeNodeX)) {
+            setX((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeY)) {
+            setY((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeWidth)) {
+            changeWidth((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeHeight)) {
+            changeHeight((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
+            title.setText((String) evt.getNewValue());
+            if (title.getText() == null || title.getText().equals("")) {
+                firstLine.setVisible(false);
+            } else {
+                firstLine.setVisible(true);
             }
-        });
-
-        refNode.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                changeWidth(newValue.doubleValue());
+        } else if (evt.getPropertyName().equals(Constants.changeClassNodeAttributes)) {
+            attributes.setText((String) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeClassNodeOperations)) {
+            operations.setText((String) evt.getNewValue());
+            if (operations.getText() == null || operations.getText().equals("")) {
+                secondLine.setVisible(false);
+            } else {
+                secondLine.setVisible(true);
             }
-        });
-
-        refNode.titleProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                title.setText(newValue);
-                if(title.getText() == null || title.getText().equals("")){
-                    firstLine.setVisible(false);
-                } else {
-                    firstLine.setVisible(true);
-                }
-            }
-        });
-
-        refNode.attributesProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                attributes.setText(newValue);
-            }
-        });
-
-        refNode.operationsProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                operations.setText(newValue);
-                if(operations.getText() == null || operations.getText().equals("")){
-                    secondLine.setVisible(false);
-                } else {
-                    secondLine.setVisible(true);
-                }
-            }
-        });
+        }
     }
 }

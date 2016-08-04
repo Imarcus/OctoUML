@@ -1,12 +1,7 @@
 package model;
 
-import controller.MainController;
 import javafx.geometry.Point2D;
-import javafx.scene.input.TouchEvent;
-import junit.framework.Assert;
 import static org.junit.Assert.assertEquals;
-import model.ClassNode;
-import model.PackageNode;
 import org.junit.Test;
 
 

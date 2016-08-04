@@ -43,9 +43,9 @@ public class UndoManager
 	 */
 	public UndoManager()
 	{
-		aPastCommands = new Stack<Command>();
-		aUndoneCommands = new Stack<Command>();
-		aTrackingCommands = new Stack<CompoundCommand>();
+		aPastCommands = new Stack<>();
+		aUndoneCommands = new Stack<>();
+		aTrackingCommands = new Stack<>();
 	}
 
 	/**

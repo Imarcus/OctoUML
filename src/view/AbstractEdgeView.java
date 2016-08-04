@@ -1,7 +1,5 @@
 package view;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -10,14 +8,19 @@ import javafx.scene.text.Text;
 import model.AbstractEdge;
 import util.Constants;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 /**
- * Created by chris on 2016-02-18.
+ * Visual representation of AbstractEdge class.
  */
-public abstract class AbstractEdgeView extends Group implements EdgeView{
+public abstract class AbstractEdgeView extends Group implements EdgeView, PropertyChangeListener {
+    private static int objectCounter = 0;
+
     private AbstractEdge refEdge;
     private AbstractNodeView startNode;
     private boolean selected = false;
-    public final double STROKE_WIDTH = 2;
+    public final double STROKE_WIDTH = 1;
     public enum Position{
         ABOVE, BELOW, RIGHT, LEFT, NONE
     }
@@ -27,21 +30,32 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
     private Text endMultiplicity;
 
     private AbstractNodeView endNode;
-    private Line line;
+    private Line startLine = new Line();
+    private Line middleLine = new Line();
+    private Line endLine = new Line();
 
     public AbstractEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
         super();
+
+        setId("VIEWASSOCIATION_" + ++objectCounter);
+
         this.refEdge = edge;
         this.startNode = startNode;
         this.endNode = endNode;
         this.setVisible(true);
-        line = new Line();
-        this.getChildren().add(line);
+        this.getChildren().add(startLine);
+        this.getChildren().add(middleLine);
+        this.getChildren().add(endLine);
         startMultiplicity = new Text(edge.getStartMultiplicity());
         endMultiplicity = new Text(edge.getEndMultiplicity());
-        setChangeListeners();
         setPosition();
-        line.setStrokeWidth(STROKE_WIDTH);
+        startLine.setStrokeWidth(STROKE_WIDTH);
+        middleLine.setStrokeWidth(STROKE_WIDTH);
+        endLine.setStrokeWidth(STROKE_WIDTH);
+
+        refEdge.addPropertyChangeListener(this);
+        startNode.getRefNode().addPropertyChangeListener(this);
+        endNode.getRefNode().addPropertyChangeListener(this);
     }
 
     protected void draw() {
@@ -51,28 +65,28 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
 
         switch (position) {
             case RIGHT:
-                startMultiplicity.setX(getLine().getStartX() + OFFSET);
-                startMultiplicity.setY(getLine().getStartY() + OFFSET);
-                endMultiplicity.setX(getLine().getEndX() - OFFSET - endMultiplicity.getText().length() -5);
-                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                startMultiplicity.setX(getStartLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getStartLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getEndLine().getEndX() - OFFSET - endMultiplicity.getText().length() -5);
+                endMultiplicity.setY(getEndLine().getEndY() + OFFSET);
                 break;
             case LEFT:
-                startMultiplicity.setX(getLine().getStartX() - OFFSET - endMultiplicity.getText().length() -5);
-                startMultiplicity.setY(getLine().getStartY() + OFFSET);
-                endMultiplicity.setX(getLine().getEndX() + OFFSET);
-                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                startMultiplicity.setX(getStartLine().getStartX() - OFFSET - endMultiplicity.getText().length() -5);
+                startMultiplicity.setY(getStartLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getEndLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getEndLine().getEndY() + OFFSET);
                 break;
             case ABOVE:
-                startMultiplicity.setX(getLine().getStartX() + OFFSET);
-                startMultiplicity.setY(getLine().getStartY() - OFFSET);
-                endMultiplicity.setX(getLine().getEndX() + OFFSET);
-                endMultiplicity.setY(getLine().getEndY() + OFFSET);
+                startMultiplicity.setX(getStartLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getStartLine().getStartY() - OFFSET);
+                endMultiplicity.setX(getEndLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getEndLine().getEndY() + OFFSET);
                 break;
             case BELOW:
-                startMultiplicity.setX(getLine().getStartX() + OFFSET);
-                startMultiplicity.setY(getLine().getStartY() + OFFSET);
-                endMultiplicity.setX(getLine().getEndX() + OFFSET);
-                endMultiplicity.setY(getLine().getEndY() - OFFSET);
+                startMultiplicity.setX(getStartLine().getStartX() + OFFSET);
+                startMultiplicity.setY(getStartLine().getStartY() + OFFSET);
+                endMultiplicity.setX(getEndLine().getEndX() + OFFSET);
+                endMultiplicity.setY(getEndLine().getEndY() - OFFSET);
                 break;
         }
         startMultiplicity.toFront();
@@ -95,31 +109,39 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
     }
 
     public void setStrokeWidth(double width) {
-        line.setStrokeWidth(width);
+        startLine.setStrokeWidth(width);
     }
 
     public void setStroke(Paint value){
-        line.setStroke(value);
+        startLine.setStroke(value);
     }
 
     public double getStartX() {
-        return line.getStartX();
+        return startLine.getStartX();
     }
 
     public double getStartY(){
-        return line.getStartY();
+        return startLine.getStartY();
     }
 
     public double getEndX(){
-        return line.getEndX();
+        return endLine.getEndX();
     }
 
     public double getEndY(){
-        return line.getEndY();
+        return endLine.getEndY();
     }
 
-    public Line getLine() {
-        return line;
+    public Line getStartLine() {
+        return startLine;
+    }
+
+    public Line getMiddleLine() {
+        return middleLine;
+    }
+
+    public Line getEndLine() {
+        return endLine;
     }
 
     public boolean isSelected() {
@@ -129,9 +151,13 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
     public void setSelected(boolean selected){
         this.selected = selected;
         if (selected){
-            line.setStroke(Constants.selected_color);
+            startLine.setStroke(Constants.selected_color);
+            middleLine.setStroke(Constants.selected_color);
+            endLine.setStroke(Constants.selected_color);
         } else {
-            line.setStroke(Color.BLACK);
+            startLine.setStroke(Color.BLACK);
+            middleLine.setStroke(Color.BLACK);
+            endLine.setStroke(Color.BLACK);
         }
     }
 
@@ -142,34 +168,77 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
     private void setPosition() {
         //If end node is to the right of startNode:
         if (startNode.getTranslateX() + startNode.getWidth() <= endNode.getTranslateX()) {
-            line.setStartX(startNode.getTranslateX() + startNode.getWidth());
-            line.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
-            line.setEndX(endNode.getTranslateX());
-            line.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            startLine.setStartX(startNode.getTranslateX() + startNode.getWidth());
+            startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            startLine.setEndX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
+            startLine.setEndY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+
+            middleLine.setStartX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
+            middleLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            middleLine.setEndX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
+            middleLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+
+            endLine.setStartX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
+            endLine.setStartY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            endLine.setEndX(endNode.getTranslateX());
+            endLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+
             position = Position.RIGHT;
         }
         //If end node is to the left of startNode:
         else if (startNode.getTranslateX() > endNode.getTranslateX() + endNode.getWidth()) {
-            line.setStartX(startNode.getTranslateX());
-            line.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
-            line.setEndX(endNode.getTranslateX() + endNode.getWidth());
-            line.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            startLine.setStartX(startNode.getTranslateX());
+            startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            startLine.setEndX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
+            startLine.setEndY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+
+            middleLine.setStartX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
+            middleLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            middleLine.setEndX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
+            middleLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+
+            endLine.setStartX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
+            endLine.setStartY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            endLine.setEndX(endNode.getTranslateX() + endNode.getWidth());
+            endLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+
             position = Position.LEFT;
         }
         // If end node is below startNode:
         else if (startNode.getTranslateY() + startNode.getHeight() < endNode.getTranslateY()){
-            line.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
-            line.setStartY(startNode.getTranslateY() + startNode.getHeight());
-            line.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
-            line.setEndY(endNode.getTranslateY());
+            startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+            startLine.setStartY(startNode.getTranslateY() + startNode.getHeight());
+            startLine.setEndX(startNode.getTranslateX() + (startNode.getWidth() /2));
+            startLine.setEndY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
+
+            middleLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+            middleLine.setStartY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
+            middleLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            middleLine.setEndY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
+
+            endLine.setStartX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            endLine.setStartY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
+            endLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            endLine.setEndY(endNode.getTranslateY());
+
             position = Position.BELOW;
         }
         //If end node is above startNode:
         else if (startNode.getTranslateY() >= endNode.getTranslateY() + endNode.getHeight()) {
-            line.setStartX(startNode.getTranslateX() + (startNode.getWidth() / 2));
-            line.setStartY(startNode.getTranslateY());
-            line.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
-            line.setEndY(endNode.getTranslateY() + endNode.getHeight());
+            startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+            startLine.setStartY(startNode.getTranslateY());
+            startLine.setEndX(startNode.getTranslateX() + (startNode.getWidth() /2));
+            startLine.setEndY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
+
+            middleLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+            middleLine.setStartY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
+            middleLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            middleLine.setEndY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
+
+            endLine.setStartX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            endLine.setStartY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
+            endLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            endLine.setEndY(endNode.getTranslateY() + endNode.getHeight());
             position = Position.ABOVE;
         }
         //TODO Handle when the nodes are overlapping.
@@ -191,53 +260,20 @@ public abstract class AbstractEdgeView extends Group implements EdgeView{
         this.endNode = endNode;
     }
 
-    private void setChangeListeners() {
-        startNode.translateXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setPosition();
-            }
-        });
-        startNode.translateYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setPosition();
-            }
-        });
-        endNode.translateXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setPosition();
-            }
-        });
-        endNode.translateYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setPosition();
-            }
-        });
-        refEdge.zoomProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setStrokeWidth(newValue.doubleValue());
-                setPosition();
-            }
-        });
 
-        refEdge.startMultiplicityProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                startMultiplicity.setText(newValue);
-                draw();
-            }
-        });
-
-        refEdge.endMultiplicityProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                endMultiplicity.setText(newValue);
-                draw();
-            }
-        });
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(evt.getPropertyName().equals(Constants.changeNodeTranslateX) || evt.getPropertyName().equals(Constants.changeNodeTranslateY)){
+            setPosition();
+        } else if(evt.getPropertyName().equals(Constants.changeEdgeZoom)) {
+            setStrokeWidth((double)evt.getNewValue());
+            setPosition();
+        } else if(evt.getPropertyName().equals(Constants.changeEdgeStartMultiplicity)) {
+            startMultiplicity.setText((String)evt.getNewValue());
+            draw();
+        } else if(evt.getPropertyName().equals(Constants.changeEdgeEndMultiplicity)){
+            endMultiplicity.setText((String)evt.getNewValue());
+            draw();
+        }
     }
 }

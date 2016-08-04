@@ -1,15 +1,19 @@
 package view;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import model.AbstractNode;
+import util.Constants;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
- * Created by marcusisaksson on 2016-02-17.
+ * Visual representation of AbstractNode class.
  */
-public abstract class AbstractNodeView extends Group implements NodeView {
+public abstract class AbstractNodeView extends Group implements NodeView, PropertyChangeListener {
+
+    private static int objectCounter = 0;
 
     private AbstractNode refNode;
 
@@ -19,26 +23,25 @@ public abstract class AbstractNodeView extends Group implements NodeView {
     private double height;
 
     public AbstractNodeView(AbstractNode node){
+        this.setId("VIEWCLASS_" + objectCounter);
         this.refNode = node;
 
         setX(refNode.getX());
         setY(refNode.getY());
         setHeight(refNode.getHeight());
         setWidth(refNode.getWidth());
-
-        setChangeListeners();
+        refNode.addPropertyChangeListener(this);
     }
 
-    protected AbstractNode getRefNode(){
+    public AbstractNode getRefNode(){
         return refNode;
     }
 
-    //TODO Shouldn't be used, as this should only get changes from model.
+
     public void setX(double x) {
         this.x = x;
     }
 
-    //TODO Shouldn't be used, as this should only get changes from model.
     public void setY(double y) {
         this.y = y;
     }
@@ -70,47 +73,23 @@ public abstract class AbstractNodeView extends Group implements NodeView {
 
 
     public boolean contains(double x, double y) {
-        if (x >= this.getTranslateX() && x <= this.getTranslateX() + this.width && y >= this.getTranslateY() && y <= this.getTranslateY() + this.height) {
-            return true;
-        }
-        return false;
+        return (x >= this.getTranslateX() && x <= this.getTranslateX() + this.width && y >= this.getTranslateY() && y <= this.getTranslateY() + this.height);
     }
 
     public abstract Bounds getBounds();
 
-    //TODO Maybe needs some Nullchecks etc?
-    private void setChangeListeners() {
-
-        refNode.translateXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setTranslateX(newValue.doubleValue());
-            }
-        });
-
-        refNode.translateYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setTranslateY(newValue.doubleValue());
-            }
-        });
-
-        refNode.scaleXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setScaleX(newValue.doubleValue());
-            }
-        });
-
-        refNode.scaleYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setScaleY(newValue.doubleValue());
-            }
-        });
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(evt.getPropertyName().equals(Constants.changeNodeTranslateX)) {
+            setTranslateX((double)evt.getNewValue());
+        } else if(evt.getPropertyName().equals(Constants.changeNodeTranslateY)) {
+            setTranslateY((double)evt.getNewValue());
+        } else if(evt.getPropertyName().equals(Constants.changeNodeScaleX)) {
+            setScaleX((double)evt.getNewValue());
+        } else if(evt.getPropertyName().equals(Constants.changeNodeScaleY)) {
+            setScaleY((double)evt.getNewValue());
+        }
     }
-
-
 }
 
 

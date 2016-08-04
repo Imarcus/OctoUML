@@ -1,33 +1,32 @@
 package view;
 
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import model.AbstractNode;
-import model.Node;
 import model.PackageNode;
+import util.Constants;
+
+import java.beans.PropertyChangeEvent;
 
 /**
- * Created by marcusisaksson on 2016-02-17.
+ * Visual representation of PackageNode-class.
  */
 public class PackageNodeView extends AbstractNodeView {
 
     private PackageNode refNode;
     private Text title;
     private VBox container;
-    private StackPane topStackPane;
+    private StackPane bodyStackPane;
     private Rectangle top;
     private Rectangle body;
     private final double TOP_HEIGHT_RATIO = 0.2;
@@ -35,32 +34,35 @@ public class PackageNodeView extends AbstractNodeView {
     private final double TOP_MAX_HEIGHT = 50;
     private final double TOP_MAX_WIDTH = 200;
 
+    Line shortHandleLine;
+    Line longHandleLine;
+
     public PackageNodeView(PackageNode node) {
         super(node);
         refNode = node;
-        setChangeListeners();
         title = new Text(node.getTitle());
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         //TODO Ugly solution, hardcoded value.
         title.setWrappingWidth(node.getWidth() - 7);
         container = new VBox();
-        topStackPane = new StackPane();
+        bodyStackPane = new StackPane();
 
         container.setSpacing(0);
 
         createRectangles();
 
 
-        topStackPane.getChildren().addAll(top, title);
-        container.getChildren().add(topStackPane);
-        container.getChildren().add(body);
-        StackPane.setAlignment(title, Pos.CENTER);
+        container.getChildren().add(top);
+        bodyStackPane.getChildren().addAll(body, title);
+        container.getChildren().addAll(bodyStackPane);
+        StackPane.setAlignment(title, Pos.TOP_CENTER);
         StackPane.setAlignment(top, Pos.CENTER_LEFT);
         setTitleSize();
-        //TODO Hardcoded values.
-        //stackPane.setMargin(title, new Insets(7, 7, 7, 7));
         this.getChildren().add(container);
         this.setTranslateX(node.getTranslateX());
         this.setTranslateY(node.getTranslateY());
+
+        createHandles();
     }
 
     private void setTitleSize(){
@@ -83,6 +85,23 @@ public class PackageNodeView extends AbstractNodeView {
         body.setFill(Color.LIGHTSKYBLUE);
         body.setStroke(Color.BLACK);
 
+    }
+
+    private void createHandles(){
+
+        shortHandleLine = new Line();
+        longHandleLine = new Line();
+
+        shortHandleLine.startXProperty().bind(body.widthProperty().subtract(7));
+        shortHandleLine.startYProperty().bind(body.heightProperty().add(top.heightProperty().subtract(3)));
+        shortHandleLine.endXProperty().bind(body.widthProperty().subtract(3));
+        shortHandleLine.endYProperty().bind(body.heightProperty().add(top.heightProperty().subtract(7)));
+        longHandleLine.startXProperty().bind(body.widthProperty().subtract(15));
+        longHandleLine.startYProperty().bind(body.heightProperty().add(top.heightProperty().subtract(3)));
+        longHandleLine.endXProperty().bind(body.widthProperty().subtract(3));
+        longHandleLine.endYProperty().bind(body.heightProperty().add(top.heightProperty().subtract(15)));
+
+        this.getChildren().addAll(shortHandleLine, longHandleLine);
     }
 
     @Override
@@ -109,6 +128,16 @@ public class PackageNodeView extends AbstractNodeView {
         body.setStroke(p);
     }
 
+    public void setSelected(boolean selected){
+        if(selected){
+            setStroke(Constants.selected_color);
+            setStrokeWidth(2);
+        } else {
+            setStroke(Color.BLACK);
+            setStrokeWidth(1);
+        }
+    }
+
     public Bounds getBounds(){
         return body.getBoundsInParent();
     }
@@ -126,44 +155,20 @@ public class PackageNodeView extends AbstractNodeView {
         title.setWrappingWidth(width - 7);
 
     }
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        super.propertyChange(evt);
+        if (evt.getPropertyName().equals(Constants.changeNodeX)) {
+            setX((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeY)) {
+            setY((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeWidth)) {
+            changeWidth((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeHeight)) {
+            changeHeight((double) evt.getNewValue());
+        } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
+            title.setText((String) evt.getNewValue());
 
-    private void setChangeListeners() {
-        getRefNode().titleProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                //TODO Check how long the new string is, and handle that!
-                title.setText(newValue);
-            }
-        });
-
-        getRefNode().xProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setX(newValue.doubleValue());
-            }
-        });
-
-        getRefNode().yProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                setY(newValue.doubleValue());
-            }
-        });
-
-        getRefNode().heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                changeHeight(newValue.doubleValue());
-                //setTitleSize();
-            }
-        });
-
-        getRefNode().widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                changeWidth(newValue.doubleValue());
-                //setTitleSize();
-            }
-        });
+        }
     }
 }

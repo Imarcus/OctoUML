@@ -1,20 +1,11 @@
 package controller.dialog;
 
-/**
- * Created by marcusisaksson on 2016-02-25.
- */
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 import model.AbstractEdge;
-import model.AssociationEdge;
-import model.ClassNode;
-
-import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
- * Dialog to edit details of a person.
+ * Dialog to edit Edge settings.
  *
  * @author Marco Jakob
  */

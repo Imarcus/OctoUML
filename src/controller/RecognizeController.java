@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by chris on 2016-02-23.
+ * Used by MainController for handling the recognition of drawn shapes and transforming them in to UML-notations.
  */
 public class RecognizeController {
     private Pane aDrawPane;
@@ -46,15 +46,13 @@ public class RecognizeController {
                 recognizer.setStroke(s.getStroke());
                 Shape bestMatch = recognizer.recognize().getBestShape();
                 String bestMatchString = bestMatch.getInterpretation().label;
-                System.out.println(bestMatchString);
                 if (bestMatchString.equals("Square") || bestMatchString.equals("Rectangle")) {
                     double x = s.getStroke().getBoundingBox().getX();
                     double y = s.getStroke().getBoundingBox().getY();
                     double width = s.getStroke().getBoundingBox().getWidth();
                     double height = s.getStroke().getBoundingBox().getHeight();
                     s.setRecognizedElement(new ClassNode(x, y, width, height));
-                    System.out.println("New ClassNode: " + s.getRecognizedElement().toString());
-                    mainController.getGraphModel().addNode((ClassNode)s.getRecognizedElement());
+                    mainController.getGraphModel().addNode((ClassNode)s.getRecognizedElement(), false);
                     recognizedElements.add(s.getRecognizedElement());
                     sketchesToBeRemoved.add(s);
                     aDrawPane.getChildren().remove(s.getPath());
@@ -69,7 +67,6 @@ public class RecognizeController {
                 recognizer.setStroke(s.getStroke());
                 Shape bestMatch = recognizer.recognize().getBestShape();
                 String bestMatchString = bestMatch.getInterpretation().label;
-                System.out.println(bestMatchString);
 
                 if (bestMatchString.equals("Line") || bestMatchString.startsWith("Polyline") ||
                         bestMatchString.equals("Arc") || bestMatchString.equals("Curve") ||
@@ -77,8 +74,6 @@ public class RecognizeController {
                     //TODO Hmm, quite messy way to create Edges...
                     Point2D startPoint = new Point2D(s.getStroke().getFirstPoint().getX(), s.getStroke().getFirstPoint().getY());
                     Point2D endPoint = new Point2D(s.getStroke().getLastPoint().getX(), s.getStroke().getLastPoint().getY());
-
-                    System.out.println("STARTPOINT: " + startPoint.toString() + " ENDPOINT: " + endPoint.toString());
 
                     Node startNode = mainController.getGraphModel().findNode(startPoint);
                     Node endNode = mainController.getGraphModel().findNode(endPoint);
@@ -99,7 +94,6 @@ public class RecognizeController {
                             newEdge.setDirection(AbstractEdge.Direction.END_TO_START);
                         }
                         s.setRecognizedElement(newEdge);
-                        System.out.println("Recognized an Edge: " + s.getRecognizedElement().toString());
                         recognizedElements.add(s.getRecognizedElement());
                         sketchesToBeRemoved.add(s);
                         aDrawPane.getChildren().remove(s.getPath());

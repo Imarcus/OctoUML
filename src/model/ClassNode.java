@@ -1,50 +1,51 @@
 package model;
 
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Rectangle2D;
+import util.Constants;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 /**
- * Created by marcusisaksson on 2016-02-12.
+ * Represents a UML class.
  */
-public class ClassNode extends AbstractNode
+public class ClassNode extends AbstractNode implements Serializable
 {
-    private SimpleStringProperty attributes = new SimpleStringProperty();
-    private SimpleStringProperty operations = new SimpleStringProperty();
 
+    private String attributes;
+    private String operations;
 
     public ClassNode(double x, double y, double width, double height)
     {
         super(x, y, width, height );
     }
 
-    public SimpleStringProperty attributesProperty(){
-        return attributes;
-    }
-
-    public SimpleStringProperty operationsProperty(){
-        return operations;
-    }
 
     public void setAttributes(String pAttributes){
-
-        attributes.setValue(pAttributes);
+        attributes = pAttributes;
+        changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
+        remoteChanges.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
     }
 
     public void setOperations(String pOperations){
-        operations.setValue(pOperations);
+        operations = pOperations;
+        changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
+        remoteChanges.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
+    }
+
+    public void remoteSetAttributes(String pAttributes){
+        attributes = pAttributes;
+        changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
+    }
+
+    public void remoteSetOperations(String pOperations){
+        operations = pOperations;
+        changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
     }
 
     public String getAttributes(){
-        return attributes.getValue();
+        return attributes;
     }
 
     public String getOperations(){
-        return operations.getValue();
+        return operations;
     }
 
     @Override
@@ -59,11 +60,11 @@ public class ClassNode extends AbstractNode
             newCopy.setTitle(this.getTitle());
 
         }
-        if(this.attributesProperty().getValue() != null){
-            newCopy.setAttributes(this.attributesProperty().getValue());
+        if(this.attributes != null){
+            newCopy.setAttributes(this.attributes);
         }
-        if(this.operationsProperty().getValue() != null){
-            newCopy.setOperations(operationsProperty().getValue());
+        if(this.operations != null){
+            newCopy.setOperations(operations);
         }
         newCopy.setTranslateX(this.getTranslateX());
         newCopy.setTranslateY(this.getTranslateY());

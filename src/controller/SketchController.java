@@ -5,6 +5,7 @@ import edu.tamu.core.sketch.Shape;
 import edu.tamu.core.sketch.Stroke;
 import edu.tamu.recognition.paleo.PaleoConfig;
 import edu.tamu.recognition.paleo.PaleoSketchRecognizer;
+import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.Pane;
@@ -29,76 +30,90 @@ public class SketchController {
     private MainController mController;
 
     private HashMap<Integer, Sketch> currentSketches = new HashMap<>();
-    private HashMap<Integer, Stroke> currentStrokes = new HashMap<>();
+    private Sketch currentSketch;
 
     private double initMoveX, initMoveY;
     private HashMap<Sketch, Point2D.Double> initTranslateMap = new HashMap<>();
     private ArrayList<Sketch> toBeMoved = new ArrayList<>();
+
+    public Color color = Color.BLACK;
 
     public SketchController(Pane pDrawPane, MainController mainController) {
         this.aDrawPane = pDrawPane;
         this.mController = mainController;
 
     }
-    public void onTouchPressed(TouchEvent event) {
-        Path initPath = new Path();
-        initPath.toFront();
-        Sketch currentSketch = new Sketch(initPath);
-        Stroke currentStroke = new Stroke();
-        //TODO Hardcoded strokeWidth.
-        currentSketch.getPath().setStrokeWidth(2);
-        currentSketch.getPath().setStroke(Color.BLACK);
+    public void onTouchPressed(InputEvent event) {
+        Sketch sketch = new Sketch();
+        mController.addSketch(sketch, false, false);
+
+        double x, y;
+        if(event instanceof TouchEvent){
+            x = ((TouchEvent) event).getTouchPoint().getX();
+            y = ((TouchEvent) event).getTouchPoint().getY();
+        } else { //event = mouseevent
+            x = ((MouseEvent)event).getX();
+            y = ((MouseEvent)event).getY();
+        }
 
         double xPoint;
         double yPoint;
         if(event.getSource() instanceof AbstractNodeView){
-            xPoint = ((AbstractNodeView)event.getSource()).getTranslateX() + event.getTouchPoint().getX();
-            yPoint = ((AbstractNodeView)event.getSource()).getTranslateY() + event.getTouchPoint().getY();
+            xPoint = ((AbstractNodeView)event.getSource()).getTranslateX() + x;
+            yPoint = ((AbstractNodeView)event.getSource()).getTranslateY() + y;
         } else {
-            xPoint = event.getTouchPoint().getX();
-            yPoint = event.getTouchPoint().getY();
+            xPoint = x;
+            yPoint = y;
         }
-        currentSketch.getPath().getElements()
-                .add(new MoveTo(xPoint, yPoint));
+        sketch.setStart(xPoint, yPoint);
+        sketch.setColor(color);
 
-        aDrawPane.getChildren().add(currentSketch.getPath());
-        currentSketches.put(event.getTouchPoint().getId(), currentSketch);
-        currentStrokes.put(event.getTouchPoint().getId(), currentStroke);
-
+        if(event instanceof TouchEvent) {
+            currentSketches.put(((TouchEvent)event).getTouchPoint().getId(), sketch);
+        } else { //event instanceof mouseevent
+            currentSketch = sketch;
+        }
     }
 
-    public void onTouchMoved(TouchEvent event) {
-        Sketch currentSketch = currentSketches.get(event.getTouchPoint().getId());
-        Stroke currentStroke = currentStrokes.get(event.getTouchPoint().getId());
+    public void onTouchMoved(InputEvent event) {
+        Sketch sketch;
 
         double xPoint;
         double yPoint;
-        if(event.getSource() instanceof AbstractNodeView){
-            xPoint = ((AbstractNodeView)event.getSource()).getTranslateX() + event.getTouchPoint().getX();
-            yPoint = ((AbstractNodeView)event.getSource()).getTranslateY() + event.getTouchPoint().getY();
-        } else {
-            xPoint = event.getTouchPoint().getX();
-            yPoint = event.getTouchPoint().getY();
+
+        if(event instanceof TouchEvent){
+            sketch = currentSketches.get(((TouchEvent)event).getTouchPoint().getId());
+
+            if(event.getSource() instanceof AbstractNodeView){
+                xPoint = ((AbstractNodeView)event.getSource()).getTranslateX() + ((TouchEvent)event).getTouchPoint().getX();
+                yPoint = ((AbstractNodeView)event.getSource()).getTranslateY() + ((TouchEvent)event).getTouchPoint().getY();
+            } else {
+                xPoint = ((TouchEvent)event).getTouchPoint().getX();
+                yPoint = ((TouchEvent)event).getTouchPoint().getY();
+            }
+        } else { //event instanceof mouseevent
+            sketch = currentSketch;
+
+            if(event.getSource() instanceof AbstractNodeView){
+                xPoint = ((AbstractNodeView)event.getSource()).getTranslateX() + ((MouseEvent)event).getX();
+                yPoint = ((AbstractNodeView)event.getSource()).getTranslateY() + ((MouseEvent)event).getY();
+            } else {
+                xPoint = ((MouseEvent)event).getX();
+                yPoint = ((MouseEvent)event).getY();
+            }
         }
-        currentSketch.getPath().getElements()
-                .add(new LineTo(xPoint, yPoint));
-        currentStroke.addPoint(new Point(xPoint, yPoint));
+
+        sketch.addPoint(xPoint, yPoint);
     }
 
-    public Sketch onTouchReleased(TouchEvent event) {
-        Sketch currentSketch = currentSketches.get(event.getTouchPoint().getId());
-        Stroke currentStroke = currentStrokes.get(event.getTouchPoint().getId());
-        currentSketch.setStroke(currentStroke);
-        Sketch sketch = currentSketch;
-
-        currentSketches.remove(event.getTouchPoint().getId());
-        currentStrokes.remove(event.getTouchPoint().getId());
-
-        return sketch;
+    public void onTouchReleased(InputEvent event) {
+        if(event instanceof TouchEvent) {
+            currentSketches.remove(((TouchEvent) event).getTouchPoint().getId());
+        }
     }
 
     public boolean currentlyDrawing() {
-        return !currentStrokes.isEmpty();
+        return !currentSketches.isEmpty();
     }
 
     public void moveSketchStart(MouseEvent event) {

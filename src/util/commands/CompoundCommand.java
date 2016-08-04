@@ -35,7 +35,7 @@ public class CompoundCommand implements Command
 	 */
 	public CompoundCommand()
 	{
-		aCommands = new Stack<Command>();
+		aCommands = new Stack<>();
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class CompoundCommand implements Command
 	 */
 	public void undo()
 	{
-		Stack<Command> temp = new Stack<Command>();
+		Stack<Command> temp = new Stack<>();
 		while(!aCommands.empty())
 		{
 			Command c = aCommands.pop();
@@ -78,7 +78,7 @@ public class CompoundCommand implements Command
 	 */
 	public void execute()
 	{
-		Stack<Command> temp = new Stack<Command>();
+		Stack<Command> temp = new Stack<>();
 		while(!aCommands.empty())
 		{
 			Command c = aCommands.pop();

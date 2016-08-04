@@ -12,7 +12,7 @@ import controller.MainController.ToolEnum;
 import controller.MainController.Mode;
 
 /**
- * Created by chris on 2016-02-15.
+ * Used by MainController for handling when a user tries to select elements in the graph.
  */
 //TODO Refactor code from MainController here.
 public class SelectController {
@@ -39,7 +39,9 @@ public class SelectController {
         if (mainController.getTool() == MainController.ToolEnum.EDGE)
         {
             for(AbstractEdgeView edgeView : mainController.allEdgeViews){
-                if (distanceToLine(edgeView.getLine(), event.getX(), event.getY()) < 15){
+                if (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
+                        distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
+                        distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
                     mainController.selected = true;
                     mainController.selectedEdges.add(edgeView);
                     if(event.getClickCount() > 1){
@@ -49,14 +51,13 @@ public class SelectController {
                     }
                 }
             }
-
-            mainController.setMode(Mode.CREATING);
-            mainController.edgeController.onMousePressed(event);
         }
         else if (mainController.getTool() == ToolEnum.SELECT)
         {
             for(AbstractEdgeView edgeView : mainController.allEdgeViews){
-                if (distanceToLine(edgeView.getLine(), event.getX(), event.getY()) < 15){
+                if (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
+                        distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
+                        distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
                     mainController.selected = true;
                     mainController.selectedEdges.add(edgeView);
                     if(event.getClickCount() > 1){
@@ -101,7 +102,7 @@ public class SelectController {
         //drawSelected();
     }
 
-    void onMouseReleased(MouseEvent event){
+    void onMouseReleased(){
         for(AbstractNodeView nodeView : mainController.allNodeViews) {
             if (selectRectangle.getBoundsInParent().contains(nodeView.getBoundsInParent()))
             {
@@ -116,21 +117,12 @@ public class SelectController {
                 mainController.selectedEdges.add(edgeView);
             }
         }
-        for (Sketch sketch : mainController.allSketches) {
+        for (Sketch sketch : mainController.getGraphModel().getAllSketches()) {
             if (selectRectangle.getBoundsInParent().intersects(sketch.getPath().getBoundsInParent())) {
                 mainController.selected = true;
                 mainController.selectedSketches.add(sketch);
             }
         }
-                    /* //TODO Selectable sketches
-                    for (javafx.scene.Node p : allSketches)
-                    {
-                        if (selectRectangle.getBoundsInParent().contains(p.getBoundsInParent()))
-                        {
-                            selected = true;
-                            selectedNodes.add(p);
-                        }
-                    }*/
 
         //If no nodes were contained, remove all selections
         if (!mainController.selected) {

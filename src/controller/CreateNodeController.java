@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by marcusisaksson on 2016-02-12.
+ * Used by MainController for handling when a user creates a node using the class or package tool.
  */
 //TODO should be moved to NodeController!
 public class CreateNodeController {
@@ -82,89 +82,24 @@ public class CreateNodeController {
         }
     }
 
-    public NodeView onTouchReleased(AbstractNode node, Double currentScale)
+    public void onTouchReleasedClass(TouchEvent event)
     {
-        AbstractNodeView nodeView = null;
-        if (node instanceof PackageNode){
-            nodeView = createPackageFromDrag((PackageNode)node, currentScale);
-            nodeView.toBack();
-            aMainController.gridToBack();
-        }
-        else if (node instanceof ClassNode)
-        {
-            nodeView = createClassNodeFromDrag((ClassNode)node, currentScale);
-        }
-        return nodeView;
-    }
-
-    public ClassNode createClassNode(TouchEvent event) {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        ClassNode node = new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
-                dragRectangle.getWidth(), dragRectangle.getHeight());
-        killDragRectangle(event);
-        return node;
+        aMainController.createNodeView(new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
+                dragRectangle.getWidth(), dragRectangle.getHeight()), false);
+        finish();
+
     }
 
-    public PackageNode createPackageNode(TouchEvent event) {
+    public void onTouchReleasedPackage(TouchEvent event)
+    {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        PackageNode node = new PackageNode(dragRectangle.getX(), dragRectangle.getY(),
-                dragRectangle.getWidth(), dragRectangle.getHeight());
-        killDragRectangle(event);
-        return node;
+        aMainController.createNodeView(new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
+                dragRectangle.getWidth(), dragRectangle.getHeight()), false);
+        finish();
+
     }
 
-    private void killDragRectangle(TouchEvent event){
-        Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        dragRectangle.setWidth(0);
-        dragRectangle.setHeight(0);
-        aDrawPane.getChildren().remove(dragRectangle);
-        dragStarts.remove(event.getTouchPoint().getId());
-    }
-
-    //TODO Duplicate code
-    private ClassNodeView createClassNodeFromDrag(ClassNode node, Double currentScale){
-        ClassNodeView nodeView = new ClassNodeView(node);
-        aDrawPane.getChildren().add(nodeView);
-        putNodeInPackage(nodeView, node);
-        aMainController.getGraphModel().addNode(node);
-
-        return nodeView;
-    }
-
-    private PackageNodeView createPackageFromDrag(PackageNode node, Double currentScale){
-        PackageNodeView nodeView = new PackageNodeView(node);
-        aDrawPane.getChildren().add(nodeView);
-        putNodeInPackage(nodeView, node);
-        aMainController.getGraphModel().addNode(node);
-
-        return nodeView;
-    }
-
-    /**
-    * Puts the given class node as a child of a package if it is contained in one.
-     */
-    //TODO This is maybe not necessary, as the graph now adds the child to the package.
-    private boolean putNodeInPackage(AbstractNodeView nodeView, AbstractNode potentialChildModel){
-        Map<AbstractNodeView, AbstractNode> nodeMap = aMainController.getNodeMap();
-        for(AbstractNodeView potentialParent : aMainController.getAllNodeViews()){
-            if(potentialParent instanceof PackageNodeView)
-            {
-                if(potentialParent.getBoundsInParent().contains(nodeView.getBounds()))
-                {
-                    ((PackageNode)nodeMap.get(potentialParent)).addChild(potentialChildModel);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean currentlyCreating(){
-        return !dragRectangles.isEmpty();
-    }
-
-
-    //--------------------- MOUSE EVENTS FOR DEVELOPMENT ----------------------------- //TODO
     public void onMousePressed(MouseEvent event){
         mouseDragRectangle = new Rectangle();
         mouseDragRectangle.setFill(null);
@@ -199,34 +134,47 @@ public class CreateNodeController {
         }
     }
 
-    public NodeView onMouseReleased(MouseEvent event, AbstractNode node, Double currentScale)
-    {
+    public void onMouseReleasedClass(){
+        aMainController.createNodeView(new ClassNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
+                mouseDragRectangle.getWidth(),
+                mouseDragRectangle.getHeight()), false);
+        finish();
+    }
+
+    public void onMouseReleasedPackage(){
+        aMainController.createNodeView(new PackageNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
+                mouseDragRectangle.getWidth(),
+                mouseDragRectangle.getHeight()), false);
+        finish();
+    }
+
+    private void finish(){
         aDrawPane.getChildren().remove(mouseDragRectangle);
-        AbstractNodeView nodeView = null;
-        if (node instanceof PackageNode){
-            nodeView = createPackageFromDrag((PackageNode)node, currentScale);
-            nodeView.toBack();
-            aMainController.gridToBack();
-        }
-        else if (node instanceof ClassNode)
-        {
-            nodeView = createClassNodeFromDrag((ClassNode)node, currentScale);
-        }
         mouseDragRectangle.setWidth(0);
         mouseDragRectangle.setHeight(0);
-        return nodeView;
     }
 
-    public ClassNode createClassNodeMouse(MouseEvent event) {
-        return new ClassNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
-                mouseDragRectangle.getWidth(),
-                mouseDragRectangle.getHeight());
+    /**
+     * Puts the given class node as a child of a package if it is contained in one.
+     */
+    //TODO This is maybe not necessary, as the graph now adds the child to the package.
+    private boolean putNodeInPackage(AbstractNodeView nodeView, AbstractNode potentialChildModel){
+        Map<AbstractNodeView, AbstractNode> nodeMap = aMainController.getNodeMap();
+        for(AbstractNodeView potentialParent : aMainController.getAllNodeViews()){
+            if(potentialParent instanceof PackageNodeView)
+            {
+                if(potentialParent.getBoundsInParent().contains(nodeView.getBounds()))
+                {
+                    ((PackageNode)nodeMap.get(potentialParent)).addChild(potentialChildModel);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
-    public PackageNode createPackageNodeMouse(MouseEvent event) {
-        return new PackageNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
-                mouseDragRectangle.getWidth(),
-                mouseDragRectangle.getHeight());
+    public boolean currentlyCreating(){
+        return !dragRectangles.isEmpty();
     }
 
 }

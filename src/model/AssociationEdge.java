@@ -1,16 +1,12 @@
 package model;
 
 /**
- * Created by chris on 2016-02-15.
+ * Represents an associate relationship between two UML-classes.
  */
 public class AssociationEdge extends AbstractEdge {
-    private Node startNode; //TODO these are not needed since they are in the super class
-    private Node endNode;
 
     public AssociationEdge(Node startNode, Node endNode) {
         super(startNode, endNode);
-        this.startNode = startNode;
-        this.endNode = endNode;
     }
 
     //TODO IMPLEMENT:

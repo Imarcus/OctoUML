@@ -1,9 +1,5 @@
 package controller;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.Pane;
 import model.AbstractEdge;
 import model.AbstractNode;
@@ -13,13 +9,11 @@ import util.commands.AddDeleteNodeCommand;
 import util.commands.CompoundCommand;
 import view.AbstractEdgeView;
 import view.AbstractNodeView;
-import controller.MainController.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Created by marcusisaksson on 2016-06-20.
+ * Used by MainController for handling the copying and pasting of elements.
  */
 public class CopyPasteController {
 
@@ -101,10 +95,10 @@ public class CopyPasteController {
                         newStartNode = ((AbstractNode)oldEdge.getStartNode()).copy();
                         alreadyCopiedNodes.put(node, newStartNode);
 
-                        mainController.getGraphModel().addNode(newStartNode);
+                        mainController.getGraphModel().addNode(newStartNode, false);
                         newStartNode.setTranslateX(copyPasteCoords[0] + copyDeltas.get(node)[0]);
                         newStartNode.setTranslateY(copyPasteCoords[1] + copyDeltas.get(node)[1]);
-                        newStartNodeView = mainController.createNodeView(newStartNode);
+                        newStartNodeView = mainController.createNodeView(newStartNode, false);
                         command.add(new AddDeleteNodeCommand(mainController, mainController.getGraphModel(), newStartNodeView, newStartNode, true));
                     } else {
                         newStartNode = alreadyCopiedNodes.get(node);
@@ -115,10 +109,10 @@ public class CopyPasteController {
                         newEndNode = ((AbstractNode) oldEdge.getEndNode()).copy();
                         alreadyCopiedNodes.put(node, newEndNode);
 
-                        mainController.getGraphModel().addNode(newEndNode);
+                        mainController.getGraphModel().addNode(newEndNode, false);
                         newEndNode.setTranslateX(copyPasteCoords[0] + copyDeltas.get(node)[0]);
                         newEndNode.setTranslateY(copyPasteCoords[1] + copyDeltas.get(node)[1]);
-                        newEndNodeView = mainController.createNodeView(newEndNode);
+                        newEndNodeView = mainController.createNodeView(newEndNode, false);
                         command.add(new AddDeleteNodeCommand(mainController, mainController.getGraphModel(), newEndNodeView, newEndNode, true));
                     } else {
                         newEndNode = alreadyCopiedNodes.get(node);
@@ -134,10 +128,10 @@ public class CopyPasteController {
 
         for (GraphElement old : currentlyCopiedNodes) {
             AbstractNode copy = ((AbstractNode)old).copy();
-            mainController.getGraphModel().addNode(copy);
+            mainController.getGraphModel().addNode(copy, false);
             copy.setTranslateX(copyPasteCoords[0] + copyDeltas.get(old)[0]);
             copy.setTranslateY(copyPasteCoords[1] + copyDeltas.get(old)[1]);
-            AbstractNodeView newView = mainController.createNodeView(copy);
+            AbstractNodeView newView = mainController.createNodeView(copy, false);
             command.add(new AddDeleteNodeCommand(mainController, mainController.getGraphModel(), newView, copy, true));
 
         }
@@ -147,4 +141,9 @@ public class CopyPasteController {
             mainController.getUndoManager().add(command);
         }
     }
+
+
+
+
+
 }

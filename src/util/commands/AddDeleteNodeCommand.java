@@ -87,8 +87,8 @@ public class AddDeleteNodeCommand implements Command
 	 */
 	private void delete() 
 	{
-		aGraph.removeNode(aNode);
-		aController.deleteNode(aNodeView, null, true);
+		aGraph.removeNode(aNode, false); //TODO needed?
+		aController.deleteNode(aNodeView, null, true, false);
 	}
 	
 	/**
@@ -96,7 +96,7 @@ public class AddDeleteNodeCommand implements Command
 	 */
 	private void add() 
 	{
-		aGraph.addNode(aNode);
+		aGraph.addNode(aNode, false);
 		aController.addNodeView(aNodeView, aNode);
 		aController.sketchesToFront();
 	}

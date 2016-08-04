@@ -1,7 +1,4 @@
 package view;
-
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -9,11 +6,12 @@ import javafx.scene.shape.Polygon;
 import model.AbstractEdge;
 import util.Constants;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Created by chris on 2016-03-11.
+ * Visual representation of InheritanceEdge class.
  */
 public class InheritanceEdgeView extends AbstractEdgeView{
     private AbstractEdge refEdge;
@@ -26,13 +24,14 @@ public class InheritanceEdgeView extends AbstractEdgeView{
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
         draw();
-        setChangeListeners();
     }
 
     protected void draw() {
         AbstractEdge.Direction direction = refEdge.getDirection();
         getChildren().clear();
-        getChildren().add(getLine());
+        getChildren().add(getStartLine());
+        getChildren().add(getMiddleLine());
+        getChildren().add(getEndLine());
         super.draw();
         this.getChildren().add(super.getEndMultiplicity());
         this.getChildren().add(super.getStartMultiplicity());
@@ -43,14 +42,14 @@ public class InheritanceEdgeView extends AbstractEdgeView{
                 //Do nothing.
                 break;
             case START_TO_END:
-                this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
+                this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
                 break;
             case END_TO_START:
-                this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
+                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
                 break;
             case BIDIRECTIONAL:
-                this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
-                this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
+                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+                this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
                 break;
         }
     }
@@ -99,11 +98,9 @@ public class InheritanceEdgeView extends AbstractEdgeView{
         }
 
         Polygon background = new Polygon();
-        background.getPoints().addAll(new Double[] {
-                startX, startY,
+        background.getPoints().addAll(startX, startY,
                 xs[0], ys[0],
-                xs[1], ys[1]
-        });
+                xs[1], ys[1]);
         background.setFill(Color.WHITE);
         background.toBack();
         Line line1 = new Line(startX, startY, xs[0], ys[0]);
@@ -116,7 +113,7 @@ public class InheritanceEdgeView extends AbstractEdgeView{
         group.getChildren().add(line1);
         group.getChildren().add(line2);
         group.getChildren().add(line3);
-        arrowHeadLines.addAll(Arrays.asList(new Line[]{line1, line2, line3}));
+        arrowHeadLines.addAll(Arrays.asList(line1, line2, line3));
         if(super.isSelected()){
             for(Line l : arrowHeadLines){
                 l.setStroke(Constants.selected_color);
@@ -125,41 +122,11 @@ public class InheritanceEdgeView extends AbstractEdgeView{
         return group;
     }
 
-    private void setChangeListeners() {
-        super.getLine().endXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().endYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().startXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().startYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        refEdge.getDirectionProperty().addListener(new ChangeListener<AbstractEdge.Direction>() {
-            @Override
-            public void changed(ObservableValue<? extends AbstractEdge.Direction> observable,
-                                AbstractEdge.Direction oldValue, AbstractEdge.Direction newValue) {
-                draw();
-            }
-        });
+    public void propertyChange(PropertyChangeEvent evt){
+        super.propertyChange(evt);
+        if(evt.getPropertyName().equals(Constants.changeNodeTranslateX) || evt.getPropertyName().equals(Constants.changeNodeTranslateY) ||
+                evt.getPropertyName().equals(Constants.changeEdgeDirection)) {
+            draw();
+        }
     }
 }

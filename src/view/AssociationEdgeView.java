@@ -1,14 +1,12 @@
 package view;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import javafx.scene.text.Text;
 import model.AbstractEdge;
 import util.Constants;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 
 /**
@@ -30,14 +28,14 @@ public class AssociationEdgeView extends AbstractEdgeView {
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
         draw();
-        setChangeListeners();
-
     }
 
     protected void draw() {
         AbstractEdge.Direction direction = refEdge.getDirection();
         getChildren().clear();
-        getChildren().add(getLine());
+        getChildren().add(getStartLine());
+        getChildren().add(getMiddleLine());
+        getChildren().add(getEndLine());
         super.draw();
         this.getChildren().add(super.getEndMultiplicity());
         this.getChildren().add(super.getStartMultiplicity());
@@ -48,14 +46,14 @@ public class AssociationEdgeView extends AbstractEdgeView {
                 //Do nothing.
                 break;
             case START_TO_END:
-                this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
+                this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
                 break;
             case END_TO_START:
-                this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
+                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
                 break;
             case BIDIRECTIONAL:
-                this.getChildren().add(drawArrowHead(getStartX(), getStartY(), getEndX(), getEndY()));
-                this.getChildren().add(drawArrowHead(getEndX(), getEndY(), getStartX(), getStartY()));
+                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+                this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
                 break;
         }
     }
@@ -106,41 +104,11 @@ public class AssociationEdgeView extends AbstractEdgeView {
         return group;
     }
 
-    private void setChangeListeners() {
-        super.getLine().endXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().endYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().startXProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        super.getLine().startYProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
-        });
-
-        refEdge.getDirectionProperty().addListener(new ChangeListener<AbstractEdge.Direction>() {
-            @Override
-            public void changed(ObservableValue<? extends AbstractEdge.Direction> observable,
-                                AbstractEdge.Direction oldValue, AbstractEdge.Direction newValue) {
-                draw();
-            }
-        });
+    public void propertyChange(PropertyChangeEvent evt){
+        super.propertyChange(evt);
+        if(evt.getPropertyName().equals(Constants.changeNodeTranslateX) || evt.getPropertyName().equals(Constants.changeNodeTranslateY) ||
+                evt.getPropertyName().equals(Constants.changeEdgeDirection)) {
+            draw();
+        }
     }
 }

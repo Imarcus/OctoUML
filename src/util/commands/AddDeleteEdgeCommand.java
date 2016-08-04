@@ -36,8 +36,6 @@ public class AddDeleteEdgeCommand implements Command
 	private MainController aController;
     private AbstractEdgeView aEdgeView;
 	private Edge aEdge;
-	private Node aP1;
-	private Node aP2;
 	private boolean aAdding; //true for adding, false for deleting
 
 	/**
@@ -50,8 +48,6 @@ public class AddDeleteEdgeCommand implements Command
 		aController = pController;
         aEdgeView = pEdgeView;
 		aEdge = pEdge;
-		aP1 = aEdge.getStartNode();
-		aP2 = aEdge.getEndNode();
 		aAdding = pAdding;
 	}
 
@@ -90,7 +86,7 @@ public class AddDeleteEdgeCommand implements Command
 	 */
 	private void delete()
 	{
-		aController.deleteEdgeView(aEdgeView, null, true);
+		aController.deleteEdgeView(aEdgeView, null, true, false);
 	}
 
 	/**

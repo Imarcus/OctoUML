@@ -17,4 +17,4 @@ If you want to contribute or have any questions regarding the project contact **
 
 ## License
 
-TBD
+GNU General Public License v3.0

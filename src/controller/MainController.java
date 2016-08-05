@@ -660,6 +660,14 @@ public class MainController {
         }
     }
 
+    public void handleMenuActionSnapToGrid(boolean b) {
+        nodeController.setSnapToGrid(b);
+    }
+
+    public void handleMenuActionSnapIndicators(boolean b) {
+        nodeController.setSnapIndicators(b);
+    }
+
     /**
      * Disables or enables buttons provided in the list.
      *

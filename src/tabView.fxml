@@ -38,6 +38,9 @@
                     <CheckMenuItem fx:id="umlMenuItem" text="UML" onAction="#handleMenuActionUML" selected="true"/>
                     <CheckMenuItem fx:id="sketchesMenuItem" text="Sketches" onAction="#handleMenuActionSketches" selected="true"/>
                     <CheckMenuItem fx:id="gridMenuItem" text="Grid" onAction="#handleMenuActionGrid" selected="true"/>
+                    <SeparatorMenuItem/>
+                    <CheckMenuItem fx:id="snapToGridMenuItem" text="Snap to grid" onAction="#handleMenuActionSnapToGrid" selected="true"/>
+                    <CheckMenuItem fx:id="snapIndicatorsMenuItem" text="Snap Indicators" onAction="#handleMenuActionSnapIndicators" selected="false"/>
                 </items>
             </Menu>
         </menus>

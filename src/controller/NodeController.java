@@ -38,6 +38,8 @@ public class NodeController {
 
     private Pane aDrawPane;
     private MainController aMainController;
+    private boolean snapToGrid = true, snapIndicators = false;
+    private AbstractNode currentResizeNode;
 
     //For drag-moving nodes
     private double initMoveX, initMoveY;
@@ -62,23 +64,25 @@ public class NodeController {
         dragRectangle.setTranslateY(translateY);
     }
 
-    public void scaleDragRectangle(double scaleX, double scaleY)
-    {
-        dragRectangle.setScaleX(scaleX);
-        dragRectangle.setScaleY(scaleY);
-    }
-
     public void resizeStart(AbstractNodeView nodeView){
         aDrawPane.getChildren().add(dragRectangle);
         dragRectangle.setWidth(nodeView.getWidth());
         dragRectangle.setHeight(nodeView.getHeight());
         dragRectangle.setX(nodeView.getTranslateX());
         dragRectangle.setY(nodeView.getTranslateY());
+        currentResizeNode = nodeView.getRefNode();
+        createSnapIndicators(currentResizeNode);
     }
 
     public void resize(MouseEvent event){
         dragRectangle.setWidth(event.getX());
         dragRectangle.setHeight(event.getY());
+
+        if(snapIndicators){
+            Double w = dragRectangle.getWidth() + dragRectangle.getX();
+            Double h = dragRectangle.getHeight() + dragRectangle.getY();
+            setSnapIndicators(closestInteger(w.intValue(), Constants.GRID_DISTANCE), closestInteger(h.intValue(), Constants.GRID_DISTANCE), currentResizeNode, false);
+        }
 
         ArrayList<AbstractNodeView> selectedNodes = aMainController.getAllNodeViews();
         for(AbstractNodeView n : selectedNodes){
@@ -89,9 +93,18 @@ public class NodeController {
         }
     }
 
-    public void resizeFinished(AbstractNode node){ //TODO event parameter not needed
-        node.setWidth(dragRectangle.getWidth());
-        node.setHeight(dragRectangle.getHeight());
+    public void resizeFinished(AbstractNode node){
+        if(snapToGrid){
+            Double w = dragRectangle.getWidth();
+            Double h = dragRectangle.getHeight();
+            node.setWidth(closestInteger(w.intValue(), Constants.GRID_DISTANCE));
+            node.setHeight(closestInteger(h.intValue(), Constants.GRID_DISTANCE));
+        } else {
+            node.setWidth(dragRectangle.getWidth());
+            node.setHeight(dragRectangle.getHeight());
+        }
+
+        removeSnapIndicators();
         dragRectangle.setHeight(0);
         dragRectangle.setWidth(0);
         translateDragRectangle(0,0);
@@ -114,7 +127,9 @@ public class NodeController {
                 initTranslate = new Point2D.Double(n.getTranslateX(), n.getTranslateY());
                 initTranslateMap.put(n, initTranslate);
                 toBeMoved.add(n);
-                createSnapIndicators(n);
+                if(snapIndicators){
+                    createSnapIndicators(n);
+                }
                 if (n instanceof PackageNode) {
                     for (AbstractNode child : ((PackageNode) n).getChildNodes()) {
                         if (!selectedNodes.contains(child)) {
@@ -141,9 +156,9 @@ public class NodeController {
             n.setTranslateY(y);
             n.setX(x);
             n.setY(y);
-            setSnapIndicators(closestInteger(x.intValue(), Constants.GRID_DISTANCE), closestInteger(y.intValue(), Constants.GRID_DISTANCE), n);
-
-
+            if(snapIndicators){
+                setSnapIndicators(closestInteger(x.intValue(), Constants.GRID_DISTANCE), closestInteger(y.intValue(), Constants.GRID_DISTANCE), n, true);
+            }
         }
     }
 
@@ -153,17 +168,28 @@ public class NodeController {
         for(AbstractNode n : toBeMoved) {
             Double x = initTranslateMap.get(n).getX() + offsetX; //Calculate real position after move
             Double y = initTranslateMap.get(n).getY() + offsetY;
-            int xSnap = closestInteger(x.intValue(), 20); //Snap to grid
-            int ySnap = closestInteger(y.intValue(), 20);
-            n.setTranslateX(xSnap);
-            n.setTranslateY(ySnap);
-            n.setX(xSnap);
-            n.setY(ySnap);
+            if(snapToGrid){
+                int xSnap = closestInteger(x.intValue(), 20); //Snap to grid
+                int ySnap = closestInteger(y.intValue(), 20);
+                n.setTranslateX(xSnap);
+                n.setTranslateY(ySnap);
+                n.setX(xSnap);
+                n.setY(ySnap);
+            } else {
+                n.setTranslateX(x);
+                n.setTranslateY(y);
+                n.setX(x);
+                n.setY(y);
+            }
+
         }
 
         toBeMoved.clear();
         initTranslateMap.clear();
-        removeSnapIndicators();
+        if (snapIndicators){
+            removeSnapIndicators();
+        }
+
         double[] deltaTranslateVector = new double[2];
         deltaTranslateVector[0] = event.getSceneX() - initMoveX;
         deltaTranslateVector[1] = event.getSceneY() - initMoveY;
@@ -256,21 +282,25 @@ public class NodeController {
 
     /**
      * Places snap indicators to where the node would be snapped to.
+     * @param move True if moving, false if resizing.
      * @param xSnap
      * @param ySnap
      * @param n
      */
-    private void setSnapIndicators(int xSnap, int ySnap, AbstractNode n){
+    private void setSnapIndicators(int xSnap, int ySnap, AbstractNode n, boolean move){
         Line xSnapIndicator = xSnapIndicatorMap.get(n);
         Line ySnapIndicator = ySnapIndicatorMap.get(n);
 
         xSnapIndicator.setStartX(xSnap);
         xSnapIndicator.setEndX(xSnap);
         xSnapIndicator.setStartY(ySnap);
-        xSnapIndicator.setEndY(ySnap+Constants.GRID_DISTANCE);
+        if(move){ xSnapIndicator.setEndY(ySnap+Constants.GRID_DISTANCE);
+        } else { xSnapIndicator.setEndY(ySnap-Constants.GRID_DISTANCE);}
 
         ySnapIndicator.setStartX(xSnap);
-        ySnapIndicator.setEndX(xSnap+Constants.GRID_DISTANCE);
+        if (move) { ySnapIndicator.setEndX(xSnap+Constants.GRID_DISTANCE);
+        } else {ySnapIndicator.setEndX(xSnap-Constants.GRID_DISTANCE);}
+
         ySnapIndicator.setStartY(ySnap);
         ySnapIndicator.setEndY(ySnap);
     }
@@ -283,6 +313,7 @@ public class NodeController {
         aDrawPane.getChildren().removeAll(ySnapIndicatorMap.values());
         xSnapIndicatorMap.clear();
         ySnapIndicatorMap.clear();
+        currentResizeNode = null; //Only needed when resizing
     }
 
     public void onDoubleClick(AbstractNodeView nodeView){
@@ -371,5 +402,13 @@ public class NodeController {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void setSnapIndicators(boolean snapIndicators) {
+        this.snapIndicators = snapIndicators;
+    }
+
+    public void setSnapToGrid(boolean snapToGrid) {
+        this.snapToGrid = snapToGrid;
     }
 }

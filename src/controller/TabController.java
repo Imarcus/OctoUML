@@ -19,7 +19,7 @@ import java.util.Map;
 public class TabController {
 
     @FXML
-    private CheckMenuItem umlMenuItem, sketchesMenuItem, mouseMenuItem, gridMenuItem;
+    private CheckMenuItem umlMenuItem, sketchesMenuItem, mouseMenuItem, gridMenuItem, snapToGridMenuItem, snapIndicatorsMenuItem;
 
     @FXML
     private TabPane tabPane;
@@ -62,6 +62,8 @@ public class TabController {
 
         tabPane.getTabs().add(tab);
         mainController.setStage(stage);
+
+
         return tab;
     }
 
@@ -109,5 +111,13 @@ public class TabController {
 
     public void handleMenuActionImage(){
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionImage();
+    }
+
+    public void handleMenuActionSnapToGrid() {
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSnapToGrid(snapToGridMenuItem.isSelected());
+    }
+
+    public void handleMenuActionSnapIndicators() {
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSnapIndicators(snapIndicatorsMenuItem.isSelected());
     }
 }

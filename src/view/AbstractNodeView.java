@@ -37,7 +37,6 @@ public abstract class AbstractNodeView extends Group implements NodeView, Proper
         return refNode;
     }
 
-
     public void setX(double x) {
         this.x = x;
     }
@@ -69,8 +68,6 @@ public abstract class AbstractNodeView extends Group implements NodeView, Proper
     public double getHeight() {
         return height;
     }
-
-
 
     public boolean contains(double x, double y) {
         return (x >= this.getTranslateX() && x <= this.getTranslateX() + this.width && y >= this.getTranslateY() && y <= this.getTranslateY() + this.height);

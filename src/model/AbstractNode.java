@@ -21,8 +21,8 @@ public abstract class AbstractNode implements Node, Serializable
     //Listened to by the server/client, only fired when the change comes from local interaction.
     protected transient PropertyChangeSupport remoteChanges = new PropertyChangeSupport(this);
 
-    private final double MIN_WIDTH = 80;
-    private final double MIN_HEIGHT = 70;
+    private final double MIN_WIDTH = 120;
+    private final double MIN_HEIGHT = 100;
     private String aTitle;
     private double x, y, width, height, translateX, translateY, scaleX, scaleY;
     private boolean aIsChild;

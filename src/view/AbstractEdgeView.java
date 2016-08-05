@@ -167,78 +167,150 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
 
     private void setPosition() {
         //If end node is to the right of startNode:
-        if (startNode.getTranslateX() + startNode.getWidth() <= endNode.getTranslateX()) {
-            startLine.setStartX(startNode.getTranslateX() + startNode.getWidth());
-            startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
-            startLine.setEndX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
-            startLine.setEndY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+        if (startNode.getTranslateX() + startNode.getWidth() <= endNode.getTranslateX()) { //Straight line if height difference is small
+            if(Math.abs(startNode.getTranslateY() + (startNode.getHeight()/2) - (endNode.getTranslateY() + (endNode.getHeight()/2))) < 20){
+                startLine.setStartX(startNode.getTranslateX() + startNode.getWidth());
+                startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+                startLine.setEndX(endNode.getTranslateX());
+                startLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
 
-            middleLine.setStartX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
-            middleLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
-            middleLine.setEndX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
-            middleLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+                middleLine.setStartX(0);
+                middleLine.setStartY(0);
+                middleLine.setEndX(0);
+                middleLine.setEndY(0);
 
-            endLine.setStartX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
-            endLine.setStartY(endNode.getTranslateY() + (endNode.getHeight() / 2));
-            endLine.setEndX(endNode.getTranslateX());
-            endLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+                endLine.setStartX(0);
+                endLine.setStartY(0);
+                endLine.setEndX(0);
+                endLine.setEndY(0);
+            } else {
+                startLine.setStartX(startNode.getTranslateX() + startNode.getWidth());
+                startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+                startLine.setEndX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
+                startLine.setEndY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+
+                middleLine.setStartX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
+                middleLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+                middleLine.setEndX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
+                middleLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+
+                endLine.setStartX(startNode.getTranslateX() + startNode.getWidth() + ((endNode.getTranslateX() - (startNode.getTranslateX() + startNode.getWidth()))/2));
+                endLine.setStartY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+                endLine.setEndX(endNode.getTranslateX());
+                endLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            }
+
 
             position = Position.RIGHT;
         }
         //If end node is to the left of startNode:
         else if (startNode.getTranslateX() > endNode.getTranslateX() + endNode.getWidth()) {
-            startLine.setStartX(startNode.getTranslateX());
-            startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
-            startLine.setEndX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
-            startLine.setEndY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+            if(Math.abs(startNode.getTranslateY() + (startNode.getHeight()/2) - (endNode.getTranslateY() + (endNode.getHeight()/2))) < 20){
+                startLine.setStartX(startNode.getTranslateX());
+                startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+                startLine.setEndX(endNode.getTranslateX() + endNode.getWidth());
+                startLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
 
-            middleLine.setStartX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
-            middleLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
-            middleLine.setEndX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
-            middleLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+                middleLine.setStartX(0);
+                middleLine.setStartY(0);
+                middleLine.setEndX(0);
+                middleLine.setEndY(0);
 
-            endLine.setStartX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
-            endLine.setStartY(endNode.getTranslateY() + (endNode.getHeight() / 2));
-            endLine.setEndX(endNode.getTranslateX() + endNode.getWidth());
-            endLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+                endLine.setStartX(0);
+                endLine.setStartY(0);
+                endLine.setEndX(0);
+                endLine.setEndY(0);
+            } else {
+                startLine.setStartX(startNode.getTranslateX());
+                startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+                startLine.setEndX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
+                startLine.setEndY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+
+                middleLine.setStartX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
+                middleLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
+                middleLine.setEndX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
+                middleLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+
+                endLine.setStartX(endNode.getTranslateX() + endNode.getWidth()  + ((startNode.getTranslateX() - (endNode.getTranslateX() + endNode.getWidth()))/2));
+                endLine.setStartY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+                endLine.setEndX(endNode.getTranslateX() + endNode.getWidth());
+                endLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            }
+
 
             position = Position.LEFT;
         }
         // If end node is below startNode:
         else if (startNode.getTranslateY() + startNode.getHeight() < endNode.getTranslateY()){
-            startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
-            startLine.setStartY(startNode.getTranslateY() + startNode.getHeight());
-            startLine.setEndX(startNode.getTranslateX() + (startNode.getWidth() /2));
-            startLine.setEndY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
+            if(Math.abs(startNode.getTranslateX() + (startNode.getWidth()/2) - (endNode.getTranslateX() + (endNode.getWidth()/2))) < 20){
+                startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+                startLine.setStartY(startNode.getTranslateY() + startNode.getHeight());
+                startLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+                startLine.setEndY(endNode.getTranslateY());
 
-            middleLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
-            middleLine.setStartY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
-            middleLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
-            middleLine.setEndY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
+                middleLine.setStartX(0);
+                middleLine.setStartY(0);
+                middleLine.setEndX(0);
+                middleLine.setEndY(0);
 
-            endLine.setStartX(endNode.getTranslateX() + (endNode.getWidth()/2));
-            endLine.setStartY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
-            endLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
-            endLine.setEndY(endNode.getTranslateY());
+                endLine.setStartX(0);
+                endLine.setStartY(0);
+                endLine.setEndX(0);
+                endLine.setEndY(0);
+            } else {
+                startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+                startLine.setStartY(startNode.getTranslateY() + startNode.getHeight());
+                startLine.setEndX(startNode.getTranslateX() + (startNode.getWidth() /2));
+                startLine.setEndY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
+
+                middleLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+                middleLine.setStartY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
+                middleLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+                middleLine.setEndY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
+
+                endLine.setStartX(endNode.getTranslateX() + (endNode.getWidth()/2));
+                endLine.setStartY(startNode.getTranslateY() + startNode.getHeight() + ((endNode.getTranslateY() - (startNode.getTranslateY() + startNode.getHeight()))/2));
+                endLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+                endLine.setEndY(endNode.getTranslateY());
+            }
+
 
             position = Position.BELOW;
         }
         //If end node is above startNode:
         else if (startNode.getTranslateY() >= endNode.getTranslateY() + endNode.getHeight()) {
-            startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
-            startLine.setStartY(startNode.getTranslateY());
-            startLine.setEndX(startNode.getTranslateX() + (startNode.getWidth() /2));
-            startLine.setEndY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
+            if(Math.abs(startNode.getTranslateX() + (startNode.getWidth()/2) - (endNode.getTranslateX() + (endNode.getWidth()/2))) < 20){
+                startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() / 2));
+                startLine.setStartY(startNode.getTranslateY());
+                startLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+                startLine.setEndY(endNode.getTranslateY() + endNode.getHeight());
 
-            middleLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
-            middleLine.setStartY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
-            middleLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
-            middleLine.setEndY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
+                middleLine.setStartX(0);
+                middleLine.setStartY(0);
+                middleLine.setEndX(0);
+                middleLine.setEndY(0);
 
-            endLine.setStartX(endNode.getTranslateX() + (endNode.getWidth()/2));
-            endLine.setStartY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
-            endLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
-            endLine.setEndY(endNode.getTranslateY() + endNode.getHeight());
+                endLine.setStartX(0);
+                endLine.setStartY(0);
+                endLine.setEndX(0);
+                endLine.setEndY(0);
+            } else {
+                startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+                startLine.setStartY(startNode.getTranslateY());
+                startLine.setEndX(startNode.getTranslateX() + (startNode.getWidth() /2));
+                startLine.setEndY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
+
+                middleLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
+                middleLine.setStartY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
+                middleLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+                middleLine.setEndY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
+
+                endLine.setStartX(endNode.getTranslateX() + (endNode.getWidth()/2));
+                endLine.setStartY(endNode.getTranslateY() + endNode.getHeight() + ((startNode.getTranslateY() - (endNode.getTranslateY() + endNode.getHeight()))/2));
+                endLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+                endLine.setEndY(endNode.getTranslateY() + endNode.getHeight());
+            }
+
             position = Position.ABOVE;
         }
         //TODO Handle when the nodes are overlapping.

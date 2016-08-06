@@ -29,6 +29,25 @@
     -fx-spacing: 20;
 }
 
+#infoPane {
+    -fx-background-color: #3F4144;
+    -fx-padding: 10 10;
+    -fx-spacing: 20;
+}
+
+#colorPicker {
+    -fx-background-color: #ffffff
+}
+
+.slider .thumb {
+    -fx-background-color: #21487F;
+    -fx-bor
+}
+
+#zoomPane {
+    -fx-background-color: #3F4144
+}
+
 #umlBox {
     -fx-spacing: 5;
     -fx-padding: 0 25 0 0;

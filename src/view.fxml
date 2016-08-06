@@ -36,8 +36,8 @@
         </VBox>
     </top>
     <bottom>
-        <StackPane>
-            <ToolBar>
+        <StackPane fx:id="infoPane">
+            <ToolBar fx:id="zoomPane">
                 <Pane HBox.hgrow="ALWAYS" />
                 <VBox alignment="CENTER">
                     <Slider fx:id="zoomSlider" min="10"  max="200" value="100"/>

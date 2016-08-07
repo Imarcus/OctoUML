@@ -36,12 +36,17 @@
 }
 
 #colorPicker {
-    -fx-background-color: #ffffff
+    -fx-background-color: #e6e6e6
 }
 
 .slider .thumb {
     -fx-background-color: #21487F;
-    -fx-bor
+    /*-fx-background-image: url("/icons/sliderhandle.png");
+    -fx-padding: 10;*/
+}
+
+.slider .track {
+    -fx-background-color: #e6e6e6;
 }
 
 #zoomPane {
@@ -87,10 +92,11 @@
 {
     -fx-tab-min-width:90px;
     -fx-tab-max-height: 16px;
+    -fx-background-color: #3F4144;
 }
 
 .tab{
-    -fx-background-insets: 0 1 0 1,0,0;
+    -fx-background-insets: 0 1 0 0,0,0;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
@@ -116,4 +122,39 @@
 .tab:selected .tab-label {
     -fx-alignment: CENTER;
     -fx-text-fill: #f2f2f2;
+}
+
+.tab-pane:top *.tab-header-area {
+    -fx-background-insets: 0, 0 0 0 0;
+    -fx-padding: 0.0em 0.0em 0.0em 0.0em;
+}
+
+#zoomLabel, #serverLabel {
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.menu-item .label {
+    -fx-text-fill: white;
+}
+
+.menu-item:focused {
+     -fx-background-color: darkgray;
+}
+
+.context-menu {
+    -fx-background-color: #3F4144;
+}
+
+.menu-bar
+{
+     -fx-background-color: #3F4144;
+}
+
+.menu-bar .label {
+  -fx-text-fill: white;
+}
+
+.menu-bar:focused {
+  -fx-background-color: #3F4144
 }

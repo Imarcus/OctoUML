@@ -1,0 +1,12 @@
+<?import javafx.scene.layout.BorderPane?>
+
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<BorderPane fx:controller="controller.TabController" xmlns:fx="http://javafx.com/fxml">
+    <center>
+        <HBox>
+            <Button fx:id="classDiagramButton" text="New Class Diagram" onAction="#handleMenuActionNew"/>
+        </HBox>
+    </center>
+
+</BorderPane>

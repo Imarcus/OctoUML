@@ -41,7 +41,7 @@
                 <Pane HBox.hgrow="ALWAYS" />
                 <VBox alignment="CENTER">
                     <Slider fx:id="zoomSlider" min="10"  max="200" value="100"/>
-                    <Label text="Zoom"/>
+                    <Label fx:id="zoomLabel" text="Zoom" />
                 </VBox>
                 <Pane HBox.hgrow="ALWAYS" />
             </ToolBar>

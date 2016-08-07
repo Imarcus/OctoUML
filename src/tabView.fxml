@@ -8,6 +8,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.VBox?>
 <?import java.net.URL?>
+<?import javafx.scene.layout.Pane?>
 <VBox fx:controller="controller.TabController" xmlns:fx="http://javafx.com/fxml">
     <MenuBar fx:id="menuBar">
         <menus>

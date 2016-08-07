@@ -179,5 +179,6 @@ public class ServerController implements PropertyChangeListener {
 
     public void closeServer(){
         server.close();
+        server.stop();
     }
 }

@@ -1,5 +1,6 @@
 package controller;
 
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -84,6 +85,7 @@ public class TabController {
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionMouse();
     }
     public void handleMenuActionExit() {
+        Platform.exit();
     }
     public void handleMenuActionSave() {
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSave();
@@ -123,5 +125,12 @@ public class TabController {
 
     public void handleMenuActionSnapIndicators() {
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSnapIndicators(snapIndicatorsMenuItem.isSelected());
+    }
+
+    public void stop(){
+        for(MainController mc : tabMap.values()){
+            mc.closeServers();
+            mc.closeClients();
+        }
     }
 }

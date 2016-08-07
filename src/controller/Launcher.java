@@ -13,10 +13,11 @@ import java.io.IOException;
  */
 public class Launcher extends Application {
 
-    public void start(Stage stage) throws IOException { //TODO HANDLE EXCEPTION
+    private TabController tabController = null;
+
+    public void start(Stage stage) {
         VBox tabView = null;
         FXMLLoader loader;
-        TabController tabController = null;
         try {
             loader = new FXMLLoader(getClass().getClassLoader().getResource("tabView.fxml"));
             tabView = loader.load();
@@ -35,5 +36,10 @@ public class Launcher extends Application {
         stage.setTitle("Penguin");
         //stage.setFullScreen(true);
         stage.show();
+    }
+
+    public void stop(){
+        System.out.println("Stopping!");
+        tabController.stop();
     }
 }

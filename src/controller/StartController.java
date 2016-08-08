@@ -19,7 +19,7 @@ public class StartController {
     Button classDiagramButton;
 
     @FXML
-    Label titleLabel;
+    Label titleLabel, subTitleLabel;
 
     TabController tabController;
 
@@ -28,8 +28,11 @@ public class StartController {
         Image icon = new Image("/icons/classDiagram.PNG");
         classDiagramButton.setGraphic(new ImageView(icon));
         classDiagramButton.setContentDisplay(ContentDisplay.BOTTOM);
-        titleLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 50));
+
+        titleLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 60));
         titleLabel.setTextFill(Color.web("#3F4144"));
+
+        subTitleLabel.setFont(Font.font("Verdana", 30));
     }
 
     public void handleActionNew(){

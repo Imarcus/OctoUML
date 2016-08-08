@@ -2,10 +2,23 @@
 
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Button?>
-<BorderPane fx:controller="controller.TabController" xmlns:fx="http://javafx.com/fxml">
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<BorderPane fx:controller="controller.StartController" xmlns:fx="http://javafx.com/fxml" prefHeight="8000.0" prefWidth="8000.0">
+    <top>
+        <BorderPane>
+            <top>
+                <Pane prefHeight="100"></Pane>
+            </top>
+            <center>
+                <Label text="PenguinUML" fx:id="titleLabel"/>
+            </center>
+        </BorderPane>
+    </top>
     <center>
-        <HBox>
-            <Button fx:id="classDiagramButton" text="New Class Diagram" onAction="#handleMenuActionNew"/>
+        <HBox alignment="CENTER">
+            <Button fx:id="classDiagramButton" text="New Class Diagram" onAction="#handleActionNew">
+            </Button>
         </HBox>
     </center>
 

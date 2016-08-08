@@ -67,8 +67,6 @@ public class TabController {
 
         tabPane.getTabs().add(tab);
         mainController.setStage(stage);
-
-
         return tab;
     }
 

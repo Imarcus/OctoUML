@@ -3,6 +3,8 @@ package controller;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Tab;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -18,24 +20,31 @@ public class Launcher extends Application {
     public void start(Stage stage) {
         VBox tabView = null;
         FXMLLoader loader;
+        BorderPane startView = null;
         try {
             loader = new FXMLLoader(getClass().getClassLoader().getResource("tabView.fxml"));
             tabView = loader.load();
             tabController = loader.getController();
+            loader = new FXMLLoader(getClass().getClassLoader().getResource("startView.fxml"));
+            startView = loader.load();
+            ((StartController)loader.getController()).setTC(tabController);
 
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
 
         Scene scene = new Scene(tabView, 1000, 800);
-        //tabView.prefHeightProperty().bind(scene.heightProperty());
-        //tabView.prefWidthProperty().bind(scene.widthProperty());
         tabController.setStage(stage);
 
         stage.setScene(scene);
         stage.setTitle("Penguin");
         //stage.setFullScreen(true);
         stage.show();
+
+        Tab tab = new Tab();
+        tab.setContent(startView);
+        tab.setText("Start");
+        tabController.getTabPane().getTabs().add(tab);
     }
 
     public void stop(){

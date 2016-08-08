@@ -92,7 +92,7 @@
 {
     -fx-tab-min-width:90px;
     -fx-tab-max-height: 16px;
-    -fx-background-color: #3F4144;
+    -fx-background-color: white;
 }
 
 .tab{
@@ -104,7 +104,6 @@
 .tab-pane .tab
 {
     -fx-background-color: #e6e6e6;
-
 }
 
 .tab-pane .tab:selected

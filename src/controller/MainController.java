@@ -1,6 +1,7 @@
 package controller;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -38,6 +39,9 @@ import java.io.IOException;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import edu.cmu.sphinx.api.Configuration;
+import edu.cmu.sphinx.api.LiveSpeechRecognizer;
 
 
 /**
@@ -1382,6 +1386,196 @@ public class MainController {
         buttonInUse = b;
         buttonInUse.getStyleClass().add("button-in-use");
     }
+
+
+    //----------------------------------- VOICE --------------------------------------------
+
+    Task<Void> task = new Task<Void>() {
+        @Override protected Void call() throws Exception {
+            int iterations = 0;
+
+
+            voice();
+
+            return null;
+        }
+
+        @Override protected void succeeded() {
+            super.succeeded();
+            updateMessage("Done!");
+        }
+
+        @Override protected void cancelled() {
+            super.cancelled();
+            updateMessage("Cancelled!");
+        }
+
+        @Override protected void failed() {
+            super.failed();
+            updateMessage("Failed!");
+        }
+    };
+
+    public Thread A = new Thread(task);
+    public int checkVoice = 0;
+
+    //starts the voice recognition if it is not started when pressing the button
+    public void buttonInitiation() {
+        if (checkVoice == 0) {
+            A.setDaemon(true);
+            A.start();
+            checkVoice++;
+        }
+        else{
+            System.out.println("Already started");
+        }
+
+    }
+
+    //get the name the user wants to name the class or package during naming in NodeConroller
+    public String titleName = "";
+    //used to see if the user is in naming mode or regular mode
+    public int testing = 0;
+
+
+    public int config = 0;
+    public int mic = 0;
+    Configuration configuration;
+    LiveSpeechRecognizer voiceGrammar;
+    public void initVoice(){
+
+        if (config == 0){
+            configuration = new Configuration();
+
+            configuration
+                    .setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
+            configuration
+                    .setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
+            configuration
+                    .setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
+            //set the path to the file "hello.gram"
+            configuration.setGrammarPath("file:C:/Users/SodaSaft/Desktop/PenguinUML/src/controller/"); //Emils computer
+            //configuration.setGrammarPath("file:C:/Users/SodaSaft/PenguinUML/src/controller/"); //School computer
+            //configuration.setGrammarPath("file:/Users/JohanHermansson/Downloads/PenguinUML/src/controller/"); //Johans computer
+            configuration.setGrammarName("hello");
+            configuration.setUseGrammar(true);
+            config = 1;
+        }
+        else {
+            System.out.println("Configuration already done");
+        }
+        if (mic == 0){
+            try{
+                voiceGrammar = new LiveSpeechRecognizer(configuration);
+                mic = 1;
+            }
+            catch (Exception e){
+                System.out.println(e);
+
+            }
+        }
+        else {
+            System.out.println("Microphone already started");
+        }
+    }
+
+
+    //return which tools that are recognised or sets a name on a class or package, from the voice-input
+    public String voiceCommands() {
+        initVoice();
+
+        voiceGrammar.startRecognition(true);
+
+        while(true) {
+
+            String resultText = voiceGrammar.getResult().getHypothesis();
+
+            if (resultText.equals("create class") && testing == 0) {
+                voiceGrammar.stopRecognition();
+                return resultText;
+            }
+            else if (resultText.equals("create edge") && testing == 0) {
+                voiceGrammar.stopRecognition();
+                return resultText;
+            }
+            else if (resultText.equals("create package") && testing == 0) {
+                voiceGrammar.stopRecognition();
+                return resultText;
+            }
+            else if (resultText.equals("choose draw") && testing == 0) {
+                voiceGrammar.stopRecognition();
+                return resultText;
+            }
+            else if (resultText.equals("choose select") && testing == 0) {
+                voiceGrammar.stopRecognition();
+                return resultText;
+            }
+            else if (resultText.equals("choose move") && testing == 0) {
+                voiceGrammar.stopRecognition();
+                return resultText;
+            }
+            else if(resultText.length() >= 4 && testing == 1) {
+                if (resultText.substring(0, 4).matches("name")) {
+                    System.out.println("You said: " + resultText + "\n");
+                    String endResult = resultText.replace("name ", "");
+                    endResult = endResult.toUpperCase();
+                    titleName = endResult;
+                }
+            }
+            else {
+                System.out.println("Unknown command: " + resultText + "\n");
+            }
+        }
+    }
+
+
+    private void voice(){ //change to the tool that are recognised from the voice-input
+        Button previousButton = buttonInUse;
+        ToolEnum previousTool = tool;
+
+        String buttonMode = "";
+        while(buttonMode.equals("") || buttonMode == null) {
+            buttonMode = voiceCommands();
+        }
+
+        if (buttonMode.equals("create class")) {
+            tool = ToolEnum.CREATE_CLASS;
+            setButtonClicked(createBtn);
+        }
+        else if (buttonMode.equals("create package")) {
+            tool = ToolEnum.CREATE_PACKAGE;
+            setButtonClicked(packageBtn);
+        }
+        else if (buttonMode.equals("create edge")) {
+            tool = ToolEnum.EDGE;
+            setButtonClicked(edgeBtn);
+        }
+        else if (buttonMode.equals("choose select")) {
+            tool = ToolEnum.SELECT;
+            setButtonClicked(selectBtn);
+        }
+        else if (buttonMode.equals("choose draw")) {
+            tool = ToolEnum.DRAW;
+            setButtonClicked(drawBtn);
+        }
+        else if (buttonMode.equals("choose move")) {
+            tool = ToolEnum.MOVE_SCENE;
+            setButtonClicked(moveBtn);
+        }
+        else if (buttonMode.equals("undo")) {
+            undoManager.undoCommand();
+            tool = previousTool;
+            setButtonClicked(previousButton);
+        }
+        else if (buttonMode.equals("redo")) {
+            undoManager.redoCommand();
+            tool = previousTool;
+            setButtonClicked(previousButton);
+        }
+        // Running this function until the program is closed
+        voice();
+    }
+
 
 }
 

@@ -1,0 +1,23 @@
+#JSGF V1.0;
+
+/**
+ * JSGF Grammar file
+ */
+
+grammar hello;
+
+public <greet> = (name) (user | archivist | supervisor | detective | case
+                            | material | person | fact | photo | photograph
+                            | other | investigator | suspect | victim | task
+                            | subject | testimony | witness | personnel | agent | photographer
+                            | investigation | people | event | content | criminal
+                            | persons connected | persons associated | associated | collaborator
+                            | people connected | people associated | connected people | associated people | clue
+                            | class | package);
+
+public <command> = (create) (class | edge | package);
+
+public <selection> = (choose) (draw | select | move);
+
+public <stop> = (stop naming);
+

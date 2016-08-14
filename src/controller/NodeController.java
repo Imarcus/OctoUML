@@ -421,41 +421,39 @@ public class NodeController {
      * @return false if node == null, otherwise true.
      */
     private boolean showNodeTitleDialogVoice(AbstractNode node){
-        if (node == null) {
-            return false;
-        }
+        if(aMainController.voiceController.voiceEnabled){
+            //Change variable testing in VoiceController to 1(true)
+            aMainController.voiceController.testing = 1;
 
-        //Change variable testing in MainController to 1(true)
-        aMainController.testing = 1;
-
-        String title2 = "";
-        int time = 0;
-        //Looking for a name you want to add to the package or until 5 seconds have passed
-        while((title2.equals("") || title2 == null) && time < 500){
-            try {
-                TimeUnit.MILLISECONDS.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            String title2 = "";
+            int time = 0;
+            //Looking for a name you want to add to the package or until 5 seconds have passed
+            while((title2.equals("") || title2 == null) && time < 500){
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //Check if a name has been recognised
+                title2 = aMainController.voiceController.titleName;
+                time++;
             }
-            //Check if a name has been recognised
-            title2 = aMainController.titleName;
-            time++;
-        }
 
-        //Change variable testing in MainController to 0(false)
-        aMainController.testing = 0;
+            //Change variable testing in VoiceController to 0(false)
+            aMainController.voiceController.testing = 0;
 
-        //If name found in less then 5 seconds it sets the name to the package
-        if(time < 500) {
-            aMainController.titleName = "";
+            //If name found in less then 5 seconds it sets the name to the package
+            if(time < 500) {
+                aMainController.voiceController.titleName = "";
+                node.setTitle(title2);
+            }
+            //Else the name is not changed to a new name
+            else{
+                aMainController.voiceController.titleName = "";
+            }
+
             node.setTitle(title2);
         }
-        //Else the name is not changed to a new name
-        else{
-            aMainController.titleName = "";
-        }
-
-        node.setTitle(title2);
 
         VBox group = new VBox();
         TextField input = new TextField();
@@ -496,34 +494,37 @@ public class NodeController {
     }
 
     public boolean showClassNodeEditDialogVoice(ClassNode node) {
-        //Change variable testing in MainController to 1(true)
-        aMainController.testing = 1;
+        if(aMainController.voiceController.voiceEnabled) {
 
-        String title = "";
-        int time = 0;
-        //Looking for a name you want to add to the class or until 5 seconds have passed
-        while((title.equals("") || title == null) && time < 500){
-            try {
-                TimeUnit.MILLISECONDS.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            //Change variable testing in MainController to 1(true)
+            aMainController.voiceController.testing = 1;
+
+            String title = "";
+            int time = 0;
+            //Looking for a name you want to add to the class or until 5 seconds have passed
+            while ((title.equals("") || title == null) && time < 500) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //Check if a name has been commanded
+                title = aMainController.voiceController.titleName;
+                time++;
             }
-            //Check if a name has been commanded
-            title = aMainController.titleName;
-            time++;
-        }
 
-        //Change variable testing in MainController to 0(false)
-        aMainController.testing = 0;
+            //Change variable testing in MainController to 0(false)
+            aMainController.voiceController.testing = 0;
 
-        //If name found in less then 5 seconds it sets the name to the class
-        if(time < 500) {
-            aMainController.titleName = "";
-            node.setTitle(title);
-        }
-        //Else the name is not changed to a new name
-        else{
-            aMainController.titleName = "";
+            //If name found in less then 5 seconds it sets the name to the class
+            if (time < 500) {
+                aMainController.voiceController.titleName = "";
+                node.setTitle(title);
+            }
+            //Else the name is not changed to a new name
+            else {
+                aMainController.voiceController.titleName = "";
+            }
         }
 
 

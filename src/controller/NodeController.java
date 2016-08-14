@@ -319,10 +319,10 @@ public class NodeController {
 
     public void onDoubleClick(AbstractNodeView nodeView){
         if(nodeView instanceof ClassNodeView){
-            showClassNodeEditDialog((ClassNode) aMainController.getNodeMap().get(nodeView));
+            showClassNodeEditDialogVoice((ClassNode) aMainController.getNodeMap().get(nodeView));
         }
         else {
-            showNodeTitleDialog(aMainController.getNodeMap().get(nodeView));
+            showNodeTitleDialogVoice(aMainController.getNodeMap().get(nodeView));
 
         }
     }

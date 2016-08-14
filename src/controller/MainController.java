@@ -3,6 +3,7 @@ package controller;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -1284,7 +1285,7 @@ public class MainController {
     //------------ Init Buttons -------------------------------------------
 
     @FXML
-    Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn;
+    Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn, voiceBtn;
     Button buttonInUse;
 
     private void initToolBarActions() {
@@ -1371,6 +1372,12 @@ public class MainController {
         deleteBtn.setOnAction(event -> deleteSelected());
 
         recognizeBtn.setOnAction(event -> recognizeController.recognize(selectedSketches));
+
+        voiceBtn.setOnAction(new EventHandler<ActionEvent>() { //added for voice recognition
+            @Override
+            public void handle(ActionEvent event) { buttonInitiation();
+            }
+        });
     }
 
     private void initColorPicker(){
@@ -1454,7 +1461,7 @@ public class MainController {
             configuration
                     .setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
             //set the path to the file "hello.gram"
-            configuration.setGrammarPath("file:C:/Users/SodaSaft/Desktop/PenguinUML/src/controller/"); //Emils computer
+            configuration.setGrammarPath("file:C:/Users/chalmers/gitrepos/PenguinUML/src/controller/"); //Emils computer
             //configuration.setGrammarPath("file:C:/Users/SodaSaft/PenguinUML/src/controller/"); //School computer
             //configuration.setGrammarPath("file:/Users/JohanHermansson/Downloads/PenguinUML/src/controller/"); //Johans computer
             configuration.setGrammarName("hello");

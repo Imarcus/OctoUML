@@ -15,7 +15,7 @@ The library used for recognizing drawings is [Paleo Sketch](http://srl-mechanix.
 ![](http://i68.tinypic.com/2ryt0kw.jpg "Screenshot")
 
 ## Documentation
-A overview of classes can be found [here](http://oi63.tinypic.com/2mw5ohd.jpg).
+A overview of classes can be found [here](https://i.imgsafe.org/1a2c18332d.png).
 
 ## Contributors
 

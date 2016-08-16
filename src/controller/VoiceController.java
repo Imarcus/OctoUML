@@ -132,7 +132,7 @@ public class VoiceController {
                 System.out.println("Unknown command: " + resultText + "\n");
             }
         }
-
+        voiceGrammar.stopRecognition();
         return null;
     }
 

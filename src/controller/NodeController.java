@@ -28,6 +28,7 @@ import view.PackageNodeView;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Used by MainController for handling moving and resizing Nodes, among other things.
@@ -318,10 +319,10 @@ public class NodeController {
 
     public void onDoubleClick(AbstractNodeView nodeView){
         if(nodeView instanceof ClassNodeView){
-            showClassNodeEditDialog((ClassNode) aMainController.getNodeMap().get(nodeView));
+            showClassNodeEditDialogVoice((ClassNode) aMainController.getNodeMap().get(nodeView));
         }
         else {
-            showNodeTitleDialog(aMainController.getNodeMap().get(nodeView));
+            showNodeTitleDialogVoice(aMainController.getNodeMap().get(nodeView));
 
         }
     }
@@ -410,5 +411,164 @@ public class NodeController {
 
     public void setSnapToGrid(boolean snapToGrid) {
         this.snapToGrid = snapToGrid;
+    }
+
+
+    //------------------- VOICE ----------------------
+    /**
+     * Brings up a dialog to give a title to a Node.
+     * @param node, the Node to give a Title
+     * @return false if node == null, otherwise true.
+     */
+    private boolean showNodeTitleDialogVoice(AbstractNode node){
+        if(aMainController.voiceController.voiceEnabled){
+            //Change variable testing in VoiceController to 1(true)
+            aMainController.voiceController.testing = 1;
+
+            String title2 = "";
+            int time = 0;
+            //Looking for a name you want to add to the package or until 5 seconds have passed
+            while((title2.equals("") || title2 == null) && time < 500){
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //Check if a name has been recognised
+                title2 = aMainController.voiceController.titleName;
+                time++;
+            }
+
+            //Change variable testing in VoiceController to 0(false)
+            aMainController.voiceController.testing = 0;
+
+            //If name found in less then 5 seconds it sets the name to the package
+            if(time < 500) {
+                aMainController.voiceController.titleName = "";
+                node.setTitle(title2);
+            }
+            //Else the name is not changed to a new name
+            else{
+                aMainController.voiceController.titleName = "";
+            }
+
+            node.setTitle(title2);
+        }
+
+        VBox group = new VBox();
+        TextField input = new TextField();
+        input.setText(node.getTitle());
+        Button okButton = new Button("Ok");
+        okButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                node.setTitle(input.getText());
+                aDrawPane.getChildren().remove(group);
+            }
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                aDrawPane.getChildren().remove(group);
+            }
+        });
+
+        Label label = new Label("Choose title");
+        group.getChildren().add(label);
+        group.getChildren().add(input);
+        HBox buttons = new HBox();
+        buttons.getChildren().add(okButton);
+        buttons.getChildren().add(cancelButton);
+        buttons.setPadding(new Insets(15, 0, 0, 0));
+        group.getChildren().add(buttons);
+        group.setLayoutX(node.getX()+5);
+        group.setLayoutY(node.getY()+5);
+        group.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
+        group.setStyle("-fx-border-color: black");
+        group.setPadding(new Insets(15, 12, 15, 12));
+        aDrawPane.getChildren().add(group);
+
+        return true;
+    }
+
+    public boolean showClassNodeEditDialogVoice(ClassNode node) {
+        if(aMainController.voiceController.voiceEnabled) {
+
+            //Change variable testing in MainController to 1(true)
+            aMainController.voiceController.testing = 1;
+
+            String title = "";
+            int time = 0;
+            //Looking for a name you want to add to the class or until 5 seconds have passed
+            while ((title.equals("") || title == null) && time < 500) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //Check if a name has been commanded
+                title = aMainController.voiceController.titleName;
+                time++;
+            }
+
+            //Change variable testing in MainController to 0(false)
+            aMainController.voiceController.testing = 0;
+
+            //If name found in less then 5 seconds it sets the name to the class
+            if (time < 500) {
+                aMainController.voiceController.titleName = "";
+                node.setTitle(title);
+            }
+            //Else the name is not changed to a new name
+            else {
+                aMainController.voiceController.titleName = "";
+            }
+        }
+
+
+        try {
+            //Load the fxml file and create a new stage for the popup
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("nodeEditDialog.fxml"));
+
+            AnchorPane dialog = (AnchorPane) loader.load();
+            dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
+            dialog.setStyle("-fx-border-color: black");
+            //Set location for dialog.
+            double maxX = aDrawPane.getWidth() - dialog.getPrefWidth();
+            double maxY = aDrawPane.getHeight() - dialog.getPrefHeight();
+            dialog.setLayoutX(Math.min(maxX,node.getTranslateX()+5));
+            dialog.setLayoutY(Math.min(maxY, node.getTranslateY()+5));
+
+            NodeEditDialogController controller = loader.getController();
+            controller.setNode(node);
+            controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    node.setTitle(controller.getTitle());
+                    node.setAttributes(controller.getAttributes());
+                    node.setOperations(controller.getOperations());
+                    aDrawPane.getChildren().remove(dialog);
+                    aMainController.removeDialog(dialog);
+                }
+            });
+
+            controller.getCancelButton().setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    aDrawPane.getChildren().remove(dialog);
+                    aMainController.removeDialog(dialog);
+                }
+            });
+            aDrawPane.getChildren().add(dialog);
+            aMainController.addDialog(dialog);
+            return controller.isOkClicked();
+
+        } catch (IOException e) {
+            //Exception gets thrown if the fxml file could not be loaded
+            e.printStackTrace();
+            return false;
+        }
     }
 }

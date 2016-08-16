@@ -31,6 +31,7 @@
                 </HBox>
                 <HBox fx:id="recognizeBox">
                     <Button text="Recognize" fx:id="recognizeBtn"/>
+                    <Button text="Voice" fx:id="voiceBtn"/>
                 </HBox>
             </ToolBar>
         </VBox>

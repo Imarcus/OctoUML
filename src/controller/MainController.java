@@ -1,7 +1,9 @@
 package controller;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -39,6 +41,9 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.cmu.sphinx.api.Configuration;
+import edu.cmu.sphinx.api.LiveSpeechRecognizer;
+
 
 /**
  * Controls all user inputs and delegates work to other controllers.
@@ -59,6 +64,7 @@ public class MainController {
     RecognizeController recognizeController;
     SelectController selectController;
     CopyPasteController copyPasteController;
+    VoiceController voiceController;
 
     //Node lists and maps
     ArrayList<AbstractNodeView> selectedNodes = new ArrayList<>();
@@ -127,6 +133,7 @@ public class MainController {
         recognizeController = new RecognizeController(aDrawPane, this);
         selectController = new SelectController(aDrawPane, this);
         copyPasteController = new CopyPasteController(aDrawPane, this);
+        voiceController = new VoiceController(this);
 
         undoManager = new UndoManager();
 
@@ -1280,7 +1287,7 @@ public class MainController {
     //------------ Init Buttons -------------------------------------------
 
     @FXML
-    Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn;
+    Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn, voiceBtn;
     Button buttonInUse;
 
     private void initToolBarActions() {
@@ -1325,6 +1332,10 @@ public class MainController {
         recognizeBtn.setGraphic(new ImageView(image));
         recognizeBtn.setText("");
 
+        image = new Image("/icons/micw.png");
+        voiceBtn.setGraphic(new ImageView(image));
+        voiceBtn.setText("");
+
         buttonInUse = createBtn;
         buttonInUse.getStyleClass().add("button-in-use");
 
@@ -1367,21 +1378,25 @@ public class MainController {
         deleteBtn.setOnAction(event -> deleteSelected());
 
         recognizeBtn.setOnAction(event -> recognizeController.recognize(selectedSketches));
+
+        voiceBtn.setOnAction(event -> voiceController.onVoiceButtonClick());
     }
 
     private void initColorPicker(){
         colorPicker.setValue(Color.BLACK);
-        colorPicker.setOnAction(new EventHandler() {
-            public void handle(Event t) {
-                sketchController.color = colorPicker.getValue();
-            }
-        });
+        colorPicker.setOnAction(t -> sketchController.color = colorPicker.getValue());
     }
     void setButtonClicked(Button b) {
         buttonInUse.getStyleClass().remove("button-in-use");
         buttonInUse = b;
         buttonInUse.getStyleClass().add("button-in-use");
     }
+
+
+    //----------------------------------- VOICE --------------------------------------------
+
+
+
 
 }
 

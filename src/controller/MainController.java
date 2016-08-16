@@ -879,6 +879,13 @@ public class MainController {
         return nodeView;
     }
 
+    /**
+     * Creates a new picture node from the given image and position and adds it to the graph.
+     * @param view
+     * @param image
+     * @param point
+     * @return
+     */
     public PictureNodeView createPictureView (ImageView view, Image image, Point2D.Double point){
         PictureNode picNode = new PictureNode(image, point.getX(), point.getY(), view.getImage().getWidth(), view.getImage().getHeight());
         PictureNodeView picView = new PictureNodeView(view, picNode);
@@ -891,6 +898,7 @@ public class MainController {
         allNodeViews.add(picView);
         graph.addNode(picNode, false);
         nodeMap.put(picView, picNode);
+        undoManager.add(new AddDeleteNodeCommand(this, graph, picView, picNode, true));
         return picView;
     }
 

@@ -3,6 +3,8 @@ package sikuli;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import controller.Launcher;
+import javafx.stage.Stage;
 import org.sikuli.script.*;
 import org.sikuli.basics.Debug;
 import org.junit.*;
@@ -14,6 +16,7 @@ public class GUITest {
 
     public GUITest(){
         screen = new Screen();
+        Launcher.launch(Launcher.class);
     }
 
     @Test

@@ -1,6 +1,5 @@
-#create {
-    -fx-background-image: url("/icons/class.png");
-    -fx-background-size: 30px 30px;
+#classDiagramButton {
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
 }
 
 .button {

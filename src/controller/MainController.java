@@ -1403,12 +1403,5 @@ public class MainController {
         buttonInUse = b;
         buttonInUse.getStyleClass().add("button-in-use");
     }
-
-
-    //----------------------------------- VOICE --------------------------------------------
-
-
-
-
 }
 

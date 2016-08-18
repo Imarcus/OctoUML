@@ -10,7 +10,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -123,6 +128,26 @@ public class TabController {
 
     public void handleMenuActionSnapIndicators() {
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSnapIndicators(snapIndicatorsMenuItem.isSelected());
+    }
+
+    public void handleMenuActionGit(){
+        try {
+            File localPath = File.createTempFile("GitRepository", "");
+            localPath.delete();
+            Git git = Git.cloneRepository()
+                    .setURI("https://github.com/Imarcus/testjgit")
+                    .setDirectory(localPath)
+                    .call();
+            File myfile = new File(localPath + "/myfile");
+            myfile.createNewFile();
+            git.add().addFilepattern("myfile").call();
+            git.commit().setMessage("Added myfile").call();
+            git.push().call();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+
     }
 
     public void stop(){

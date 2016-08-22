@@ -15,13 +15,15 @@ public class GithubRepoDialogController {
     private boolean okClicked = false;
 
     @FXML
-    public TextField urlTextField, fileNameTextField, commitTextField;
+    public TextField urlTextField, imageNameTextField, commitTextField, xmiNameTextField;
 
     @FXML
     public CheckBox xmiCheckBox, imageCheckBox;
 
     @FXML
     public void initialize(){
+        imageNameTextField.setDisable(true);
+        imageNameTextField.setDisable(true);
 
     }
 
@@ -63,6 +65,22 @@ public class GithubRepoDialogController {
      */
     public boolean isOkClicked() {
         return okClicked;
+    }
+
+    public void onImageCheckBox(){
+        if(imageCheckBox.isSelected()){
+            imageNameTextField.setDisable(false);
+        } else {
+            imageNameTextField.setDisable(true);
+        }
+    }
+
+    public void onXmiCheckBox(){
+        if(xmiCheckBox.isSelected()){
+            xmiNameTextField.setDisable(false);
+        } else {
+            xmiNameTextField.setDisable(true);
+        }
     }
 
 }

@@ -2,6 +2,7 @@ package controller.dialog;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -10,7 +11,10 @@ public class GithubLoginDialogController {
     private boolean okClicked = false;
 
     @FXML
-    public TextField nameTextField, passwordTextField;
+    public TextField nameTextField;
+
+    @FXML
+    public PasswordField passwordField;
 
     @FXML
     private void initialize() {

@@ -141,6 +141,13 @@ public class TabController {
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSnapIndicators(snapIndicatorsMenuItem.isSelected());
     }
 
+    public void stop(){
+        for(MainController mc : tabMap.values()){
+            mc.closeServers();
+            mc.closeClients();
+        }
+    }
+
     public void handleMenuActionGit(){
         try {
             File localPath = File.createTempFile("GitRepository", "");
@@ -158,7 +165,7 @@ public class TabController {
 
                 if(gitRepoController.imageCheckBox.isSelected()){
                     WritableImage image = mainController.getSnapShot();
-                    String imageFileName = gitRepoController.fileNameTextField.getText() + ".png";
+                    String imageFileName = gitRepoController.imageNameTextField.getText() + ".png";
                     File imageFile = new File(localPath + "/" + imageFileName);
                     ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", imageFile);
 
@@ -166,8 +173,8 @@ public class TabController {
                 }
 
                 if(gitRepoController.xmiCheckBox.isSelected()) {
-                    String xmiFileName = gitRepoController.fileNameTextField.getText() + ".xmi";
-                    mainController.createXMI(xmiFileName);
+                    String xmiFileName = gitRepoController.xmiNameTextField.getText() + ".xmi";
+                    mainController.createXMI(localPath + "/" + xmiFileName);
                     git.add().addFilepattern(xmiFileName).call();
 
                 }
@@ -177,22 +184,33 @@ public class TabController {
                 GithubLoginDialogController gitLoginController = showGithubLoginDialog();
                 if(gitLoginController != null && gitLoginController.isOkClicked()){
                     pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(gitLoginController.nameTextField.getText(),
-                            gitLoginController.passwordTextField.getText()));
+                            gitLoginController.passwordField.getText()));
                     pushCommand.call();
                 }
             }
 
-        } catch (Exception e){
-            e.printStackTrace();
+        } catch (InvalidRemoteException e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Remote not found");
+            alert.setContentText("The URL was incorrect.");
+            alert.showAndWait();
+        } catch (NullPointerException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("No diagram open");
+            alert.setContentText("There is no diagram to upload.");
+            alert.showAndWait();
+        } catch (TransportException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Not authorized");
+            alert.setContentText("You are not authorized to modify repository");
+            alert.showAndWait();
         }
 
-
-    }
-
-    public void stop(){
-        for(MainController mc : tabMap.values()){
-            mc.closeServers();
-            mc.closeClients();
+        catch (Exception e){
+            e.printStackTrace();
         }
     }
 

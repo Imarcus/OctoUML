@@ -34,6 +34,12 @@ import view.*;
 import java.util.*;
 import java.awt.geom.Point2D;
 import javax.imageio.ImageIO;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.File;
 import java.util.logging.Level;
@@ -723,6 +729,23 @@ public class MainController {
             graph = PersistenceManager.importXMIFromPath(file.getAbsolutePath());
         }
         load(graph, false);
+    }
+
+    public void createXMI(String path) {
+        try {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+
+            DOMSource source = new DOMSource(PersistenceManager.createXmi(graph));
+
+            StreamResult result = new StreamResult(new File(path));
+            transformer.transform(source, result);
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void handleMenuActionInsert (){

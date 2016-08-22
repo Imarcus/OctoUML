@@ -159,13 +159,16 @@ public class TabController {
                 if(gitRepoController.imageCheckBox.isSelected()){
                     WritableImage image = mainController.getSnapShot();
                     String imageFileName = gitRepoController.fileNameTextField.getText() + ".png";
-                    File myfile = new File(localPath + "/" + imageFileName);
-                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", myfile);
+                    File imageFile = new File(localPath + "/" + imageFileName);
+                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", imageFile);
 
                     git.add().addFilepattern(imageFileName).call();
                 }
 
                 if(gitRepoController.xmiCheckBox.isSelected()) {
+                    String xmiFileName = gitRepoController.fileNameTextField.getText() + ".xmi";
+                    mainController.createXMI(xmiFileName);
+                    git.add().addFilepattern(xmiFileName).call();
 
                 }
 

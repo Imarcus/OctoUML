@@ -17,6 +17,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.controlsfx.control.NotificationPane;
+import org.controlsfx.control.Notifications;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -182,11 +184,27 @@ public class TabController {
                 git.commit().setMessage(gitRepoController.commitTextField.getText()).call();
                 PushCommand pushCommand = git.push();
                 GithubLoginDialogController gitLoginController = showGithubLoginDialog();
-                if(gitLoginController != null && gitLoginController.isOkClicked()){
+                if(gitLoginController != null && gitLoginController.isOkClicked() &&
+                        (gitRepoController.imageCheckBox.isSelected() || gitRepoController.xmiCheckBox.isSelected())){
                     pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(gitLoginController.nameTextField.getText(),
                             gitLoginController.passwordField.getText()));
                     pushCommand.call();
+                    Notifications.create()
+                            .title("Upload succesfull!")
+                            .text("Your diagram has been uploaded successfully.")
+                            .showInformation();
+                } else {
+                    Notifications.create()
+                            .title("Nothing was uploaded!")
+                            .text("Either you cancelled or didn't select anything to upload.")
+                            .showError();
                 }
+
+            } else {
+                Notifications.create()
+                        .title("Nothing was uploaded!")
+                        .text("Action was cancelled.")
+                        .showError();
             }
 
         } catch (InvalidRemoteException e){

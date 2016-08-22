@@ -1,24 +1,35 @@
 package controller;
 
+import controller.dialog.GithubLoginDialogController;
+import controller.dialog.GithubRepoDialogController;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The class controlling the top menu and the tabs.
@@ -134,15 +145,40 @@ public class TabController {
         try {
             File localPath = File.createTempFile("GitRepository", "");
             localPath.delete();
-            Git git = Git.cloneRepository()
-                    .setURI("https://github.com/Imarcus/testjgit")
-                    .setDirectory(localPath)
-                    .call();
-            File myfile = new File(localPath + "/myfile");
-            myfile.createNewFile();
-            git.add().addFilepattern("myfile").call();
-            git.commit().setMessage("Added myfile").call();
-            git.push().call();
+
+            GithubRepoDialogController gitRepoController = showGithubRepoDialog();
+
+            if(gitRepoController != null && gitRepoController.isOkClicked()){
+                Git git = Git.cloneRepository()
+                        .setURI(gitRepoController.urlTextField.getText())
+                        .setDirectory(localPath)
+                        .call();
+
+                MainController mainController = tabMap.get(tabPane.getSelectionModel().getSelectedItem());
+
+                if(gitRepoController.imageCheckBox.isSelected()){
+                    WritableImage image = mainController.getSnapShot();
+                    String imageFileName = gitRepoController.fileNameTextField.getText() + ".png";
+                    File myfile = new File(localPath + "/" + imageFileName);
+                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", myfile);
+
+                    git.add().addFilepattern(imageFileName).call();
+                }
+
+                if(gitRepoController.xmiCheckBox.isSelected()) {
+
+                }
+
+                git.commit().setMessage(gitRepoController.commitTextField.getText()).call();
+                PushCommand pushCommand = git.push();
+                GithubLoginDialogController gitLoginController = showGithubLoginDialog();
+                if(gitLoginController != null && gitLoginController.isOkClicked()){
+                    pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(gitLoginController.nameTextField.getText(),
+                            gitLoginController.passwordTextField.getText()));
+                    pushCommand.call();
+                }
+            }
+
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -155,5 +191,47 @@ public class TabController {
             mc.closeServers();
             mc.closeClients();
         }
+    }
+
+    public GithubRepoDialogController showGithubRepoDialog(){
+        GithubRepoDialogController controller = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("githubRepoDialog.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(this.stage);
+            dialogStage.setScene(new Scene(page));
+
+            controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return controller;
+
+    }
+
+    public GithubLoginDialogController showGithubLoginDialog(){
+        GithubLoginDialogController controller = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("githubLoginDialog.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(this.stage);
+            dialogStage.setScene(new Scene(page));
+
+            controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return controller;
+
     }
 }

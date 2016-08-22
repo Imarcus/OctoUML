@@ -783,12 +783,7 @@ public class MainController {
 
     public void handleMenuActionImage(){
         try{
-
-            SnapshotParameters sp = new SnapshotParameters();
-            Bounds bounds = aScrollPane.getViewportBounds();
-            //Not sure why abs is needed, the minX/Y values are negative.
-            sp.setViewport(new Rectangle2D(Math.abs(bounds.getMinX()), Math.abs(bounds.getMinY()), bounds.getWidth(), bounds.getHeight()));
-            WritableImage image = aDrawPane.snapshot(sp, new WritableImage((int)bounds.getWidth(),(int)bounds.getHeight()));
+            WritableImage image = getSnapShot();
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save Image");
             File output = fileChooser.showSaveDialog(getStage());
@@ -796,6 +791,14 @@ public class MainController {
         } catch (IOException ex) {
             Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public WritableImage getSnapShot(){
+        SnapshotParameters sp = new SnapshotParameters();
+        Bounds bounds = aScrollPane.getViewportBounds();
+        //Not sure why abs is needed, the minX/Y values are negative.
+        sp.setViewport(new Rectangle2D(Math.abs(bounds.getMinX()), Math.abs(bounds.getMinY()), bounds.getWidth(), bounds.getHeight()));
+        return aDrawPane.snapshot(sp, new WritableImage((int)bounds.getWidth(),(int)bounds.getHeight()));
     }
 
 

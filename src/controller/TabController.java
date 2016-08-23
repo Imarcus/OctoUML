@@ -158,10 +158,15 @@ public class TabController {
             GithubRepoDialogController gitRepoController = showGithubRepoDialog();
 
             if(gitRepoController != null && gitRepoController.isOkClicked()){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Please wait");
+                alert.setHeaderText("Please wait while the repository is being downloaded");
+                alert.show();
                 Git git = Git.cloneRepository()
                         .setURI(gitRepoController.urlTextField.getText())
                         .setDirectory(localPath)
                         .call();
+                alert.close();
 
                 MainController mainController = tabMap.get(tabPane.getSelectionModel().getSelectedItem());
 
@@ -199,12 +204,6 @@ public class TabController {
                             .text("Either you cancelled or didn't select anything to upload.")
                             .showError();
                 }
-
-            } else {
-                Notifications.create()
-                        .title("Nothing was uploaded!")
-                        .text("Action was cancelled.")
-                        .showError();
             }
 
         } catch (InvalidRemoteException e){

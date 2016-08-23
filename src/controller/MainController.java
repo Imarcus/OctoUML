@@ -1,11 +1,7 @@
 package controller;
 
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Rectangle2D;
@@ -17,14 +13,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import model.*;
+import org.controlsfx.control.Notifications;
+import org.controlsfx.control.PopOver;
 import util.Constants;
 import util.NetworkUtils;
 import util.commands.*;
@@ -33,9 +30,16 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import util.persistence.PersistenceManager;
 import view.*;
+
 import java.util.*;
 import java.awt.geom.Point2D;
 import javax.imageio.ImageIO;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.File;
 import java.util.logging.Level;
@@ -727,6 +731,23 @@ public class MainController {
         load(graph, false);
     }
 
+    public void createXMI(String path) {
+        try {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+
+            DOMSource source = new DOMSource(PersistenceManager.createXmi(graph));
+
+            StreamResult result = new StreamResult(new File(path));
+            transformer.transform(source, result);
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public void handleMenuActionInsert (){
         InsertIMG insertIMG = new InsertIMG(aStage, aDrawPane);
         insertIMG.openFileChooser(this, new Point2D.Double(0,0));
@@ -785,12 +806,7 @@ public class MainController {
 
     public void handleMenuActionImage(){
         try{
-
-            SnapshotParameters sp = new SnapshotParameters();
-            Bounds bounds = aScrollPane.getViewportBounds();
-            //Not sure why abs is needed, the minX/Y values are negative.
-            sp.setViewport(new Rectangle2D(Math.abs(bounds.getMinX()), Math.abs(bounds.getMinY()), bounds.getWidth(), bounds.getHeight()));
-            WritableImage image = aDrawPane.snapshot(sp, new WritableImage((int)bounds.getWidth(),(int)bounds.getHeight()));
+            WritableImage image = getSnapShot();
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save Image");
             File output = fileChooser.showSaveDialog(getStage());
@@ -798,6 +814,14 @@ public class MainController {
         } catch (IOException ex) {
             Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public WritableImage getSnapShot(){
+        SnapshotParameters sp = new SnapshotParameters();
+        Bounds bounds = aScrollPane.getViewportBounds();
+        //Not sure why abs is needed, the minX/Y values are negative.
+        sp.setViewport(new Rectangle2D(Math.abs(bounds.getMinX()), Math.abs(bounds.getMinY()), bounds.getWidth(), bounds.getHeight()));
+        return aDrawPane.snapshot(sp, new WritableImage((int)bounds.getWidth(),(int)bounds.getHeight()));
     }
 
 
@@ -1387,7 +1411,21 @@ public class MainController {
 
         recognizeBtn.setOnAction(event -> recognizeController.recognize(selectedSketches));
 
-        voiceBtn.setOnAction(event -> voiceController.onVoiceButtonClick());
+        voiceBtn.setOnAction(event -> {
+            if(voiceController.voiceEnabled){
+                Notifications.create()
+                        .title("Voice disabled")
+                        .text("Voice commands are now disabled.")
+                        .showInformation();
+            } else {
+                Notifications.create()
+                        .title("Voice enabled")
+                        .text("Voice commands are now enabled.")
+                        .showInformation();
+            }
+            voiceController.onVoiceButtonClick();
+
+        });
     }
 
     private void initColorPicker(){
@@ -1399,12 +1437,5 @@ public class MainController {
         buttonInUse = b;
         buttonInUse.getStyleClass().add("button-in-use");
     }
-
-
-    //----------------------------------- VOICE --------------------------------------------
-
-
-
-
 }
 

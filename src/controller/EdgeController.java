@@ -90,8 +90,8 @@ public class EdgeController {
 
     public boolean showEdgeEditDialog(AbstractEdge edge) {
         try {
-            // Load the fxml file and create a new stage for the popup
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("edgeEditDialog.fxml"));
+            // Load the view.fxml file and create a new stage for the popup
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/edgeEditDialog.fxml"));
             AnchorPane dialog = (AnchorPane) loader.load();
             dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
             dialog.setStyle("-fx-border-color: black");
@@ -151,7 +151,7 @@ public class EdgeController {
             return controller.isOkClicked();
 
         } catch (IOException e) {
-            // Exception gets thrown if the fxml file could not be loaded
+            // Exception gets thrown if the view.fxml file could not be loaded
             e.printStackTrace();
             return false;
         }

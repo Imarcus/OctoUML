@@ -1,16 +1,28 @@
 package controller;
 
+import controller.dialog.GithubLoginDialogController;
+import controller.dialog.GithubRepoDialogController;
 import javafx.application.Platform;
-import javafx.event.Event;
-import javafx.event.EventHandler;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.controlsfx.control.Notifications;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
+import javax.imageio.ImageIO;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +64,7 @@ public class TabController {
         FXMLLoader loader;
 
         try {
-            loader = new FXMLLoader(getClass().getClassLoader().getResource("view.fxml"));
+            loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/view.fxml"));
             canvasView = loader.load();
             mainController = loader.getController();
         } catch (IOException e) {
@@ -130,5 +142,128 @@ public class TabController {
             mc.closeServers();
             mc.closeClients();
         }
+    }
+
+    public void handleMenuActionGit(){
+        try {
+            File localPath = File.createTempFile("GitRepository", "");
+            localPath.delete();
+
+            GithubRepoDialogController gitRepoController = showGithubRepoDialog();
+
+            if(gitRepoController != null && gitRepoController.isOkClicked()){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Please wait");
+                alert.setHeaderText("Please wait while the repository is being downloaded");
+                alert.show();
+                Git git = Git.cloneRepository()
+                        .setURI(gitRepoController.urlTextField.getText())
+                        .setDirectory(localPath)
+                        .call();
+                alert.close();
+
+                MainController mainController = tabMap.get(tabPane.getSelectionModel().getSelectedItem());
+
+                if(gitRepoController.imageCheckBox.isSelected()){
+                    WritableImage image = mainController.getSnapShot();
+                    String imageFileName = gitRepoController.imageNameTextField.getText() + ".png";
+                    File imageFile = new File(localPath + "/" + imageFileName);
+                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", imageFile);
+
+                    git.add().addFilepattern(imageFileName).call();
+                }
+
+                if(gitRepoController.xmiCheckBox.isSelected()) {
+                    String xmiFileName = gitRepoController.xmiNameTextField.getText() + ".xmi";
+                    mainController.createXMI(localPath + "/" + xmiFileName);
+                    git.add().addFilepattern(xmiFileName).call();
+
+                }
+
+                git.commit().setMessage(gitRepoController.commitTextField.getText()).call();
+                PushCommand pushCommand = git.push();
+                GithubLoginDialogController gitLoginController = showGithubLoginDialog();
+                if(gitLoginController != null && gitLoginController.isOkClicked() &&
+                        (gitRepoController.imageCheckBox.isSelected() || gitRepoController.xmiCheckBox.isSelected())){
+                    pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(gitLoginController.nameTextField.getText(),
+                            gitLoginController.passwordField.getText()));
+                    pushCommand.call();
+                    Notifications.create()
+                            .title("Upload succesfull!")
+                            .text("Your diagram has been uploaded successfully.")
+                            .showInformation();
+                } else {
+                    Notifications.create()
+                            .title("Nothing was uploaded!")
+                            .text("Either you cancelled or didn't select anything to upload.")
+                            .showError();
+                }
+            }
+
+        } catch (InvalidRemoteException e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Remote not found");
+            alert.setContentText("The URL was incorrect.");
+            alert.showAndWait();
+        } catch (NullPointerException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("No diagram open");
+            alert.setContentText("There is no diagram to upload.");
+            alert.showAndWait();
+        } catch (TransportException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Not authorized");
+            alert.setContentText("You are not authorized to modify repository");
+            alert.showAndWait();
+        }
+
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public GithubRepoDialogController showGithubRepoDialog(){
+        GithubRepoDialogController controller = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/githubRepoDialog.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(this.stage);
+            dialogStage.setScene(new Scene(page));
+
+            controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return controller;
+
+    }
+
+    public GithubLoginDialogController showGithubLoginDialog(){
+        GithubLoginDialogController controller = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/githubLoginDialog.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(this.stage);
+            dialogStage.setScene(new Scene(page));
+
+            controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return controller;
+
     }
 }

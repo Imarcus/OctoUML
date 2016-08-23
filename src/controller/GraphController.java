@@ -47,7 +47,7 @@ public class GraphController {
     public void movePane(MouseEvent event)
     {
         ScrollPane scrollPane = aMainController.getScrollPane();
-        double xScroll =  (initMoveX - event.getSceneX())/8000; //8000 is the size of aDrawPane set in view.fxml
+        double xScroll =  (initMoveX - event.getSceneX())/8000; //8000 is the size of aDrawPane set in view.view.fxml
         double yScroll = (initMoveY - event.getSceneY())/8000;
 
 

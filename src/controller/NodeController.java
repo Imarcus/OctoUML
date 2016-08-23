@@ -5,18 +5,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import model.AbstractNode;
 import model.ClassNode;
 import model.PackageNode;
@@ -366,8 +360,8 @@ public class NodeController {
 
     public boolean showClassNodeEditDialog(ClassNode node) {
         try {
-            // Load the fxml file and create a new stage for the popup
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("nodeEditDialog.fxml"));
+            // Load the view.fxml file and create a new stage for the popup
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/nodeEditDialog.fxml"));
 
             AnchorPane dialog = (AnchorPane) loader.load();
             dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
@@ -399,7 +393,7 @@ public class NodeController {
             return controller.isOkClicked();
 
         } catch (IOException e) {
-            // Exception gets thrown if the fxml file could not be loaded
+            // Exception gets thrown if the view.fxml file could not be loaded
             e.printStackTrace();
             return false;
         }
@@ -529,8 +523,8 @@ public class NodeController {
 
 
         try {
-            //Load the fxml file and create a new stage for the popup
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("nodeEditDialog.fxml"));
+            //Load the view.fxml file and create a new stage for the popup
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/nodeEditDialog.fxml"));
 
             AnchorPane dialog = (AnchorPane) loader.load();
             dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
@@ -566,7 +560,7 @@ public class NodeController {
             return controller.isOkClicked();
 
         } catch (IOException e) {
-            //Exception gets thrown if the fxml file could not be loaded
+            //Exception gets thrown if the view.fxml file could not be loaded
             e.printStackTrace();
             return false;
         }

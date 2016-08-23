@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
- * Launches application with main view "tabView.fxml"
+ * Launches application with main view "tabView.view.fxml"
  */
 public class Launcher extends Application {
 
@@ -22,10 +22,10 @@ public class Launcher extends Application {
         FXMLLoader loader;
         BorderPane startView = null;
         try {
-            loader = new FXMLLoader(getClass().getClassLoader().getResource("tabView.fxml"));
+            loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/tabView.fxml"));
             tabView = loader.load();
             tabController = loader.getController();
-            loader = new FXMLLoader(getClass().getClassLoader().getResource("startView.fxml"));
+            loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/startView.fxml"));
             startView = loader.load();
             ((StartController)loader.getController()).setTC(tabController);
 

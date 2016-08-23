@@ -4,8 +4,6 @@ import controller.dialog.GithubLoginDialogController;
 import controller.dialog.GithubRepoDialogController;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,14 +12,11 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.Notifications;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -31,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * The class controlling the top menu and the tabs.
@@ -70,7 +64,7 @@ public class TabController {
         FXMLLoader loader;
 
         try {
-            loader = new FXMLLoader(getClass().getClassLoader().getResource("view.fxml"));
+            loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/view.fxml"));
             canvasView = loader.load();
             mainController = loader.getController();
         } catch (IOException e) {
@@ -234,7 +228,7 @@ public class TabController {
     public GithubRepoDialogController showGithubRepoDialog(){
         GithubRepoDialogController controller = null;
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("githubRepoDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/githubRepoDialog.fxml"));
             AnchorPane page = (AnchorPane) loader.load();
             Stage dialogStage = new Stage();
             dialogStage.initModality(Modality.WINDOW_MODAL);
@@ -254,7 +248,7 @@ public class TabController {
     public GithubLoginDialogController showGithubLoginDialog(){
         GithubLoginDialogController controller = null;
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("githubLoginDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/githubLoginDialog.fxml"));
             AnchorPane page = (AnchorPane) loader.load();
             Stage dialogStage = new Stage();
             dialogStage.initModality(Modality.WINDOW_MODAL);

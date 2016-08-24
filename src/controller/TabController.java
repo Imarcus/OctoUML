@@ -97,6 +97,7 @@ public class TabController {
     public void handleMenuActionExit() {
         Platform.exit();
     }
+
     public void handleMenuActionSave() {
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSave();
     }
@@ -141,6 +142,7 @@ public class TabController {
         for(MainController mc : tabMap.values()){
             mc.closeServers();
             mc.closeClients();
+            mc.closeLog();
         }
     }
 

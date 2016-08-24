@@ -1285,6 +1285,10 @@ public class MainController {
         return allDialogs.remove(dialog);
     }
 
+    public void closeLog(){
+        undoManager.closeLog();
+    }
+
     public ArrayList<AnchorPane> getAllDialogs() {
         return allDialogs;
     }

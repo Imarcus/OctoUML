@@ -61,7 +61,7 @@ public class UndoManager
 	 */
 	public void add(Command pCommand)
 	{
-		log.log(pCommand);
+		log.log(pCommand, Log.Dot.DO);
 		if(!aHoldChanges)
 		{
 			if(!aUndoneCommands.empty())
@@ -94,6 +94,7 @@ public class UndoManager
 		Command toUndo = aPastCommands.pop();
 		toUndo.undo();
 		aUndoneCommands.push(toUndo);
+		log.log(toUndo, Log.Dot.UNDO);
 		aHoldChanges = false;
 	}
 
@@ -112,6 +113,7 @@ public class UndoManager
 		Command toRedo = aUndoneCommands.pop();
 		toRedo.execute();
 		aPastCommands.push(toRedo);
+		log.log(toRedo, Log.Dot.UNDO);
 		aHoldChanges = false;
 	}
 

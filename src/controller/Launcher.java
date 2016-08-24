@@ -45,7 +45,6 @@ public class Launcher extends Application {
         tab.setContent(startView);
         tab.setText("Start");
         tabController.getTabPane().getTabs().add(tab);
-        System.out.println(com.sun.javafx.runtime.VersionInfo.getRuntimeVersion());
     }
 
     public void stop(){

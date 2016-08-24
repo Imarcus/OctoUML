@@ -3,10 +3,7 @@ package util;
 import util.commands.AddDeleteNodeCommand;
 import util.commands.Command;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Calendar;
@@ -17,30 +14,22 @@ import java.util.Date;
  */
 public class Log {
 
+    public enum Dot {DO, UNDO, REDO}
+
     BufferedWriter writer;
 
     public Log(){
         writer = null;
         try {
 
-            File file = new File(File.separator + "log");
+            File file = new File(System.getProperty("user.dir") + File.separator  + "log");
             if (!file.exists()) {
-                if (file.mkdir()) {
-                    System.out.println("Directory is created!");
-                } else {
-                    System.out.println("Failed to create directory!");
-                }
+                file.mkdir();
             }
 
-            //create a temporary file
-            String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-            File logFile = new File(File.separator + "log" + File.separator + timeLog + ".csv");
-            //logFile.createNewFile();
-            // This will output the full path where the file will be written to...
-            System.out.println(logFile.getCanonicalPath());
-
-            writer = new BufferedWriter(new FileWriter(logFile));
-            closeLog();
+            String time = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+            writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(System.getProperty("user.dir") + File.separator + "log" + File.separator + "OctoUMLLog"+ time + ".csv"), "utf-8"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,27 +43,28 @@ public class Log {
         }
     }
 
-    public void log(Command command){
+    public void log(Command command, Dot dot){
         if(command instanceof AddDeleteNodeCommand){
-            logAddDeleteNode((AddDeleteNodeCommand) command);
+            logAddDeleteNode((AddDeleteNodeCommand) command, dot);
         }
     }
 
-    private void logAddDeleteNode(AddDeleteNodeCommand command){
+    private void logAddDeleteNode(AddDeleteNodeCommand command, Dot dot){
         StringBuilder post = new StringBuilder();
-        post.append(System.currentTimeMillis() + "\t");
-        post.append("ADD\t");
-        post.append("CLASS\t");
-        post.append(command.getNode().getId() + "\t");
-        post.append(command.getNode().getTitle() + "\t");
-        post.append("TRGID\t");
-        post.append("NOTRG\t");
-        post.append("DO\t");
+        post.append(System.currentTimeMillis() + "\t"); //DT
+        post.append("ADD\t"); //ADD
+        post.append("CLASS\t"); //OBT
+        post.append(command.getNode().getId() + "\t"); //OBID
+        post.append(command.getNode().getTitle() + "\t"); //OBN
+        post.append("null\t"); //TRGID
+        post.append(dot + "\t"); //DOT
+        post.append("\n");
         try {
             writer.write(post.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
+
+    private void logAddDelete
 }

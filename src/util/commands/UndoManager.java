@@ -22,6 +22,7 @@ package util.commands;
 
 import java.util.Stack;
 
+import util.Log;
 import util.commands.Command;
 import util.commands.CompoundCommand;
 
@@ -36,6 +37,8 @@ public class UndoManager
 	private Stack<Command> aUndoneCommands; //the commands that have been undone and can be redone
 	private Stack<CompoundCommand> aTrackingCommands; //used for many commands coming at once
 	private boolean aHoldChanges = false; //turned on while undoing or redoing to prevent duplication
+
+	private Log log;
 	
 	/**
 	 * Creates a new UndoManager with the GraphPanel.
@@ -46,6 +49,7 @@ public class UndoManager
 		aPastCommands = new Stack<>();
 		aUndoneCommands = new Stack<>();
 		aTrackingCommands = new Stack<>();
+		log = new Log();
 	}
 
 	/**
@@ -57,6 +61,7 @@ public class UndoManager
 	 */
 	public void add(Command pCommand)
 	{
+		log.log(pCommand);
 		if(!aHoldChanges)
 		{
 			if(!aUndoneCommands.empty())
@@ -132,6 +137,10 @@ public class UndoManager
 				add(compoundCommand);
 			}
 		}
+	}
+
+	public void closeLog(){
+		log.closeLog();
 	}
 
 }

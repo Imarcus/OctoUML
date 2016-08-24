@@ -51,7 +51,7 @@ public class AddDeleteNodeCommand implements Command
 		aNode = pNode;
 		aAdding = pAdding;
 	}
-	
+
 	/**
 	 * Undoes the command and adds/deletes the node.
 	 */
@@ -99,6 +99,14 @@ public class AddDeleteNodeCommand implements Command
 		aGraph.addNode(aNode, false);
 		aController.addNodeView(aNodeView, aNode);
 		aController.sketchesToFront();
+	}
+
+	public AbstractNode getNode() {
+		return aNode;
+	}
+
+	public boolean isAdding() {
+		return aAdding;
 	}
 	
 }

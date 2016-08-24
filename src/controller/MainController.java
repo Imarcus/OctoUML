@@ -23,6 +23,7 @@ import model.*;
 import org.controlsfx.control.Notifications;
 import org.controlsfx.control.PopOver;
 import util.Constants;
+import util.Log;
 import util.NetworkUtils;
 import util.commands.*;
 import util.insertIMG.*;
@@ -118,6 +119,7 @@ public class MainController {
 
     ContextMenu aContextMenu;
     private MainController instance = this;
+
 
     @FXML
     public void initialize() {

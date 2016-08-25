@@ -97,4 +97,11 @@ public class AddDeleteEdgeCommand implements Command
 		aController.addEdgeView(aEdgeView);
 	}
 
+	public Edge getEdge() {
+		return aEdge;
+	}
+
+	public boolean isAdding() {
+		return aAdding;
+	}
 }

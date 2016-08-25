@@ -6,6 +6,9 @@ import javafx.geometry.Rectangle2D;
  * Interface used by all Node-classes. Represents a UML-class.
  */
 public interface Node extends GraphElement {
+
+    String getId();
+
     double getX();
 
     double getY();

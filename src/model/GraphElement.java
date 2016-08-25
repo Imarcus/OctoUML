@@ -12,4 +12,5 @@ public interface GraphElement {
     double getTranslateY();
     double getScaleY();
     double getScaleX();
+    String getId();
 }

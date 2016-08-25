@@ -54,7 +54,7 @@ public class MoveGraphElementCommand implements Command
 	{
 		aGraphElement.setTranslateX(aGraphElement.getTranslateX()-aDX);
 		aGraphElement.setTranslateY(aGraphElement.getTranslateY()-aDY);
-		if(aGraphElement instanceof PackageNode){
+		if(aGraphElement instanceof PackageNode){ //TODO this is probably not how it should work, have separate commands for the kids instead
 			for(AbstractNode node :((PackageNode) aGraphElement).getChildNodes()){
 				node.setTranslateX(node.getTranslateX()-aDX);
 				node.setTranslateY(node.getTranslateY()-aDY);
@@ -77,4 +77,23 @@ public class MoveGraphElementCommand implements Command
 		}
 	}
 
+	public GraphElement getGraphElement() {
+		return aGraphElement;
+	}
+
+	public double getStartX(){
+		return aGraphElement.getTranslateX()-aDX;
+	}
+
+	public double getStartY(){
+		return aGraphElement.getTranslateY()-aDY;
+	}
+
+	public double getEndX(){
+		return aGraphElement.getTranslateX();
+	}
+
+	public double getEndY(){
+		return aGraphElement.getTranslateY();
+	}
 }

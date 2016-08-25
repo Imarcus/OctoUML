@@ -1,7 +1,10 @@
 package util;
 
+import model.Node;
+import util.commands.AddDeleteEdgeCommand;
 import util.commands.AddDeleteNodeCommand;
 import util.commands.Command;
+import util.commands.MoveGraphElementCommand;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -45,11 +48,26 @@ public class Log {
 
     public void log(Command command, Dot dot){
         if(command instanceof AddDeleteNodeCommand){
-            logAddDeleteNode((AddDeleteNodeCommand) command, dot);
+            if(((AddDeleteNodeCommand) command).isAdding()){
+                logAddNode((AddDeleteNodeCommand) command, dot);
+            } else {
+                logDeleteNode((AddDeleteNodeCommand) command, dot);
+            }
+        } else if (command instanceof AddDeleteEdgeCommand) {
+            if(((AddDeleteEdgeCommand) command).isAdding()){
+                logAddEdge((AddDeleteEdgeCommand)command, dot);
+            } else {
+                logDeleteEdge((AddDeleteEdgeCommand)command, dot);
+            }
+        } else if (command instanceof MoveGraphElementCommand){
+            if(((MoveGraphElementCommand) command).getGraphElement() instanceof Node){
+                logMoveNode((MoveGraphElementCommand)command, dot);
+            }
         }
     }
 
-    private void logAddDeleteNode(AddDeleteNodeCommand command, Dot dot){
+    private void logAddNode(AddDeleteNodeCommand command, Dot dot){
+        //<DT>  ADD <OBT> <OBID> <OBN> <TRGID> <DOT>
         StringBuilder post = new StringBuilder();
         post.append(System.currentTimeMillis() + "\t"); //DT
         post.append("ADD\t"); //ADD
@@ -66,5 +84,92 @@ public class Log {
         }
     }
 
-    private void logAddDelete
+    private void logDeleteNode(AddDeleteNodeCommand command, Dot dot){
+        //<DT> DELETE <OBT> [<OBID>]* <DOT>
+        StringBuilder post = new StringBuilder();
+        post.append(System.currentTimeMillis() + "\t"); //DT
+        post.append("DELETE\t"); //DELETE
+        post.append("CLASS\t"); //OBT
+        post.append(command.getNode().getId() + "\t"); //OBID
+        post.append(dot + "\t"); //DOT
+        post.append("\n");
+        try {
+            writer.write(post.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void logAddEdge(AddDeleteEdgeCommand command, Dot dot){
+        //<DT>  ADD <OBT> <OBID> <OBN> <TRGID> <DOT>
+        StringBuilder post = new StringBuilder();
+        post.append(System.currentTimeMillis() + "\t"); //DT
+        post.append("ADD\t"); //ADD
+        post.append(command.getEdge().getType().toUpperCase() + "\t"); //OBT
+        post.append(command.getEdge().getId() + "\t"); //OBID
+        post.append("null\t"); //OBN
+        post.append("null\t"); //TRGID
+        post.append(dot + "\t"); //DOT
+        post.append("\n");
+        try {
+            writer.write(post.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logLink(command, dot);
+    }
+
+    private void logDeleteEdge(AddDeleteEdgeCommand command, Dot dot){
+        //<DT> DELETE <OBT> [<OBID>]* <DOT>
+        StringBuilder post = new StringBuilder();
+        post.append(System.currentTimeMillis() + "\t"); //DT
+        post.append("DELETE\t"); //DELETE
+        post.append("CLASS\t"); //OBT
+        post.append(command.getEdge().getId() + "\t"); //OBID
+        post.append(dot + "\t"); //DOT
+        post.append("\n");
+        try {
+            writer.write(post.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void logLink(AddDeleteEdgeCommand command, Dot dot){
+        //<DT> LINK <OBT> <OBID> <OBN> <SRCID> <TRGID> <DOT>
+        StringBuilder post = new StringBuilder();
+        post.append(System.currentTimeMillis() + "\t"); //DT
+        post.append("LINK\t"); //LINK
+        post.append(command.getEdge().getType().toUpperCase() + "\t"); //OBT
+        post.append(command.getEdge().getId() + "\t"); //OBID
+        post.append("null\t"); //OBN
+        post.append(command.getEdge().getStartNode().getId() + "\t"); //SRCID
+        post.append(command.getEdge().getEndNode().getId() + "\t"); //TRGID
+        post.append(dot + "\t"); //DOT
+        post.append("\n");
+        try {
+            writer.write(post.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void logMoveNode(MoveGraphElementCommand command, Dot dot){
+        //<DT> MOVE <OBT> [<OBID> <OBN>]* <COOR1> <COOR2> <DOT>
+        StringBuilder post = new StringBuilder();
+        post.append(System.currentTimeMillis() + "\t"); //DT
+        post.append("MOVE\t"); //MOVE
+        post.append("CLASS\t"); //OBT
+        post.append(command.getGraphElement().getId() + "\t"); //OBID
+        post.append(((Node)command.getGraphElement()).getTitle() + "\t"); //OBN
+        post.append(command.getStartX() + "," + command.getStartY() + "\t"); //COOR1
+        post.append(command.getEndX() + "," + command.getEndY() + "\t"); //COOR2
+        post.append(dot + "\t"); //DOT
+        post.append("\n");
+        try {
+            writer.write(post.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

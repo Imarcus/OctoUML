@@ -71,6 +71,30 @@ public class NodeEditDialogController {
         return operationsArea.getText();
     }
 
+    public boolean hasTitledChanged(){
+        if(this.node.getTitle() == null){
+            return titleField.getText() != null;
+        } else {
+            return !this.node.getTitle().equals(titleField.getText());
+        }
+    }
+
+    public boolean hasAttributesChanged(){
+        if(this.node.getAttributes() == null){
+            return attributesArea.getText() != null;
+        } else {
+            return !this.node.getAttributes().equals(attributesArea.getText());
+        }
+    }
+
+    public boolean hasOperationsChanged(){
+        if(this.node.getOperations() == null){
+            return operationsArea.getText() != null;
+        } else {
+            return !this.node.getOperations().equals(operationsArea.getText());
+        }
+    }
+
     /**
      * Returns true if the user clicked OK, false otherwise.
      * @return

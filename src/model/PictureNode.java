@@ -4,7 +4,8 @@ import javafx.scene.image.Image;
 /**
  * Represents an image in the graph.
  */
-public class PictureNode extends AbstractNode{
+public class PictureNode extends AbstractNode {
+    private static final String type = "PICUTRE";
 
     private  Image image ;
 
@@ -27,5 +28,9 @@ public class PictureNode extends AbstractNode{
     {
         super(x, y, width, height );
         this.image= image ;
+    }
+
+    public String getType(){
+        return type;
     }
 }

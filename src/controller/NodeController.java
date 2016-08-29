@@ -15,6 +15,10 @@ import model.AbstractNode;
 import model.ClassNode;
 import model.PackageNode;
 import util.Constants;
+import util.commands.CompoundCommand;
+import util.commands.SetNodeAttributeCommand;
+import util.commands.SetNodeOperationsCommand;
+import util.commands.SetNodeTitleCommand;
 import view.AbstractNodeView;
 import view.ClassNodeView;
 import view.PackageNodeView;
@@ -313,89 +317,10 @@ public class NodeController {
 
     public void onDoubleClick(AbstractNodeView nodeView){
         if(nodeView instanceof ClassNodeView){
-            showClassNodeEditDialogVoice((ClassNode) aMainController.getNodeMap().get(nodeView));
+            showClassNodeEditDialog((ClassNode) aMainController.getNodeMap().get(nodeView));
         }
-        else {
-            showNodeTitleDialogVoice(aMainController.getNodeMap().get(nodeView));
-
-        }
-    }
-
-    /**
-     * Brings up a dialog to give a title to a Node.
-     * @param node, the Node to give a Title
-     * @return false if node == null, otherwise true.
-     */
-    private boolean showNodeTitleDialog(AbstractNode node){
-        if (node == null) {
-            return false;
-        }
-        VBox group = new VBox();
-        TextField input = new TextField();
-        Button okButton = new Button("Ok");
-        okButton.setOnAction(event -> {
-            node.setTitle(input.getText());
-            aDrawPane.getChildren().remove(group);
-        });
-
-        Button cancelButton = new Button("Cancel");
-        cancelButton.setOnAction(event -> aDrawPane.getChildren().remove(group));
-
-        Label label = new Label("Choose title");
-        group.getChildren().add(label);
-        group.getChildren().add(input);
-        HBox buttons = new HBox();
-        buttons.getChildren().add(okButton);
-        buttons.getChildren().add(cancelButton);
-        buttons.setPadding(new Insets(15, 0, 0, 0));
-        group.getChildren().add(buttons);
-        group.setLayoutX(node.getX()+5);
-        group.setLayoutY(node.getY()+5);
-        group.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
-        group.setStyle("-fx-border-color: black");
-        group.setPadding(new Insets(15, 12, 15, 12));
-        aDrawPane.getChildren().add(group);
-        return true;
-    }
-
-    public boolean showClassNodeEditDialog(ClassNode node) {
-        try {
-            // Load the view.fxml file and create a new stage for the popup
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/nodeEditDialog.fxml"));
-
-            AnchorPane dialog = (AnchorPane) loader.load();
-            dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
-            dialog.setStyle("-fx-border-color: black");
-
-            //Set location for dialog.
-            double maxX = aDrawPane.getWidth() - dialog.getPrefWidth();
-            double maxY = aDrawPane.getHeight() - dialog.getPrefHeight();
-            dialog.setLayoutX(Math.min(maxX,node.getTranslateX()+5));
-            dialog.setLayoutY(Math.min(maxY, node.getTranslateY()+5));
-
-            NodeEditDialogController controller = loader.getController();
-
-            controller.setNode(node);
-            controller.getOkButton().setOnMousePressed(event -> {
-                node.setTitle(controller.getTitle());
-                node.setAttributes(controller.getAttributes());
-                node.setOperations(controller.getOperations());
-                aDrawPane.getChildren().remove(dialog);
-                aMainController.removeDialog(dialog);
-            });
-
-            controller.getCancelButton().setOnAction(event -> {
-                aDrawPane.getChildren().remove(dialog);
-                aMainController.removeDialog(dialog);
-            });
-            aDrawPane.getChildren().add(dialog);
-            aMainController.addDialog(dialog);
-            return controller.isOkClicked();
-
-        } catch (IOException e) {
-            // Exception gets thrown if the view.fxml file could not be loaded
-            e.printStackTrace();
-            return false;
+        else { //PackageNode
+            showNodeTitleDialog(aMainController.getNodeMap().get(nodeView));
         }
     }
 
@@ -414,7 +339,7 @@ public class NodeController {
      * @param node, the Node to give a Title
      * @return false if node == null, otherwise true.
      */
-    private boolean showNodeTitleDialogVoice(AbstractNode node){
+    private boolean showNodeTitleDialog(AbstractNode node){
         if(aMainController.voiceController.voiceEnabled){
             //Change variable testing in VoiceController to 1(true)
             aMainController.voiceController.testing = 1;
@@ -487,7 +412,7 @@ public class NodeController {
         return true;
     }
 
-    public boolean showClassNodeEditDialogVoice(ClassNode node) {
+    public boolean showClassNodeEditDialog(ClassNode node) {
         if(aMainController.voiceController.voiceEnabled) {
 
             //Change variable testing in MainController to 1(true)
@@ -540,9 +465,22 @@ public class NodeController {
             controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    node.setTitle(controller.getTitle());
-                    node.setAttributes(controller.getAttributes());
-                    node.setOperations(controller.getOperations());
+                    CompoundCommand command = new CompoundCommand();
+                    if(controller.hasTitledChanged()){
+                        command.add(new SetNodeTitleCommand(node, controller.getTitle(), node.getTitle()));
+                        node.setTitle(controller.getTitle());
+                    }
+                    if(controller.hasAttributesChanged()){
+                        command.add(new SetNodeAttributeCommand(node, controller.getAttributes(), node.getAttributes()));
+                        node.setAttributes(controller.getAttributes());
+                    }
+                    if(controller.hasOperationsChanged()){
+                        command.add(new SetNodeOperationsCommand(node, controller.getOperations(), node.getOperations()));
+                        node.setOperations(controller.getOperations());
+                    }
+                    if(command.size() > 0){
+                        aMainController.getUndoManager().add(command);
+                    }
                     aDrawPane.getChildren().remove(dialog);
                     aMainController.removeDialog(dialog);
                 }

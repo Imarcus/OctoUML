@@ -22,4 +22,6 @@ public interface Node extends GraphElement {
     String getTitle();
 
     void setTitle(String title);
+
+    String getType();
 }

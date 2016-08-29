@@ -48,7 +48,6 @@ import java.util.logging.Logger;
  * Controls all user inputs and delegates work to other controllers.
  */
 public class MainController {
-    //For testing with mouse and keyboard
     private Graph graph;
     private Stage aStage;
 
@@ -83,15 +82,12 @@ public class MainController {
 
     //Mode
     private Mode mode = Mode.NO_MODE;
-
     public enum Mode {
         NO_MODE, SELECTING, DRAGGING, RESIZING, MOVING, DRAWING, CREATING, CONTEXT_MENU
     }
 
-
     //Tool
     private ToolEnum tool = ToolEnum.CREATE_CLASS;
-
     public enum ToolEnum {
         CREATE_CLASS, SELECT, DRAW, CREATE_PACKAGE, EDGE, MOVE_SCENE
     }
@@ -102,7 +98,6 @@ public class MainController {
 
     //Selection logic
     private boolean nodeWasDragged = true;
-
 
     @FXML private BorderPane aBorderPane;
     @FXML private Pane aDrawPane;
@@ -144,7 +139,7 @@ public class MainController {
         //Makes sure the pane doesn't scroll when using a touch screen.
         aDrawPane.setOnScroll(event -> event.consume());
 
-        //Controlls the look of the cursor
+        //Controls the look of the cursor
         aDrawPane.addEventHandler(InputEvent.ANY, mouseEvent -> {
             getStage().getScene().setCursor(Cursor.DEFAULT);
             mouseEvent.consume();

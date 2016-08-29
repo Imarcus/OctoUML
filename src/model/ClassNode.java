@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 public class ClassNode extends AbstractNode implements Serializable
 {
-
+    private static final String type = "CLASS";
     private String attributes;
     private String operations;
 
@@ -75,5 +75,9 @@ public class ClassNode extends AbstractNode implements Serializable
      * No-arg constructor for JavaBean convention
      */
     public ClassNode(){
+    }
+
+    public String getType(){
+        return type;
     }
 }

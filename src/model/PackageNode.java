@@ -9,8 +9,8 @@ import java.util.ArrayList;
  */
 public class PackageNode extends AbstractNode
 {
+    private static final String type = "PACKAGE";
     private ArrayList<AbstractNode> childNodes = new ArrayList<>();
-
 
     public PackageNode(double x, double y, double width, double height)
     {
@@ -72,5 +72,9 @@ public class PackageNode extends AbstractNode
      * No-arg constructor for JavaBean convention
      */
     public PackageNode(){
+    }
+
+    public String getType(){
+        return type;
     }
 }

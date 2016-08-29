@@ -17,6 +17,10 @@ public interface Node extends GraphElement {
 
     double getHeight();
 
+    void setWidth(double width);
+
+    void setHeight(double height);
+
     Rectangle2D getBounds();
 
     String getTitle();

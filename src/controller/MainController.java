@@ -96,9 +96,6 @@ public class MainController {
     private boolean umlVisible = true;
     private boolean sketchesVisible = true;
 
-    //Selection logic
-    private boolean nodeWasDragged = true;
-
     @FXML private BorderPane aBorderPane;
     @FXML private Pane aDrawPane;
     @FXML private Slider zoomSlider;
@@ -309,7 +306,6 @@ public class MainController {
             if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.DRAGGING) { //Continue dragging selected elements
                 nodeController.moveNodes(event);
                 sketchController.moveSketches(event);
-                nodeWasDragged = true;
             } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) { //Continue panning graph.
                 graphController.movePane(event);
             } else if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.RESIZING) { //Continue resizing node.
@@ -325,18 +321,18 @@ public class MainController {
             if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.DRAGGING) { //Finish dragging nodes and create a compound command.
                 double[] deltaTranslateVector = nodeController.moveNodesFinished(event);
                 sketchController.moveSketchFinished(event);
-                CompoundCommand compoundCommand = new CompoundCommand();
-                for (AbstractNodeView movedView : selectedNodes) {
-                    compoundCommand.add(new MoveGraphElementCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
-                }
-                for (Sketch sketch : selectedSketches) {
-                    compoundCommand.add(new MoveGraphElementCommand(sketch, deltaTranslateVector[0], deltaTranslateVector[1]));
-                }
-                undoManager.add(compoundCommand);
-                if (!nodeWasDragged) {
+                if(deltaTranslateVector[0] != 0 || deltaTranslateVector[1] != 0){ //If it was actually moved
+                    CompoundCommand compoundCommand = new CompoundCommand();
+                    for (AbstractNodeView movedView : selectedNodes) {
+                        compoundCommand.add(new MoveGraphElementCommand(nodeMap.get(movedView), deltaTranslateVector[0], deltaTranslateVector[1]));
+                    }
+                    for (Sketch sketch : selectedSketches) {
+                        compoundCommand.add(new MoveGraphElementCommand(sketch, deltaTranslateVector[0], deltaTranslateVector[1]));
+                    }
+                    undoManager.add(compoundCommand);
+                } else {
                     selectedNodes.remove(nodeView);
                     drawSelected();
-                    nodeWasDragged = false;
                 }
             } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) { //Finish panning of graph.
                 graphController.movePaneFinished();
@@ -1151,8 +1147,6 @@ public class MainController {
     //------------------------------------ GRID -------------------------------
     //TODO move this to graph controller
     private ArrayList<Line> grid = new ArrayList<>();
-    private HashMap<Integer, Line> xGrid = new HashMap<>();
-    private HashMap<Integer, Line> yGrid = new HashMap<>();
 
     public ArrayList<Line> getGrid() {
         return grid;

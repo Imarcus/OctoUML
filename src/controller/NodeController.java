@@ -15,10 +15,7 @@ import model.AbstractNode;
 import model.ClassNode;
 import model.PackageNode;
 import util.Constants;
-import util.commands.CompoundCommand;
-import util.commands.SetNodeAttributeCommand;
-import util.commands.SetNodeOperationsCommand;
-import util.commands.SetNodeTitleCommand;
+import util.commands.*;
 import view.AbstractNodeView;
 import view.ClassNodeView;
 import view.PackageNodeView;
@@ -93,6 +90,8 @@ public class NodeController {
     }
 
     public void resizeFinished(AbstractNode node){
+        double oldWidth = node.getWidth();
+        double oldHeight = node.getHeight();
         if(snapToGrid){
             Double w = dragRectangle.getWidth();
             Double h = dragRectangle.getHeight();
@@ -102,6 +101,8 @@ public class NodeController {
             node.setWidth(dragRectangle.getWidth());
             node.setHeight(dragRectangle.getHeight());
         }
+
+        aMainController.getUndoManager().add(new ResizeNodeCommand(node, oldWidth, oldHeight, node.getWidth(), node.getHeight()));
 
         removeSnapIndicators();
         dragRectangle.setHeight(0);

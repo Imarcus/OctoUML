@@ -73,6 +73,8 @@ public class UMLDiagramLogger {
             logAddAttribute((SetNodeAttributeCommand)command, dot);
         } else if (command instanceof SetNodeOperationsCommand) {
             logAddOperation((SetNodeOperationsCommand) command, dot);
+        } else if(command instanceof ResizeNodeCommand){
+            logSetNodeSize((ResizeNodeCommand)command, dot);
         } else if (command instanceof CompoundCommand){
                 for(Command subCommand : ((CompoundCommand)command).getCommands()){
                     log(subCommand, dot);
@@ -231,6 +233,7 @@ public class UMLDiagramLogger {
         post.append(command.getOldTitle() + "\t"); //<OLD_VALUE>
         post.append(command.getNewTitle() + "\t"); //<NEW_VALUE>
         post.append(dot + "\t"); //<DOT>
+        post.append("\n");
         try {
             writer.write(post.toString());
         } catch (IOException e) {
@@ -266,6 +269,24 @@ public class UMLDiagramLogger {
         post.append(((ClassNode)command.getNode()).getOperations() + "\t"); //OBN
         post.append(command.getNode().getId() + "\t"); //TRGID
         post.append(dot + "\t"); //DOT
+        post.append("\n");
+        try {
+            writer.write(post.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void logSetNodeSize(ResizeNodeCommand command, Dot dot){
+        //<DT> SET <OBT><OBID> <OLD_VALUE> <NEW_VALUE> <DOT>
+        StringBuilder post = new StringBuilder();
+        post.append(System.currentTimeMillis() + "\t"); //DT
+        post.append("RESIZE\t"); //SET
+        post.append(command.getNode().getType() + "\t"); //OBT
+        post.append(command.getNode().getId() + "\t"); //OBID
+        post.append(command.getOldWidth() + "," + command.getOldHeight() + "\t"); //<OLD_VALUE>
+        post.append(command.getNewWidth() + "," + command.getNewHeight() + "\t"); //<NEW_VALUE>
+        post.append(dot + "\t"); //<DOT>
         post.append("\n");
         try {
             writer.write(post.toString());

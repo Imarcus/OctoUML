@@ -2,6 +2,7 @@
 .idea/workspace.xml
 src/META-INF/
 out/
+log/
 /**/.DS_Store
 
 # Mobile Tools for Java (J2ME)

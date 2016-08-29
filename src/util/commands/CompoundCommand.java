@@ -20,6 +20,7 @@
  *******************************************************************************/
 package util.commands;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 /**
@@ -86,5 +87,9 @@ public class CompoundCommand implements Command
 			temp.push(c);
 		}
 		aCommands = temp;
+	}
+
+	public ArrayList<Command> getCommands(){
+		return new ArrayList<>(aCommands);
 	}
 }

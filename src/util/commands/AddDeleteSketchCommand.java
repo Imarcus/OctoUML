@@ -98,5 +98,12 @@ public class AddDeleteSketchCommand implements Command
         mainController.getGraphModel().addSketch(aSketch, false);
 
 	}
-	
+
+	public boolean isAdding(){
+		return aAdding;
+	}
+
+	public Sketch getSketch(){
+		return aSketch;
+	}
 }

@@ -18,12 +18,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import model.*;
 import org.controlsfx.control.Notifications;
-import org.controlsfx.control.PopOver;
 import util.Constants;
-import util.Log;
 import util.NetworkUtils;
 import util.commands.*;
 import util.insertIMG.*;
@@ -45,9 +42,6 @@ import java.io.IOException;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import edu.cmu.sphinx.api.Configuration;
-import edu.cmu.sphinx.api.LiveSpeechRecognizer;
 
 
 /**

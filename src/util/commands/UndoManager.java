@@ -22,9 +22,7 @@ package util.commands;
 
 import java.util.Stack;
 
-import util.Log;
-import util.commands.Command;
-import util.commands.CompoundCommand;
+import util.UMLDiagramLogger;
 
 /**
  * Performs the undoing and redoing of commands on a graph.
@@ -38,7 +36,7 @@ public class UndoManager
 	private Stack<CompoundCommand> aTrackingCommands; //used for many commands coming at once
 	private boolean aHoldChanges = false; //turned on while undoing or redoing to prevent duplication
 
-	private Log log;
+	private UMLDiagramLogger UMLDiagramLogger;
 	
 	/**
 	 * Creates a new UndoManager with the GraphPanel.
@@ -49,7 +47,7 @@ public class UndoManager
 		aPastCommands = new Stack<>();
 		aUndoneCommands = new Stack<>();
 		aTrackingCommands = new Stack<>();
-		log = new Log();
+		UMLDiagramLogger = new UMLDiagramLogger();
 	}
 
 	/**
@@ -61,7 +59,7 @@ public class UndoManager
 	 */
 	public void add(Command pCommand)
 	{
-		log.log(pCommand, Log.Dot.DO);
+		UMLDiagramLogger.log(pCommand, util.UMLDiagramLogger.Dot.DO);
 		if(!aHoldChanges)
 		{
 			if(!aUndoneCommands.empty())
@@ -94,7 +92,7 @@ public class UndoManager
 		Command toUndo = aPastCommands.pop();
 		toUndo.undo();
 		aUndoneCommands.push(toUndo);
-		log.log(toUndo, Log.Dot.UNDO);
+		UMLDiagramLogger.log(toUndo, util.UMLDiagramLogger.Dot.UNDO);
 		aHoldChanges = false;
 	}
 
@@ -113,7 +111,7 @@ public class UndoManager
 		Command toRedo = aUndoneCommands.pop();
 		toRedo.execute();
 		aPastCommands.push(toRedo);
-		log.log(toRedo, Log.Dot.UNDO);
+		UMLDiagramLogger.log(toRedo, util.UMLDiagramLogger.Dot.REDO);
 		aHoldChanges = false;
 	}
 
@@ -142,7 +140,7 @@ public class UndoManager
 	}
 
 	public void closeLog(){
-		log.closeLog();
+		UMLDiagramLogger.closeLog();
 	}
 
 }

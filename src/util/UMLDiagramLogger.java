@@ -1,10 +1,7 @@
 package util;
 
 import model.Node;
-import util.commands.AddDeleteEdgeCommand;
-import util.commands.AddDeleteNodeCommand;
-import util.commands.Command;
-import util.commands.MoveGraphElementCommand;
+import util.commands.*;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -15,13 +12,13 @@ import java.util.Date;
 /**
  * Created by chalmers on 201 6-08-24.
  */
-public class Log {
+public class UMLDiagramLogger {
 
     public enum Dot {DO, UNDO, REDO}
 
     BufferedWriter writer;
 
-    public Log(){
+    public UMLDiagramLogger(){
         writer = null;
         try {
 
@@ -47,6 +44,7 @@ public class Log {
     }
 
     public void log(Command command, Dot dot){
+        System.out.println(command.toString());
         if(command instanceof AddDeleteNodeCommand){
             if(((AddDeleteNodeCommand) command).isAdding()){
                 logAddNode((AddDeleteNodeCommand) command, dot);
@@ -63,6 +61,50 @@ public class Log {
             if(((MoveGraphElementCommand) command).getGraphElement() instanceof Node){
                 logMoveNode((MoveGraphElementCommand)command, dot);
             }
+        } else if (command instanceof AddDeleteSketchCommand){
+            if(((AddDeleteSketchCommand)command).isAdding()){
+                logAddSketch((AddDeleteSketchCommand)command, dot);
+            } else {
+                logDeleteSketch((AddDeleteSketchCommand)command, dot);
+            }
+        } else if (command instanceof CompoundCommand){
+            for(Command subCommand : ((CompoundCommand)command).getCommands()){
+                log(subCommand, dot);
+            }
+        }
+    }
+
+    private void logAddSketch(AddDeleteSketchCommand command, Dot dot){
+        //<DT>  ADD <OBT> <OBID> <OBN> <TRGID> <DOT>
+        StringBuilder post = new StringBuilder();
+        post.append(System.currentTimeMillis() + "\t"); //DT
+        post.append("ADD\t"); //ADD
+        post.append("SKETCH\t"); //OBT
+        post.append(command.getSketch().getId() + "\t"); //OBID
+        post.append("null\t"); //OBN
+        post.append("null\t"); //TRGID
+        post.append(dot + "\t"); //DOT
+        post.append("\n");
+        try {
+            writer.write(post.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void logDeleteSketch(AddDeleteSketchCommand command, Dot dot){
+        //<DT> DELETE <OBT> [<OBID>]* <DOT>
+        StringBuilder post = new StringBuilder();
+        post.append(System.currentTimeMillis() + "\t"); //DT
+        post.append("DELETE\t"); //ADD
+        post.append("SKETCH\t"); //OBT
+        post.append(command.getSketch().getId() + "\t"); //OBID
+        post.append(dot + "\t"); //DOT
+        post.append("\n");
+        try {
+            writer.write(post.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

@@ -102,7 +102,7 @@ public class Graph implements Serializable, PropertyChangeListener {
     public boolean removeNode(Node n, boolean remote) {
         assert n != null;
         if(!remote) {
-            remoteChanges.firePropertyChange(Constants.NodeRemove, null, ((AbstractNode)n).getId());
+            remoteChanges.firePropertyChange(Constants.NodeRemove, null, n.getId());
         }
         ((AbstractNode)n).removePropertyChangeListener(this);
         return allNodes.remove(n);
@@ -117,7 +117,7 @@ public class Graph implements Serializable, PropertyChangeListener {
     public boolean removeEdge(Edge e, boolean remote) {
         assert e != null;
         if(!remote){
-            remoteChanges.firePropertyChange(Constants.EdgeRemove, null, ((AbstractEdge)e).getId());
+            remoteChanges.firePropertyChange(Constants.EdgeRemove, null, e.getId());
         }
         return allEdges.remove(e);
     }

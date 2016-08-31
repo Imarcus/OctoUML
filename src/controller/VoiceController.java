@@ -209,5 +209,5 @@ public class VoiceController {
             super.failed();
             updateMessage("Failed!");
         }
-    };
+    }
 }

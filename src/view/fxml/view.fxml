@@ -10,7 +10,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.layout.StackPane?>
-<BorderPane fx:id="aBorderPane" fx:controller="controller.MainController" xmlns:fx="http://javafx.com/fxml">
+<BorderPane fx:id="aBorderPane" fx:controller="controller.ClassDiagramController" xmlns:fx="http://javafx.com/fxml">
     <top>
         <VBox>
             <ToolBar fx:id="aToolBar" orientation="HORIZONTAL">

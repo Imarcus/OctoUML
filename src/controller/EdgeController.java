@@ -92,7 +92,7 @@ public class EdgeController {
         try {
             // Load the view.fxml file and create a new stage for the popup
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/edgeEditDialog.fxml"));
-            AnchorPane dialog = (AnchorPane) loader.load();
+            AnchorPane dialog = loader.load();
             dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
             dialog.setStyle("-fx-border-color: black");
             //Set location for "dialog".

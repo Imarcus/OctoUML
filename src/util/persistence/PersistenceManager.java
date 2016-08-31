@@ -147,8 +147,8 @@ public class PersistenceManager {
             Element associationConnection = doc.createElement("UML:Association.connection");
             umlAssociation.appendChild(associationConnection);
 
-            addAssociatonEnd(((AbstractNode) edge.getStartNode()).getId(), associationConnection, doc, "true");
-            addAssociatonEnd(((AbstractNode) edge.getEndNode()).getId(), associationConnection, doc, "false");
+            addAssociatonEnd(edge.getStartNode().getId(), associationConnection, doc, "true");
+            addAssociatonEnd(edge.getEndNode().getId(), associationConnection, doc, "false");
 
             umlNamespace.appendChild(umlAssociation);
 
@@ -156,7 +156,7 @@ public class PersistenceManager {
             Element umlElementAssociation = doc.createElement("UML:DiagramElement");
             umlDiagramElement.appendChild(umlElementAssociation);
             umlElementAssociation.setAttribute("xmi.id", "ID");
-            umlElementAssociation.setAttribute("subject", ((AbstractEdge) edge).getId());
+            umlElementAssociation.setAttribute("subject", edge.getId());
             umlElementAssociation.setAttribute("style", "Association:LineColor.Red=128,LineColor.Green=0,LineColor.Blue=0,Font.Red=0,Font.Green=0,Font.Blue=0,Font.FaceName=Tahoma,Font.Size=8,Font.Bold=0,Font.Italic=0,Font.Underline=0,Font.Strikethrough=0,");
         }
 

@@ -3,30 +3,33 @@ package controller;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import model.Sketch;
+import util.Constants;
+
+import java.util.ArrayList;
 
 /**
  * Used by MainController for zooming and panning the view.
  */
 public class GraphController {
 
-    //For touch-moving the pane
     private double initMoveX, initMoveY;
 
     private Pane aDrawPane;
     private MainController aMainController;
     private ScrollPane aScrollPane;
 
-    //For calculating zooming pivot point
-    private double drawPaneXOffset;
-    private double drawPaneYOffset;
+    private ArrayList<Line> grid = new ArrayList<>();
+    private boolean isGridVisible = true;
 
-    public GraphController(Pane pDrawPane, MainController pMainController, ScrollPane pScrollPane)
+
+    GraphController(Pane pDrawPane, MainController pMainController, ScrollPane pScrollPane)
     {
         aDrawPane = pDrawPane;
         aMainController = pMainController;
         aScrollPane = pScrollPane;
-        drawPaneXOffset = 0;
-        drawPaneYOffset = 0;
 
         // center the scroll contents.
         aScrollPane.setHvalue(aScrollPane.getHmin() + (aScrollPane.getHmax() - aScrollPane.getHmin()) / 2);
@@ -36,7 +39,7 @@ public class GraphController {
 
     }
 
-    public void movePaneStart(MouseEvent event)
+    void movePaneStart(MouseEvent event)
         {
 
         initMoveX = event.getSceneX();
@@ -44,7 +47,7 @@ public class GraphController {
 
     }
 
-    public void movePane(MouseEvent event)
+    void movePane(MouseEvent event)
     {
         ScrollPane scrollPane = aMainController.getScrollPane();
         double xScroll =  (initMoveX - event.getSceneX())/8000; //8000 is the size of aDrawPane set in view.view.fxml
@@ -61,21 +64,55 @@ public class GraphController {
 
     }
 
-    public void movePaneFinished()
+    void movePaneFinished()
     {
         initMoveX = 0;
         initMoveY = 0;
     }
 
-    public void zoomPane(double newZoom)
+    void zoomPane(double newZoom)
     {
         double scale = newZoom/100;
         aDrawPane.setScaleX(scale);
         aDrawPane.setScaleY(scale);
     }
 
-    public void resetDrawPaneOffset(){
-        drawPaneYOffset = 0;
-        drawPaneYOffset = 0;
+    //------------------------------------ GRID -------------------------------
+
+    void drawGrid() {
+        grid.clear();
+        for (int i = 0; i < 8000; i += Constants.GRID_DISTANCE) {
+            Line line1 = new Line(i, 0, i, 8000);
+            line1.setStroke(Color.LIGHTGRAY);
+            Line line2 = new Line(0, i, 8000, i);
+            line2.setStroke(Color.LIGHTGRAY);
+            grid.add(line1);
+            grid.add(line2);
+            aDrawPane.getChildren().addAll(line1, line2);
+        }
+    }
+
+    void gridToBack() {
+        for (Line line : grid) {
+            line.toBack();
+        }
+    }
+
+
+    void setGridVisible(boolean visible) {
+        for (Line line : grid) {
+            line.setVisible(visible);
+        }
+        isGridVisible = visible;
+    }
+
+    boolean isGridVisible() {
+        return isGridVisible;
+    }
+
+    public void sketchesToFront() {
+        for (Sketch sketch : aMainController.getGraphModel().getAllSketches()) {
+            sketch.getPath().toFront();
+        }
     }
 }

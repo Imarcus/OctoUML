@@ -47,9 +47,9 @@ import java.util.logging.Logger;
 /**
  * Controls all user inputs and delegates work to other controllers.
  */
-public class MainController {
-    private Graph graph;
-    private Stage aStage;
+public abstract class MainController {
+    protected Graph graph;
+    protected Stage aStage;
 
     boolean mouseCreationActivated = true;
 
@@ -78,17 +78,17 @@ public class MainController {
 
     boolean selected = false; //A node is currently selected
 
-    private UndoManager undoManager;
+    protected UndoManager undoManager;
 
     //Mode
-    private Mode mode = Mode.NO_MODE;
-    public enum Mode {
+    protected Mode mode = Mode.NO_MODE;
+    protected enum Mode {
         NO_MODE, SELECTING, DRAGGING, RESIZING, MOVING, DRAWING, CREATING, CONTEXT_MENU
     }
 
     //Tool
-    private ToolEnum tool = ToolEnum.CREATE_CLASS;
-    public enum ToolEnum {
+    protected ToolEnum tool = ToolEnum.CREATE_CLASS;
+    protected enum ToolEnum {
         CREATE_CLASS, SELECT, DRAW, CREATE_PACKAGE, EDGE, MOVE_SCENE
     }
 
@@ -103,14 +103,15 @@ public class MainController {
     @FXML private ColorPicker colorPicker;
     @FXML private Label serverLabel;
 
+    @FXML
+    protected Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn, voiceBtn;
+
     ContextMenu aContextMenu;
     private MainController instance = this;
 
 
-    @FXML
     public void initialize() {
         initDrawPaneActions();
-        initToolBarActions();
         initContextMenu();
         initZoomSlider();
         initColorPicker();
@@ -129,7 +130,7 @@ public class MainController {
 
         undoManager = new UndoManager();
 
-        drawGrid();
+        graphController.drawGrid();
     }
 
     private void initDrawPaneActions() {
@@ -604,7 +605,6 @@ public class MainController {
 
     //---------------------- MENU HANDLERS ---------------------------------
 
-
     public void handleMenuActionUML() {
         List<Button> umlButtons = Arrays.asList(createBtn, packageBtn, edgeBtn);
 
@@ -626,7 +626,7 @@ public class MainController {
             }
             setButtons(false, umlButtons);
             umlVisible = true;
-            sketchesToFront();
+            graphController.sketchesToFront();
         }
     }
 
@@ -637,25 +637,21 @@ public class MainController {
             }
 
             setButtons(true, Collections.singletonList(drawBtn));
-
-            //sketchesMenuItem.setSelected(false);
             sketchesVisible = false;
         } else {
             for (Sketch sketch : graph.getAllSketches()) {
                 aDrawPane.getChildren().add(sketch.getPath());
             }
-
             setButtons(false, Collections.singletonList(drawBtn));
-            //sketchesMenuItem.setSelected(true);
             sketchesVisible = true;
         }
     }
 
     public void handleMenuActionGrid() {
-        if (isGridVisible()) {
-            setGridVisible(false);
+        if (graphController.isGridVisible()) {
+            graphController.setGridVisible(false);
         } else {
-            setGridVisible(true);
+            graphController.setGridVisible(true);
         }
     }
 
@@ -744,6 +740,8 @@ public class MainController {
         reset();
     }
 
+    //---------------------------- Remote Collaboration features ---------------------------------
+
     public void handleMenuActionServer(){
         TextInputDialog portDialog = new TextInputDialog("54555");
         portDialog.setTitle("Server Port");
@@ -752,7 +750,6 @@ public class MainController {
 
         Optional<String> port = portDialog.showAndWait();
 
-        //TODO how to handle these?
         ServerController server = new ServerController(graph, this, Integer.parseInt(port.get()));
         serverControllers.add(server);
     }
@@ -845,7 +842,7 @@ public class MainController {
             insertImg.openFileChooser(MainController.this, point);
         });
 
-        aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste, cmItemDelete,cmItemInsertImg);
+        aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste, cmItemDelete, cmItemInsertImg);
     }
 
     /**
@@ -885,7 +882,7 @@ public class MainController {
             nodeView.toFront();
         } else {//if (nodeView instanceof PackageNodeView)
             nodeView.toBack();
-            gridToBack();
+            graphController.gridToBack();
         }
         return nodeView;
     }
@@ -1075,10 +1072,10 @@ public class MainController {
         AbstractNode tempNode;
         for (AbstractNodeView nodeView : allNodeViews) {
             tempNode = nodeMap.get(nodeView);
-            if (((AbstractNode)edge.getStartNode()).getId().equals(tempNode.getId())) {
+            if (edge.getStartNode().getId().equals(tempNode.getId())) {
                 edge.setStartNode(tempNode);
                 startNodeView = nodeView;
-            } else if (((AbstractNode)edge.getEndNode()).getId().equals(tempNode.getId())) {
+            } else if (edge.getEndNode().getId().equals(tempNode.getId())) {
                 edge.setEndNode(tempNode);
                 endNodeView = nodeView;
             }
@@ -1110,9 +1107,8 @@ public class MainController {
         nodeMap.clear();
         allNodeViews.clear();
         zoomSlider.setValue(zoomSlider.getMax() / 2);
-        graphController.resetDrawPaneOffset();
         undoManager = new UndoManager();
-        drawGrid();
+        graphController.drawGrid();
     }
 
     /**
@@ -1144,52 +1140,6 @@ public class MainController {
         }
     }
 
-    //------------------------------------ GRID -------------------------------
-    //TODO move this to graph controller
-    private ArrayList<Line> grid = new ArrayList<>();
-
-    public ArrayList<Line> getGrid() {
-        return grid;
-    }
-
-    private void drawGrid() {
-        grid.clear();
-        for (int i = 0; i < 8000; i += Constants.GRID_DISTANCE) {
-            Line line1 = new Line(i, 0, i, 8000);
-            line1.setStroke(Color.LIGHTGRAY);
-            Line line2 = new Line(0, i, 8000, i);
-            line2.setStroke(Color.LIGHTGRAY);
-            grid.add(line1);
-            grid.add(line2);
-            aDrawPane.getChildren().addAll(line1, line2);
-        }
-    }
-
-    public void gridToBack() {
-        for (Line line : grid) {
-            line.toBack();
-        }
-    }
-
-    private boolean isGridVisible = true;
-
-    public void setGridVisible(boolean visible) {
-        for (Line line : grid) {
-            line.setVisible(visible);
-        }
-        isGridVisible = visible;
-        //gridMenuItem.setSelected(visible);
-    }
-
-    public boolean isGridVisible() {
-        return isGridVisible;
-    }
-
-    public void sketchesToFront() {
-        for (Sketch sketch : graph.getAllSketches()) {
-            sketch.getPath().toFront();
-        }
-    }
 
     //------------------------ Zoom-feature -------------------------------------
 
@@ -1202,78 +1152,6 @@ public class MainController {
         });
         zoomSlider.setShowTickMarks(true);
         zoomSlider.setPrefWidth(200);
-    }
-
-    public double getZoomScale() {
-        return zoomSlider.getValue();
-    }
-
-    //------------------------ misc. getters -------------------------------------
-
-    public Stage getStage() {
-        return aStage;
-    }
-
-    public void setStage(Stage pStage) {
-        this.aStage = pStage;
-    }
-
-    protected HashMap<AbstractNodeView, AbstractNode> getNodeMap() {
-        return nodeMap;
-    }
-
-    public Graph getGraphModel() {
-        return graph;
-    }
-
-    public ArrayList<AbstractNodeView> getSelectedNodes() {
-        return selectedNodes;
-    }
-
-    public ArrayList<AbstractNodeView> getAllNodeViews() {
-        return allNodeViews;
-    }
-
-
-    public ArrayList<AbstractEdgeView> getAllEdgeViews() {
-        return allEdgeViews;
-    }
-
-    public UndoManager getUndoManager() {
-        return undoManager;
-    }
-
-    public void setMode(Mode pMode) {
-        mode = pMode;
-    }
-
-    public ScrollPane getScrollPane(){
-        return aScrollPane;
-    }
-
-    public ToolEnum getTool() {
-        return tool;
-    }
-
-    public void setTool(ToolEnum pTool) {
-        tool = pTool;
-    }
-
-    public void addDialog(AnchorPane dialog) {
-        allDialogs.add(dialog);
-    }
-
-    public boolean removeDialog(AnchorPane dialog) {
-        mode = Mode.NO_MODE;
-        return allDialogs.remove(dialog);
-    }
-
-    public void closeLog(){
-        undoManager.closeLog();
-    }
-
-    public ArrayList<AnchorPane> getAllDialogs() {
-        return allDialogs;
     }
 
     /**
@@ -1305,117 +1183,7 @@ public class MainController {
         }
     }
 
-    //------------ Init Buttons -------------------------------------------
-
-    @FXML
-    Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn, voiceBtn;
     Button buttonInUse;
-
-    private void initToolBarActions() {
-
-        Image image = new Image("/icons/classw.png");
-        createBtn.setGraphic(new ImageView(image));
-        createBtn.setText("");
-
-        image = new Image("/icons/packagew.png");
-        packageBtn.setGraphic(new ImageView(image));
-        packageBtn.setText("");
-
-        image = new Image("/icons/edgew.png");
-        edgeBtn.setGraphic(new ImageView(image));
-        edgeBtn.setText("");
-
-        image = new Image("/icons/selectw.png");
-        selectBtn.setGraphic(new ImageView(image));
-        selectBtn.setText("");
-
-        image = new Image("/icons/undow.png");
-        undoBtn.setGraphic(new ImageView(image));
-        undoBtn.setText("");
-
-        image = new Image("/icons/redow.png");
-        redoBtn.setGraphic(new ImageView(image));
-        redoBtn.setText("");
-
-        image = new Image("/icons/movew.png");
-        moveBtn.setGraphic(new ImageView(image));
-        moveBtn.setText("");
-
-        image = new Image("/icons/deletew.png");
-        deleteBtn.setGraphic(new ImageView(image));
-        deleteBtn.setText("");
-
-        image = new Image("/icons/draww.png");
-        drawBtn.setGraphic(new ImageView(image));
-        drawBtn.setText("");
-
-        image = new Image("/icons/recow.png");
-        recognizeBtn.setGraphic(new ImageView(image));
-        recognizeBtn.setText("");
-
-        image = new Image("/icons/micw.png");
-        voiceBtn.setGraphic(new ImageView(image));
-        voiceBtn.setText("");
-
-        buttonInUse = createBtn;
-        buttonInUse.getStyleClass().add("button-in-use");
-
-
-        //---------------------- Actions for buttons ----------------------------
-        createBtn.setOnAction(event -> {
-            tool = ToolEnum.CREATE_CLASS;
-            setButtonClicked(createBtn);
-        });
-
-        packageBtn.setOnAction(event -> {
-            tool = ToolEnum.CREATE_PACKAGE;
-            setButtonClicked(packageBtn);
-        });
-
-        edgeBtn.setOnAction(event -> {
-            tool = ToolEnum.EDGE;
-            setButtonClicked(edgeBtn);
-        });
-
-        selectBtn.setOnAction(event -> {
-            tool = ToolEnum.SELECT;
-            setButtonClicked(selectBtn);
-        });
-
-        drawBtn.setOnAction(event -> {
-            tool = ToolEnum.DRAW;
-            setButtonClicked(drawBtn);
-        });
-
-        moveBtn.setOnAction(event -> {
-            setButtonClicked(moveBtn);
-            tool = ToolEnum.MOVE_SCENE;
-        });
-
-        undoBtn.setOnAction(event -> undoManager.undoCommand());
-
-        redoBtn.setOnAction(event -> undoManager.redoCommand());
-
-        deleteBtn.setOnAction(event -> deleteSelected());
-
-        recognizeBtn.setOnAction(event -> recognizeController.recognize(selectedSketches));
-
-        voiceBtn.setOnAction(event -> {
-            if(voiceController.voiceEnabled){
-                Notifications.create()
-                        .title("Voice disabled")
-                        .text("Voice commands are now disabled.")
-                        .showInformation();
-            } else {
-                Notifications.create()
-                        .title("Voice enabled")
-                        .text("Voice commands are now enabled.")
-                        .showInformation();
-            }
-            voiceController.onVoiceButtonClick();
-
-        });
-    }
 
     private void initColorPicker(){
         colorPicker.setValue(Color.BLACK);
@@ -1425,6 +1193,75 @@ public class MainController {
         buttonInUse.getStyleClass().remove("button-in-use");
         buttonInUse = b;
         buttonInUse.getStyleClass().add("button-in-use");
+    }
+
+    //------------------------ misc. getters and setters -------------------------------------
+
+    Stage getStage() {
+        return aStage;
+    }
+
+    void setStage(Stage pStage) {
+        this.aStage = pStage;
+    }
+
+    HashMap<AbstractNodeView, AbstractNode> getNodeMap() {
+        return nodeMap;
+    }
+
+    public Graph getGraphModel() {
+        return graph;
+    }
+
+    ArrayList<AbstractNodeView> getSelectedNodes() {
+        return selectedNodes;
+    }
+
+    ArrayList<AbstractNodeView> getAllNodeViews() {
+        return allNodeViews;
+    }
+
+
+    ArrayList<AbstractEdgeView> getAllEdgeViews() {
+        return allEdgeViews;
+    }
+
+    UndoManager getUndoManager() {
+        return undoManager;
+    }
+
+    void setMode(Mode pMode) {
+        mode = pMode;
+    }
+
+    ScrollPane getScrollPane(){
+        return aScrollPane;
+    }
+
+    ToolEnum getTool() {
+        return tool;
+    }
+
+    void setTool(ToolEnum pTool) {
+        tool = pTool;
+    }
+
+    void addDialog(AnchorPane dialog) {
+        allDialogs.add(dialog);
+    }
+
+    boolean removeDialog(AnchorPane dialog) {
+        mode = Mode.NO_MODE;
+        return allDialogs.remove(dialog);
+    }
+
+    void closeLog(){
+        undoManager.closeLog();
+    }
+
+
+    public GraphController getGraphController(){
+        return graphController;
     }
 }
 

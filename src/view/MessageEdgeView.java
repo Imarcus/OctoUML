@@ -1,10 +1,13 @@
 package view;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import model.AbstractEdge;
+import model.MessageEdge;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;
@@ -21,10 +24,11 @@ public class MessageEdgeView extends AbstractEdgeView {
     private Double startY;
     private Circle circleHandle;
     private Group arrowHead;
+    private Text title = new Text();
 
 
 
-    public MessageEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
+    public MessageEdgeView(MessageEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
         super(edge, startNode, endNode);
         arrowHead = new Group();
         this.getChildren().add(arrowHead);
@@ -34,9 +38,10 @@ public class MessageEdgeView extends AbstractEdgeView {
         this.setStroke(Color.BLACK);
         setPosition();
         draw();
+        drawTitle("");
     }
 
-    public MessageEdgeView(AbstractEdge edge, Double pStartX, Double pStartY, AbstractNodeView endNode) {
+    public MessageEdgeView(MessageEdge edge, Double pStartX, Double pStartY, AbstractNodeView endNode) {
         super(edge, null, endNode);
         arrowHead = new Group();
         this.getChildren().add(arrowHead);
@@ -49,6 +54,8 @@ public class MessageEdgeView extends AbstractEdgeView {
         setPosition();
         drawCircleHandle();
         draw();
+        drawTitle("");
+        this.getChildren().add(title);
     }
 
 
@@ -66,6 +73,14 @@ public class MessageEdgeView extends AbstractEdgeView {
                 drawArrowHead(startLine.getStartX(), startLine.getStartY(), startLine.getEndX(), startLine.getEndY());
                 break;
         }
+    }
+
+    private void drawTitle(String titleStr){
+        title.setText(titleStr);
+        title.setX((startLine.getStartX()  + endNode.getX())/2);
+        title.setY(startLine.getStartY() - 5);
+        title.toFront();
+
     }
 
     @Override
@@ -134,11 +149,13 @@ public class MessageEdgeView extends AbstractEdgeView {
                 l.setStroke(Constants.selected_color);
             }
             circleHandle.setFill(Constants.selected_color);
+            title.setFill(Constants.selected_color);
         } else {
             for (Line l : arrowHeadLines) {
                 l.setStroke(Color.BLACK);
             }
             circleHandle.setFill(Color.BLACK);
+            title.setFill(Color.BLACK);
         }
     }
 
@@ -183,11 +200,21 @@ public class MessageEdgeView extends AbstractEdgeView {
         } else if (propertyName.equals(Constants.changeMessageStartX) ){
             startX = (Double)evt.getNewValue();
             setPositionNoStartNode();
+            drawTitle(title.getText());
             draw();
         } else if (propertyName.equals(Constants.changeMessageStartY)){
             startY = (Double)evt.getNewValue();
             setPositionNoStartNode();
+            drawTitle(title.getText());
             draw();
+        } else if (propertyName.equals(Constants.changeMessageTitle)){
+            drawTitle((String)evt.getNewValue());
+        } else if (propertyName.equals(Constants.changeMessageType)){
+            if(evt.getNewValue() == MessageEdge.MessageType.RESPONSE){
+                startLine.getStrokeDashArray().addAll(15d, 10d);
+            } else {
+                startLine.getStrokeDashArray().clear();
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import model.AbstractEdge;
+import model.MessageEdge;
 
 public class MessageEditDialogController {
 
@@ -47,12 +48,16 @@ public class MessageEditDialogController {
         return typeBox;
     }
 
-    public void setEdge(AbstractEdge edge) {
+    public TextField getTitleTextField(){
+        return titleTextField;
+    }
+
+    public void setEdge(MessageEdge edge) {
         this.edge = edge;
         //TODO Hardcoded values. Where to put them?
-        typeBox.getItems().setAll("Association", "Inheritance", "Aggregation", "Composition");
-        typeBox.getSelectionModel().select(edge.getType());
-        directionBox.getItems().setAll(AbstractEdge.Direction.values());
+        typeBox.getItems().setAll(MessageEdge.MessageType.values());
+        typeBox.getSelectionModel().select(edge.getMessageType());
+        directionBox.getItems().setAll(AbstractEdge.Direction.START_TO_END, AbstractEdge.Direction.END_TO_START);
         directionBox.getSelectionModel().select(edge.getDirection());
     }
 

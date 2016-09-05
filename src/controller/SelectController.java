@@ -67,7 +67,6 @@ public class SelectController {
         else if (diagramController.getTool() == ToolEnum.SELECT)
         {
             for(AbstractEdgeView edgeView : diagramController.allEdgeViews){
-                System.out.println(edgeView instanceof  MessageEdgeView);
                 if (!(edgeView instanceof MessageEdgeView) && (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15)){

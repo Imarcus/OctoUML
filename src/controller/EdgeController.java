@@ -1,11 +1,13 @@
 package controller;
 
 import controller.dialog.EdgeEditDialogController;
+import controller.dialog.MessageEditDialogController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -197,43 +199,24 @@ public class EdgeController {
             } else {
                 dialog.setLayoutX((edge.getStartX() + edge.getEndNode().getTranslateX()) / 2);
                 dialog.setLayoutY((edge.getStartY() + edge.getEndNode().getTranslateY()) / 2);
-
             }
 
             MessageEditDialogController controller = loader.getController();
             controller.setEdge(edge);
             ChoiceBox directionBox = controller.getDirectionBox();
             ChoiceBox typeBox = controller.getTypeBox();
+            TextField titleTextField = controller.getTitleTextField();
             controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    //If no change in type of edge we just change direction of old edge
-                    if(typeBox.getValue().equals(edge.getType()) || typeBox.getValue() == null){
-
-                        edge.setStartMultiplicity(controller.getStartMultiplicity());
-                        edge.setEndMultiplicity(controller.getEndMultiplicity());
-                        if (directionBox.getValue() != null) {
-                            diagramController.getUndoManager().add(new DirectionChangeEdgeCommand(edge, edge.getDirection(),
-                                    AbstractEdge.Direction.valueOf(directionBox.getValue().toString())));
-                            edge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
-                        }
-
-
-                    } else { //Else we create a new one to replace the old
-                        AbstractEdge newEdge = null;
-                        if (typeBox.getValue().equals("Inheritance")) {
-                            newEdge = new InheritanceEdge(edge.getStartNode(), edge.getEndNode());
-                        } else if (typeBox.getValue().equals("Association") ) {
-                            newEdge = new AssociationEdge(edge.getStartNode(), edge.getEndNode());
-                        } else if (typeBox.getValue().equals("Aggregation")) {
-                            newEdge = new AggregationEdge(edge.getStartNode(), edge.getEndNode());
-                        } else if (typeBox.getValue().equals("Composition")) {
-                            newEdge = new CompositionEdge(edge.getStartNode(), edge.getEndNode());
-                        }
-                        newEdge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
-                        newEdge.setStartMultiplicity(controller.getStartMultiplicity());
-                        newEdge.setEndMultiplicity(controller.getEndMultiplicity());
-                        replaceEdge(edge, newEdge);
+                    edge.setMessageType((MessageEdge.MessageType)typeBox.getValue());
+                    if (directionBox.getValue() != null) {
+                        diagramController.getUndoManager().add(new DirectionChangeEdgeCommand(edge, edge.getDirection(),
+                                AbstractEdge.Direction.valueOf(directionBox.getValue().toString())));
+                        edge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
+                    }
+                    if(titleTextField.getText() != null){
+                        edge.setTitle(titleTextField.getText());
                     }
                     aDrawPane.getChildren().remove(dialog);
                     diagramController.removeDialog(dialog);
@@ -249,7 +232,6 @@ public class EdgeController {
             return controller.isOkClicked();
 
         } catch (IOException e) {
-            // Exception gets thrown if the classDiagramView.fxml file could not be loaded
             e.printStackTrace();
             return false;
         }

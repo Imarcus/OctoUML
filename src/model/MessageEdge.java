@@ -11,6 +11,12 @@ public class MessageEdge extends AbstractEdge {
 
     private double startX;
     private double startY;
+    private String title;
+    public enum MessageType {
+        REQUEST, RESPONSE;
+    }
+
+    private MessageType messageType = MessageType.REQUEST;
 
     public MessageEdge(double pStartX, double pStartY, Node endNode) {
         super(null, endNode);
@@ -95,6 +101,21 @@ public class MessageEdge extends AbstractEdge {
         return 0;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String pTitle) {
+        changes.firePropertyChange(Constants.changeMessageTitle, title, pTitle);
+        remoteChanges.firePropertyChange(Constants.changeMessageTitle, title, pTitle);
+        title = pTitle;
+    }
+
+    public void remoteSetTitle(String pTitle){
+        changes.firePropertyChange(Constants.changeMessageTitle, title, pTitle);
+        title = pTitle;
+    }
+
     /**
      * No-arg constructor for JavaBean convention
      */
@@ -111,5 +132,21 @@ public class MessageEdge extends AbstractEdge {
 
     public String getType(){
         return "Message";
+    }
+
+    public MessageType getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(MessageType pMessageType) {
+        changes.firePropertyChange(Constants.changeMessageType, messageType, pMessageType);
+        remoteChanges.firePropertyChange(Constants.changeMessageType, messageType, pMessageType);
+        messageType = pMessageType;
+    }
+
+    public void remoteSetMessagesType(MessageType pMessageType){
+        changes.firePropertyChange(Constants.changeMessageType, messageType, pMessageType);
+        remoteChanges.firePropertyChange(Constants.changeMessageType, messageType, pMessageType);
+        messageType = pMessageType;
     }
 }

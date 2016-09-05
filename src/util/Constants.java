@@ -43,6 +43,8 @@ public class Constants {
     public static String changeEdgeEndMultiplicity = "EdgeEndMultiplicity";
     public static String changeMessageStartX = "MessageStartX";
     public static String changeMessageStartY = "MessageStartY";
+    public static String changeMessageTitle = "MessageTitle";
+    public static String changeMessageType = "MessageType";
 
     public static String changeSketchStart = "SketchStart";
     public static String changeSketchPoint = "SketchPoint";

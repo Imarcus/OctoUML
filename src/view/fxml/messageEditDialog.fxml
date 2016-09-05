@@ -7,12 +7,12 @@
         <GridPane prefHeight="175.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
             <children>
                 <Label text="Edit Edge" style="-fx-font: 16px Tahoma; -fx-stroke-width: 3;" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <Label text="Type" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label text="Type" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                 <Label text="Directionality" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <Label text="Title" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                <ChoiceBox fx:id="typeBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <Label text="Title" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <ChoiceBox fx:id="typeBox" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                 <ChoiceBox fx:id="directionBox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <TextField fx:id="titleTextField" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <TextField fx:id="titleTextField" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             </children>
             <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />

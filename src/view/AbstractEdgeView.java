@@ -19,6 +19,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
 
     protected AbstractEdge refEdge;
     protected AbstractNodeView startNode;
+    protected AbstractNodeView endNode;
     protected boolean selected = false;
     public final double STROKE_WIDTH = 1;
     public enum Position{
@@ -29,7 +30,6 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
     private Text startMultiplicity;
     private Text endMultiplicity;
 
-    private AbstractNodeView endNode;
     protected Line startLine = new Line();
     protected Line middleLine = new Line();
     protected Line endLine = new Line();

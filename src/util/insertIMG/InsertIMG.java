@@ -9,7 +9,7 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.awt.image.BufferedImage;
-import controller.MainController;
+import controller.AbstractDiagramController;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -23,7 +23,7 @@ public class InsertIMG {
     ImageView myImageView;
     Stage aStage;
     Pane aDrawPane;
-    private MainController controller;
+    private AbstractDiagramController controller;
     private Point2D.Double point;
 
     public InsertIMG(Stage pStage, Pane pDrawPane) {
@@ -31,7 +31,7 @@ public class InsertIMG {
         aDrawPane = pDrawPane;
     }
 
-    public void openFileChooser(MainController controller, Point2D.Double point) {
+    public void openFileChooser(AbstractDiagramController controller, Point2D.Double point) {
         this.point = point;
         this.controller = controller;
 

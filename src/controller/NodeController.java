@@ -33,7 +33,7 @@ public class NodeController {
     private Rectangle dragRectangle;
 
     private Pane aDrawPane;
-    private MainController aMainController;
+    private AbstractDiagramController diagramController;
     private boolean snapToGrid = true, snapIndicators = false;
     private AbstractNode currentResizeNode;
 
@@ -44,9 +44,9 @@ public class NodeController {
     private HashMap<AbstractNode, Line> xSnapIndicatorMap = new HashMap<>();
     private HashMap<AbstractNode, Line> ySnapIndicatorMap = new HashMap<>();
 
-    public NodeController(Pane pDrawPane, MainController pMainController){
+    public NodeController(Pane pDrawPane, AbstractDiagramController pDiagramController){
 
-        aMainController = pMainController;
+        diagramController = pDiagramController;
         aDrawPane = pDrawPane;
 
         dragRectangle = new Rectangle();
@@ -80,7 +80,7 @@ public class NodeController {
             setSnapIndicators(closestInteger(w.intValue(), Constants.GRID_DISTANCE), closestInteger(h.intValue(), Constants.GRID_DISTANCE), currentResizeNode, false);
         }
 
-        ArrayList<AbstractNodeView> selectedNodes = aMainController.getAllNodeViews();
+        ArrayList<AbstractNodeView> selectedNodes = diagramController.getAllNodeViews();
         for(AbstractNodeView n : selectedNodes){
             if(n instanceof PackageNodeView){
                 checkChildren((PackageNodeView)n);
@@ -102,7 +102,7 @@ public class NodeController {
             node.setHeight(dragRectangle.getHeight());
         }
 
-        aMainController.getUndoManager().add(new ResizeNodeCommand(node, oldWidth, oldHeight, node.getWidth(), node.getHeight()));
+        diagramController.getUndoManager().add(new ResizeNodeCommand(node, oldWidth, oldHeight, node.getWidth(), node.getHeight()));
 
         removeSnapIndicators();
         dragRectangle.setHeight(0);
@@ -117,12 +117,12 @@ public class NodeController {
 
         Point2D.Double initTranslate;
         ArrayList<AbstractNode> selectedNodes = new ArrayList<>();
-        for(AbstractNodeView nodeView : aMainController.getSelectedNodes()){
-            selectedNodes.add(aMainController.getNodeMap().get(nodeView));
+        for(AbstractNodeView nodeView : diagramController.getSelectedNodes()){
+            selectedNodes.add(diagramController.getNodeMap().get(nodeView));
         }
 
         //Move all selected nodes and their children. (Only package nodes can have children)
-        for(AbstractNode n : aMainController.getGraphModel().getAllNodes()){
+        for(AbstractNode n : diagramController.getGraphModel().getAllNodes()){
             if(selectedNodes.contains(n)) {
                 initTranslate = new Point2D.Double(n.getTranslateX(), n.getTranslateY());
                 initTranslateMap.put(n, initTranslate);
@@ -194,7 +194,7 @@ public class NodeController {
         deltaTranslateVector[0] = event.getSceneX() - initMoveX;
         deltaTranslateVector[1] = event.getSceneY() - initMoveY;
 
-        ArrayList<AbstractNodeView> selectedNodes = aMainController.getSelectedNodes();
+        ArrayList<AbstractNodeView> selectedNodes = diagramController.getSelectedNodes();
 
         for(AbstractNodeView n : selectedNodes){
             if(n instanceof PackageNodeView){
@@ -227,8 +227,8 @@ public class NodeController {
      */
     private boolean putNodeInPackage(AbstractNodeView potentialChild){
         boolean childMovedInside = false;
-        Map<AbstractNodeView, AbstractNode> nodeMap = aMainController.getNodeMap();
-        for(AbstractNodeView potentialParent : aMainController.getAllNodeViews()){
+        Map<AbstractNodeView, AbstractNode> nodeMap = diagramController.getNodeMap();
+        for(AbstractNodeView potentialParent : diagramController.getAllNodeViews()){
             if(potentialParent instanceof PackageNodeView && potentialParent != potentialChild)
             {
                 if(potentialParent.getBoundsInParent().contains(potentialChild.getBoundsInParent()))
@@ -251,10 +251,10 @@ public class NodeController {
      * Checks whether a packageNode contains any children.
      */
     private void checkChildren(PackageNodeView packageNodeView){
-        Map<AbstractNodeView, AbstractNode> nodeMap = aMainController.getNodeMap();
+        Map<AbstractNodeView, AbstractNode> nodeMap = diagramController.getNodeMap();
         PackageNode packageNodeModel = (PackageNode) nodeMap.get(packageNodeView);
         AbstractNode potentialChildModel;
-        for (AbstractNodeView potentialChild : aMainController.getAllNodeViews()){
+        for (AbstractNodeView potentialChild : diagramController.getAllNodeViews()){
             potentialChildModel = nodeMap.get(potentialChild);
             if(packageNodeView != potentialChild && packageNodeView.getBoundsInParent().contains(potentialChild.getBoundsInParent())){
                 if(!packageNodeModel.getChildNodes().contains(potentialChildModel)){
@@ -318,10 +318,10 @@ public class NodeController {
 
     public void onDoubleClick(AbstractNodeView nodeView){
         if(nodeView instanceof ClassNodeView){
-            showClassNodeEditDialog((ClassNode) aMainController.getNodeMap().get(nodeView));
+            showClassNodeEditDialog((ClassNode) diagramController.getNodeMap().get(nodeView));
         }
         else { //PackageNode
-            showNodeTitleDialog(aMainController.getNodeMap().get(nodeView));
+            showNodeTitleDialog(diagramController.getNodeMap().get(nodeView));
         }
     }
 
@@ -341,9 +341,9 @@ public class NodeController {
      * @return false if node == null, otherwise true.
      */
     private boolean showNodeTitleDialog(AbstractNode node){
-        if(aMainController.voiceController.voiceEnabled){
+        if(diagramController.voiceController.voiceEnabled){
             //Change variable testing in VoiceController to 1(true)
-            aMainController.voiceController.testing = 1;
+            diagramController.voiceController.testing = 1;
 
             String title2 = "";
             int time = 0;
@@ -355,21 +355,21 @@ public class NodeController {
                     e.printStackTrace();
                 }
                 //Check if a name has been recognised
-                title2 = aMainController.voiceController.titleName;
+                title2 = diagramController.voiceController.titleName;
                 time++;
             }
 
             //Change variable testing in VoiceController to 0(false)
-            aMainController.voiceController.testing = 0;
+            diagramController.voiceController.testing = 0;
 
             //If name found in less then 5 seconds it sets the name to the package
             if(time < 500) {
-                aMainController.voiceController.titleName = "";
+                diagramController.voiceController.titleName = "";
                 node.setTitle(title2);
             }
             //Else the name is not changed to a new name
             else{
-                aMainController.voiceController.titleName = "";
+                diagramController.voiceController.titleName = "";
             }
 
             node.setTitle(title2);
@@ -414,10 +414,10 @@ public class NodeController {
     }
 
     public boolean showClassNodeEditDialog(ClassNode node) {
-        if(aMainController.voiceController.voiceEnabled) {
+        if(diagramController.voiceController.voiceEnabled) {
 
             //Change variable testing in MainController to 1(true)
-            aMainController.voiceController.testing = 1;
+            diagramController.voiceController.testing = 1;
 
             String title = "";
             int time = 0;
@@ -429,27 +429,27 @@ public class NodeController {
                     e.printStackTrace();
                 }
                 //Check if a name has been commanded
-                title = aMainController.voiceController.titleName;
+                title = diagramController.voiceController.titleName;
                 time++;
             }
 
             //Change variable testing in MainController to 0(false)
-            aMainController.voiceController.testing = 0;
+            diagramController.voiceController.testing = 0;
 
             //If name found in less then 5 seconds it sets the name to the class
             if (time < 500) {
-                aMainController.voiceController.titleName = "";
+                diagramController.voiceController.titleName = "";
                 node.setTitle(title);
             }
             //Else the name is not changed to a new name
             else {
-                aMainController.voiceController.titleName = "";
+                diagramController.voiceController.titleName = "";
             }
         }
 
 
         try {
-            //Load the view.fxml file and create a new stage for the popup
+            //Load the classDiagramView.fxml file and create a new stage for the popup
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/nodeEditDialog.fxml"));
 
             AnchorPane dialog = loader.load();
@@ -480,10 +480,10 @@ public class NodeController {
                         node.setOperations(controller.getOperations());
                     }
                     if(command.size() > 0){
-                        aMainController.getUndoManager().add(command);
+                        diagramController.getUndoManager().add(command);
                     }
                     aDrawPane.getChildren().remove(dialog);
-                    aMainController.removeDialog(dialog);
+                    diagramController.removeDialog(dialog);
                 }
             });
 
@@ -491,15 +491,15 @@ public class NodeController {
                 @Override
                 public void handle(ActionEvent event) {
                     aDrawPane.getChildren().remove(dialog);
-                    aMainController.removeDialog(dialog);
+                    diagramController.removeDialog(dialog);
                 }
             });
             aDrawPane.getChildren().add(dialog);
-            aMainController.addDialog(dialog);
+            diagramController.addDialog(dialog);
             return controller.isOkClicked();
 
         } catch (IOException e) {
-            //Exception gets thrown if the view.fxml file could not be loaded
+            //Exception gets thrown if the classDiagramView.fxml file could not be loaded
             e.printStackTrace();
             return false;
         }

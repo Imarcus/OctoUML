@@ -27,6 +27,7 @@ public class AssociationEdgeView extends AbstractEdgeView {
         this.endNode = endNode;
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
+        setPosition();
         draw();
     }
 

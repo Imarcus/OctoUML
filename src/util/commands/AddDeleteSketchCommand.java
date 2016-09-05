@@ -20,7 +20,7 @@
  *******************************************************************************/
 package util.commands;
 
-import controller.MainController;
+import controller.AbstractDiagramController;
 import javafx.scene.layout.Pane;
 import model.Sketch;
 
@@ -31,7 +31,7 @@ import model.Sketch;
 public class AddDeleteSketchCommand implements Command
 {
 	private Sketch aSketch;
-	private MainController mainController;
+	private AbstractDiagramController diagramController;
 	private Pane aPane;
 	private boolean aAdding; //true for adding, false for deleting
 
@@ -39,9 +39,9 @@ public class AddDeleteSketchCommand implements Command
 	 * Creates the command.
 	 * @param pAdding True when adding, false when deleting
 	 */
-	public AddDeleteSketchCommand(MainController mController, Pane pPane, Sketch pPath, boolean pAdding)
+	public AddDeleteSketchCommand(AbstractDiagramController mController, Pane pPane, Sketch pPath, boolean pAdding)
 	{
-		mainController = mController;
+		diagramController = mController;
 		aPane = pPane;
 		aSketch = pPath;
 		aAdding = pAdding;
@@ -83,8 +83,8 @@ public class AddDeleteSketchCommand implements Command
 	private void delete() 
 	{
 		aPane.getChildren().remove(aSketch.getPath());
-		mainController.getSelectedSketches().remove(aSketch);
-		mainController.getGraphModel().removeSketch(aSketch, false);
+		diagramController.getSelectedSketches().remove(aSketch);
+		diagramController.getGraphModel().removeSketch(aSketch, false);
 	}
 	
 	/**
@@ -95,7 +95,7 @@ public class AddDeleteSketchCommand implements Command
         aPane.getChildren().add(aSketch.getPath());
         aSketch.getPath().toFront();
 		aSketch.setColor(aSketch.getColor());
-        mainController.getGraphModel().addSketch(aSketch, false);
+        diagramController.getGraphModel().addSketch(aSketch, false);
 
 	}
 

@@ -30,9 +30,9 @@ public class PackageNodeView extends AbstractNodeView {
     private Rectangle top;
     private Rectangle body;
     private final double TOP_HEIGHT_RATIO = 0.2;
-    private final double TOP_WIDTH_RATIO = 0.66;
-    private final double TOP_MAX_HEIGHT = 50;
-    private final double TOP_MAX_WIDTH = 200;
+    private final double TOP_WIDTH_RATIO = 0.4;
+    private final double TOP_MAX_HEIGHT = 30;
+    private final double TOP_MAX_WIDTH = 150;
 
     Line shortHandleLine;
     Line longHandleLine;

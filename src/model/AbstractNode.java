@@ -12,28 +12,31 @@ import java.io.Serializable;
  */
 public abstract class AbstractNode implements Node, Serializable
 {
+    protected static final double CLASS_MIN_WIDTH = 120;
+    protected static final double CLASS_MIN_HEIGHT = 100;
+    protected static final double LIFELINE_MIN_WIDTH = 120;
+    protected static final double LIFELINE_MIN_HEIGHT = 40;
+    protected static final double PACKAGE_MIN_WIDTH = 240;
+    protected static final double PACKAGE_MIN_HEIGHT = 200;
+
     private static final long serialVersionUID = 1L;
-    private static int objectCount = 0; //Used to ID instance
-    private int id = 0;
+    protected static int objectCount = 0; //Used to ID instance
+    private int id;
 
     //Listened to by the view, is always fired.
     protected transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
     //Listened to by the server/client, only fired when the change comes from local interaction.
     protected transient PropertyChangeSupport remoteChanges = new PropertyChangeSupport(this);
 
-    private final double MIN_WIDTH = 120;
-    private final double MIN_HEIGHT = 100;
-    private String aTitle;
-    private double x, y, width, height, translateX, translateY, scaleX, scaleY;
-    private boolean aIsChild;
+    protected String aTitle;
+    protected double x, y, width, height, translateX, translateY, scaleX, scaleY;
+    protected boolean aIsChild;
 
     public AbstractNode(double x, double y, double width, double height){
         this.x = x;
         this.y = y;
-
-        //Don't accept nodes with size less than MIN_WIDTH * MIN_HEIGHT.
-        this.width = width < MIN_WIDTH ? MIN_WIDTH : width;
-        this.height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
+        this.width = width;
+        this.height = height;
 
         translateX = x;
         translateY = y;
@@ -69,7 +72,7 @@ public abstract class AbstractNode implements Node, Serializable
      * @param height
      */
     public void setHeight(double height){
-        this.height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
+        this.height = height;
         changes.firePropertyChange(Constants.changeNodeHeight, null, this.height);
         remoteChanges.firePropertyChange(Constants.changeNodeHeight, null, this.height);
     }
@@ -79,7 +82,7 @@ public abstract class AbstractNode implements Node, Serializable
      * @param width
      */
     public void setWidth(double width){
-        this.width = width < MIN_WIDTH ? MIN_WIDTH : width;
+        this.width = width;
         changes.firePropertyChange(Constants.changeNodeWidth, null, this.width);
         remoteChanges.firePropertyChange(Constants.changeNodeWidth, null, this.width);
     }
@@ -129,11 +132,9 @@ public abstract class AbstractNode implements Node, Serializable
     }
 
     public void remoteSetHeight(double height){
-        this.height = height < MIN_HEIGHT ? MIN_HEIGHT : height;
         changes.firePropertyChange(Constants.changeNodeHeight, null, this.height);
     }
     public void remoteSetWidth(double width){
-        this.width = width < MIN_WIDTH ? MIN_WIDTH : width;
         changes.firePropertyChange(Constants.changeNodeWidth, null, this.width);
     }
 

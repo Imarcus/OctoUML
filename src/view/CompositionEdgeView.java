@@ -25,6 +25,7 @@ public class CompositionEdgeView extends AbstractEdgeView {
         this.refEdge = edge;
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
+        setPosition();
         draw();
     }
 

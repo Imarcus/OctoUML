@@ -14,7 +14,6 @@ public class InheritanceEdge extends AbstractEdge {
      */
     public InheritanceEdge() {}
 
-    @Override
     public Edge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy) {
         return new InheritanceEdge(startNodeCopy, endNodeCopy);
     }

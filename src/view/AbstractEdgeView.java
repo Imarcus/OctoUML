@@ -25,14 +25,14 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
         ABOVE, BELOW, RIGHT, LEFT, NONE
     }
 
-    private Position position = Position.NONE;
+    protected Position position = Position.NONE;
     private Text startMultiplicity;
     private Text endMultiplicity;
 
     private AbstractNodeView endNode;
-    private Line startLine = new Line();
-    private Line middleLine = new Line();
-    private Line endLine = new Line();
+    protected Line startLine = new Line();
+    protected Line middleLine = new Line();
+    protected Line endLine = new Line();
 
     public AbstractEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
         super();
@@ -48,13 +48,14 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
         this.getChildren().add(endLine);
         startMultiplicity = new Text(edge.getStartMultiplicity());
         endMultiplicity = new Text(edge.getEndMultiplicity());
-        setPosition();
         startLine.setStrokeWidth(STROKE_WIDTH);
         middleLine.setStrokeWidth(STROKE_WIDTH);
         endLine.setStrokeWidth(STROKE_WIDTH);
 
         refEdge.addPropertyChangeListener(this);
-        startNode.getRefNode().addPropertyChangeListener(this);
+        if(startNode != null){
+            startNode.getRefNode().addPropertyChangeListener(this);
+        }
         endNode.getRefNode().addPropertyChangeListener(this);
     }
 
@@ -165,7 +166,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
         return position;
     }
 
-    private void setPosition() {
+    protected void setPosition() {
         //If end node is to the right of startNode:
         if (startNode.getTranslateX() + startNode.getWidth() <= endNode.getTranslateX()) { //Straight line if height difference is small
             if(Math.abs(startNode.getTranslateY() + (startNode.getHeight()/2) - (endNode.getTranslateY() + (endNode.getHeight()/2))) < 20){

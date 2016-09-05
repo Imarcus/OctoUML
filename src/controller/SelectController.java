@@ -1,15 +1,18 @@
 package controller;
 
+import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import model.Sketch;
 import view.AbstractEdgeView;
 import view.AbstractNodeView;
-import controller.MainController.ToolEnum;
-import controller.MainController.Mode;
+import controller.AbstractDiagramController.ToolEnum;
+import controller.AbstractDiagramController.Mode;
+import view.MessageEdgeView;
 
 /**
  * Used by MainController for handling when a user tries to select elements in the graph.
@@ -22,11 +25,11 @@ public class SelectController {
     Rectangle selectRectangle;
 
     private Pane aDrawPane;
-    private MainController mainController;
+    private AbstractDiagramController diagramController;
 
-    public SelectController(Pane pDrawPane, MainController mainController){
+    public SelectController(Pane pDrawPane, AbstractDiagramController diagramController){
         aDrawPane = pDrawPane;
-        this.mainController = mainController;
+        this.diagramController = diagramController;
 
         //init selectRectangle
         selectRectangle = new Rectangle();
@@ -36,45 +39,54 @@ public class SelectController {
     }
 
     public void onMousePressed(MouseEvent event){
-        if (mainController.getTool() == MainController.ToolEnum.EDGE)
+        if (diagramController.getTool() == AbstractDiagramController.ToolEnum.EDGE)
         {
-            for(AbstractEdgeView edgeView : mainController.allEdgeViews){
+            for(AbstractEdgeView edgeView : diagramController.allEdgeViews){
                 if (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
-                    mainController.selected = true;
-                    mainController.selectedEdges.add(edgeView);
+                    /*if(edgeView instanceof MessageEdgeView){
+                        Circle circleHandle = ((MessageEdgeView)edgeView).getCircleHandle();
+                        if(circleHandle != null &&
+                                new Point2D(event.getX(), event.getY())
+                                        .distance(circleHandle.getCenterX(), circleHandle.getCenterY()) <= circleHandle.getRadius()){
+
+                            }
+                        }
+                    }*/
+                    diagramController.selected = true;
+                    diagramController.selectedEdges.add(edgeView);
                     if(event.getClickCount() > 1){
-                        mainController.edgeController.showEdgeEditDialog(edgeView.getRefEdge());
-                        mainController.setTool(ToolEnum.SELECT);
-                        mainController.setButtonClicked(mainController.selectBtn);
+                        diagramController.edgeController.showEdgeEditDialog(edgeView.getRefEdge());
+                        diagramController.setTool(ToolEnum.SELECT);
+                        diagramController.setButtonClicked(diagramController.selectBtn);
                     }
                 }
             }
         }
-        else if (mainController.getTool() == ToolEnum.SELECT)
+        else if (diagramController.getTool() == ToolEnum.SELECT)
         {
-            for(AbstractEdgeView edgeView : mainController.allEdgeViews){
+            for(AbstractEdgeView edgeView : diagramController.allEdgeViews){
                 if (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
-                    mainController.selected = true;
-                    mainController.selectedEdges.add(edgeView);
+                    diagramController.selected = true;
+                    diagramController.selectedEdges.add(edgeView);
                     if(event.getClickCount() > 1){
-                        mainController.edgeController.showEdgeEditDialog(edgeView.getRefEdge());
-                        mainController.setTool(ToolEnum.SELECT);
-                        mainController.setButtonClicked(mainController.selectBtn);
+                        diagramController.edgeController.showEdgeEditDialog(edgeView.getRefEdge());
+                        diagramController.setTool(ToolEnum.SELECT);
+                        diagramController.setButtonClicked(diagramController.selectBtn);
                     }
                 }
             }
 
-            mainController.setMode(Mode.SELECTING);
+            diagramController.setMode(Mode.SELECTING);
             //TODO This should not be needed, should be in nodeView.initActions().
-            for(AbstractNodeView nodeView : mainController.allNodeViews){
+            for(AbstractNodeView nodeView : diagramController.allNodeViews){
                 if (nodeView.getBoundsInParent().contains(event.getX(), event.getY()))
                 {
-                    mainController.selectedNodes.add(nodeView);
-                    mainController.selected = true;
+                    diagramController.selectedNodes.add(nodeView);
+                    diagramController.selected = true;
                 }
             }
 
@@ -96,47 +108,44 @@ public class SelectController {
         selectRectangle.setY(Math.min(selectStartY, event.getY()));
         selectRectangle.setWidth(Math.abs(selectStartX - event.getX()));
         selectRectangle.setHeight(Math.abs(selectStartY - event.getY()));
-
-
         selectRectangle.setHeight(Math.max(event.getY() - selectStartY, selectStartY - event.getY()));
-        //drawSelected();
     }
 
     void onMouseReleased(){
-        for(AbstractNodeView nodeView : mainController.allNodeViews) {
+        for(AbstractNodeView nodeView : diagramController.allNodeViews) {
             if (selectRectangle.getBoundsInParent().contains(nodeView.getBoundsInParent()))
             {
-                mainController.selected = true;
-                mainController.selectedNodes.add(nodeView);
+                diagramController.selected = true;
+                diagramController.selectedNodes.add(nodeView);
             }
         }
-        for (AbstractEdgeView edgeView: mainController.allEdgeViews) {
+        for (AbstractEdgeView edgeView: diagramController.allEdgeViews) {
             if (selectRectangle.getBoundsInParent().intersects(edgeView.getBoundsInParent()))
             {
-                mainController.selected = true;
-                mainController.selectedEdges.add(edgeView);
+                diagramController.selected = true;
+                diagramController.selectedEdges.add(edgeView);
             }
         }
-        for (Sketch sketch : mainController.getGraphModel().getAllSketches()) {
+        for (Sketch sketch : diagramController.getGraphModel().getAllSketches()) {
             if (selectRectangle.getBoundsInParent().intersects(sketch.getPath().getBoundsInParent())) {
-                mainController.selected = true;
-                mainController.selectedSketches.add(sketch);
+                diagramController.selected = true;
+                diagramController.selectedSketches.add(sketch);
             }
         }
 
         //If no nodes were contained, remove all selections
-        if (!mainController.selected) {
-            mainController.selectedNodes.clear();
-            mainController.selectedEdges.clear();
-            mainController.selectedSketches.clear();
+        if (!diagramController.selected) {
+            diagramController.selectedNodes.clear();
+            diagramController.selectedEdges.clear();
+            diagramController.selectedSketches.clear();
         }
 
-        mainController.drawSelected();
+        diagramController.drawSelected();
         selectRectangle.setWidth(0);
         selectRectangle.setHeight(0);
         aDrawPane.getChildren().remove(selectRectangle);
-        mainController.selected = false;
-        mainController.setMode(Mode.NO_MODE);
+        diagramController.selected = false;
+        diagramController.setMode(Mode.NO_MODE);
     }
 
     //Code copied, sorry!

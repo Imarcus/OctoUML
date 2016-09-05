@@ -9,7 +9,6 @@ public class AggregationEdge extends AbstractEdge {
         super(startNode, endNode);
     }
 
-    @Override
     public Edge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy) {
         return new AggregationEdge(getStartNode(), getEndNode());
     }

@@ -4,7 +4,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
-import controller.MainController;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import model.*;
@@ -23,12 +22,12 @@ public class ServerController implements PropertyChangeListener {
 
     private Graph graph;
     private Server server;
-    private MainController mainController;
+    private AbstractDiagramController diagramController;
     private int port;
     private int nrClients = 0;
 
-    public ServerController(Graph pGraph, MainController pMainController, int pPort) {
-        mainController = pMainController;
+    public ServerController(Graph pGraph, AbstractDiagramController pDiagramController, int pPort) {
+        diagramController = pDiagramController;
         port = pPort;
         graph = pGraph;
         graph.addRemotePropertyChangeListener(this);
@@ -41,43 +40,43 @@ public class ServerController implements PropertyChangeListener {
             e.printStackTrace();
         }
 
-        Platform.runLater(() -> mainController.setServerLabel("Clients: " + Integer.toString(nrClients)));
+        Platform.runLater(() -> diagramController.setServerLabel("Clients: " + Integer.toString(nrClients)));
         initKryo(server.getKryo());
 
 
         server.addListener(new Listener() {
             public void received (Connection connection, Object object) {
                 if (object instanceof Sketch) {
-                    Platform.runLater(() -> mainController.addSketch((Sketch)object, false, true));
+                    Platform.runLater(() -> diagramController.addSketch((Sketch)object, false, true));
                 }
                 else if (object instanceof String) {
                     String request = (String)object;
                     if(request.equals(Constants.requestGraph)){
-                        connection.sendTCP(mainController.getGraphModel());
+                        connection.sendTCP(diagramController.getGraphModel());
                     }
                 }
                 else if (object instanceof AbstractNode) {
                     server.sendToAllExceptTCP(connection.getID(), object);
-                    Platform.runLater(() -> mainController.createNodeView((AbstractNode)object, true));
+                    Platform.runLater(() -> diagramController.createNodeView((AbstractNode)object, true));
                 }
                 else if (object instanceof AbstractEdge) {
                     server.sendToAllExceptTCP(connection.getID(), object);
-                    Platform.runLater(() -> mainController.addEdgeView((AbstractEdge)object, true));
+                    Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)object, true));
                 }
                 else if (object instanceof String[]){
                     server.sendToAllExceptTCP(connection.getID(), object);
-                    Platform.runLater(() -> mainController.remoteCommand((String[])object));
+                    Platform.runLater(() -> diagramController.remoteCommand((String[])object));
                 }
             }
 
             public void connected(Connection c){
                 nrClients++;
-                Platform.runLater(() -> mainController.setServerLabel("Clients: " + Integer.toString(nrClients)));
+                Platform.runLater(() -> diagramController.setServerLabel("Clients: " + Integer.toString(nrClients)));
             }
 
             public void disconnected(Connection c){
                 nrClients--;
-                Platform.runLater(() -> mainController.setServerLabel("Clients: " + Integer.toString(nrClients)));
+                Platform.runLater(() -> diagramController.setServerLabel("Clients: " + Integer.toString(nrClients)));
             }
         });
 

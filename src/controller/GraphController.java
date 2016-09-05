@@ -18,17 +18,17 @@ public class GraphController {
     private double initMoveX, initMoveY;
 
     private Pane aDrawPane;
-    private MainController aMainController;
+    private AbstractDiagramController diagramController;
     private ScrollPane aScrollPane;
 
     private ArrayList<Line> grid = new ArrayList<>();
     private boolean isGridVisible = true;
 
 
-    GraphController(Pane pDrawPane, MainController pMainController, ScrollPane pScrollPane)
+    GraphController(Pane pDrawPane, AbstractDiagramController pDiagramController, ScrollPane pScrollPane)
     {
         aDrawPane = pDrawPane;
-        aMainController = pMainController;
+        diagramController = pDiagramController;
         aScrollPane = pScrollPane;
 
         // center the scroll contents.
@@ -49,8 +49,8 @@ public class GraphController {
 
     void movePane(MouseEvent event)
     {
-        ScrollPane scrollPane = aMainController.getScrollPane();
-        double xScroll =  (initMoveX - event.getSceneX())/8000; //8000 is the size of aDrawPane set in view.view.fxml
+        ScrollPane scrollPane = diagramController.getScrollPane();
+        double xScroll =  (initMoveX - event.getSceneX())/8000; //8000 is the size of aDrawPane set in view.classDiagramView.fxml
         double yScroll = (initMoveY - event.getSceneY())/8000;
 
 
@@ -111,7 +111,7 @@ public class GraphController {
     }
 
     public void sketchesToFront() {
-        for (Sketch sketch : aMainController.getGraphModel().getAllSketches()) {
+        for (Sketch sketch : diagramController.getGraphModel().getAllSketches()) {
             sketch.getPath().toFront();
         }
     }

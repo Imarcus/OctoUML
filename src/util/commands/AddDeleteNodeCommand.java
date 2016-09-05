@@ -20,7 +20,7 @@
  *******************************************************************************/
 package util.commands;
 
-import controller.MainController;
+import controller.AbstractDiagramController;
 import model.AbstractNode;
 import model.Graph;
 import view.AbstractNodeView;
@@ -31,7 +31,7 @@ import view.AbstractNodeView;
  */
 public class AddDeleteNodeCommand implements Command
 {
-	private MainController aController;
+	private AbstractDiagramController aController;
 	private Graph aGraph;
 	private AbstractNodeView aNodeView;
 	private AbstractNode aNode;
@@ -42,7 +42,7 @@ public class AddDeleteNodeCommand implements Command
 	 * @param pNode The node to be added/deleted
 	 * @param pAdding True when adding, false when deleting
 	 */
-	public AddDeleteNodeCommand(MainController pController,
+	public AddDeleteNodeCommand(AbstractDiagramController pController,
 								Graph pGraph, AbstractNodeView pNodeView, AbstractNode pNode, boolean pAdding)
 	{
 		aController = pController;

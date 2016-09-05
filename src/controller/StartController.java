@@ -37,10 +37,10 @@ public class StartController {
 
     public void handleActionNew(){
         tabController.getTabPane().getTabs().clear();
-        tabController.addTab();
+        tabController.addTab(TabController.CLASS_DIAGRAM_VIEW_PATH);
     }
 
-    public void setTC(TabController tc){
+    public void setTabController(TabController tc){
         tabController = tc;
     }
 

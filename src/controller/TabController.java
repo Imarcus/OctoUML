@@ -11,7 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.controlsfx.control.Notifications;
@@ -36,14 +35,12 @@ public class TabController {
     private CheckMenuItem umlMenuItem, sketchesMenuItem, mouseMenuItem, gridMenuItem, snapToGridMenuItem, snapIndicatorsMenuItem;
 
     @FXML
-    Pane content;
-
-    @FXML
     private TabPane tabPane;
-
     private Stage stage;
+    private Map<Tab, AbstractDiagramController> tabMap = new HashMap<>();
 
-    private Map<Tab, MainController> tabMap = new HashMap<>();
+    public static final String CLASS_DIAGRAM_VIEW_PATH = "view/fxml/classDiagramView.fxml";
+    public static final String SEQUENCE_DIAGRAM_VIEW_PATH = "view/fxml/sequenceDiagramView.fxml";
 
 
     @FXML
@@ -58,15 +55,14 @@ public class TabController {
         stage = pStage;
     }
 
-    public Tab addTab(){
+    public Tab addTab(String pathToDiagram){
         BorderPane canvasView = null;
-        MainController mainController = null;
+        AbstractDiagramController diagramController = null;
         FXMLLoader loader;
-
         try {
-            loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/view.fxml"));
+            loader = new FXMLLoader(getClass().getClassLoader().getResource(pathToDiagram));
             canvasView = loader.load();
-            mainController = loader.getController();
+            diagramController = loader.getController();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -74,11 +70,15 @@ public class TabController {
         Tab tab = new Tab();
 
         tab.setContent(canvasView);
-        tabMap.put(tab, mainController);
-        tab.setText("Diagram " + tabMap.size());
+        tabMap.put(tab, diagramController);
 
+        if(diagramController instanceof ClassDiagramController){
+            tab.setText("Class Diagram " + tabMap.size());
+        } else {
+            tab.setText("Sequence Diagram " + tabMap.size());
+        }
         tabPane.getTabs().add(tab);
-        mainController.setStage(stage);
+        diagramController.setStage(stage);
         return tab;
     }
 
@@ -102,24 +102,28 @@ public class TabController {
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSave();
     }
     public void handleMenuActionLoad() {
-        Tab tab = addTab();
+        Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
         tabPane.getSelectionModel().select(tab);
         tabMap.get(tab).handleMenuActionLoad();
         tab.setText(tabMap.get(tab).getGraphModel().getName());
     }
-    public void handleMenuActionNew() {
-        Tab tab = addTab();
+    public void handleMenuActionNewClassDiagram() {
+        Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
+        tabPane.getSelectionModel().select(tab);
+    }
+    public void handleMenuActionNewSequenceDiagram() {
+        Tab tab = addTab(SEQUENCE_DIAGRAM_VIEW_PATH);
         tabPane.getSelectionModel().select(tab);
     }
 
     public void handleMenuActionServer(){
-        Tab tab = addTab();
+        Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
         tabPane.getSelectionModel().select(tab);
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionServer();
     }
 
     public void handleMenuActionClient(){
-        Tab tab = addTab();
+        Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
         tabPane.getSelectionModel().select(tab);
         if(!tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionClient()){
             tabPane.getTabs().remove(tab);
@@ -139,7 +143,7 @@ public class TabController {
     }
 
     public void stop(){
-        for(MainController mc : tabMap.values()){
+        for(AbstractDiagramController mc : tabMap.values()){
             mc.closeServers();
             mc.closeClients();
             mc.closeLog();
@@ -164,10 +168,10 @@ public class TabController {
                         .call();
                 alert.close();
 
-                MainController mainController = tabMap.get(tabPane.getSelectionModel().getSelectedItem());
+                AbstractDiagramController diagramController = tabMap.get(tabPane.getSelectionModel().getSelectedItem());
 
                 if(gitRepoController.imageCheckBox.isSelected()){
-                    WritableImage image = mainController.getSnapShot();
+                    WritableImage image = diagramController.getSnapShot();
                     String imageFileName = gitRepoController.imageNameTextField.getText() + ".png";
                     File imageFile = new File(localPath + "/" + imageFileName);
                     ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", imageFile);
@@ -177,7 +181,7 @@ public class TabController {
 
                 if(gitRepoController.xmiCheckBox.isSelected()) {
                     String xmiFileName = gitRepoController.xmiNameTextField.getText() + ".xmi";
-                    mainController.createXMI(localPath + "/" + xmiFileName);
+                    diagramController.createXMI(localPath + "/" + xmiFileName);
                     git.add().addFilepattern(xmiFileName).call();
 
                 }

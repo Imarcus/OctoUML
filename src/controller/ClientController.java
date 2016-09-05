@@ -21,14 +21,14 @@ import java.util.ArrayList;
  */
 public class ClientController implements PropertyChangeListener {
 
-    private MainController mainController;
+    private AbstractDiagramController diagramController;
     private Client client;
     private String serverIp;
     private int port;
 
 
-    public ClientController(MainController pMainController, String pServerIp, int pPort) {
-        mainController = pMainController;
+    public ClientController(AbstractDiagramController pDiagramController, String pServerIp, int pPort) {
+        diagramController = pDiagramController;
         serverIp = pServerIp;
         port = pPort;
 
@@ -39,18 +39,18 @@ public class ClientController implements PropertyChangeListener {
         client.addListener(new Listener() {
             public void received (Connection connection, Object object) {
                 if (object instanceof AbstractNode) {
-                    Platform.runLater(() -> mainController.createNodeView((AbstractNode)object, true));
+                    Platform.runLater(() -> diagramController.createNodeView((AbstractNode)object, true));
                 }
                 else if (object instanceof AbstractEdge) {
-                    Platform.runLater(() -> mainController.addEdgeView((AbstractEdge)object, true));
+                    Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)object, true));
                 }
                 else if (object instanceof Graph){
                     Graph graph = (Graph) object;
                     graph.addRemotePropertyChangeListener(ClientController.this);
-                    Platform.runLater(() -> mainController.load(graph, true));
+                    Platform.runLater(() -> diagramController.load(graph, true));
                 }
                 else if (object instanceof String[]){
-                    Platform.runLater(() -> mainController.remoteCommand((String[])object));
+                    Platform.runLater(() -> diagramController.remoteCommand((String[])object));
                 }
             }
         });

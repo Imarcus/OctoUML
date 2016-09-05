@@ -8,10 +8,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import model.AbstractNode;
 import model.ClassNode;
+import model.Lifeline;
 import model.PackageNode;
 import view.AbstractNodeView;
-import view.ClassNodeView;
-import view.NodeView;
 import view.PackageNodeView;
 
 import java.util.HashMap;
@@ -30,13 +29,13 @@ public class CreateNodeController {
     private double mouseDragStartX;
     private double mouseDragStartY;
 
-    private MainController aMainController;
+    private AbstractDiagramController diagramController;
     private Pane aDrawPane;
 
 
 
-    public CreateNodeController(Pane pDrawPane, MainController pMainController){
-        aMainController = pMainController;
+    public CreateNodeController(Pane pDrawPane, AbstractDiagramController pDiagramController){
+        diagramController = pDiagramController;
         aDrawPane = pDrawPane;
     }
 
@@ -85,7 +84,7 @@ public class CreateNodeController {
     public void onTouchReleasedClass(TouchEvent event)
     {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        aMainController.createNodeView(new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
+        diagramController.createNodeView(new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
                 dragRectangle.getWidth(), dragRectangle.getHeight()), false);
         finish();
 
@@ -94,7 +93,7 @@ public class CreateNodeController {
     public void onTouchReleasedPackage(TouchEvent event)
     {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        aMainController.createNodeView(new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
+        diagramController.createNodeView(new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
                 dragRectangle.getWidth(), dragRectangle.getHeight()), false);
         finish();
 
@@ -135,14 +134,21 @@ public class CreateNodeController {
     }
 
     public void onMouseReleasedClass(){
-        aMainController.createNodeView(new ClassNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
+        diagramController.createNodeView(new ClassNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
                 mouseDragRectangle.getWidth(),
                 mouseDragRectangle.getHeight()), false);
         finish();
     }
 
     public void onMouseReleasedPackage(){
-        aMainController.createNodeView(new PackageNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
+        diagramController.createNodeView(new PackageNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
+                mouseDragRectangle.getWidth(),
+                mouseDragRectangle.getHeight()), false);
+        finish();
+    }
+
+    public void onMouseReleasedLifeline(){
+        diagramController.createNodeView(new Lifeline(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
                 mouseDragRectangle.getWidth(),
                 mouseDragRectangle.getHeight()), false);
         finish();
@@ -159,8 +165,8 @@ public class CreateNodeController {
      */
     //TODO This is maybe not necessary, as the graph now adds the child to the package.
     private boolean putNodeInPackage(AbstractNodeView nodeView, AbstractNode potentialChildModel){
-        Map<AbstractNodeView, AbstractNode> nodeMap = aMainController.getNodeMap();
-        for(AbstractNodeView potentialParent : aMainController.getAllNodeViews()){
+        Map<AbstractNodeView, AbstractNode> nodeMap = diagramController.getNodeMap();
+        for(AbstractNodeView potentialParent : diagramController.getAllNodeViews()){
             if(potentialParent instanceof PackageNodeView)
             {
                 if(potentialParent.getBoundsInParent().contains(nodeView.getBounds()))

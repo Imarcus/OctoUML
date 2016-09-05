@@ -18,7 +18,7 @@ import java.util.HashMap;
 public class CopyPasteController {
 
     Pane aDrawingPane;
-    MainController mainController;
+    AbstractDiagramController diagramController;
 
     //Copy nodes logic
     ArrayList<AbstractNode> currentlyCopiedNodes = new ArrayList<>();
@@ -27,9 +27,9 @@ public class CopyPasteController {
     double[] copyPasteCoords;
 
 
-    public CopyPasteController(Pane pDrawingPane, MainController mainController) {
+    public CopyPasteController(Pane pDrawingPane, AbstractDiagramController diagramController) {
         aDrawingPane = pDrawingPane;
-        this.mainController = mainController;
+        this.diagramController = diagramController;
     }
 
     //TODO Copy edges and sketches as well
@@ -38,10 +38,10 @@ public class CopyPasteController {
         copyDeltas.clear();
         currentlyCopiedEdges.clear();
 
-        for(AbstractNodeView nodeView : mainController.selectedNodes){
-            currentlyCopiedNodes.add(mainController.nodeMap.get(nodeView));
+        for(AbstractNodeView nodeView : diagramController.selectedNodes){
+            currentlyCopiedNodes.add(diagramController.nodeMap.get(nodeView));
         }
-        for(AbstractEdgeView edgeView : mainController.selectedEdges){
+        for(AbstractEdgeView edgeView : diagramController.selectedEdges){
             currentlyCopiedEdges.add(edgeView.getRefEdge());
         }
         setUpCopyCoords();
@@ -95,11 +95,11 @@ public class CopyPasteController {
                         newStartNode = ((AbstractNode)oldEdge.getStartNode()).copy();
                         alreadyCopiedNodes.put(node, newStartNode);
 
-                        mainController.getGraphModel().addNode(newStartNode, false);
+                        diagramController.getGraphModel().addNode(newStartNode, false);
                         newStartNode.setTranslateX(copyPasteCoords[0] + copyDeltas.get(node)[0]);
                         newStartNode.setTranslateY(copyPasteCoords[1] + copyDeltas.get(node)[1]);
-                        newStartNodeView = mainController.createNodeView(newStartNode, false);
-                        command.add(new AddDeleteNodeCommand(mainController, mainController.getGraphModel(), newStartNodeView, newStartNode, true));
+                        newStartNodeView = diagramController.createNodeView(newStartNode, false);
+                        command.add(new AddDeleteNodeCommand(diagramController, diagramController.getGraphModel(), newStartNodeView, newStartNode, true));
                     } else {
                         newStartNode = alreadyCopiedNodes.get(node);
                     }
@@ -109,11 +109,11 @@ public class CopyPasteController {
                         newEndNode = ((AbstractNode) oldEdge.getEndNode()).copy();
                         alreadyCopiedNodes.put(node, newEndNode);
 
-                        mainController.getGraphModel().addNode(newEndNode, false);
+                        diagramController.getGraphModel().addNode(newEndNode, false);
                         newEndNode.setTranslateX(copyPasteCoords[0] + copyDeltas.get(node)[0]);
                         newEndNode.setTranslateY(copyPasteCoords[1] + copyDeltas.get(node)[1]);
-                        newEndNodeView = mainController.createNodeView(newEndNode, false);
-                        command.add(new AddDeleteNodeCommand(mainController, mainController.getGraphModel(), newEndNodeView, newEndNode, true));
+                        newEndNodeView = diagramController.createNodeView(newEndNode, false);
+                        command.add(new AddDeleteNodeCommand(diagramController, diagramController.getGraphModel(), newEndNodeView, newEndNode, true));
                     } else {
                         newEndNode = alreadyCopiedNodes.get(node);
                     }
@@ -121,24 +121,24 @@ public class CopyPasteController {
             }
             currentlyCopiedNodes.removeAll(alreadyCopiedNodes.keySet());
             AbstractEdge copy = (AbstractEdge)oldEdge.copy(newStartNode, newEndNode);
-            mainController.getGraphModel().getAllEdges().add(copy);
-            AbstractEdgeView newEdgeView = mainController.createEdgeView(copy, newStartNodeView, newEndNodeView);
-            command.add(new AddDeleteEdgeCommand(mainController, newEdgeView, copy, true));
+            diagramController.getGraphModel().getAllEdges().add(copy);
+            AbstractEdgeView newEdgeView = diagramController.createEdgeView(copy, newStartNodeView, newEndNodeView);
+            command.add(new AddDeleteEdgeCommand(diagramController, newEdgeView, copy, true));
         }
 
         for (GraphElement old : currentlyCopiedNodes) {
             AbstractNode copy = ((AbstractNode)old).copy();
-            mainController.getGraphModel().addNode(copy, false);
+            diagramController.getGraphModel().addNode(copy, false);
             copy.setTranslateX(copyPasteCoords[0] + copyDeltas.get(old)[0]);
             copy.setTranslateY(copyPasteCoords[1] + copyDeltas.get(old)[1]);
-            AbstractNodeView newView = mainController.createNodeView(copy, false);
-            command.add(new AddDeleteNodeCommand(mainController, mainController.getGraphModel(), newView, copy, true));
+            AbstractNodeView newView = diagramController.createNodeView(copy, false);
+            command.add(new AddDeleteNodeCommand(diagramController, diagramController.getGraphModel(), newView, copy, true));
 
         }
         currentlyCopiedNodes.clear();
         currentlyCopiedEdges.clear();
         if(command.size() != 0){
-            mainController.getUndoManager().add(command);
+            diagramController.getUndoManager().add(command);
         }
     }
 

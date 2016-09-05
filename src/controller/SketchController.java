@@ -1,18 +1,10 @@
 package controller;
 
-import edu.tamu.core.sketch.Point;
-import edu.tamu.core.sketch.Shape;
-import edu.tamu.core.sketch.Stroke;
-import edu.tamu.recognition.paleo.PaleoConfig;
-import edu.tamu.recognition.paleo.PaleoSketchRecognizer;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
 import model.*;
 import view.AbstractNodeView;
 
@@ -27,7 +19,7 @@ public class SketchController {
     //private Sketch currentSketch;
     //private Stroke currentStroke;
     private Pane aDrawPane;
-    private MainController mController;
+    private AbstractDiagramController mController;
 
     private HashMap<Integer, Sketch> currentSketches = new HashMap<>();
     private Sketch currentSketch;
@@ -38,9 +30,9 @@ public class SketchController {
 
     public Color color = Color.BLACK;
 
-    public SketchController(Pane pDrawPane, MainController mainController) {
+    public SketchController(Pane pDrawPane, AbstractDiagramController diagramController) {
         this.aDrawPane = pDrawPane;
-        this.mController = mainController;
+        this.mController = diagramController;
 
     }
     public void onTouchPressed(InputEvent event) {

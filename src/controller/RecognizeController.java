@@ -11,7 +11,6 @@ import javafx.scene.layout.Pane;
 import model.*;
 import util.commands.AddDeleteEdgeCommand;
 import util.commands.AddDeleteNodeCommand;
-import util.commands.AddDeleteSketchCommand;
 import util.commands.CompoundCommand;
 import view.AbstractEdgeView;
 import view.AbstractNodeView;
@@ -24,15 +23,15 @@ import java.util.List;
  */
 public class RecognizeController {
     private Pane aDrawPane;
-    private MainController mainController;
+    private AbstractDiagramController diagramController;
     private PaleoSketchRecognizer recognizer;
     private Graph graph;
 
 
-    public RecognizeController(Pane pDrawPane, MainController pController) {
+    public RecognizeController(Pane pDrawPane, AbstractDiagramController pController) {
         aDrawPane = pDrawPane;
-        mainController = pController;
-        graph = mainController.getGraphModel();
+        diagramController = pController;
+        graph = diagramController.getGraphModel();
 
         //TODO Find a nicer solution for this:
         //This is to load the recognizer when starting app, not when starting to draw.
@@ -107,20 +106,20 @@ public class RecognizeController {
         }
 
         for(AbstractNode node : recognizedNodes){
-            AbstractNodeView nodeView = mainController.createNodeView(node, false);
-            recognizeCompoundCommand.add(new AddDeleteNodeCommand(mainController, graph, nodeView, node, true));
+            AbstractNodeView nodeView = diagramController.createNodeView(node, false);
+            recognizeCompoundCommand.add(new AddDeleteNodeCommand(diagramController, graph, nodeView, node, true));
         }
         for(AbstractEdge edge : recognizedEdges){
-            AbstractEdgeView edgeView = mainController.addEdgeView(edge, false);
+            AbstractEdgeView edgeView = diagramController.addEdgeView(edge, false);
             if (edgeView != null) {
-                recognizeCompoundCommand.add(new AddDeleteEdgeCommand(mainController, edgeView, edge, true));
+                recognizeCompoundCommand.add(new AddDeleteEdgeCommand(diagramController, edgeView, edge, true));
             }
         }
         for(Sketch sketch : sketchesToBeRemoved){
-            mainController.deleteSketch(sketch, recognizeCompoundCommand, false);
+            diagramController.deleteSketch(sketch, recognizeCompoundCommand, false);
         }
         if(recognizeCompoundCommand.size() > 0){
-            mainController.getUndoManager().add(recognizeCompoundCommand);
+            diagramController.getUndoManager().add(recognizeCompoundCommand);
         }
 
     }

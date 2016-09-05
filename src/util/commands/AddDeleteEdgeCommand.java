@@ -21,10 +21,9 @@
 package util.commands;
 
 
-import controller.MainController;
+import controller.AbstractDiagramController;
 import model.AbstractEdge;
 import model.Edge;
-import model.Node;
 import view.AbstractEdgeView;
 
 /**
@@ -33,7 +32,7 @@ import view.AbstractEdgeView;
  */
 public class AddDeleteEdgeCommand implements Command
 {
-	private MainController aController;
+	private AbstractDiagramController aController;
     private AbstractEdgeView aEdgeView;
 	private Edge aEdge;
 	private boolean aAdding; //true for adding, false for deleting
@@ -43,7 +42,7 @@ public class AddDeleteEdgeCommand implements Command
 	 * @param pEdge The edge to be added/deleted
 	 * @param pAdding True when adding, false when deleting
 	 */
-	public AddDeleteEdgeCommand(MainController pController, AbstractEdgeView pEdgeView, AbstractEdge pEdge, boolean pAdding)
+	public AddDeleteEdgeCommand(AbstractDiagramController pController, AbstractEdgeView pEdgeView, AbstractEdge pEdge, boolean pAdding)
 	{
 		aController = pController;
         aEdgeView = pEdgeView;

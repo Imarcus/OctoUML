@@ -29,7 +29,7 @@ public class EdgeEditDialogController {
 
     /**
      * Initializes the controller class. This method is automatically called
-     * after the view.fxml file has been loaded.
+     * after the classDiagramView.fxml file has been loaded.
      */
     @FXML
     private void initialize() {

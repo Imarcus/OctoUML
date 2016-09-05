@@ -4,19 +4,19 @@ import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import model.Sketch;
+import javafx.scene.shape.Circle;
+import model.*;
 import org.controlsfx.control.Notifications;
 import util.commands.CompoundCommand;
 import util.commands.MoveGraphElementCommand;
-import view.AbstractNodeView;
-import view.PackageNodeView;
+import view.*;
 
 import java.awt.geom.Point2D;
 
 /**
  * Created by chalmers on 2016-08-31.
  */
-public class ClassDiagramController extends AbstractDiagramController {
+public class SequenceDiagramController extends AbstractDiagramController {
 
     @FXML
     public void initialize() {
@@ -33,8 +33,12 @@ public class ClassDiagramController extends AbstractDiagramController {
                     copyPasteController.copyPasteCoords = new double[]{event.getX(), event.getY()};
                     aContextMenu.show(drawPane, event.getScreenX(), event.getScreenY());
                 }
-                else if (tool == ToolEnum.SELECT || tool == ToolEnum.EDGE) { //Start selecting elements.
+                else if (tool == ToolEnum.SELECT) { //Start selecting elements.
                     selectController.onMousePressed(event);
+                }
+                else if (tool == ToolEnum.EDGE) {
+                    mode = Mode.CREATING;
+                    edgeController.onMousePressedOnCanvas(event);
                 }
                 else if ((tool == ToolEnum.CREATE_CLASS || tool == ToolEnum.CREATE_PACKAGE) && mouseCreationActivated) { //Start creation of package or class.
                     mode = Mode.CREATING;
@@ -48,7 +52,6 @@ public class ClassDiagramController extends AbstractDiagramController {
                     mode = Mode.DRAWING;
                     sketchController.onTouchPressed(event);
                 }
-
             } else if (mode == Mode.CONTEXT_MENU) {
                 if (event.getButton() == MouseButton.SECONDARY) {
                     copyPasteController.copyPasteCoords = new double[]{event.getX(), event.getY()};
@@ -70,6 +73,8 @@ public class ClassDiagramController extends AbstractDiagramController {
                 createNodeController.onMouseDragged(event);
             } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) { //Continue panning of graph.
                 graphController.movePane(event);
+            } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) { //Continue creating edge.
+                edgeController.onMouseDragged(event);
             }
             event.consume();
         });
@@ -86,7 +91,7 @@ public class ClassDiagramController extends AbstractDiagramController {
                 }
             } else
             if (tool == ToolEnum.CREATE_CLASS && mode == Mode.CREATING && mouseCreationActivated) { //Finish creation of class.
-                createNodeController.onMouseReleasedClass();
+                createNodeController.onMouseReleasedLifeline();
                 if (!createNodeController.currentlyCreating()) {
                     mode = Mode.NO_MODE;
                 }
@@ -98,6 +103,9 @@ public class ClassDiagramController extends AbstractDiagramController {
                 }
             } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) { //Finish panning of graph.
                 graphController.movePaneFinished();
+                mode = Mode.NO_MODE;
+            } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) { //Finish creation of edge.
+                edgeController.onMouseReleasedSequence();
                 mode = Mode.NO_MODE;
             }
         });
@@ -284,6 +292,58 @@ public class ClassDiagramController extends AbstractDiagramController {
             }
             event.consume();
         });
+    }
+
+
+    private double initMoveX, initMoveY;
+    public void initMessageHandleActions(MessageEdgeView edgeView){
+        Circle circleHandle = edgeView.getCircleHandle();
+        circleHandle.setOnMousePressed(event -> {
+            if(tool == ToolEnum.SELECT){
+                mode = Mode.DRAGGING;
+                initMoveX = event.getSceneX();
+                initMoveY = event.getSceneY();
+            }
+        });
+
+        circleHandle.setOnMouseDragged(event -> {
+            double offsetX =  event.getSceneX() - initMoveX;
+            double offsetY = event.getSceneY() - initMoveY;
+            initMoveX = event.getSceneX();
+            initMoveY = event.getSceneY();
+            if(mode == Mode.DRAGGING){
+                MessageEdge edge = (MessageEdge)edgeView.getRefEdge();
+                edge.setStartX(edge.getStartX() + offsetX);
+                edge.setStartY(edge.getStartY() + offsetY);
+                System.out.println(edge.getStartX() + offsetX);
+            }
+        });
+
+        circleHandle.setOnMouseReleased(event -> {
+            mode = Mode.NO_MODE;
+            initMoveX = 0;
+            initMoveY = 0;
+        });
+    }
+
+    /**
+     * Creates and adds a new EdgeView
+     *
+     * @param edge
+     * @param startNodeView
+     * @param endNodeView
+     * @return
+     */
+    public AbstractEdgeView createEdgeView(MessageEdge edge, AbstractNodeView startNodeView,
+                                           AbstractNodeView endNodeView) {
+        MessageEdgeView edgeView;
+        if (startNodeView != null) {
+            edgeView = new MessageEdgeView(edge, startNodeView, endNodeView);
+        } else {
+            edgeView = new MessageEdgeView(edge, edge.getStartX(), edge.getStartY(), endNodeView);
+            initMessageHandleActions(edgeView);
+        }
+        return addEdgeView(edgeView);
     }
 
     //------------ Init Buttons -------------------------------------------

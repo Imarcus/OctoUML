@@ -4,17 +4,16 @@ import edu.cmu.sphinx.api.Configuration;
 import edu.cmu.sphinx.api.LiveSpeechRecognizer;
 import javafx.concurrent.Task;
 import javafx.scene.control.Button;
-import sun.applet.Main;
 
 /**
  * Created by Marcus on 2016-08-14.
  */
 public class VoiceController {
 
-    private MainController mainController;
+    private AbstractDiagramController diagramController;
 
-    public VoiceController(MainController pMainController){
-        mainController = pMainController;
+    public VoiceController(AbstractDiagramController pDiagramController){
+        diagramController = pDiagramController;
     }
 
     public Thread A;
@@ -28,13 +27,13 @@ public class VoiceController {
             A = new Thread(new VoiceTask());
             A.setDaemon(true);
             A.start();
-            mainController.voiceBtn.getStyleClass().add("button-in-use");
+            diagramController.voiceBtn.getStyleClass().add("button-in-use");
         }
         else{
             System.out.println("Stopping voice commands");
             voiceEnabled = false;
             A.interrupt();
-            mainController.voiceBtn.getStyleClass().remove("button-in-use");
+            diagramController.voiceBtn.getStyleClass().remove("button-in-use");
         }
 
     }
@@ -138,8 +137,8 @@ public class VoiceController {
 
 
     private void voice(){ //change to the tool that are recognised from the voice-input
-        Button previousButton = mainController.buttonInUse;
-        MainController.ToolEnum previousTool = mainController.getTool();
+        Button previousButton = diagramController.buttonInUse;
+        AbstractDiagramController.ToolEnum previousTool = diagramController.getTool();
 
         String buttonMode = "";
         while(buttonMode.equals("") || buttonMode == null) {
@@ -147,38 +146,38 @@ public class VoiceController {
         }
 
         if (buttonMode.equals("create class")) {
-            mainController.setTool(MainController.ToolEnum.CREATE_CLASS);
-            mainController.setButtonClicked(mainController.createBtn);
+            diagramController.setTool(AbstractDiagramController.ToolEnum.CREATE_CLASS);
+            diagramController.setButtonClicked(diagramController.createBtn);
         }
         else if (buttonMode.equals("create package")) {
-            mainController.setTool(MainController.ToolEnum.CREATE_PACKAGE);
-            mainController.setButtonClicked(mainController.packageBtn);
+            diagramController.setTool(AbstractDiagramController.ToolEnum.CREATE_PACKAGE);
+            diagramController.setButtonClicked(diagramController.packageBtn);
         }
         else if (buttonMode.equals("create edge")) {
-            mainController.setTool(MainController.ToolEnum.EDGE);
-            mainController.setButtonClicked(mainController.edgeBtn);
+            diagramController.setTool(AbstractDiagramController.ToolEnum.EDGE);
+            diagramController.setButtonClicked(diagramController.edgeBtn);
         }
         else if (buttonMode.equals("choose select")) {
-            mainController.setTool(MainController.ToolEnum.SELECT);
-            mainController.setButtonClicked(mainController.selectBtn);
+            diagramController.setTool(AbstractDiagramController.ToolEnum.SELECT);
+            diagramController.setButtonClicked(diagramController.selectBtn);
         }
         else if (buttonMode.equals("choose draw")) {
-            mainController.setTool(MainController.ToolEnum.DRAW);
-            mainController.setButtonClicked(mainController.drawBtn);
+            diagramController.setTool(AbstractDiagramController.ToolEnum.DRAW);
+            diagramController.setButtonClicked(diagramController.drawBtn);
         }
         else if (buttonMode.equals("choose move")) {
-            mainController.setTool(MainController.ToolEnum.MOVE_SCENE);
-            mainController.setButtonClicked(mainController.moveBtn);
+            diagramController.setTool(AbstractDiagramController.ToolEnum.MOVE_SCENE);
+            diagramController.setButtonClicked(diagramController.moveBtn);
         }
         else if (buttonMode.equals("undo")) {
-            mainController.getUndoManager().undoCommand();
-            mainController.setTool(previousTool);
-            mainController.setButtonClicked(previousButton);
+            diagramController.getUndoManager().undoCommand();
+            diagramController.setTool(previousTool);
+            diagramController.setButtonClicked(previousButton);
         }
         else if (buttonMode.equals("redo")) {
-            mainController.getUndoManager().redoCommand();
-            mainController.setTool(previousTool);
-            mainController.setButtonClicked(previousButton);
+            diagramController.getUndoManager().redoCommand();
+            diagramController.setTool(previousTool);
+            diagramController.setButtonClicked(previousButton);
         }
         // Running this function until the program is closed
         if(voiceEnabled){

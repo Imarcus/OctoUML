@@ -46,8 +46,6 @@ public abstract class AbstractEdge implements Edge, Serializable {
         remoteChanges.firePropertyChange(Constants.changeEdgeDirection, null, direction);
     }
 
-
-
     public void setStartMultiplicity(String pStartMultiplicity) {
         startMultiplicity = pStartMultiplicity;
         changes.firePropertyChange(Constants.changeEdgeStartMultiplicity, null, startMultiplicity);
@@ -59,8 +57,6 @@ public abstract class AbstractEdge implements Edge, Serializable {
         changes.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, endMultiplicity);
         remoteChanges.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, endMultiplicity);
     }
-
-
 
     public void setStartNode(Node pNode) {
         this.startNode = pNode;
@@ -84,8 +80,6 @@ public abstract class AbstractEdge implements Edge, Serializable {
         this.direction = pDirection;
         changes.firePropertyChange(Constants.changeEdgeDirection, null, direction);
     }
-
-
 
     public void remoteSetStartMultiplicity(String pStartMultiplicity) {
         startMultiplicity = pStartMultiplicity;
@@ -127,7 +121,6 @@ public abstract class AbstractEdge implements Edge, Serializable {
     public Node getEndNode() {
         return endNode;
     }
-
 
     public double getZoom(){
         return zoom;

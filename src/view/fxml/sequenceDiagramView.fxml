@@ -1,0 +1,62 @@
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.layout.StackPane?>
+
+<BorderPane fx:id="borderPane" fx:controller="controller.SequenceDiagramController" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <VBox>
+            <ToolBar fx:id="aToolBar" orientation="HORIZONTAL">
+                <HBox fx:id="umlBox">
+                    <Button text="Create" fx:id="createBtn"/>
+                    <Button text="Package" fx:id="packageBtn"/>
+                    <Button text="Edge" fx:id="edgeBtn"/>
+                    <Button text="Draw" fx:id="drawBtn"/>
+                </HBox>
+                <HBox fx:id="utilBox">
+                    <Button text="Select" fx:id="selectBtn"/>
+                    <Button text="Move" fx:id="moveBtn"/>
+                </HBox>
+                <HBox fx:id="undoBox">
+                    <Button text="Delete" fx:id="deleteBtn"/>
+                    <Button text="Undo" fx:id="undoBtn"/>
+                    <Button text="Redo" fx:id="redoBtn"/>
+                </HBox>
+                <HBox fx:id="recognizeBox">
+                    <Button text="Recognize" fx:id="recognizeBtn"/>
+                    <Button text="Voice" fx:id="voiceBtn"/>
+                </HBox>
+            </ToolBar>
+        </VBox>
+    </top>
+    <bottom>
+        <StackPane fx:id="infoPane">
+            <ToolBar fx:id="zoomPane">
+                <Pane HBox.hgrow="ALWAYS" />
+                <VBox alignment="CENTER">
+                    <Slider fx:id="zoomSlider" min="10"  max="200" value="100"/>
+                    <Label fx:id="zoomLabel" text="Zoom" />
+                </VBox>
+                <Pane HBox.hgrow="ALWAYS" />
+            </ToolBar>
+            <ColorPicker fx:id="colorPicker" StackPane.alignment="CENTER_LEFT"/>
+            <Label fx:id="serverLabel" StackPane.alignment="CENTER_RIGHT"/>
+        </StackPane>
+    </bottom>
+    <center>
+        <ScrollPane fx:id="scrollPane" pannable="true" BorderPane.alignment="CENTER">
+            <content>
+                <Pane fx:id="drawPane" prefHeight="8000.0" prefWidth="8000.0">
+                </Pane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -182,6 +182,79 @@ public class EdgeController {
             return false;
         }
     }
+
+    public boolean showMessageEditDialog(MessageEdge edge) {
+        try {
+            // Load the classDiagramView.fxml file and create a new stage for the popup
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/messageEditDialog.fxml"));
+            AnchorPane dialog = loader.load();
+            dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
+            dialog.setStyle("-fx-border-color: black");
+            //Set location for "dialog".
+            if(edge.getStartNode() != null) {
+                dialog.setLayoutX((edge.getStartNode().getTranslateX() + edge.getEndNode().getTranslateX()) / 2);
+                dialog.setLayoutY((edge.getStartNode().getTranslateY() + edge.getEndNode().getTranslateY()) / 2);
+            } else {
+                dialog.setLayoutX((edge.getStartX() + edge.getEndNode().getTranslateX()) / 2);
+                dialog.setLayoutY((edge.getStartY() + edge.getEndNode().getTranslateY()) / 2);
+
+            }
+
+            MessageEditDialogController controller = loader.getController();
+            controller.setEdge(edge);
+            ChoiceBox directionBox = controller.getDirectionBox();
+            ChoiceBox typeBox = controller.getTypeBox();
+            controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    //If no change in type of edge we just change direction of old edge
+                    if(typeBox.getValue().equals(edge.getType()) || typeBox.getValue() == null){
+
+                        edge.setStartMultiplicity(controller.getStartMultiplicity());
+                        edge.setEndMultiplicity(controller.getEndMultiplicity());
+                        if (directionBox.getValue() != null) {
+                            diagramController.getUndoManager().add(new DirectionChangeEdgeCommand(edge, edge.getDirection(),
+                                    AbstractEdge.Direction.valueOf(directionBox.getValue().toString())));
+                            edge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
+                        }
+
+
+                    } else { //Else we create a new one to replace the old
+                        AbstractEdge newEdge = null;
+                        if (typeBox.getValue().equals("Inheritance")) {
+                            newEdge = new InheritanceEdge(edge.getStartNode(), edge.getEndNode());
+                        } else if (typeBox.getValue().equals("Association") ) {
+                            newEdge = new AssociationEdge(edge.getStartNode(), edge.getEndNode());
+                        } else if (typeBox.getValue().equals("Aggregation")) {
+                            newEdge = new AggregationEdge(edge.getStartNode(), edge.getEndNode());
+                        } else if (typeBox.getValue().equals("Composition")) {
+                            newEdge = new CompositionEdge(edge.getStartNode(), edge.getEndNode());
+                        }
+                        newEdge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
+                        newEdge.setStartMultiplicity(controller.getStartMultiplicity());
+                        newEdge.setEndMultiplicity(controller.getEndMultiplicity());
+                        replaceEdge(edge, newEdge);
+                    }
+                    aDrawPane.getChildren().remove(dialog);
+                    diagramController.removeDialog(dialog);
+                }
+            });
+            controller.getCancelButton().setOnAction(event -> {
+                aDrawPane.getChildren().remove(dialog);
+                diagramController.removeDialog(dialog);
+            });
+            diagramController.addDialog(dialog);
+            aDrawPane.getChildren().add(dialog);
+
+            return controller.isOkClicked();
+
+        } catch (IOException e) {
+            // Exception gets thrown if the classDiagramView.fxml file could not be loaded
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean replaceEdge(AbstractEdge oldEdge, AbstractEdge newEdge) {
         AbstractEdgeView oldEdgeView = null;
         for (AbstractEdgeView edgeView : diagramController.getAllEdgeViews()) {
@@ -195,18 +268,12 @@ public class EdgeController {
         }
         diagramController.deleteEdgeView(oldEdgeView, null, true, false);
 
-        //newEdge.setDirection(oldEdge.getDirection());
-        //newEdge.setStartMultiplicity(oldEdge.getStartMultiplicity());
-        //newEdge.setEndMultiplicity(oldEdge.getEndMultiplicity());
-        //mainController.getGraphModel().addEdge(newEdge);
-
         AbstractEdgeView newEdgeView = diagramController.createEdgeView(newEdge, oldEdgeView.getStartNode(), oldEdgeView.getEndNode());
 
         diagramController.getUndoManager().add(
                 new ReplaceEdgeCommand(oldEdge, newEdge, oldEdgeView, newEdgeView, diagramController, diagramController.getGraphModel())
         );
 
-        System.out.println("Replaced Edge: Old edge:" + oldEdge.toString() + " new edge: "+ newEdge.toString());
         return true;
     }
 }

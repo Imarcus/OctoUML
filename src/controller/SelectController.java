@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import model.MessageEdge;
 import model.Sketch;
 import view.AbstractEdgeView;
 import view.AbstractNodeView;
@@ -42,22 +43,21 @@ public class SelectController {
         if (diagramController.getTool() == AbstractDiagramController.ToolEnum.EDGE)
         {
             for(AbstractEdgeView edgeView : diagramController.allEdgeViews){
-                if (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
+                if (!(edgeView instanceof MessageEdgeView) && (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
-                        distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
-                    /*if(edgeView instanceof MessageEdgeView){
-                        Circle circleHandle = ((MessageEdgeView)edgeView).getCircleHandle();
-                        if(circleHandle != null &&
-                                new Point2D(event.getX(), event.getY())
-                                        .distance(circleHandle.getCenterX(), circleHandle.getCenterY()) <= circleHandle.getRadius()){
-
-                            }
-                        }
-                    }*/
+                        distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15)){
                     diagramController.selected = true;
                     diagramController.selectedEdges.add(edgeView);
                     if(event.getClickCount() > 1){
                         diagramController.edgeController.showEdgeEditDialog(edgeView.getRefEdge());
+                        diagramController.setTool(ToolEnum.SELECT);
+                        diagramController.setButtonClicked(diagramController.selectBtn);
+                    }
+                } else if((edgeView instanceof MessageEdgeView) && distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
+                    diagramController.selected = true;
+                    diagramController.selectedEdges.add(edgeView);
+                    if(event.getClickCount() > 1){
+                        diagramController.edgeController.showMessageEditDialog((MessageEdge)edgeView.getRefEdge());
                         diagramController.setTool(ToolEnum.SELECT);
                         diagramController.setButtonClicked(diagramController.selectBtn);
                     }
@@ -67,9 +67,10 @@ public class SelectController {
         else if (diagramController.getTool() == ToolEnum.SELECT)
         {
             for(AbstractEdgeView edgeView : diagramController.allEdgeViews){
-                if (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
+                System.out.println(edgeView instanceof  MessageEdgeView);
+                if (!(edgeView instanceof MessageEdgeView) && (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
-                        distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
+                        distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15)){
                     diagramController.selected = true;
                     diagramController.selectedEdges.add(edgeView);
                     if(event.getClickCount() > 1){
@@ -77,9 +78,16 @@ public class SelectController {
                         diagramController.setTool(ToolEnum.SELECT);
                         diagramController.setButtonClicked(diagramController.selectBtn);
                     }
+                } else if((edgeView instanceof MessageEdgeView) && distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
+                    diagramController.selected = true;
+                    diagramController.selectedEdges.add(edgeView);
+                    if(event.getClickCount() > 1){
+                        diagramController.edgeController.showMessageEditDialog((MessageEdge)edgeView.getRefEdge());
+                        diagramController.setTool(ToolEnum.SELECT);
+                        diagramController.setButtonClicked(diagramController.selectBtn);
+                    }
                 }
             }
-
             diagramController.setMode(Mode.SELECTING);
             //TODO This should not be needed, should be in nodeView.initActions().
             for(AbstractNodeView nodeView : diagramController.allNodeViews){
@@ -89,9 +97,6 @@ public class SelectController {
                     diagramController.selected = true;
                 }
             }
-
-
-
             selectStartX = event.getX();
             selectStartY = event.getY();
             selectRectangle.setX(event.getX());
@@ -99,7 +104,6 @@ public class SelectController {
             if (!aDrawPane.getChildren().contains(selectRectangle)) {
                 aDrawPane.getChildren().add(selectRectangle);
             }
-
         }
     }
 
@@ -117,13 +121,6 @@ public class SelectController {
             {
                 diagramController.selected = true;
                 diagramController.selectedNodes.add(nodeView);
-            }
-        }
-        for (AbstractEdgeView edgeView: diagramController.allEdgeViews) {
-            if (selectRectangle.getBoundsInParent().intersects(edgeView.getBoundsInParent()))
-            {
-                diagramController.selected = true;
-                diagramController.selectedEdges.add(edgeView);
             }
         }
         for (Sketch sketch : diagramController.getGraphModel().getAllSketches()) {

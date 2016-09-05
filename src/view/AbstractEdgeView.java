@@ -17,9 +17,9 @@ import java.beans.PropertyChangeListener;
 public abstract class AbstractEdgeView extends Group implements EdgeView, PropertyChangeListener {
     private static int objectCounter = 0;
 
-    private AbstractEdge refEdge;
-    private AbstractNodeView startNode;
-    private boolean selected = false;
+    protected AbstractEdge refEdge;
+    protected AbstractNodeView startNode;
+    protected boolean selected = false;
     public final double STROKE_WIDTH = 1;
     public enum Position{
         ABOVE, BELOW, RIGHT, LEFT, NONE

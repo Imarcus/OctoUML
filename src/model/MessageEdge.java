@@ -16,6 +16,7 @@ public class MessageEdge extends AbstractEdge {
         super(null, endNode);
         startX = pStartX;
         startY = pStartY;
+        setDirection(Direction.START_TO_END);
     }
 
     public MessageEdge(Node startNode, Node endNode){

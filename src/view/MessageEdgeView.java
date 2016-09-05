@@ -14,20 +14,20 @@ import java.util.ArrayList;
  * The Graphical Representation of a AssociationEdge.
  */
 public class MessageEdgeView extends AbstractEdgeView {
-    private AbstractEdge refEdge;
     private AbstractNodeView startNode;
     private AbstractNodeView endNode;
     private ArrayList<Line> arrowHeadLines = new ArrayList<>();
     private Double startX;
     private Double startY;
-    private Double deltaY; //Distance from end node Lifeline-box
     private Circle circleHandle;
+    private Group arrowHead;
 
 
 
     public MessageEdgeView(AbstractEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
         super(edge, startNode, endNode);
-        this.refEdge = edge;
+        arrowHead = new Group();
+        this.getChildren().add(arrowHead);
         this.startNode = startNode;
         this.endNode = endNode;
         this.setStrokeWidth(super.STROKE_WIDTH);
@@ -38,48 +38,32 @@ public class MessageEdgeView extends AbstractEdgeView {
 
     public MessageEdgeView(AbstractEdge edge, Double pStartX, Double pStartY, AbstractNodeView endNode) {
         super(edge, null, endNode);
+        arrowHead = new Group();
+        this.getChildren().add(arrowHead);
         startX = pStartX;
         startY = pStartY;
-        this.refEdge = edge;
         this.startNode = null;
         this.endNode = endNode;
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
-        deltaY = startY - endNode.getTranslateY();
         setPosition();
-        draw();
         drawCircleHandle();
+        draw();
     }
+
 
     @Override
     protected void draw() {
-        if(startNode != null){
-            drawWithStartNode();
-        }
-    }
-
-    protected void drawWithStartNode() {
         AbstractEdge.Direction direction = refEdge.getDirection();
-        getChildren().clear();
-        getChildren().add(getStartLine());
-        super.draw();
-        this.getChildren().add(super.getEndMultiplicity());
-        this.getChildren().add(super.getStartMultiplicity());
-
         //Draw arrows.
         switch(direction) {
             case NO_DIRECTION:
-                //Do nothing.
                 break;
             case START_TO_END:
-                this.getChildren().add(drawArrowHead(getStartLine().getEndX(), getStartLine().getEndY(), getStartLine().getStartX(), getStartLine().getStartY()));
+                drawArrowHead(startLine.getEndX(), startLine.getEndY(), startLine.getStartX(), startLine.getStartY());
                 break;
             case END_TO_START:
-                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
-                break;
-            case BIDIRECTIONAL:
-                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
-                this.getChildren().add(drawArrowHead(getStartLine().getEndX(), getStartLine().getEndY(), getStartLine().getStartX(), getStartLine().getStartY()));
+                drawArrowHead(startLine.getStartX(), startLine.getStartY(), startLine.getEndX(), startLine.getEndY());
                 break;
         }
     }
@@ -115,30 +99,25 @@ public class MessageEdgeView extends AbstractEdgeView {
     }
 
     private void setPositionNoStartNode(){
-        //If end node is to the right of startNode:
+        //If end node is to the right of startPos:
         if (startX <= endNode.getTranslateX()) {
             startLine.setStartX(startX);
-            startLine.setStartY(endNode.getTranslateY() + deltaY);
+            startLine.setStartY(startY);
             startLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
-            startLine.setEndY(endNode.getTranslateY() + deltaY);
+            startLine.setEndY(startY);
 
             position = Position.RIGHT;
         }
-        //If end node is to the left of startNode:
+        //If end node is to the left of startPos:
         else if (startX > endNode.getTranslateX() + endNode.getWidth()) {
             startLine.setStartX(startX);
-            startLine.setStartY(endNode.getTranslateY() + deltaY);
+            startLine.setStartY(startY);
             startLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
-            startLine.setEndY(endNode.getTranslateY() + deltaY);
+            startLine.setEndY(startY);
 
             position = Position.LEFT;
         }
         //TODO Handle when the nodes are overlapping.
-    }
-
-    private void circleHandleDragged(){
-        deltaY = startY - endNode.getTranslateY();
-        setPositionNoStartNode();
     }
 
     private void drawCircleHandle(){
@@ -172,8 +151,8 @@ public class MessageEdgeView extends AbstractEdgeView {
      * @param endY
      * @return Group.
      */
-    private Group drawArrowHead(double startX, double startY, double endX, double endY) {
-        Group group = new Group();
+    private void drawArrowHead(double startX, double startY, double endX, double endY) {
+        arrowHead.getChildren().clear();
         double phi = Math.toRadians(40);
         int barb = 20;
         double dy = startY - endY;
@@ -190,10 +169,9 @@ public class MessageEdgeView extends AbstractEdgeView {
             if(super.isSelected()){
                 arrowHeadLine.setStroke(Constants.selected_color);
             }
-            group.getChildren().add(arrowHeadLine);
+            arrowHead.getChildren().add(arrowHeadLine);
             rho = theta - phi;
         }
-        return group;
     }
 
     public void propertyChange(PropertyChangeEvent evt){
@@ -204,10 +182,12 @@ public class MessageEdgeView extends AbstractEdgeView {
             draw();
         } else if (propertyName.equals(Constants.changeMessageStartX) ){
             startX = (Double)evt.getNewValue();
-            circleHandleDragged();
+            setPositionNoStartNode();
+            draw();
         } else if (propertyName.equals(Constants.changeMessageStartY)){
             startY = (Double)evt.getNewValue();
-            circleHandleDragged();
+            setPositionNoStartNode();
+            draw();
         }
     }
 

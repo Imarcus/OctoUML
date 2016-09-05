@@ -301,6 +301,7 @@ public class SequenceDiagramController extends AbstractDiagramController {
         circleHandle.setOnMousePressed(event -> {
             if(tool == ToolEnum.SELECT){
                 mode = Mode.DRAGGING;
+                edgeView.setSelected(true);
                 initMoveX = event.getSceneX();
                 initMoveY = event.getSceneY();
             }
@@ -315,7 +316,6 @@ public class SequenceDiagramController extends AbstractDiagramController {
                 MessageEdge edge = (MessageEdge)edgeView.getRefEdge();
                 edge.setStartX(edge.getStartX() + offsetX);
                 edge.setStartY(edge.getStartY() + offsetY);
-                System.out.println(edge.getStartX() + offsetX);
             }
         });
 

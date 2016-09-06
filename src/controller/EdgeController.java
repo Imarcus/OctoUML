@@ -75,9 +75,14 @@ public class EdgeController {
             }
         }
         if(endNodeView != null){
-            MessageEdge edge = new MessageEdge(dragStartX, dragStartY, diagramController.getNodeMap().get(endNodeView));
-            ((SequenceDiagramController)diagramController).createEdgeView(edge, null, endNodeView);
-        } //TODO When there's a start nodeView
+            if(startNodeView != null){
+                MessageEdge edge = new MessageEdge(diagramController.getNodeMap().get(startNodeView), diagramController.getNodeMap().get(endNodeView));
+                ((SequenceDiagramController)diagramController).createEdgeView(edge, startNodeView, endNodeView);
+            } else {
+                MessageEdge edge = new MessageEdge(dragStartX, dragStartY, diagramController.getNodeMap().get(endNodeView));
+                ((SequenceDiagramController)diagramController).createEdgeView(edge, null, endNodeView);
+            }
+        }
         finish();
     }
 

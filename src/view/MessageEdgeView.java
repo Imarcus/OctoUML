@@ -1,6 +1,5 @@
 package view;
 
-import javafx.beans.property.DoubleProperty;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -38,7 +37,7 @@ public class MessageEdgeView extends AbstractEdgeView {
         this.setStroke(Color.BLACK);
         setPosition();
         draw();
-        drawTitle("");
+        this.getChildren().add(title);
     }
 
     public MessageEdgeView(MessageEdge edge, Double pStartX, Double pStartY, AbstractNodeView endNode) {
@@ -54,7 +53,6 @@ public class MessageEdgeView extends AbstractEdgeView {
         setPosition();
         drawCircleHandle();
         draw();
-        drawTitle("");
         this.getChildren().add(title);
     }
 
@@ -80,7 +78,6 @@ public class MessageEdgeView extends AbstractEdgeView {
         title.setX((startLine.getStartX()  + endNode.getX())/2);
         title.setY(startLine.getStartY() - 5);
         title.toFront();
-
     }
 
     @Override
@@ -90,24 +87,32 @@ public class MessageEdgeView extends AbstractEdgeView {
         } else {
             setPositionNoStartNode();
         }
+        drawTitle(title.getText());
     }
 
     private void setPositionWithStartNode(){
         //If end node is to the right of startNode:
+        AbstractNodeView lowestNodeView;
+        if(startNode.getTranslateY() <= endNode.getTranslateY()){
+            lowestNodeView = endNode;
+        } else {
+            lowestNodeView = startNode;
+        }
+
         if (startNode.getTranslateX() + startNode.getWidth() <= endNode.getTranslateX()) {
-            startLine.setStartX(startNode.getTranslateX() + startNode.getWidth());
-            startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
-            startLine.setEndX(endNode.getTranslateX());
-            startLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth()/2));
+            startLine.setStartY(lowestNodeView.getTranslateY() + lowestNodeView.getHeight() +  20);
+            startLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            startLine.setEndY(lowestNodeView.getTranslateY() + lowestNodeView.getHeight() + 20);
 
             position = Position.RIGHT;
         }
         //If end node is to the left of startNode:
         else if (startNode.getTranslateX() > endNode.getTranslateX() + endNode.getWidth()) {
-            startLine.setStartX(startNode.getTranslateX());
-            startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
-            startLine.setEndX(endNode.getTranslateX() + endNode.getWidth());
-            startLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
+            startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth()/2));
+            startLine.setStartY(lowestNodeView.getTranslateY() + lowestNodeView.getHeight() + 20);
+            startLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            startLine.setEndY(lowestNodeView.getTranslateY() + lowestNodeView.getHeight() + 20);
 
             position = Position.LEFT;
         }
@@ -144,18 +149,19 @@ public class MessageEdgeView extends AbstractEdgeView {
 
     public void setSelected(boolean selected){
         super.setSelected(selected);
+        Color color;
         if(selected){
-            for(Line l : arrowHeadLines){
-                l.setStroke(Constants.selected_color);
-            }
-            circleHandle.setFill(Constants.selected_color);
-            title.setFill(Constants.selected_color);
+            color = Constants.selected_color;
         } else {
-            for (Line l : arrowHeadLines) {
-                l.setStroke(Color.BLACK);
-            }
-            circleHandle.setFill(Color.BLACK);
-            title.setFill(Color.BLACK);
+            color = Color.BLACK;
+        }
+
+        for(Line l : arrowHeadLines){
+            l.setStroke(color);
+        }
+        title.setFill(color);
+        if(circleHandle != null){
+            circleHandle.setFill(color);
         }
     }
 
@@ -215,6 +221,7 @@ public class MessageEdgeView extends AbstractEdgeView {
             } else {
                 startLine.getStrokeDashArray().clear();
             }
+        } else if (evt.getPropertyName().equals(Constants.changeNodeTranslateX) || evt.getPropertyName().equals(Constants.changeNodeTranslateY)){
         }
     }
 

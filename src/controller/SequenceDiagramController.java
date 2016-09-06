@@ -240,7 +240,7 @@ public class SequenceDiagramController extends AbstractDiagramController {
             } else if ((tool == ToolEnum.SELECT || tool == ToolEnum.CREATE_CLASS) && mode == Mode.RESIZING) { //Finish resizing node.
                 nodeController.resizeFinished(nodeMap.get(nodeView));
             } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) { //Finish creation of edge.
-                edgeController.onMouseReleasedRelation();
+                edgeController.onMouseReleasedSequence();
             }
             mode = Mode.NO_MODE;
             event.consume();

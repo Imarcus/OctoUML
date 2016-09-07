@@ -25,8 +25,11 @@ public class MessageEdge extends AbstractEdge {
         setDirection(Direction.START_TO_END);
     }
 
-    public MessageEdge(Node startNode, Node endNode){
+    public MessageEdge(double pStartX, double pStartY, Node startNode, Node endNode){
         super(startNode, endNode);
+        startX = pStartX;
+        startY = pStartY;
+        setDirection(Direction.START_TO_END);
     }
 
     public double getStartX() {
@@ -45,9 +48,17 @@ public class MessageEdge extends AbstractEdge {
     }
 
     public void setStartY(double pStartY) {
-        changes.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
-        remoteChanges.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
-        startY = pStartY;
+        Lifeline lowestNode;
+        if(startNode != null && startNode.getY() > endNode.getY()){
+            lowestNode = (Lifeline)startNode;
+        } else {
+            lowestNode = (Lifeline)endNode;
+        }
+        if(pStartY >= lowestNode.getY() + lowestNode.getHeight()){
+            changes.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
+            remoteChanges.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
+            startY = pStartY;
+        }
     }
 
     public void remoteSetStartX(double pStartX) {
@@ -57,8 +68,16 @@ public class MessageEdge extends AbstractEdge {
     }
 
     public void remoteSetStartY(double pStartY) {
-        changes.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
-        startY = pStartY;
+        Lifeline lowestNode;
+        if(startNode != null && startNode.getY() > endNode.getY()){
+            lowestNode = (Lifeline)startNode;
+        } else {
+            lowestNode = (Lifeline)endNode;
+        }
+        if(pStartY >= lowestNode.getY() + lowestNode.getHeight()){
+            changes.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
+            startY = pStartY;
+        }
     }
 
     @Override
@@ -126,8 +145,9 @@ public class MessageEdge extends AbstractEdge {
         return new MessageEdge(pStartX, pStartY, endNodeCopy);
     }
 
+    //TODO needs startX and Y but needs to implement this
     public MessageEdge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy) {
-        return new MessageEdge(startNodeCopy, endNodeCopy);
+        return null;
     }
 
     public String getType(){

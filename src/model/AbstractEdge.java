@@ -21,10 +21,10 @@ public abstract class AbstractEdge implements Edge, Serializable {
     protected transient PropertyChangeSupport remoteChanges = new PropertyChangeSupport(this);
 
 
-    private Node startNode;
-    private Node endNode;
-    private double zoom;
-    private String startMultiplicity, endMultiplicity;
+    protected Node startNode;
+    protected Node endNode;
+    protected double zoom;
+    protected String startMultiplicity, endMultiplicity;
 
     public enum Direction {
         NO_DIRECTION, START_TO_END, END_TO_START, BIDIRECTIONAL

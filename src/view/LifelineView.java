@@ -9,6 +9,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -29,9 +30,10 @@ public class LifelineView extends AbstractNodeView implements NodeView {
     private Line shortHandleLine;
     private Line longHandleLine;
     private Line lifeline;
+    private Rectangle rectangleHandle;
 
     private final int STROKE_WIDTH = 1;
-    private final double LIFELINE_DEFAULT_LENGTH = 500;
+
 
     public LifelineView(Lifeline node) {
         super(node);
@@ -51,17 +53,18 @@ public class LifelineView extends AbstractNodeView implements NodeView {
         this.setTranslateY(node.getTranslateY());
         createHandles();
         createLifeline();
+        createRectangleHandle();
 
         container.getChildren().addAll(rectangle, title);
 
     }
 
     private void createLifeline(){
-        lifeline = new Line();//(xPos, yPos, xPos, yPos + LIFELINE_DEFAULT_LENGTH );
+        lifeline = new Line();//
         lifeline.startXProperty().bind(rectangle.widthProperty().subtract(rectangle.widthProperty().divide(2)));
         lifeline.startYProperty().bind(rectangle.heightProperty().add(1));
         lifeline.endXProperty().bind(rectangle.widthProperty().subtract(rectangle.widthProperty().divide(2)));
-        lifeline.endYProperty().bind(rectangle.heightProperty().add(LIFELINE_DEFAULT_LENGTH));
+        lifeline.endYProperty().bind(rectangle.heightProperty().add(((Lifeline)getRefNode()).getLifelineLength()));
         lifeline.getStrokeDashArray().addAll(20d, 10d);
         this.getChildren().add(lifeline);
     }
@@ -90,7 +93,6 @@ public class LifelineView extends AbstractNodeView implements NodeView {
     }
 
     private void createHandles(){
-
         shortHandleLine = new Line();
         longHandleLine = new Line();
 
@@ -104,6 +106,15 @@ public class LifelineView extends AbstractNodeView implements NodeView {
         longHandleLine.endYProperty().bind(rectangle.heightProperty().subtract(15));
 
         this.getChildren().addAll(shortHandleLine, longHandleLine);
+    }
+
+    private void createRectangleHandle(){
+        rectangleHandle = new Rectangle();
+        rectangleHandle.setWidth(10);
+        rectangleHandle.setHeight(10);
+        rectangleHandle.xProperty().bind(lifeline.endXProperty().subtract(rectangleHandle.widthProperty().divide(2)));
+        rectangleHandle.yProperty().bind(lifeline.endYProperty().subtract(rectangleHandle.heightProperty().divide(2)));
+        this.getChildren().add(rectangleHandle);
     }
 
     private void initTitle(){
@@ -150,6 +161,10 @@ public class LifelineView extends AbstractNodeView implements NodeView {
         return container.getBoundsInParent();
     }
 
+    public Rectangle getLifelineHandle(){
+        return rectangleHandle;
+    }
+
     public boolean isOnLifeline(Point2D point){
         Double lifelineXPosition = lifeline.getStartX() + this.getX();
         if(point.getX() > (lifelineXPosition - 10) && point.getX() < (lifelineXPosition + 10)){
@@ -161,7 +176,6 @@ public class LifelineView extends AbstractNodeView implements NodeView {
         }
         return false;
     }
-
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -177,6 +191,8 @@ public class LifelineView extends AbstractNodeView implements NodeView {
             changeHeight((double) evt.getNewValue());
         } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
             title.setText((String) evt.getNewValue());
+        } else if(evt.getPropertyName().equals(Constants.changeLifelineLength)){
+            lifeline.endYProperty().bind(rectangle.heightProperty().add(((Lifeline)getRefNode()).getLifelineLength()));
         }
     }
 }

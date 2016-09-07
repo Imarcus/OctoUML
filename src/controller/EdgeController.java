@@ -52,7 +52,7 @@ public class EdgeController {
             for(AbstractNodeView node : diagramController.getAllNodeViews()){
                 double middleOfNode = (node.getX() + (node.getX() + node.getWidth())) /2;
                 if(event.getX() > middleOfNode - 20 && event.getX() < middleOfNode + 20
-                        && event.getY() < node.getY()){
+                        && event.getY() > node.getY()){
                     startNodeView = node;
                 }
             }
@@ -84,14 +84,14 @@ public class EdgeController {
         }
         if(endNodeView != null){
             if(startNodeView != null){
-                MessageEdge edge = new MessageEdge(diagramController.getNodeMap().get(startNodeView), diagramController.getNodeMap().get(endNodeView));
+                MessageEdge edge = new MessageEdge(dragStartX, dragStartY, diagramController.getNodeMap().get(startNodeView), diagramController.getNodeMap().get(endNodeView));
                 ((SequenceDiagramController)diagramController).createEdgeView(edge, startNodeView, endNodeView);
             } else {
                 MessageEdge edge = new MessageEdge(dragStartX, dragStartY, diagramController.getNodeMap().get(endNodeView));
                 ((SequenceDiagramController)diagramController).createEdgeView(edge, null, endNodeView);
             }
         }
-        finish();
+        finishCreateEdge();
     }
 
     /*
@@ -107,10 +107,10 @@ public class EdgeController {
             AssociationEdge edge = new AssociationEdge(diagramController.getNodeMap().get(startNodeView), diagramController.getNodeMap().get(endNodeView));
             diagramController.createEdgeView(edge, startNodeView, endNodeView);
         }
-        finish();
+        finishCreateEdge();
     }
 
-    private void finish() {
+    private void finishCreateEdge() {
         dragLine.setStartX(0);
         dragLine.setStartY(0);
         dragLine.setEndX(0);
@@ -120,6 +120,27 @@ public class EdgeController {
         endNodeView = null;
     }
 
+    private double dragEdgeStartY;
+    protected void onMousePressDragEdge(MouseEvent event){
+        diagramController.mode = AbstractDiagramController.Mode.DRAGGING_EDGE;
+        dragEdgeStartY = event.getSceneY();
+    }
+
+    protected void onMouseDragEdge(MouseEvent event){
+        double offsetY = event.getSceneY() - dragEdgeStartY;
+        dragEdgeStartY = event.getSceneY();
+        for(AbstractEdgeView edgeView : diagramController.selectedEdges){
+            if(edgeView instanceof MessageEdgeView){
+                MessageEdge edge = (MessageEdge)edgeView.getRefEdge();
+                edge.setStartY(edge.getStartY() + offsetY);
+            }
+        }
+    }
+
+    protected void onMouseReleaseDragEdge(MouseEvent event){
+        diagramController.mode = AbstractDiagramController.Mode.NO_MODE;
+        dragEdgeStartY = 0;
+    }
 
     public Point2D getStartPoint() {
         return new Point2D(dragStartX, dragStartY);

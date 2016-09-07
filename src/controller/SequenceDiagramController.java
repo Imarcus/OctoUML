@@ -5,8 +5,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import model.*;
 import org.controlsfx.control.Notifications;
+import util.commands.AddDeleteNodeCommand;
 import util.commands.CompoundCommand;
 import util.commands.MoveGraphElementCommand;
 import view.*;
@@ -71,10 +73,12 @@ public class SequenceDiagramController extends AbstractDiagramController {
             }
             else if ((tool == ToolEnum.CREATE_CLASS || tool == ToolEnum.CREATE_PACKAGE) && mode == Mode.CREATING && mouseCreationActivated) { //Continue creation of class or package.
                 createNodeController.onMouseDragged(event);
-            } else if (mode == Mode.MOVING && tool == ToolEnum.MOVE_SCENE) { //Continue panning of graph.
+            } else if (tool == ToolEnum.MOVE_SCENE && mode == Mode.MOVING) { //Continue panning of graph.
                 graphController.movePane(event);
             } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) { //Continue creating edge.
                 edgeController.onMouseDragged(event);
+            } else if ((tool == ToolEnum.EDGE || tool == ToolEnum.SELECT) && mode == Mode.DRAGGING_EDGE){
+                edgeController.onMouseDragEdge(event);
             }
             event.consume();
         });
@@ -89,8 +93,7 @@ public class SequenceDiagramController extends AbstractDiagramController {
                 if (!sketchController.currentlyDrawing()) {
                     mode = Mode.NO_MODE;
                 }
-            } else
-            if (tool == ToolEnum.CREATE_CLASS && mode == Mode.CREATING && mouseCreationActivated) { //Finish creation of class.
+            } else if (tool == ToolEnum.CREATE_CLASS && mode == Mode.CREATING && mouseCreationActivated) { //Finish creation of class.
                 createNodeController.onMouseReleasedLifeline();
                 if (!createNodeController.currentlyCreating()) {
                     mode = Mode.NO_MODE;
@@ -107,6 +110,8 @@ public class SequenceDiagramController extends AbstractDiagramController {
             } else if (tool == ToolEnum.EDGE && mode == Mode.CREATING) { //Finish creation of edge.
                 edgeController.onMouseReleasedSequence();
                 mode = Mode.NO_MODE;
+            } else if ((tool == ToolEnum.EDGE || tool == ToolEnum.SELECT) && mode == Mode.DRAGGING_EDGE){
+                edgeController.onMouseReleaseDragEdge(event);
             }
         });
 
@@ -301,7 +306,7 @@ public class SequenceDiagramController extends AbstractDiagramController {
         circleHandle.setOnMousePressed(event -> {
             if(tool == ToolEnum.SELECT){
                 mode = Mode.DRAGGING;
-                edgeView.setSelected(true);
+                selectedEdges.add(edgeView);
                 initMoveX = event.getSceneX();
                 initMoveY = event.getSceneY();
             }
@@ -326,6 +331,32 @@ public class SequenceDiagramController extends AbstractDiagramController {
         });
     }
 
+    public void initLifelineHandleActions(LifelineView nodeView){
+        Rectangle rectangleHandle = nodeView.getLifelineHandle();
+        rectangleHandle.setOnMousePressed(event -> {
+            if(tool == ToolEnum.SELECT){
+                mode = Mode.DRAGGING;
+                initMoveY = event.getSceneY();
+            }
+        });
+
+        rectangleHandle.setOnMouseDragged(event -> {
+            double offsetY = event.getSceneY() - initMoveY;
+            initMoveX = event.getSceneX();
+            initMoveY = event.getSceneY();
+            if(mode == Mode.DRAGGING){
+                Lifeline node = (Lifeline) nodeView.getRefNode();
+                node.setLifelineLength(node.getLifelineLength() + offsetY);
+            }
+        });
+
+        rectangleHandle.setOnMouseReleased(event -> {
+            mode = Mode.NO_MODE;
+            initMoveX = 0;
+            initMoveY = 0;
+        });
+    }
+
     /**
      * Creates and adds a new EdgeView
      *
@@ -338,7 +369,7 @@ public class SequenceDiagramController extends AbstractDiagramController {
                                            AbstractNodeView endNodeView) {
         MessageEdgeView edgeView;
         if (startNodeView != null) {
-            edgeView = new MessageEdgeView(edge, startNodeView, endNodeView);
+            edgeView = new MessageEdgeView(edge, edge.getStartX(), edge.getStartY(), startNodeView, endNodeView);
         } else {
             edgeView = new MessageEdgeView(edge, edge.getStartX(), edge.getStartY(), endNodeView);
             initMessageHandleActions(edgeView);

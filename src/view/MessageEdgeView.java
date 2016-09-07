@@ -27,10 +27,13 @@ public class MessageEdgeView extends AbstractEdgeView {
 
 
 
-    public MessageEdgeView(MessageEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
+    //TODO these constructors are a mess.
+    public MessageEdgeView(MessageEdge edge,  Double pStartX, Double pStartY, AbstractNodeView startNode, AbstractNodeView endNode) {
         super(edge, startNode, endNode);
         arrowHead = new Group();
         this.getChildren().add(arrowHead);
+        startX = pStartX;
+        startY = pStartY;
         this.startNode = startNode;
         this.endNode = endNode;
         this.setStrokeWidth(super.STROKE_WIDTH);
@@ -83,11 +86,34 @@ public class MessageEdgeView extends AbstractEdgeView {
     @Override
     protected void setPosition() {
         if(startNode != null){
-            setPositionWithStartNode();
+            setPosition2();//WithStartNode();
         } else {
             setPositionNoStartNode();
         }
+        //setPositionNoStartNode();
         drawTitle(title.getText());
+    }
+
+    private void setPosition2(){
+        //If end node is to the right of startPos:
+        if (startX <= endNode.getTranslateX()) {
+            startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth()/2));
+            startLine.setStartY(startY);
+            startLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            startLine.setEndY(startY);
+
+            position = Position.RIGHT;
+        }
+        //If end node is to the left of startPos:
+        else if (startX > endNode.getTranslateX() + endNode.getWidth()) {
+            startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth()/2));
+            startLine.setStartY(startY);
+            startLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
+            startLine.setEndY(startY);
+
+            position = Position.LEFT;
+        }
+        //TODO Handle when the nodes are overlapping.
     }
 
     private void setPositionWithStartNode(){
@@ -210,7 +236,11 @@ public class MessageEdgeView extends AbstractEdgeView {
             draw();
         } else if (propertyName.equals(Constants.changeMessageStartY)){
             startY = (Double)evt.getNewValue();
-            setPositionNoStartNode();
+            if(startNode != null){
+                setPosition2();
+            } else {
+                setPositionNoStartNode();
+            }
             drawTitle(title.getText());
             draw();
         } else if (propertyName.equals(Constants.changeMessageTitle)){

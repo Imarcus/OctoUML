@@ -80,7 +80,7 @@ public abstract class AbstractDiagramController {
     //Mode
     protected Mode mode = Mode.NO_MODE;
     protected enum Mode {
-        NO_MODE, SELECTING, DRAGGING, RESIZING, MOVING, DRAWING, CREATING, CONTEXT_MENU
+        NO_MODE, SELECTING, DRAGGING, RESIZING, MOVING, DRAWING, CREATING, CONTEXT_MENU, DRAGGING_EDGE
     }
 
     //Tool
@@ -606,6 +606,7 @@ public abstract class AbstractDiagramController {
             newView = new PackageNodeView((PackageNode) node);
         } else {
             newView = new LifelineView((Lifeline) node);
+            ((SequenceDiagramController)this).initLifelineHandleActions((LifelineView)newView);
         }
 
         if(!graph.getAllNodes().contains(node)){

@@ -38,7 +38,7 @@ public class Launcher extends Application {
 
         stage.setScene(scene);
         stage.setTitle("Penguin");
-        stage.setFullScreen(true);
+        //stage.setFullScreen(true);
         stage.show();
 
         Tab tab = new Tab();

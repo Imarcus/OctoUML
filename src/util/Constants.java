@@ -34,6 +34,7 @@ public class Constants {
     public static String changeClassNodeAttributes = "ClassNodeAttributes";
     public static String changeClassNodeOperations = "ClassNodeOperations";
     public static String changeNodeIsChild = "ClassNodeIsChild";
+    public static String changeLifelineLength = "LifelineLength";
 
     public static String changeEdgeDirection = "EdgeDirection";
     public static String changeEdgeStartNode = "EdgeStartNode";

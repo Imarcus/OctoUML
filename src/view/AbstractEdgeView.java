@@ -201,7 +201,6 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
                 endLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
             }
 
-
             position = Position.RIGHT;
         }
         //If end node is to the left of startNode:
@@ -238,7 +237,6 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
                 endLine.setEndY(endNode.getTranslateY() + (endNode.getHeight() / 2));
             }
 
-
             position = Position.LEFT;
         }
         // If end node is below startNode:
@@ -274,7 +272,6 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
                 endLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
                 endLine.setEndY(endNode.getTranslateY());
             }
-
 
             position = Position.BELOW;
         }

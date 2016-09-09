@@ -202,8 +202,8 @@ public class MessageEdgeView extends AbstractEdgeView {
      */
     private void drawArrowHead(double startX, double startY, double endX, double endY) {
         arrowHead.getChildren().clear();
-        double phi = Math.toRadians(40);
-        int barb = 20;
+        double phi = Math.toRadians(30);
+        int barb = 15;
         double dy = startY - endY;
         double dx = startX - endX;
         double theta = Math.atan2(dy, dx);

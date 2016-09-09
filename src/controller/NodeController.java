@@ -144,8 +144,8 @@ public class NodeController {
     }
 
     public void moveNodes(MouseEvent event){
-        double offsetX = event.getSceneX() - initMoveX;
-        double offsetY = event.getSceneY() - initMoveY;
+        double offsetX = (event.getSceneX() - initMoveX)*(1/diagramController.drawPane.getScaleX());
+        double offsetY = (event.getSceneY() - initMoveY)*(1/diagramController.drawPane.getScaleY());
 
         //Drag all selected nodes and their children
         for(AbstractNode n : toBeMoved)
@@ -163,11 +163,9 @@ public class NodeController {
     }
 
     public double[] moveNodesFinished(MouseEvent event){
-        double offsetX = event.getSceneX() - initMoveX;
-        double offsetY = event.getSceneY() - initMoveY;
         for(AbstractNode n : toBeMoved) {
-            Double x = initTranslateMap.get(n).getX() + offsetX; //Calculate real position after move
-            Double y = initTranslateMap.get(n).getY() + offsetY;
+            Double x = n.getTranslateX();
+            Double y = n.getTranslateY();
             if(snapToGrid){
                 int xSnap = closestInteger(x.intValue(), 20); //Snap to grid
                 int ySnap = closestInteger(y.intValue(), 20);

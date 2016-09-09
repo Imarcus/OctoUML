@@ -127,7 +127,7 @@ public class EdgeController {
     }
 
     protected void onMouseDragEdge(MouseEvent event){
-        double offsetY = event.getSceneY() - dragEdgeStartY;
+        double offsetY = (event.getSceneY() - dragEdgeStartY)*(1/diagramController.drawPane.getScaleY());
         dragEdgeStartY = event.getSceneY();
         for(AbstractEdgeView edgeView : diagramController.selectedEdges){
             if(edgeView instanceof MessageEdgeView){

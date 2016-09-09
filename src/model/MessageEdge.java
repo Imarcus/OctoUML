@@ -54,7 +54,16 @@ public class MessageEdge extends AbstractEdge {
         } else {
             lowestNode = (Lifeline)endNode;
         }
-        if(pStartY >= lowestNode.getY() + lowestNode.getHeight()){
+        double highestLifelineY = ((Lifeline)endNode).getLifelineLength() + endNode.getHeight() + endNode.getY();
+        if(startNode != null){
+            double startNodeLifelineY = ((Lifeline)startNode).getLifelineLength() + startNode.getHeight() + startNode.getY();
+            if(startNodeLifelineY < highestLifelineY){
+                highestLifelineY = startNodeLifelineY;
+            }
+        }
+
+        if(pStartY >= lowestNode.getY() + lowestNode.getHeight() &&
+                pStartY <= highestLifelineY){
             changes.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
             remoteChanges.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
             startY = pStartY;

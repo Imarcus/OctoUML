@@ -313,8 +313,8 @@ public class SequenceDiagramController extends AbstractDiagramController {
         });
 
         circleHandle.setOnMouseDragged(event -> {
-            double offsetX =  event.getSceneX() - initMoveX;
-            double offsetY = event.getSceneY() - initMoveY;
+            double offsetX =  (event.getSceneX() - initMoveX)*(1/drawPane.getScaleX());
+            double offsetY = (event.getSceneY() - initMoveY)*(1/drawPane.getScaleY());
             initMoveX = event.getSceneX();
             initMoveY = event.getSceneY();
             if(mode == Mode.DRAGGING){
@@ -341,7 +341,7 @@ public class SequenceDiagramController extends AbstractDiagramController {
         });
 
         rectangleHandle.setOnMouseDragged(event -> {
-            double offsetY = event.getSceneY() - initMoveY;
+            double offsetY = (event.getSceneY() - initMoveY)*(1/drawPane.getScaleY());
             initMoveX = event.getSceneX();
             initMoveY = event.getSceneY();
             if(mode == Mode.DRAGGING){

@@ -56,7 +56,6 @@ public class LifelineView extends AbstractNodeView implements NodeView {
         createRectangleHandle();
 
         container.getChildren().addAll(rectangle, title);
-
     }
 
     private void createLifeline(){
@@ -115,6 +114,7 @@ public class LifelineView extends AbstractNodeView implements NodeView {
         rectangleHandle.xProperty().bind(lifeline.endXProperty().subtract(rectangleHandle.widthProperty().divide(2)));
         rectangleHandle.yProperty().bind(lifeline.endYProperty().subtract(rectangleHandle.heightProperty().divide(2)));
         this.getChildren().add(rectangleHandle);
+        rectangleHandle.setVisible(false);
     }
 
     private void initTitle(){
@@ -139,10 +139,15 @@ public class LifelineView extends AbstractNodeView implements NodeView {
         if(selected){
             rectangle.setStrokeWidth(2);
             setStroke(Constants.selected_color);
+            lifeline.setStroke(Constants.selected_color);
+            rectangleHandle.setFill(Constants.selected_color);
         } else {
             rectangle.setStrokeWidth(1);
             setStroke(Color.BLACK);
+            lifeline.setStroke(Color.BLACK);
+            rectangleHandle.setFill(Color.BLACK);
         }
+        rectangleHandle.setVisible(selected);
     }
 
     public void setStrokeWidth(double scale){

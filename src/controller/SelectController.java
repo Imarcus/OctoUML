@@ -66,14 +66,18 @@ public class SelectController {
                 if (!(edgeView instanceof MessageEdgeView) && (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15)){
-                    diagramController.selectedEdges.add(edgeView);
+                    if(!diagramController.selectedEdges.contains(edgeView)){
+                        diagramController.selectedEdges.add(edgeView);
+                    }
                     if(event.getClickCount() > 1){
                         diagramController.edgeController.showEdgeEditDialog(edgeView.getRefEdge());
                         diagramController.setTool(ToolEnum.SELECT);
                         diagramController.setButtonClicked(diagramController.selectBtn);
                     }
                 } else if((edgeView instanceof MessageEdgeView) && distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
-                    diagramController.selectedEdges.add(edgeView);
+                    if(!diagramController.selectedEdges.contains(edgeView)){
+                        diagramController.selectedEdges.add(edgeView);
+                    }
                     if(event.getClickCount() > 1){
                         diagramController.edgeController.showMessageEditDialog((MessageEdge)edgeView.getRefEdge());
                         diagramController.setTool(ToolEnum.SELECT);

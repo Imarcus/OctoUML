@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import model.*;
 import util.commands.DirectionChangeEdgeCommand;
+import util.commands.MoveMessageCommand;
 import util.commands.ReplaceEdgeCommand;
 import view.*;
 
@@ -120,15 +121,17 @@ public class EdgeController {
         endNodeView = null;
     }
 
-    private double dragEdgeStartY;
+    private double previousEdgeStartY;
+    private double dragStart;
     protected void onMousePressDragEdge(MouseEvent event){
         diagramController.mode = AbstractDiagramController.Mode.DRAGGING_EDGE;
-        dragEdgeStartY = event.getSceneY();
+        previousEdgeStartY = event.getY();
+        dragStartY = event.getY();
     }
 
     protected void onMouseDragEdge(MouseEvent event){
-        double offsetY = (event.getSceneY() - dragEdgeStartY)*(1/diagramController.drawPane.getScaleY());
-        dragEdgeStartY = event.getSceneY();
+        double offsetY = (event.getY() - previousEdgeStartY)*(1/diagramController.drawPane.getScaleY());
+        previousEdgeStartY = event.getY();
         for(AbstractEdgeView edgeView : diagramController.selectedEdges){
             if(edgeView instanceof MessageEdgeView){
                 MessageEdge edge = (MessageEdge)edgeView.getRefEdge();
@@ -139,7 +142,10 @@ public class EdgeController {
 
     protected void onMouseReleaseDragEdge(MouseEvent event){
         diagramController.mode = AbstractDiagramController.Mode.NO_MODE;
-        dragEdgeStartY = 0;
+        for(AbstractEdgeView edgeView : diagramController.selectedEdges) {
+            diagramController.undoManager.add(new MoveMessageCommand((MessageEdge)edgeView.getRefEdge(), 0, edgeView.getStartY() - dragStartY));
+        }
+        previousEdgeStartY = 0;
     }
 
     public Point2D getStartPoint() {

@@ -41,8 +41,8 @@ public class MessageEdge extends AbstractEdge {
     }
 
     public void setStartX(double pStartX) {
-        changes.firePropertyChange(Constants.changeMessageStartX, pStartX, startX);
-        remoteChanges.firePropertyChange(Constants.changeMessageStartX, pStartX, startX);
+        changes.firePropertyChange(Constants.changeMessageStartX, startX, pStartX);
+        remoteChanges.firePropertyChange(Constants.changeMessageStartX, startX, pStartX);
         startX = pStartX;
 
     }
@@ -64,14 +64,14 @@ public class MessageEdge extends AbstractEdge {
 
         if(pStartY >= lowestNode.getY() + lowestNode.getHeight() &&
                 pStartY <= highestLifelineY){
-            changes.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
-            remoteChanges.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
+            changes.firePropertyChange(Constants.changeMessageStartY, startY, pStartY);
+            remoteChanges.firePropertyChange(Constants.changeMessageStartY, startY, pStartY);
             startY = pStartY;
         }
     }
 
     public void remoteSetStartX(double pStartX) {
-        changes.firePropertyChange(Constants.changeMessageStartX, pStartX, startX);
+        changes.firePropertyChange(Constants.changeMessageStartX, startX, pStartX);
         startX = pStartX;
 
     }
@@ -84,7 +84,7 @@ public class MessageEdge extends AbstractEdge {
             lowestNode = (Lifeline)endNode;
         }
         if(pStartY >= lowestNode.getY() + lowestNode.getHeight()){
-            changes.firePropertyChange(Constants.changeMessageStartY, pStartY, startY);
+            changes.firePropertyChange(Constants.changeMessageStartY, startY, pStartY);
             startY = pStartY;
         }
     }
@@ -105,9 +105,7 @@ public class MessageEdge extends AbstractEdge {
     }
 
     @Override
-    public void setScaleY(double y) {
-
-    }
+    public void setScaleY(double y) {}
 
     @Override
     public double getTranslateX() {

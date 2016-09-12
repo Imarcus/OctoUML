@@ -8,9 +8,9 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import model.*;
 import org.controlsfx.control.Notifications;
-import util.commands.AddDeleteNodeCommand;
 import util.commands.CompoundCommand;
 import util.commands.MoveGraphElementCommand;
+import util.commands.MoveMessageCommand;
 import view.*;
 
 import java.awt.geom.Point2D;
@@ -300,23 +300,25 @@ public class SequenceDiagramController extends AbstractDiagramController {
     }
 
 
-    private double initMoveX, initMoveY;
+    private double previousMoveX, previousMoveY, initMoveX, initMoveY;
     public void initMessageHandleActions(MessageEdgeView edgeView){
         Circle circleHandle = edgeView.getCircleHandle();
         circleHandle.setOnMousePressed(event -> {
             if(tool == ToolEnum.SELECT){
                 mode = Mode.DRAGGING;
                 selectedEdges.add(edgeView);
-                initMoveX = event.getSceneX();
-                initMoveY = event.getSceneY();
+                previousMoveX = event.getX();
+                previousMoveY = event.getY();
+                initMoveX = event.getX();
+                initMoveY = event.getY();
             }
         });
 
         circleHandle.setOnMouseDragged(event -> {
-            double offsetX =  (event.getSceneX() - initMoveX)*(1/drawPane.getScaleX());
-            double offsetY = (event.getSceneY() - initMoveY)*(1/drawPane.getScaleY());
-            initMoveX = event.getSceneX();
-            initMoveY = event.getSceneY();
+            double offsetX =  (event.getX() - previousMoveX)*(1/drawPane.getScaleX());
+            double offsetY = (event.getY() - previousMoveY)*(1/drawPane.getScaleY());
+            previousMoveX = event.getX();
+            previousMoveY = event.getY();
             if(mode == Mode.DRAGGING){
                 MessageEdge edge = (MessageEdge)edgeView.getRefEdge();
                 edge.setStartX(edge.getStartX() + offsetX);
@@ -325,9 +327,10 @@ public class SequenceDiagramController extends AbstractDiagramController {
         });
 
         circleHandle.setOnMouseReleased(event -> {
+            undoManager.add(new MoveMessageCommand((MessageEdge)edgeView.getRefEdge(), edgeView.getStartX() - initMoveX, edgeView.getStartY() - initMoveY));
             mode = Mode.NO_MODE;
-            initMoveX = 0;
-            initMoveY = 0;
+            previousMoveX = 0;
+            previousMoveY = 0;
         });
     }
 
@@ -336,14 +339,14 @@ public class SequenceDiagramController extends AbstractDiagramController {
         rectangleHandle.setOnMousePressed(event -> {
             if(tool == ToolEnum.SELECT){
                 mode = Mode.DRAGGING;
-                initMoveY = event.getSceneY();
+                previousMoveY = event.getSceneY();
             }
         });
 
         rectangleHandle.setOnMouseDragged(event -> {
-            double offsetY = (event.getSceneY() - initMoveY)*(1/drawPane.getScaleY());
-            initMoveX = event.getSceneX();
-            initMoveY = event.getSceneY();
+            double offsetY = (event.getSceneY() - previousMoveY)*(1/drawPane.getScaleY());
+            previousMoveX = event.getSceneX();
+            previousMoveY = event.getSceneY();
             if(mode == Mode.DRAGGING){
                 Lifeline node = (Lifeline) nodeView.getRefNode();
                 node.setLifelineLength(node.getLifelineLength() + offsetY);
@@ -352,8 +355,8 @@ public class SequenceDiagramController extends AbstractDiagramController {
 
         rectangleHandle.setOnMouseReleased(event -> {
             mode = Mode.NO_MODE;
-            initMoveX = 0;
-            initMoveY = 0;
+            previousMoveX = 0;
+            previousMoveY = 0;
         });
     }
 

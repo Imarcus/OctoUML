@@ -193,7 +193,11 @@ public class UMLDiagramLogger {
         post.append(command.getEdge().getType().toUpperCase() + "\t"); //OBT
         post.append(command.getEdge().getId() + "\t"); //OBID
         post.append("null\t"); //OBN
-        post.append(command.getEdge().getStartNode().getId() + "\t"); //SRCID
+        if(command.getEdge().getStartNode() != null){
+            post.append(command.getEdge().getStartNode().getId() + "\t"); //SRCID
+        } else {
+            post.append("null\t");
+        }
         post.append(command.getEdge().getEndNode().getId() + "\t"); //TRGID
         post.append(dot + "\t"); //DOT
         post.append("\n");

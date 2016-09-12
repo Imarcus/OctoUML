@@ -807,11 +807,7 @@ public abstract class AbstractDiagramController {
             graph.addEdge(edgeView.getRefEdge(), false);
             allEdgeViews.add(edgeView);
         }
-        if(edgeView instanceof MessageEdgeView){
-
-        } else {
-            undoManager.add(new AddDeleteEdgeCommand(AbstractDiagramController.this, edgeView, edgeView.getRefEdge(), true));
-        }
+        undoManager.add(new AddDeleteEdgeCommand(AbstractDiagramController.this, edgeView, edgeView.getRefEdge(), true));
         return edgeView;
     }
 

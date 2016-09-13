@@ -44,7 +44,7 @@ public class ClassDiagramController extends AbstractDiagramController {
                     mode = Mode.MOVING;
                     graphController.movePaneStart(event);
                 }
-                else if (tool == ToolEnum.DRAW) { //Start drawing.
+                else if (tool == ToolEnum.DRAW && mouseCreationActivated) { //Start drawing.
                     mode = Mode.DRAWING;
                     sketchController.onTouchPressed(event);
                 }
@@ -63,7 +63,7 @@ public class ClassDiagramController extends AbstractDiagramController {
         drawPane.setOnMouseDragged(event -> {
             if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) { //Continue selection of elements.
                 selectController.onMouseDragged(event);
-            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) { //Continue drawing.
+            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING && mouseCreationActivated) { //Continue drawing.
                 sketchController.onTouchMoved(event);
             }
             else if ((tool == ToolEnum.CREATE_CLASS || tool == ToolEnum.CREATE_PACKAGE) && mode == Mode.CREATING && mouseCreationActivated) { //Continue creation of class or package.
@@ -78,7 +78,7 @@ public class ClassDiagramController extends AbstractDiagramController {
             if (tool == ToolEnum.SELECT && mode == Mode.SELECTING) { //Finish selecting elements.
                 selectController.onMouseReleased();
             }
-            else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) { //Finish drawing.
+            else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING  && mouseCreationActivated) { //Finish drawing.
                 sketchController.onTouchReleased(event);
                 //We only want to move out of drawing mode if there are no other current drawings.
                 if (!sketchController.currentlyDrawing()) {
@@ -108,7 +108,7 @@ public class ClassDiagramController extends AbstractDiagramController {
             if ((tool == ToolEnum.CREATE_CLASS || tool == ToolEnum.CREATE_PACKAGE) && !mouseCreationActivated) {
                 mode = Mode.CREATING;
                 createNodeController.onTouchPressed(event);
-            } else if (tool == ToolEnum.DRAW) {
+            } else if (tool == ToolEnum.DRAW && !mouseCreationActivated) {
                 mode = Mode.DRAWING;
                 sketchController.onTouchPressed(event);
             }
@@ -117,7 +117,7 @@ public class ClassDiagramController extends AbstractDiagramController {
         drawPane.setOnTouchMoved(event -> {
             if ((tool == ToolEnum.CREATE_CLASS || tool == ToolEnum.CREATE_PACKAGE) && mode == Mode.CREATING && !mouseCreationActivated) {
                 createNodeController.onTouchDragged(event);
-            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
+            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING && !mouseCreationActivated) {
                 sketchController.onTouchMoved(event);
             }
             event.consume();
@@ -135,7 +135,7 @@ public class ClassDiagramController extends AbstractDiagramController {
                 if (!createNodeController.currentlyCreating()) {
                     mode = Mode.NO_MODE;
                 }
-            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING) {
+            } else if (tool == ToolEnum.DRAW && mode == Mode.DRAWING && !mouseCreationActivated) {
                 sketchController.onTouchReleased(event);
                 if (!sketchController.currentlyDrawing()) {
                     mode = Mode.NO_MODE;

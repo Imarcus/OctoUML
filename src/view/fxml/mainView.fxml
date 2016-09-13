@@ -23,7 +23,7 @@
                     <MenuItem text="Join as Client" onAction="#handleMenuActionClient"/>
                     <MenuItem text="Upload to GitHub" onAction="#handleMenuActionGit"/>
                     <SeparatorMenuItem/>
-                    <CheckMenuItem fx:id="mouseMenuItem" text="Activate Mouse" onAction="#handleMenuActionMouse" selected="false"/>
+                    <CheckMenuItem fx:id="mouseMenuItem" text="Mouse activated" onAction="#handleMenuActionMouse" selected="false"/>
                     <SeparatorMenuItem/>
                     <MenuItem text="Exit" onAction="#handleMenuActionExit"/>
                 </items>

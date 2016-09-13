@@ -48,7 +48,10 @@ public abstract class AbstractDiagramController {
     protected Graph graph;
     protected Stage aStage;
 
-    boolean mouseCreationActivated = true;
+    //Set to true for allowing classes & packages & sketches to be created with the mouse.
+    // With this set to false, multiple users can create these elements while interacting with a touch screen at the same time
+    //TODO Implement multi-touch support for more actions (e.g. creating edges)
+    static boolean mouseCreationActivated = false;
 
     //Controllers
     CreateNodeController createNodeController;
@@ -99,6 +102,7 @@ public abstract class AbstractDiagramController {
     @FXML ScrollPane scrollPane;
     @FXML ColorPicker colorPicker;
     @FXML Label serverLabel;
+    @FXML CheckMenuItem mouseMenuItem;
 
     @FXML
     protected Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn, voiceBtn;
@@ -202,11 +206,11 @@ public abstract class AbstractDiagramController {
      * @param edgeView
      * @param pCommand Compound command from deleting all selected, if null we create our own command.
      * @param remote, true if change comes from a remote server
-     * @param undo     If true this is an undo and no command should be created, also used by replaceEdge in EdgeController
+     * @param undo     If true this is an undo and no command should be created, also used by replaceEdge in EdgeController #badcode
      */
     public void deleteEdgeView(AbstractEdgeView edgeView, CompoundCommand pCommand, boolean undo, boolean remote) {
         CompoundCommand command = null;
-        //TODO Ugly solution for replace.
+        //TODO Ugly solution for replace edge.
         if (pCommand == null) {
             command = new CompoundCommand();
             selectedEdges.remove(edgeView);
@@ -428,7 +432,6 @@ public abstract class AbstractDiagramController {
 
     public void handleMenuActionMouse() {
         mouseCreationActivated = !mouseCreationActivated;
-        //mouseMenuItem.setSelected(mouseCreationActivated);
     }
 
     public void handleMenuActionExit() {
@@ -665,7 +668,7 @@ public abstract class AbstractDiagramController {
      * Called when the model has been modified remotely.
      * @param dataArray
      * [0] = Type of change
-     * [1] = id of node
+     * [1] = id of element
      * [2+] = Optional new values
      */
     public void remoteCommand(String[] dataArray){
@@ -971,7 +974,6 @@ public abstract class AbstractDiagramController {
         return allNodeViews;
     }
 
-
     ArrayList<AbstractEdgeView> getAllEdgeViews() {
         return allEdgeViews;
     }
@@ -1008,7 +1010,6 @@ public abstract class AbstractDiagramController {
     void closeLog(){
         undoManager.closeLog();
     }
-
 
     public GraphController getGraphController(){
         return graphController;

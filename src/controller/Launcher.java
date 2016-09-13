@@ -39,7 +39,7 @@ public class Launcher extends Application {
 
         stage.setScene(scene);
         stage.setTitle("OctoUML");
-        //stage.setFullScreen(true);
+        stage.setFullScreen(true);
         stage.getIcons().add(new Image("icons/appIcon.png"));
         stage.show();
 

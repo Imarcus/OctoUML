@@ -383,15 +383,11 @@ public class SequenceDiagramController extends AbstractDiagramController {
     //------------ Init Buttons -------------------------------------------
     private void initToolBarActions() {
 
-        Image image = new Image("/icons/classw.png");
+        Image image = new Image("/icons/seqObject.png");
         createBtn.setGraphic(new ImageView(image));
         createBtn.setText("");
 
-        image = new Image("/icons/packagew.png");
-        packageBtn.setGraphic(new ImageView(image));
-        packageBtn.setText("");
-
-        image = new Image("/icons/edgew.png");
+        image = new Image("/icons/message.png");
         edgeBtn.setGraphic(new ImageView(image));
         edgeBtn.setText("");
 
@@ -437,11 +433,6 @@ public class SequenceDiagramController extends AbstractDiagramController {
             setButtonClicked(createBtn);
         });
 
-        packageBtn.setOnAction(event -> {
-            tool = ToolEnum.CREATE_PACKAGE;
-            setButtonClicked(packageBtn);
-        });
-
         edgeBtn.setOnAction(event -> {
             tool = ToolEnum.EDGE;
             setButtonClicked(edgeBtn);
@@ -483,7 +474,6 @@ public class SequenceDiagramController extends AbstractDiagramController {
                         .showInformation();
             }
             voiceController.onVoiceButtonClick();
-
         });
     }
 }

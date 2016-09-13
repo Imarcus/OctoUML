@@ -13,16 +13,16 @@
             </top>
             <center>
                 <VBox alignment="CENTER">
-                    <Label text="PenguinUML" fx:id="titleLabel"/>
+                    <Label text="OctoUML" fx:id="titleLabel"/>
                     <Label text="Choose diagram type" fx:id="subTitleLabel"/>
                 </VBox>
             </center>
         </BorderPane>
     </top>
     <center>
-        <HBox alignment="CENTER">
-            <Button fx:id="classDiagramButton" text="New Class Diagram" onAction="#handleActionNew">
-            </Button>
+        <HBox alignment="CENTER" spacing="10">
+            <Button fx:id="classDiagramButton" text="New Class Diagram" onAction="#handleActionNewClassDiagram"/>
+            <Button fx:id="sequenceDiagramButton" text="New Sequence Diagram" onAction="#handleActionNewSequenceDiagram"/>
         </HBox>
     </center>
 

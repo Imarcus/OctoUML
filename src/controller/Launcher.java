@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -37,8 +38,9 @@ public class Launcher extends Application {
         tabController.setStage(stage);
 
         stage.setScene(scene);
-        stage.setTitle("Penguin");
+        stage.setTitle("OctoUML");
         //stage.setFullScreen(true);
+        stage.getIcons().add(new Image("icons/appIcon.png"));
         stage.show();
 
         Tab tab = new Tab();

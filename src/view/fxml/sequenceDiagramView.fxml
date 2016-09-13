@@ -17,7 +17,6 @@
             <ToolBar fx:id="aToolBar" orientation="HORIZONTAL">
                 <HBox fx:id="umlBox">
                     <Button text="Create" fx:id="createBtn"/>
-                    <Button text="Package" fx:id="packageBtn"/>
                     <Button text="Edge" fx:id="edgeBtn"/>
                     <Button text="Draw" fx:id="drawBtn"/>
                 </HBox>

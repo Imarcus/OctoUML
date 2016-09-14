@@ -1,4 +1,4 @@
-package model;
+package model.nodes;
 
 import javafx.geometry.Point2D;
 

@@ -1,6 +1,6 @@
 package util.commands;
 
-import model.Node;
+import model.nodes.Node;
 
 /**
  * Created by Marcus on 2016-08-29.

@@ -17,6 +17,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
+import model.edges.*;
+import model.nodes.*;
 import util.Constants;
 import util.NetworkUtils;
 import util.commands.*;
@@ -24,7 +26,8 @@ import util.insertIMG.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import util.persistence.PersistenceManager;
-import view.*;
+import view.edges.*;
+import view.nodes.*;
 
 import java.util.*;
 import java.awt.geom.Point2D;
@@ -608,8 +611,8 @@ public abstract class AbstractDiagramController {
         } else if (node instanceof PackageNode) {
             newView = new PackageNodeView((PackageNode) node);
         } else {
-            newView = new LifelineView((Lifeline) node);
-            ((SequenceDiagramController)this).initLifelineHandleActions((LifelineView)newView);
+            newView = new SequenceObjectView((SequenceObject) node);
+            ((SequenceDiagramController)this).initLifelineHandleActions((SequenceObjectView)newView);
         }
 
         if(!graph.getAllNodes().contains(node)){

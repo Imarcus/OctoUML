@@ -6,7 +6,7 @@ import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import model.*;
-import view.AbstractNodeView;
+import view.nodes.AbstractNodeView;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;

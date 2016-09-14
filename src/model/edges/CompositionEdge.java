@@ -1,16 +1,26 @@
-package model;
+package model.edges;
+
+import model.nodes.AbstractNode;
+import model.nodes.Node;
 
 /**
- * Represents an aggregate relationship between two UML-classes.
+ * Represents a composite relationship between two classes.
  */
-public class AggregationEdge extends AbstractEdge {
+public class CompositionEdge extends AbstractEdge{
 
-    public AggregationEdge(Node startNode, Node endNode) {
+    public CompositionEdge(Node startNode, Node endNode) {
         super(startNode, endNode);
     }
 
+    /**
+     * No-arg constructor for JavaBean convention
+     */
+    public CompositionEdge(){
+
+    }
+
     public Edge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy) {
-        return new AggregationEdge(getStartNode(), getEndNode());
+        return new CompositionEdge(startNodeCopy, endNodeCopy);
     }
 
     @Override
@@ -54,10 +64,6 @@ public class AggregationEdge extends AbstractEdge {
     }
 
     public String getType(){
-        return "Aggregation";
-    }
-
-    public AggregationEdge(){
-
+        return "Composition";
     }
 }

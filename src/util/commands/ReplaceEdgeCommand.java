@@ -1,9 +1,9 @@
 package util.commands;
 
 import controller.AbstractDiagramController;
-import model.AbstractEdge;
+import model.edges.AbstractEdge;
 import model.Graph;
-import view.AbstractEdgeView;
+import view.edges.AbstractEdgeView;
 
 /**
  * Commands used when switching between different kinds of edges.

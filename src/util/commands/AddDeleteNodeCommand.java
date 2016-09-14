@@ -21,9 +21,9 @@
 package util.commands;
 
 import controller.AbstractDiagramController;
-import model.AbstractNode;
+import model.nodes.AbstractNode;
 import model.Graph;
-import view.AbstractNodeView;
+import view.nodes.AbstractNodeView;
 
 /**
  * Stores the addition/removal of a node from the graph.

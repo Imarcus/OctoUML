@@ -2,6 +2,9 @@ package model;
 
 import javafx.geometry.Point2D;
 import static org.junit.Assert.assertEquals;
+
+import model.nodes.ClassNode;
+import model.nodes.PackageNode;
 import org.junit.Test;
 
 

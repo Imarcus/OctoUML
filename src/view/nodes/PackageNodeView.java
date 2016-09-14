@@ -1,4 +1,4 @@
-package view;
+package view.nodes;
 
 
 import javafx.geometry.Bounds;
@@ -13,7 +13,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import model.PackageNode;
+import model.nodes.PackageNode;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;

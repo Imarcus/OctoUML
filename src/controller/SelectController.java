@@ -5,13 +5,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import model.MessageEdge;
+import model.edges.MessageEdge;
 import model.Sketch;
-import view.AbstractEdgeView;
-import view.AbstractNodeView;
+import view.edges.AbstractEdgeView;
+import view.nodes.AbstractNodeView;
 import controller.AbstractDiagramController.ToolEnum;
 import controller.AbstractDiagramController.Mode;
-import view.MessageEdgeView;
+import view.edges.MessageEdgeView;
 
 /**
  * Used by MainController for handling when a user tries to select elements in the graph.

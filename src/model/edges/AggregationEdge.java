@@ -1,21 +1,19 @@
-package model;
+package model.edges;
+
+import model.nodes.AbstractNode;
+import model.nodes.Node;
 
 /**
- * Represents an inheritance relationship between two classes.
+ * Represents an aggregate relationship between two UML-classes.
  */
-public class InheritanceEdge extends AbstractEdge {
+public class AggregationEdge extends AbstractEdge {
 
-    public InheritanceEdge(Node startNode, Node endNode) {
+    public AggregationEdge(Node startNode, Node endNode) {
         super(startNode, endNode);
     }
 
-    /**
-     * No-arg constructor for JavaBean convention
-     */
-    public InheritanceEdge() {}
-
     public Edge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy) {
-        return new InheritanceEdge(startNodeCopy, endNodeCopy);
+        return new AggregationEdge(getStartNode(), getEndNode());
     }
 
     @Override
@@ -59,6 +57,10 @@ public class InheritanceEdge extends AbstractEdge {
     }
 
     public String getType(){
-        return "Inheritance";
+        return "Aggregation";
+    }
+
+    public AggregationEdge(){
+
     }
 }

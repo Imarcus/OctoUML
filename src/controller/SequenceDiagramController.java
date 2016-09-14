@@ -7,11 +7,17 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import model.*;
+import model.edges.MessageEdge;
+import model.nodes.SequenceObject;
 import org.controlsfx.control.Notifications;
 import util.commands.CompoundCommand;
 import util.commands.MoveGraphElementCommand;
 import util.commands.MoveMessageCommand;
-import view.*;
+import view.edges.AbstractEdgeView;
+import view.edges.MessageEdgeView;
+import view.nodes.AbstractNodeView;
+import view.nodes.SequenceObjectView;
+import view.nodes.PackageNodeView;
 
 import java.awt.geom.Point2D;
 
@@ -334,7 +340,7 @@ public class SequenceDiagramController extends AbstractDiagramController {
         });
     }
 
-    public void initLifelineHandleActions(LifelineView nodeView){
+    public void initLifelineHandleActions(SequenceObjectView nodeView){
         Rectangle rectangleHandle = nodeView.getLifelineHandle();
         rectangleHandle.setOnMousePressed(event -> {
             if(tool == ToolEnum.SELECT){
@@ -348,7 +354,7 @@ public class SequenceDiagramController extends AbstractDiagramController {
             previousMoveX = event.getSceneX();
             previousMoveY = event.getSceneY();
             if(mode == Mode.DRAGGING){
-                Lifeline node = (Lifeline) nodeView.getRefNode();
+                SequenceObject node = (SequenceObject) nodeView.getRefNode();
                 node.setLifelineLength(node.getLifelineLength() + offsetY);
             }
         });

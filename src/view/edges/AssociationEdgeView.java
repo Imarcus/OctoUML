@@ -1,10 +1,11 @@
-package view;
+package view.edges;
 
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import model.AbstractEdge;
+import model.edges.AbstractEdge;
 import util.Constants;
+import view.nodes.AbstractNodeView;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;

@@ -2,7 +2,7 @@ package controller.dialog;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import model.AbstractEdge;
+import model.edges.AbstractEdge;
 
 /**
  * Dialog to edit Edge settings.

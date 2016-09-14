@@ -1,6 +1,11 @@
 package model;
 
 import javafx.geometry.Point2D;
+import model.edges.AbstractEdge;
+import model.edges.Edge;
+import model.nodes.AbstractNode;
+import model.nodes.Node;
+import model.nodes.PackageNode;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;

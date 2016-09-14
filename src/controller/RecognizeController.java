@@ -9,11 +9,16 @@ import edu.tamu.recognition.paleo.PaleoSketchRecognizer;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import model.*;
+import model.edges.AbstractEdge;
+import model.edges.AssociationEdge;
+import model.nodes.AbstractNode;
+import model.nodes.ClassNode;
+import model.nodes.Node;
 import util.commands.AddDeleteEdgeCommand;
 import util.commands.AddDeleteNodeCommand;
 import util.commands.CompoundCommand;
-import view.AbstractEdgeView;
-import view.AbstractNodeView;
+import view.edges.AbstractEdgeView;
+import view.nodes.AbstractNodeView;
 
 import java.util.ArrayList;
 import java.util.List;

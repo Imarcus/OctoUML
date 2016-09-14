@@ -1,7 +1,8 @@
 package view;
 
-import model.ClassNode;
+import model.nodes.ClassNode;
 import org.junit.Test;
+import view.nodes.ClassNodeView;
 
 import static org.junit.Assert.assertEquals;
 

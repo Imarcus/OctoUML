@@ -1,4 +1,7 @@
-package model;
+package model.edges;
+
+import model.nodes.AbstractNode;
+import model.nodes.Node;
 
 /**
  * Represents an associate relationship between two UML-classes.

@@ -1,6 +1,6 @@
 package util.commands;
 
-import model.AbstractEdge;
+import model.edges.AbstractEdge;
 
 /**
  * Command for changing the direction of an edge.

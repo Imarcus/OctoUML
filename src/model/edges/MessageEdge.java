@@ -1,8 +1,9 @@
-package model;
+package model.edges;
 
+import model.nodes.AbstractNode;
+import model.nodes.SequenceObject;
+import model.nodes.Node;
 import util.Constants;
-
-import java.beans.PropertyChangeSupport;
 
 /**
  * Represents an associate relationship between two UML-classes.
@@ -48,15 +49,15 @@ public class MessageEdge extends AbstractEdge {
     }
 
     public void setStartY(double pStartY) {
-        Lifeline lowestNode;
+        SequenceObject lowestNode;
         if(startNode != null && startNode.getY() > endNode.getY()){
-            lowestNode = (Lifeline)startNode;
+            lowestNode = (SequenceObject)startNode;
         } else {
-            lowestNode = (Lifeline)endNode;
+            lowestNode = (SequenceObject)endNode;
         }
-        double highestLifelineY = ((Lifeline)endNode).getLifelineLength() + endNode.getHeight() + endNode.getY();
+        double highestLifelineY = ((SequenceObject)endNode).getLifelineLength() + endNode.getHeight() + endNode.getY();
         if(startNode != null){
-            double startNodeLifelineY = ((Lifeline)startNode).getLifelineLength() + startNode.getHeight() + startNode.getY();
+            double startNodeLifelineY = ((SequenceObject)startNode).getLifelineLength() + startNode.getHeight() + startNode.getY();
             if(startNodeLifelineY < highestLifelineY){
                 highestLifelineY = startNodeLifelineY;
             }
@@ -77,11 +78,11 @@ public class MessageEdge extends AbstractEdge {
     }
 
     public void remoteSetStartY(double pStartY) {
-        Lifeline lowestNode;
+        SequenceObject lowestNode;
         if(startNode != null && startNode.getY() > endNode.getY()){
-            lowestNode = (Lifeline)startNode;
+            lowestNode = (SequenceObject)startNode;
         } else {
-            lowestNode = (Lifeline)endNode;
+            lowestNode = (SequenceObject)endNode;
         }
         if(pStartY >= lowestNode.getY() + lowestNode.getHeight()){
             changes.firePropertyChange(Constants.changeMessageStartY, startY, pStartY);

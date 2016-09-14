@@ -20,9 +20,9 @@
  *******************************************************************************/
 package util.commands;
 
-import model.AbstractNode;
+import model.nodes.AbstractNode;
 import model.GraphElement;
-import model.PackageNode;
+import model.nodes.PackageNode;
 
 /**
  * Stores the moving of a node.

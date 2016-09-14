@@ -1,8 +1,8 @@
-package view;
+package view.nodes;
 
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
-import model.AbstractNode;
+import model.nodes.AbstractNode;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;

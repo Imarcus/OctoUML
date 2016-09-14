@@ -1,23 +1,24 @@
-package model;
+package model.edges;
+
+import model.nodes.AbstractNode;
+import model.nodes.Node;
 
 /**
- * Represents a composite relationship between two classes.
+ * Represents an inheritance relationship between two classes.
  */
-public class CompositionEdge extends AbstractEdge{
+public class InheritanceEdge extends AbstractEdge {
 
-    public CompositionEdge(Node startNode, Node endNode) {
+    public InheritanceEdge(Node startNode, Node endNode) {
         super(startNode, endNode);
     }
 
     /**
      * No-arg constructor for JavaBean convention
      */
-    public CompositionEdge(){
-
-    }
+    public InheritanceEdge() {}
 
     public Edge copy(AbstractNode startNodeCopy, AbstractNode endNodeCopy) {
-        return new CompositionEdge(startNodeCopy, endNodeCopy);
+        return new InheritanceEdge(startNodeCopy, endNodeCopy);
     }
 
     @Override
@@ -61,6 +62,6 @@ public class CompositionEdge extends AbstractEdge{
     }
 
     public String getType(){
-        return "Composition";
+        return "Inheritance";
     }
 }

@@ -1,9 +1,10 @@
-package model;
+package model.edges;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
+import model.nodes.Node;
 import util.Constants;
 
 /**

@@ -1,11 +1,14 @@
 package util.persistence;
 
-import edu.tamu.core.sketch.Stroke;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import model.*;
+import model.edges.*;
+import model.nodes.AbstractNode;
+import model.nodes.ClassNode;
+import model.nodes.PackageNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

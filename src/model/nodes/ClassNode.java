@@ -1,4 +1,4 @@
-package model;
+package model.nodes;
 
 import util.Constants;
 

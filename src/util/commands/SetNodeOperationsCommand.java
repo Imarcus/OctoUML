@@ -1,7 +1,7 @@
 package util.commands;
 
-import model.ClassNode;
-import model.Node;
+import model.nodes.ClassNode;
+import model.nodes.Node;
 
 /**
  * Created by chalmers on 2016-08-29.

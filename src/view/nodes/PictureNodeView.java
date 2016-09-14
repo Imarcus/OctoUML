@@ -1,10 +1,10 @@
-package view;
+package view.nodes;
 
 import javafx.geometry.Bounds;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
-import model.PictureNode;
+import model.nodes.PictureNode;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;

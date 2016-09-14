@@ -6,12 +6,12 @@ import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import model.AbstractNode;
-import model.ClassNode;
-import model.Lifeline;
-import model.PackageNode;
-import view.AbstractNodeView;
-import view.PackageNodeView;
+import model.nodes.AbstractNode;
+import model.nodes.ClassNode;
+import model.nodes.SequenceObject;
+import model.nodes.PackageNode;
+import view.nodes.AbstractNodeView;
+import view.nodes.PackageNodeView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -148,7 +148,7 @@ public class CreateNodeController {
     }
 
     public void onMouseReleasedLifeline(){
-        diagramController.createNodeView(new Lifeline(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
+        diagramController.createNodeView(new SequenceObject(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
                 mouseDragRectangle.getWidth(),
                 mouseDragRectangle.getHeight()), false);
         finish();

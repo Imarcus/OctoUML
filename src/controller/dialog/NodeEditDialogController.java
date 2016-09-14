@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import model.ClassNode;
+import model.nodes.ClassNode;
 
 /**
  * Dialog to edit details of a node.

@@ -1,19 +1,16 @@
-package view;
+package view.nodes;
 
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import model.ClassNode;
+import model.nodes.SequenceObject;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;
@@ -21,53 +18,54 @@ import java.beans.PropertyChangeEvent;
 /**
  * Visual representation of ClassNode class.
  */
-public class ClassNodeView extends AbstractNodeView implements NodeView {
+public class SequenceObjectView extends AbstractNodeView implements NodeView {
 
     private Label title;
-    private Label attributes;
-    private Label operations;
-
     private Rectangle rectangle;
-
     private StackPane container;
-    private StackPane titlePane;
-    private VBox vbox;
-
-    private Separator firstLine;
-    private Separator secondLine;
-
     private Line shortHandleLine;
     private Line longHandleLine;
+    private Line lifeline;
+    private Rectangle rectangleHandle;
 
     private final int STROKE_WIDTH = 1;
 
-    public ClassNodeView(ClassNode node) {
+
+    public SequenceObjectView(SequenceObject node) {
         super(node);
-        //setChangeListeners();
 
         container = new StackPane();
         rectangle = new Rectangle();
-        vbox = new VBox();
-        container.getChildren().addAll(rectangle, vbox);
+        title = new Label();
 
-
-        initVBox();
+        initTitle();
         createRectangles();
         changeHeight(node.getHeight());
         changeWidth(node.getWidth());
         initLooks();
 
         this.getChildren().add(container);
-
         this.setTranslateX(node.getTranslateX());
         this.setTranslateY(node.getTranslateY());
         createHandles();
+        createLifeline();
+        createRectangleHandle();
 
+        container.getChildren().addAll(rectangle, title);
+    }
 
+    private void createLifeline(){
+        lifeline = new Line();//
+        lifeline.startXProperty().bind(rectangle.widthProperty().subtract(rectangle.widthProperty().divide(2)));
+        lifeline.startYProperty().bind(rectangle.heightProperty().add(1));
+        lifeline.endXProperty().bind(rectangle.widthProperty().subtract(rectangle.widthProperty().divide(2)));
+        lifeline.endYProperty().bind(rectangle.heightProperty().add(((SequenceObject)getRefNode()).getLifelineLength()));
+        lifeline.getStrokeDashArray().addAll(20d, 10d);
+        this.getChildren().add(lifeline);
     }
 
     private void createRectangles(){
-        ClassNode node = (ClassNode) getRefNode();
+        SequenceObject node = (SequenceObject) getRefNode();
         changeHeight(node.getHeight());
         changeWidth(node.getWidth());
         rectangle.setX(node.getX());
@@ -85,25 +83,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         container.setMaxWidth(width);
         container.setPrefWidth(width);
 
-        vbox.setMaxWidth(width);
-        vbox.setPrefWidth(width);
-        firstLine.setMaxWidth(width);
-        firstLine.setPrefWidth(width);
-        secondLine.setMaxWidth(width);
-        secondLine.setPrefWidth(width);
-
         title.setMaxWidth(width);
         title.setPrefWidth(width);
-
-        attributes.setMaxWidth(width);
-        attributes.setPrefWidth(width);
-
-        operations.setMaxWidth(width);
-        operations.setPrefWidth(width);
     }
 
     private void createHandles(){
-
         shortHandleLine = new Line();
         longHandleLine = new Line();
 
@@ -119,40 +103,25 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         this.getChildren().addAll(shortHandleLine, longHandleLine);
     }
 
-    private void initVBox(){
-        ClassNode node = (ClassNode) getRefNode();
+    private void createRectangleHandle(){
+        rectangleHandle = new Rectangle();
+        rectangleHandle.setWidth(10);
+        rectangleHandle.setHeight(10);
+        rectangleHandle.xProperty().bind(lifeline.endXProperty().subtract(rectangleHandle.widthProperty().divide(2)));
+        rectangleHandle.yProperty().bind(lifeline.endYProperty().subtract(rectangleHandle.heightProperty().divide(2)));
+        this.getChildren().add(rectangleHandle);
+        rectangleHandle.setVisible(false);
+    }
 
-        vbox.setPadding(new Insets(5, 0, 5, 0));
-        vbox.setSpacing(5);
-
-        titlePane = new StackPane();
-
-        firstLine = new Separator();
-        firstLine.setMaxWidth(node.getWidth());
-
-        secondLine = new Separator();
-        secondLine.setMaxWidth(node.getWidth());
+    private void initTitle(){
+        SequenceObject node = (SequenceObject) getRefNode();
 
         title = new Label();
-        title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+        title.setFont(Font.font("Verdana", 12));
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
         }
         title.setAlignment(Pos.CENTER);
-
-        attributes = new Label(node.getAttributes());
-        attributes.setFont(Font.font("Verdana", 10));
-
-        operations = new Label(node.getOperations());
-        operations.setFont(Font.font("Verdana", 10));
-
-
-        if(operations.getText() == null || operations.getText().equals("")){
-            secondLine.setVisible(false);
-        }
-
-        titlePane.getChildren().add(title);
-        vbox.getChildren().addAll(titlePane, firstLine, attributes, secondLine, operations);
     }
 
     private void initLooks(){
@@ -160,18 +129,21 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         rectangle.setFill(Color.LIGHTSKYBLUE);
         rectangle.setStroke(Color.BLACK);
         StackPane.setAlignment(title, Pos.CENTER);
-        VBox.setMargin(attributes, new Insets(5,0,0,5));
-        VBox.setMargin(operations, new Insets(5,0,0,5));
     }
 
     public void setSelected(boolean selected){
         if(selected){
             rectangle.setStrokeWidth(2);
             setStroke(Constants.selected_color);
+            lifeline.setStroke(Constants.selected_color);
+            rectangleHandle.setFill(Constants.selected_color);
         } else {
             rectangle.setStrokeWidth(1);
             setStroke(Color.BLACK);
+            lifeline.setStroke(Color.BLACK);
+            rectangleHandle.setFill(Color.BLACK);
         }
+        rectangleHandle.setVisible(selected);
     }
 
     public void setStrokeWidth(double scale){
@@ -190,6 +162,21 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         return container.getBoundsInParent();
     }
 
+    public Rectangle getLifelineHandle(){
+        return rectangleHandle;
+    }
+
+    public boolean isOnLifeline(Point2D point){
+        Double lifelineXPosition = lifeline.getStartX() + this.getX();
+        if(point.getX() > (lifelineXPosition - 10) && point.getX() < (lifelineXPosition + 10)){
+            Double lifelineYStartPosition = lifeline.getStartY() + this.getY();
+            Double lifelineYEndPosition = lifeline.getEndY() + this.getY();
+            if(point.getY() > lifelineYStartPosition && point.getY() < lifelineYEndPosition){
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -205,20 +192,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             changeHeight((double) evt.getNewValue());
         } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
             title.setText((String) evt.getNewValue());
-            if (title.getText() == null || title.getText().equals("")) {
-                firstLine.setVisible(false);
-            } else {
-                firstLine.setVisible(true);
-            }
-        } else if (evt.getPropertyName().equals(Constants.changeClassNodeAttributes)) {
-            attributes.setText((String) evt.getNewValue());
-        } else if (evt.getPropertyName().equals(Constants.changeClassNodeOperations)) {
-            operations.setText((String) evt.getNewValue());
-            if (operations.getText() == null || operations.getText().equals("")) {
-                secondLine.setVisible(false);
-            } else {
-                secondLine.setVisible(true);
-            }
+        } else if(evt.getPropertyName().equals(Constants.changeLifelineLength)){
+            lifeline.endYProperty().bind(rectangle.heightProperty().add(((SequenceObject)getRefNode()).getLifelineLength()));
         }
     }
 }

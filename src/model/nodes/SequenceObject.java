@@ -1,18 +1,18 @@
-package model;
+package model.nodes;
 
 import util.Constants;
 
 /**
  * Created by Marcus on 2016-09-01.
  */
-public class Lifeline extends AbstractNode {
+public class SequenceObject extends AbstractNode {
 
     public static final String TYPE = "LIFELINE";
     public final double LIFELINE_DEFAULT_LENGTH = 500;
 
     private double lifelineLength = LIFELINE_DEFAULT_LENGTH;
 
-    public Lifeline(double x, double y, double width, double height)
+    public SequenceObject(double x, double y, double width, double height)
     {
         super(x, y, width, height );
         //Don't accept nodes with size less than minWidth * minHeight.
@@ -28,7 +28,7 @@ public class Lifeline extends AbstractNode {
     /**
      * No-arg constructor for JavaBean convention
      */
-    public Lifeline(){
+    public SequenceObject(){
     }
 
     @Override

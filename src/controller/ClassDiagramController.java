@@ -8,8 +8,8 @@ import model.Sketch;
 import org.controlsfx.control.Notifications;
 import util.commands.CompoundCommand;
 import util.commands.MoveGraphElementCommand;
-import view.AbstractNodeView;
-import view.PackageNodeView;
+import view.nodes.AbstractNodeView;
+import view.nodes.PackageNodeView;
 
 import java.awt.geom.Point2D;
 

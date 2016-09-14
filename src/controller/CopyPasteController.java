@@ -1,14 +1,14 @@
 package controller;
 
 import javafx.scene.layout.Pane;
-import model.AbstractEdge;
-import model.AbstractNode;
+import model.edges.AbstractEdge;
+import model.nodes.AbstractNode;
 import model.GraphElement;
 import util.commands.AddDeleteEdgeCommand;
 import util.commands.AddDeleteNodeCommand;
 import util.commands.CompoundCommand;
-import view.AbstractEdgeView;
-import view.AbstractNodeView;
+import view.edges.AbstractEdgeView;
+import view.nodes.AbstractNodeView;
 import java.util.ArrayList;
 import java.util.HashMap;
 

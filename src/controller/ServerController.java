@@ -7,6 +7,10 @@ import com.esotericsoftware.kryonet.Server;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import model.*;
+import model.edges.*;
+import model.nodes.AbstractNode;
+import model.nodes.ClassNode;
+import model.nodes.PackageNode;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;
@@ -172,7 +176,7 @@ public class ServerController implements PropertyChangeListener {
         kryo.register(AggregationEdge.class);
         kryo.register(Graph.class);
         kryo.register(ArrayList.class);
-        kryo.register(model.AbstractEdge.Direction.class);
+        kryo.register(AbstractEdge.Direction.class);
         kryo.register(String[].class);
     }
 

@@ -12,11 +12,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import model.*;
+import model.edges.*;
 import util.commands.DirectionChangeEdgeCommand;
 import util.commands.MoveMessageCommand;
 import util.commands.ReplaceEdgeCommand;
-import view.*;
+import view.edges.AbstractEdgeView;
+import view.edges.MessageEdgeView;
+import view.nodes.AbstractNodeView;
+import view.nodes.SequenceObjectView;
 
 import java.io.IOException;
 
@@ -79,7 +82,7 @@ public class EdgeController {
     */
     public void onMouseReleasedSequence(){
         for(AbstractNodeView nodeView : diagramController.getAllNodeViews()){ //TODO implement getAllLifelines
-            if(nodeView instanceof LifelineView && ((LifelineView) nodeView).isOnLifeline(getEndPoint())){
+            if(nodeView instanceof SequenceObjectView && ((SequenceObjectView) nodeView).isOnLifeline(getEndPoint())){
                 endNodeView = nodeView;
             }
         }

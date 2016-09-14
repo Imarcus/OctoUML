@@ -22,9 +22,9 @@ package util.commands;
 
 
 import controller.AbstractDiagramController;
-import model.AbstractEdge;
-import model.Edge;
-import view.AbstractEdgeView;
+import model.edges.AbstractEdge;
+import model.edges.Edge;
+import view.edges.AbstractEdgeView;
 
 /**
  * Stores the addition/removal of a node from the graph.

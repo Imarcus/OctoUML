@@ -1,13 +1,14 @@
-package view;
+package view.edges;
 
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
-import model.AbstractEdge;
-import model.MessageEdge;
+import model.edges.AbstractEdge;
+import model.edges.MessageEdge;
 import util.Constants;
+import view.nodes.AbstractNodeView;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;

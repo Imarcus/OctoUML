@@ -4,8 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
-import model.AbstractEdge;
-import model.MessageEdge;
+import model.edges.AbstractEdge;
+import model.edges.MessageEdge;
 
 public class MessageEditDialogController {
 

@@ -20,11 +20,9 @@
  *******************************************************************************/
 package util.commands;
 
-import model.AbstractNode;
 import model.GraphElement;
 
-import model.MessageEdge;
-import model.PackageNode;
+import model.edges.MessageEdge;
 
 /**
  * Stores the moving of a node.

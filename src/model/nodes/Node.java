@@ -1,6 +1,7 @@
-package model;
+package model.nodes;
 
 import javafx.geometry.Rectangle2D;
+import model.GraphElement;
 
 /**
  * Interface used by all Node-classes. Represents a UML-class.

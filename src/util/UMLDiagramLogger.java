@@ -1,14 +1,12 @@
 package util;
 
-import model.ClassNode;
-import model.Node;
+import model.nodes.ClassNode;
+import model.nodes.Node;
 import util.commands.*;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Created by chalmers on 201 6-08-24.

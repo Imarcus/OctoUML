@@ -18,17 +18,12 @@ The library used for recognizing drawings is [Paleo Sketch](http://srl-mechanix.
 A overview of classes can be found [here](https://i.imgsafe.org/1a2c18332d.png).
 
 ## Guides/Explanations
-**Multi touch**
+**Multi touch**  
+When the program is first started, "Mouse activated" is not selected. To change this go to "File" and click "Mouse activated".  
+When it is not selected, multiple users can create Classes, Packages and Sketches (more elements should be added) at the same time.  
+When it is selected these elements can be created with the mouse and no multi touch is available.  
 
-When the program is first started, "Mouse activated" is not selected. To change this go to "File" and click "Mouse activated".
-
-When it is not selected, multiple users can create Classes, Packages and Sketches (more elements should be added) at the same time.
-
-
-When it is selected these elements can be created with the mouse and no multi touch is available.
-
-**Voice commands**
-
+**Voice commands**  
 To enable voice commands you first need go to VoiceController and change
 ```java
 configuration.setGrammarPath("<location of project>")

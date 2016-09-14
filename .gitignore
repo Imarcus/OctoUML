@@ -4,6 +4,7 @@ src/META-INF/
 out/
 log/
 /**/.DS_Store
+.properties
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/

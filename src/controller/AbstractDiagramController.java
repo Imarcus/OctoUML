@@ -204,20 +204,19 @@ public abstract class AbstractDiagramController {
     }
 
     /**
-     * Deletes edge
+     * Deletes given edge from graph
      *
      * @param edgeView
-     * @param pCommand Compound command from deleting all selected, if null we create our own command.
-     * @param remote, true if change comes from a remote server
-     * @param undo     If true this is an undo and no command should be created, also used by replaceEdge in EdgeController #badcode
+     * @param pCommand  CompoundCommand from deleting all selected, if null we create our own command.
+     * @param remote    True if change comes from a remote server
+     * @param undo      If true this is an undo and no command should be created
      */
     public void deleteEdgeView(AbstractEdgeView edgeView, CompoundCommand pCommand, boolean undo, boolean remote) {
         CompoundCommand command = null;
-        //TODO Ugly solution for replace edge.
-        if (pCommand == null) {
+        if (pCommand == null && !undo) { //If this is not part of a compoundcommand
             command = new CompoundCommand();
-            selectedEdges.remove(edgeView);
-        } else if (!undo) {
+            selectedEdges.remove(edgeView); //We can safely delete from selectedEdges since we are not looping through it.
+        } else if (pCommand != null && !undo) {
             command = pCommand;
         }
 
@@ -226,10 +225,11 @@ public abstract class AbstractDiagramController {
         drawPane.getChildren().remove(edgeView);
         edgeView.setSelected(false);
         allEdgeViews.remove(edgeView);
+        
         if (!undo) {
             command.add(new AddDeleteEdgeCommand(this, edgeView, edge, false));
         }
-        if (pCommand == null && !undo) {
+        if (pCommand == null && !undo) { //If this is not part of a compoundcommand we add this directly to the UndoManager
             undoManager.add(command);
         }
     }
@@ -599,10 +599,10 @@ public abstract class AbstractDiagramController {
     }
 
     /**
-     * Creates and adds a new NodeView
+     * Creates  a new NodeView from the given node and adds them to the graph.
      *
-     * @param node
-     * @return
+     * @param node - Any AbstractNode
+     * @return the created AbstractNodeView
      */
     public AbstractNodeView createNodeView(AbstractNode node, boolean remote) {
         AbstractNodeView newView;
@@ -623,7 +623,7 @@ public abstract class AbstractDiagramController {
     }
 
     /**
-     * Adds a NodeView
+     * Adds a NodeView to the graph
      *
      * @param nodeView
      * @param node

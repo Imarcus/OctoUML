@@ -86,7 +86,7 @@ public class CreateNodeController {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
         diagramController.createNodeView(new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
                 dragRectangle.getWidth(), dragRectangle.getHeight()), false);
-        finish();
+        finish(dragRectangle);
 
     }
 
@@ -95,7 +95,7 @@ public class CreateNodeController {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
         diagramController.createNodeView(new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
                 dragRectangle.getWidth(), dragRectangle.getHeight()), false);
-        finish();
+        finish(dragRectangle);
 
     }
 
@@ -137,27 +137,31 @@ public class CreateNodeController {
         diagramController.createNodeView(new ClassNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
                 mouseDragRectangle.getWidth(),
                 mouseDragRectangle.getHeight()), false);
-        finish();
+        finish(mouseDragRectangle);
     }
 
     public void onMouseReleasedPackage(){
         diagramController.createNodeView(new PackageNode(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
                 mouseDragRectangle.getWidth(),
                 mouseDragRectangle.getHeight()), false);
-        finish();
+        finish(mouseDragRectangle);
     }
 
     public void onMouseReleasedLifeline(){
         diagramController.createNodeView(new SequenceObject(mouseDragRectangle.getX(), mouseDragRectangle.getY(),
                 mouseDragRectangle.getWidth(),
                 mouseDragRectangle.getHeight()), false);
-        finish();
+        finish(mouseDragRectangle);
     }
-
-    private void finish(){
-        aDrawPane.getChildren().remove(mouseDragRectangle);
-        mouseDragRectangle.setWidth(0);
-        mouseDragRectangle.setHeight(0);
+    // remove rectangle's background boarder
+    private void finish(Rectangle rectanlge){
+        aDrawPane.getChildren().remove(rectanlge);
+        try{
+        	rectanlge.setWidth(0);
+        	rectanlge.setHeight(0);        	
+        }catch (Exception e){
+        	e.printStackTrace();
+        }
     }
 
     /**

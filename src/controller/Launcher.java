@@ -53,4 +53,8 @@ public class Launcher extends Application {
         System.out.println("Stopping!");
         tabController.stop();
     }
+    
+    public static void main (String args[]){
+    	Launcher.launch(args);
+    }
 }

@@ -25,7 +25,7 @@ public abstract class AbstractEdge implements Edge, Serializable {
     protected Node startNode;
     protected Node endNode;
     protected double zoom;
-    protected String startMultiplicity, endMultiplicity;
+    protected String startMultiplicity, endMultiplicity, label;
 
     public enum Direction {
         NO_DIRECTION, START_TO_END, END_TO_START, BIDIRECTIONAL
@@ -58,6 +58,13 @@ public abstract class AbstractEdge implements Edge, Serializable {
         changes.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, endMultiplicity);
         remoteChanges.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, endMultiplicity);
     }
+    
+    public void setLabel(String pLabel) {
+        label = pLabel;
+        changes.firePropertyChange(Constants.changeLabel, null, label);
+        remoteChanges.firePropertyChange(Constants.changeLabel, null, label);
+    }
+
 
     public void setStartNode(Node pNode) {
         this.startNode = pNode;
@@ -91,6 +98,11 @@ public abstract class AbstractEdge implements Edge, Serializable {
         endMultiplicity = pEndMultiplicity;
         changes.firePropertyChange(Constants.changeEdgeEndMultiplicity, null, endMultiplicity);
     }
+    
+    public void remoteSetLabel(String pLabel) {
+        label = pLabel;
+        changes.firePropertyChange(Constants.changeLabel, null, label);
+    }
 
     public void remoteSetStartNode(Node pNode) {
         this.startNode = pNode;
@@ -113,6 +125,10 @@ public abstract class AbstractEdge implements Edge, Serializable {
 
     public String getEndMultiplicity() {
         return endMultiplicity;
+    }
+    
+    public String getLabel() {
+        return label;
     }
 
     public Node getStartNode() {

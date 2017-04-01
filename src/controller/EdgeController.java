@@ -182,6 +182,7 @@ public class EdgeController {
 
                         edge.setStartMultiplicity(controller.getStartMultiplicity());
                         edge.setEndMultiplicity(controller.getEndMultiplicity());
+                        edge.setLabel(controller.getLabel());
                         if (directionBox.getValue() != null) {
                             diagramController.getUndoManager().add(new DirectionChangeEdgeCommand(edge, edge.getDirection(),
                                     AbstractEdge.Direction.valueOf(directionBox.getValue().toString())));
@@ -203,6 +204,7 @@ public class EdgeController {
                         newEdge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
                         newEdge.setStartMultiplicity(controller.getStartMultiplicity());
                         newEdge.setEndMultiplicity(controller.getEndMultiplicity());
+                        newEdge.setLabel(controller.getLabel());
                         replaceEdge(edge, newEdge);
                     }
 

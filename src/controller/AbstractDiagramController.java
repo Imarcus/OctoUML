@@ -357,6 +357,10 @@ public abstract class AbstractDiagramController {
     public List<Sketch> getSelectedSketches() {
         return selectedSketches;
     }
+    
+    public ArrayList<AbstractEdgeView> getSelectedEdges() {
+        return selectedEdges;
+    }
 
     //---------------------- MENU HANDLERS ---------------------------------
 

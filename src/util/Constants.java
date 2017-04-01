@@ -42,6 +42,7 @@ public class Constants {
     public static String changeEdgeZoom = "EdgeZoom";
     public static String changeEdgeStartMultiplicity = "EdgeStartMultiplicity";
     public static String changeEdgeEndMultiplicity = "EdgeEndMultiplicity";
+    public static String changeLabel = "EdgeLabel";
     public static String changeMessageStartX = "MessageStartX";
     public static String changeMessageStartY = "MessageStartY";
     public static String changeMessageTitle = "MessageTitle";

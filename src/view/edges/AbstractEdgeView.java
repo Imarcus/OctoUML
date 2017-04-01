@@ -30,7 +30,8 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
     protected Position position = Position.NONE;
     private Text startMultiplicity;
     private Text endMultiplicity;
-
+    private Text label;
+    
     protected Line startLine = new Line();
     protected Line middleLine = new Line();
     protected Line endLine = new Line();
@@ -49,6 +50,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
         this.getChildren().add(endLine);
         startMultiplicity = new Text(edge.getStartMultiplicity());
         endMultiplicity = new Text(edge.getEndMultiplicity());
+        label = new Text(edge.getLabel());
         startLine.setStrokeWidth(STROKE_WIDTH);
         middleLine.setStrokeWidth(STROKE_WIDTH);
         endLine.setStrokeWidth(STROKE_WIDTH);
@@ -71,28 +73,38 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
                 startMultiplicity.setY(getStartLine().getStartY() + OFFSET);
                 endMultiplicity.setX(getEndLine().getEndX() - OFFSET - endMultiplicity.getText().length() -5);
                 endMultiplicity.setY(getEndLine().getEndY() + OFFSET);
+                label.setX((startLine.getStartX()  + endNode.getX())/2);
+                label.setY(endLine.getEndY() + OFFSET);
                 break;
             case LEFT:
                 startMultiplicity.setX(getStartLine().getStartX() - OFFSET - endMultiplicity.getText().length() -5);
                 startMultiplicity.setY(getStartLine().getStartY() + OFFSET);
                 endMultiplicity.setX(getEndLine().getEndX() + OFFSET);
                 endMultiplicity.setY(getEndLine().getEndY() + OFFSET);
+                label.setX((startNode.getX() + endNode.getX())/2 + OFFSET);
+                label.setY(endLine.getEndY() + OFFSET);
                 break;
             case ABOVE:
                 startMultiplicity.setX(getStartLine().getStartX() + OFFSET);
                 startMultiplicity.setY(getStartLine().getStartY() - OFFSET);
                 endMultiplicity.setX(getEndLine().getEndX() + OFFSET);
                 endMultiplicity.setY(getEndLine().getEndY() + OFFSET);
+                label.setX((startNode.getX() + endNode.getX())/2 + OFFSET);
+                label.setY(middleLine.getEndY() + OFFSET);
                 break;
             case BELOW:
                 startMultiplicity.setX(getStartLine().getStartX() + OFFSET);
                 startMultiplicity.setY(getStartLine().getStartY() + OFFSET);
                 endMultiplicity.setX(getEndLine().getEndX() + OFFSET);
                 endMultiplicity.setY(getEndLine().getEndY() - OFFSET);
+                label.setX((startNode.getX() + endNode.getX())/2 + OFFSET);
+                label.setY(middleLine.getEndY() + OFFSET);
                 break;
         }
         startMultiplicity.toFront();
         endMultiplicity.toFront();
+        label.toFront();
+        getChildren().add(label);
         //TODO This doesn't seem to work?
         //getChildren().add(startMultiplicity);
         //getChildren().add(endMultiplicity);
@@ -104,6 +116,9 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
 
     public Text getEndMultiplicity() {
         return endMultiplicity;
+    }
+    public Text getLabel() {
+        return label;
     }
 
     public AbstractEdge getRefEdge() {
@@ -170,7 +185,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
     protected void setPosition() {
         //If end node is to the right of startNode:
         if (startNode.getTranslateX() + startNode.getWidth() <= endNode.getTranslateX()) { //Straight line if height difference is small
-            if(Math.abs(startNode.getTranslateY() + (startNode.getHeight()/2) - (endNode.getTranslateY() + (endNode.getHeight()/2))) < 20){
+            if(Math.abs(startNode.getTranslateY() + (startNode.getHeight()/2) - (endNode.getTranslateY() + (endNode.getHeight()/2))) < 0){
                 startLine.setStartX(startNode.getTranslateX() + startNode.getWidth());
                 startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
                 startLine.setEndX(endNode.getTranslateX());
@@ -206,7 +221,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
         }
         //If end node is to the left of startNode:
         else if (startNode.getTranslateX() > endNode.getTranslateX() + endNode.getWidth()) {
-            if(Math.abs(startNode.getTranslateY() + (startNode.getHeight()/2) - (endNode.getTranslateY() + (endNode.getHeight()/2))) < 20){
+            if(Math.abs(startNode.getTranslateY() + (startNode.getHeight()/2) - (endNode.getTranslateY() + (endNode.getHeight()/2))) < 0){
                 startLine.setStartX(startNode.getTranslateX());
                 startLine.setStartY(startNode.getTranslateY() + (startNode.getHeight() / 2));
                 startLine.setEndX(endNode.getTranslateX() + endNode.getWidth());
@@ -242,7 +257,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
         }
         // If end node is below startNode:
         else if (startNode.getTranslateY() + startNode.getHeight() < endNode.getTranslateY()){
-            if(Math.abs(startNode.getTranslateX() + (startNode.getWidth()/2) - (endNode.getTranslateX() + (endNode.getWidth()/2))) < 20){
+            if(Math.abs(startNode.getTranslateX() + (startNode.getWidth()/2) - (endNode.getTranslateX() + (endNode.getWidth()/2))) < 0){
                 startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() /2));
                 startLine.setStartY(startNode.getTranslateY() + startNode.getHeight());
                 startLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
@@ -278,7 +293,7 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
         }
         //If end node is above startNode:
         else if (startNode.getTranslateY() >= endNode.getTranslateY() + endNode.getHeight()) {
-            if(Math.abs(startNode.getTranslateX() + (startNode.getWidth()/2) - (endNode.getTranslateX() + (endNode.getWidth()/2))) < 20){
+            if(Math.abs(startNode.getTranslateX() + (startNode.getWidth()/2) - (endNode.getTranslateX() + (endNode.getWidth()/2))) < 0){
                 startLine.setStartX(startNode.getTranslateX() + (startNode.getWidth() / 2));
                 startLine.setStartY(startNode.getTranslateY());
                 startLine.setEndX(endNode.getTranslateX() + (endNode.getWidth()/2));
@@ -344,6 +359,9 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
             draw();
         } else if(evt.getPropertyName().equals(Constants.changeEdgeEndMultiplicity)){
             endMultiplicity.setText((String)evt.getNewValue());
+            draw();
+        }else if(evt.getPropertyName().equals(Constants.changeLabel)){
+            label.setText((String)evt.getNewValue());
             draw();
         } else if (evt.getPropertyName().equals(Constants.changeNodeWidth) || evt.getPropertyName().equals(Constants.changeNodeHeight)){
             setPosition();

@@ -45,12 +45,16 @@ public class SelectController {
                         distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15)){
                     diagramController.selectedEdges.add(edgeView);
-                    if(event.getClickCount() > 1){
+                    if(event.getClickCount() == 1){
+                    	edgeView.setSelected(true);
+                        diagramController.setTool(ToolEnum.SELECT);
+                        diagramController.setButtonClicked(diagramController.selectBtn);
+                    } else{
                         diagramController.edgeController.showEdgeEditDialog(edgeView.getRefEdge());
                         diagramController.setTool(ToolEnum.SELECT);
                         diagramController.setButtonClicked(diagramController.selectBtn);
                     }
-                } else if((edgeView instanceof MessageEdgeView) && distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
+                } else if((edgeView instanceof MessageEdgeView) && distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15) {
                     diagramController.selectedEdges.add(edgeView);
                     if(event.getClickCount() > 1){
                         diagramController.edgeController.showMessageEditDialog((MessageEdge)edgeView.getRefEdge());
@@ -65,15 +69,22 @@ public class SelectController {
             for(AbstractEdgeView edgeView : diagramController.allEdgeViews){
                 if (!(edgeView instanceof MessageEdgeView) && (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
                         distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
-                        distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15)){
+                        distanceToLine(edgeView.getEndLine(), event.getX(), event.getY()) < 15)){
                     if(!diagramController.selectedEdges.contains(edgeView)){
                         diagramController.selectedEdges.add(edgeView);
                     }
-                    if(event.getClickCount() > 1){
+                    if(event.getClickCount() == 1){
+                    	diagramController.selectedEdges.add(edgeView);
+                    	diagramController.setTool(ToolEnum.SELECT);
+                        diagramController.setButtonClicked(diagramController.selectBtn);
+                        //diagramController.edgeController.onMousePressDragEdge(event);
+                        
+                    } else{
                         diagramController.edgeController.showEdgeEditDialog(edgeView.getRefEdge());
                         diagramController.setTool(ToolEnum.SELECT);
                         diagramController.setButtonClicked(diagramController.selectBtn);
                     }
+                    
                 } else if((edgeView instanceof MessageEdgeView) && distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
                     if(!diagramController.selectedEdges.contains(edgeView)){
                         diagramController.selectedEdges.add(edgeView);
@@ -82,7 +93,8 @@ public class SelectController {
                         diagramController.edgeController.showMessageEditDialog((MessageEdge)edgeView.getRefEdge());
                         diagramController.setTool(ToolEnum.SELECT);
                         diagramController.setButtonClicked(diagramController.selectBtn);
-                    } else {
+                    } 
+                    else {
                         diagramController.setTool(ToolEnum.SELECT);
                         diagramController.setButtonClicked(diagramController.selectBtn);
                         diagramController.edgeController.onMousePressDragEdge(event);
@@ -91,8 +103,8 @@ public class SelectController {
                 }
             }
             if(diagramController.mode != Mode.DRAGGING_EDGE){
-                diagramController.setMode(Mode.SELECTING);
-                //TODO This should not be needed, should be in nodeView.initActions().
+            	diagramController.setMode(Mode.SELECTING);
+            	//TODO This should not be needed, should be in nodeView.initActions().
                 for(AbstractNodeView nodeView : diagramController.allNodeViews){
                     if (nodeView.getBoundsInParent().contains(event.getX(), event.getY()))
                     {

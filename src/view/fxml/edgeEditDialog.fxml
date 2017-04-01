@@ -11,10 +11,12 @@
                 <Label text="Directionality" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                 <Label text="Start multiplicity" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                 <Label text="End multiplicity" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <Label text="Label" GridPane.columnIndex="0" GridPane.rowIndex="5" />
                 <ChoiceBox fx:id="typeBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <ChoiceBox fx:id="directionBox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                 <TextField fx:id="startMultiplicity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                 <TextField fx:id="endMultiplicity" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                <TextField fx:id="label" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             </children>
             <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />

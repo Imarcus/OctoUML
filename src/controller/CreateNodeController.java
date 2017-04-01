@@ -93,10 +93,17 @@ public class CreateNodeController {
     public void onTouchReleasedPackage(TouchEvent event)
     {
         Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
-        diagramController.createNodeView(new ClassNode(dragRectangle.getX(), dragRectangle.getY(),
+        diagramController.createNodeView(new PackageNode(dragRectangle.getX(), dragRectangle.getY(),
                 dragRectangle.getWidth(), dragRectangle.getHeight()), false);
         finish(dragRectangle);
 
+    }
+    
+    public void onTouchReleasedLifeline(TouchEvent event){
+    	 Rectangle dragRectangle = dragRectangles.get(event.getTouchPoint().getId());
+         diagramController.createNodeView(new SequenceObject(dragRectangle.getX(), dragRectangle.getY(),
+                 dragRectangle.getWidth(), dragRectangle.getHeight()), false);
+         finish(dragRectangle);
     }
 
     public void onMousePressed(MouseEvent event){

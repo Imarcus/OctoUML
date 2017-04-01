@@ -20,11 +20,14 @@ public class EdgeEditDialogController {
     @FXML
     private TextField endMultiplicity;
     @FXML
+    private TextField label;
+    @FXML
     private Button okButton;
     @FXML
     private Button cancelButton;
 
     private AbstractEdge edge;
+    
     private boolean okClicked = false;
 
     /**
@@ -42,6 +45,10 @@ public class EdgeEditDialogController {
 
     public String getEndMultiplicity() {
         return endMultiplicity.getText();
+    }
+    
+    public String getLabel() {
+        return label.getText();
     }
 
     public Button getOkButton() {
@@ -69,6 +76,7 @@ public class EdgeEditDialogController {
         directionBox.getSelectionModel().select(edge.getDirection());
         startMultiplicity.setText(edge.getStartMultiplicity());
         endMultiplicity.setText(edge.getEndMultiplicity());
+        label.setText(edge.getLabel());
     }
 
     /**

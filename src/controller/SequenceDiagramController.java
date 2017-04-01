@@ -10,6 +10,8 @@ import model.*;
 import model.edges.MessageEdge;
 import model.nodes.SequenceObject;
 import org.controlsfx.control.Notifications;
+
+import controller.AbstractDiagramController.ToolEnum;
 import util.commands.CompoundCommand;
 import util.commands.MoveGraphElementCommand;
 import util.commands.MoveMessageCommand;
@@ -144,7 +146,7 @@ public class SequenceDiagramController extends AbstractDiagramController {
 
         drawPane.setOnTouchReleased(event -> {
             if (tool == ToolEnum.CREATE_CLASS && mode == Mode.CREATING && !mouseCreationActivated) {
-                createNodeController.onTouchReleasedClass(event);
+                createNodeController.onTouchReleasedLifeline(event);
                 if (!createNodeController.currentlyCreating()) {
                     mode = Mode.NO_MODE;
                 }

@@ -31,6 +31,7 @@ import view.nodes.*;
 
 import java.util.*;
 import java.awt.geom.Point2D;
+
 import javax.imageio.ImageIO;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -38,6 +39,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import java.io.IOException;
 import java.io.File;
 import java.util.logging.Level;
@@ -163,9 +165,15 @@ public abstract class AbstractDiagramController {
         for (AbstractEdgeView edgeView : selectedEdges) {
             deleteEdgeView(edgeView, command, false, false);
         }
+        ArrayList<Sketch> deletedSketches = new ArrayList<Sketch>();
         for (Sketch sketch : selectedSketches) {
-            deleteSketch(sketch, command, false);
+        	deletedSketches.add(sketch);
         }
+        Iterator<Sketch> itr = deletedSketches.iterator();
+        while(itr.hasNext()) {
+            Sketch element = (Sketch) itr.next();
+            deleteSketch(element, command, false);
+         }        	
         selectedNodes.clear();
         selectedEdges.clear();
         selectedSketches.clear();

@@ -773,6 +773,12 @@ public abstract class AbstractDiagramController {
                     ((AbstractEdge) edge).remoteSetEndMultiplicity(dataArray[3]);
                 }
             }
+        } else if (dataArray[0].equals(Constants.changeLabel)){
+            for(Edge edge : graph.getAllEdges()){
+                if(dataArray[1].equals(edge.getId())){
+                    ((AbstractEdge) edge).remoteSetLabel(dataArray[2]);
+                }
+            }
         } else if (dataArray[0].equals(Constants.changeSketchTranslateX)) {
             for(Sketch sketch : graph.getAllSketches()){
                 if(dataArray[1].equals(sketch.getId())){

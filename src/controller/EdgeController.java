@@ -178,23 +178,25 @@ public class EdgeController {
                 @Override
                 public void handle(ActionEvent event) {
                     //If no change in type of edge we just change direction of old edge
-                    if(typeBox.getValue().equals(edge.getType()) || typeBox.getValue() == null){
-
-                        edge.setStartMultiplicity(controller.getStartMultiplicity());
-                        edge.setEndMultiplicity(controller.getEndMultiplicity());
-                        edge.setLabel(controller.getLabel());
-                        if (directionBox.getValue() != null) {
-                            diagramController.getUndoManager().add(new DirectionChangeEdgeCommand(edge, edge.getDirection(),
-                                    AbstractEdge.Direction.valueOf(directionBox.getValue().toString())));
-                            edge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
-                        }
-
-
-                    } else { //Else we create a new one to replace the old
+//                    if(typeBox.getValue().equals(edge.getType()) || typeBox.getValue() == null){
+//
+//                        edge.setStartMultiplicity(controller.getStartMultiplicity());
+//                        edge.setEndMultiplicity(controller.getEndMultiplicity());
+//                        edge.setLabel(controller.getLabel());
+//                        if (directionBox.getValue() != null) {
+//                            diagramController.getUndoManager().add(new DirectionChangeEdgeCommand(edge, edge.getDirection(),
+//                                    AbstractEdge.Direction.valueOf(directionBox.getValue().toString())));
+//                            edge.setDirection(AbstractEdge.Direction.valueOf(directionBox.getValue().toString()));
+//                        }
+//
+//
+//                    } else { //Else we create a new one to replace the old
+                	
+                	// solved the bug of change multiplicity and edge type in remote collaboration setting
                         AbstractEdge newEdge = null;
                         if (typeBox.getValue().equals("Inheritance")) {
                             newEdge = new InheritanceEdge(edge.getStartNode(), edge.getEndNode());
-                        } else if (typeBox.getValue().equals("Association") ) {
+                        } else if (typeBox.getValue().equals("Association") || typeBox.getValue() == null ) {
                             newEdge = new AssociationEdge(edge.getStartNode(), edge.getEndNode());
                         } else if (typeBox.getValue().equals("Aggregation")) {
                             newEdge = new AggregationEdge(edge.getStartNode(), edge.getEndNode());
@@ -206,7 +208,7 @@ public class EdgeController {
                         newEdge.setEndMultiplicity(controller.getEndMultiplicity());
                         newEdge.setLabel(controller.getLabel());
                         replaceEdge(edge, newEdge);
-                    }
+                    
 
 
 

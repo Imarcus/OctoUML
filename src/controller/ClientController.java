@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Alert;
@@ -150,6 +151,11 @@ public class ClientController implements PropertyChangeListener {
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){
             AbstractEdge edge = (AbstractEdge) evt.getSource();
             String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(), edge.getEndMultiplicity()};
+            client.sendTCP(dataArray);
+        }
+        else if(propertyName.equals(Constants.changeLabel)){
+            AbstractEdge edge = (AbstractEdge) evt.getSource();
+            String[] dataArray = {propertyName, edge.getId(), edge.getLabel()};
             client.sendTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateX)) {
             Sketch sketch = (Sketch) evt.getSource();

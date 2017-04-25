@@ -154,6 +154,11 @@ public class ServerController implements PropertyChangeListener {
             AbstractEdge edge = (AbstractEdge) evt.getSource();
             String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(), edge.getEndMultiplicity()};
             server.sendToAllTCP(dataArray);
+        }
+        else if(propertyName.equals(Constants.changeLabel)){
+                AbstractEdge edge = (AbstractEdge) evt.getSource();
+                String[] dataArray = {propertyName, edge.getId(), edge.getLabel()};
+                server.sendToAllTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateX)) {
             Sketch sketch = (Sketch) evt.getSource();
             String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX())};

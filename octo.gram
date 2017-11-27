@@ -6,7 +6,7 @@
 
 grammar hello;
 
-public <greet> = (name) (user | archivist | supervisor | detective | case
+public <greet> = (name) (user | student | system | teacher| course | car | archivist | supervisor | detective | case
                             | material | person | fact | photo | photograph
                             | other | investigator | suspect | victim | task
                             | subject | testimony | witness | personnel | agent | photographer

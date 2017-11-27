@@ -43,6 +43,19 @@ public class MessageEdgeView extends AbstractEdgeView {
         draw();
         this.getChildren().add(title);
     }
+    
+    public MessageEdgeView(MessageEdge edge, AbstractNodeView startNode, AbstractNodeView endNode) {
+        super(edge, startNode, endNode);
+        arrowHead = new Group();
+        this.getChildren().add(arrowHead);
+        this.startNode = startNode;
+        this.endNode = endNode;
+        this.setStrokeWidth(super.STROKE_WIDTH);
+        this.setStroke(Color.BLACK);
+        setPosition();
+        draw();
+        this.getChildren().add(title);
+    }
 
     public MessageEdgeView(MessageEdge edge, Double pStartX, Double pStartY, AbstractNodeView endNode) {
         super(edge, null, endNode);

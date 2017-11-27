@@ -133,14 +133,14 @@ public class MessageEdge extends AbstractEdge {
     }
 
     public void setTitle(String pTitle) {
-        changes.firePropertyChange(Constants.changeMessageTitle, title, pTitle);
+    	changes.firePropertyChange(Constants.changeMessageTitle, title, pTitle);
         remoteChanges.firePropertyChange(Constants.changeMessageTitle, title, pTitle);
         title = pTitle;
     }
 
     public void remoteSetTitle(String pTitle){
-        changes.firePropertyChange(Constants.changeMessageTitle, title, pTitle);
-        title = pTitle;
+    	changes.firePropertyChange(Constants.changeMessageTitle, title, pTitle);
+    	title = pTitle;
     }
 
     /**
@@ -172,7 +172,7 @@ public class MessageEdge extends AbstractEdge {
         messageType = pMessageType;
     }
 
-    public void remoteSetMessagesType(MessageType pMessageType){
+    public void remoteSetMessageType(MessageType pMessageType){
         changes.firePropertyChange(Constants.changeMessageType, messageType, pMessageType);
         remoteChanges.firePropertyChange(Constants.changeMessageType, messageType, pMessageType);
         messageType = pMessageType;

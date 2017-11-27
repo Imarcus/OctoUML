@@ -4,13 +4,19 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
+
+import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
+import javafx.scene.image.WritableImage;
 import model.*;
 import model.edges.*;
+import model.edges.MessageEdge.MessageType;
 import model.nodes.AbstractNode;
 import model.nodes.ClassNode;
 import model.nodes.PackageNode;
+import model.nodes.PictureNode;
+import model.nodes.SequenceObject;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;
@@ -168,6 +174,27 @@ public class ServerController implements PropertyChangeListener {
             String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY())};
             server.sendToAllTCP(dataArray);
         }
+        else if (propertyName.equals(Constants.changeMessageStartX)) {
+        	MessageEdge mEdge = (MessageEdge) evt.getSource();
+            String[] dataArray = {propertyName, mEdge.getId(), Double.toString(mEdge.getStartX())};
+            server.sendToAllTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeMessageStartY)) {
+        	MessageEdge mEdge = (MessageEdge) evt.getSource();
+            String[] dataArray = {propertyName, mEdge.getId(), Double.toString(mEdge.getStartY())};
+            server.sendToAllTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeMessageTitle)) {
+        	MessageEdge mEdge = (MessageEdge) evt.getSource();
+            String[] dataArray = {propertyName, mEdge.getId(), mEdge.getTitle()};
+            server.sendToAllTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeMessageType)) {
+        	MessageEdge mEdge = (MessageEdge) evt.getSource();
+        	MessageType mTypeEdge = (MessageType) evt.getSource();
+            String[] dataArray = {propertyName, mEdge.getId(), mTypeEdge.toString()};
+            server.sendToAllTCP(dataArray);
+        }
     }
 
     private void initKryo(Kryo kryo){
@@ -183,6 +210,13 @@ public class ServerController implements PropertyChangeListener {
         kryo.register(ArrayList.class);
         kryo.register(AbstractEdge.Direction.class);
         kryo.register(String[].class);
+        kryo.register(SequenceDiagramController.class);
+        kryo.register(SequenceObject.class);
+        kryo.register(MessageEdge.class);
+        kryo.register(MessageType.class);
+        kryo.register(PictureNode.class);
+        kryo.register(WritableImage.class);
+        kryo.register(Animation.class);
     }
 
     public void closeServer(){

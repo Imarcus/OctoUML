@@ -18,6 +18,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
 import model.edges.*;
+import model.edges.MessageEdge.MessageType;
 import model.nodes.*;
 import util.Constants;
 import util.NetworkUtils;
@@ -75,6 +76,7 @@ public abstract class AbstractDiagramController {
     ArrayList<Sketch> selectedSketches = new ArrayList<>();
     ArrayList<AbstractNodeView> allNodeViews = new ArrayList<>();
     ArrayList<AbstractEdgeView> allEdgeViews = new ArrayList<>();
+    ArrayList<AbstractEdge> allAbsractEdges = new ArrayList<>();
     ArrayList<AnchorPane> allDialogs = new ArrayList<>();
     HashMap<AbstractNodeView, AbstractNode> nodeMap = new HashMap<>();
 
@@ -148,6 +150,8 @@ public abstract class AbstractDiagramController {
             getStage().getScene().setCursor(Cursor.DEFAULT);
             mouseEvent.consume();
         });
+        setButtons(false, Collections.singletonList(undoBtn));
+        setButtons(false, Collections.singletonList(redoBtn));
     }
 
     abstract void initNodeActions(AbstractNodeView nodeView);
@@ -792,6 +796,35 @@ public abstract class AbstractDiagramController {
                 }
             }
         }
+        else if (dataArray[0].equals(Constants.changeMessageStartX)){
+            for(Edge edge : graph.getAllEdges()){
+                if(dataArray[1].equals(edge.getId())){
+                	((MessageEdge) edge).remoteSetStartX(Double.parseDouble(dataArray[2]));
+                }
+            }
+        }
+        else if (dataArray[0].equals(Constants.changeMessageStartY)){
+            for(Edge edge : graph.getAllEdges()){
+                if(dataArray[1].equals(edge.getId())){
+                    ((MessageEdge) edge).remoteSetStartY(Double.parseDouble(dataArray[2]));
+                }
+            }
+        }
+        else if (dataArray[0].equals(Constants.changeMessageTitle)){
+            for(Edge edge : graph.getAllEdges()){
+                if(dataArray[1].equals(edge.getId())){
+                    ((MessageEdge) edge).remoteSetTitle(dataArray[2]);
+                }
+            }
+        }
+        else if (dataArray[0].equals(Constants.changeMessageType)){
+            for(Edge edge : graph.getAllEdges()){
+                if(dataArray[1].equals(edge.getId())){
+                    ((MessageEdge) edge).remoteSetMessageType(MessageType.valueOf(dataArray[2]));
+                }
+            }
+        }
+        
     }
 
     /**
@@ -859,6 +892,9 @@ public abstract class AbstractDiagramController {
             edgeView = new AggregationEdgeView(edge, startNodeView, endNodeView);
         } else if (edge instanceof CompositionEdge) {
             edgeView = new CompositionEdgeView(edge, startNodeView, endNodeView);
+        } else if (edge instanceof MessageEdge) {
+        	MessageEdge mEdge = (MessageEdge) edge;
+            edgeView = new MessageEdgeView((MessageEdge)edge, mEdge.getStartX(), mEdge.getStartY(), startNodeView, endNodeView);
         } else if (edge instanceof InheritanceEdge) {
             edgeView = new InheritanceEdgeView(edge, startNodeView, endNodeView);
         } else { //Association
@@ -872,6 +908,36 @@ public abstract class AbstractDiagramController {
         return edgeView;
     }
 
+//    /**
+//     * @param Messageedge
+//     * @param remote, true if change comes from a remote server
+//     * @return null if graph already hasEdge or start/endnodeview is null. Otherwise the created AbstractEdgeView.
+//     */
+//    public AbstractEdgeView addMessageEdgeView(MessageEdge edge, boolean remote) {
+//        AbstractNodeView startNodeView = null;
+//        AbstractNodeView endNodeView = null;
+//        AbstractNode tempNode;
+//        for (AbstractNodeView nodeView : allNodeViews) {
+//            tempNode = nodeMap.get(nodeView);
+//            if (edge.getStartNode().getId().equals(tempNode.getId())) {
+//                edge.setStartNode(tempNode);
+//                startNodeView = nodeView;
+//            } else if (edge.getEndNode().getId().equals(tempNode.getId())) {
+//                edge.setEndNode(tempNode);
+//                endNodeView = nodeView;
+//            }
+//        }
+//        AbstractEdgeView edgeView= new MessageEdgeView(edge, edge.getStartX(), edge.getStartY(), startNodeView, endNodeView);
+//        
+//        allEdgeViews.add(edgeView);
+//        drawPane.getChildren().add(edgeView);
+//        if(!graph.getAllEdges().contains(edge)){
+//            graph.addEdge(edge, remote);
+//        }
+//        return edgeView;
+//    }
+
+    
     /**
      * Resets the program, removes everything on the canvas
      */

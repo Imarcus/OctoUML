@@ -5,14 +5,19 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Alert;
+import javafx.scene.image.WritableImage;
 import model.*;
 import model.edges.*;
+import model.edges.MessageEdge.MessageType;
 import model.nodes.AbstractNode;
 import model.nodes.ClassNode;
 import model.nodes.PackageNode;
+import model.nodes.PictureNode;
+import model.nodes.SequenceObject;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;
@@ -43,9 +48,13 @@ public class ClientController implements PropertyChangeListener {
 
         client.addListener(new Listener() {
             public void received (Connection connection, Object object) {
-                if (object instanceof AbstractNode) {
+            	           	
+            	if (object instanceof AbstractNode) {
                     Platform.runLater(() -> diagramController.createNodeView((AbstractNode)object, true));
                 }
+//                else if (object instanceof MessageEdge) {
+//                    Platform.runLater(() -> diagramController.addMessageEdgeView((MessageEdge)object, true));
+//                }
                 else if (object instanceof AbstractEdge) {
                     Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)object, true));
                 }
@@ -166,6 +175,27 @@ public class ClientController implements PropertyChangeListener {
             String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY())};
             client.sendTCP(dataArray);
         }
+        else if (propertyName.equals(Constants.changeMessageStartX)) {
+        	MessageEdge mEdge = (MessageEdge) evt.getSource();
+            String[] dataArray = {propertyName, mEdge.getId(), Double.toString(mEdge.getStartX())};
+            client.sendTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeMessageStartY)) {
+        	MessageEdge mEdge = (MessageEdge) evt.getSource();
+            String[] dataArray = {propertyName, mEdge.getId(), Double.toString(mEdge.getStartY())};
+            client.sendTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeMessageTitle)) {
+        	MessageEdge mEdge = (MessageEdge) evt.getSource();
+            String[] dataArray = {propertyName, mEdge.getId(), mEdge.getTitle()};
+            client.sendTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeMessageType)) {
+        	MessageEdge mEdge = (MessageEdge) evt.getSource();
+        	MessageType mTypeEdge = (MessageType) evt.getSource();
+            String[] dataArray = {propertyName, mEdge.getId(), mTypeEdge.toString()};
+            client.sendTCP(dataArray);
+        }
     }
 
     private void initKryo(Kryo kryo){
@@ -181,6 +211,13 @@ public class ClientController implements PropertyChangeListener {
         kryo.register(ArrayList.class);
         kryo.register(AbstractEdge.Direction.class);
         kryo.register(String[].class);
+        kryo.register(SequenceDiagramController.class);
+        kryo.register(SequenceObject.class);
+        kryo.register(MessageEdge.class);
+        kryo.register(MessageType.class);
+        kryo.register(PictureNode.class);
+        kryo.register(WritableImage.class);
+        kryo.register(Animation.class);
     }
 
     public void closeClient(){

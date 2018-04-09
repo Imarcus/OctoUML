@@ -149,9 +149,10 @@ public class PersistenceManager {
 
             Element associationConnection = doc.createElement("UML:Association.connection");
             umlAssociation.appendChild(associationConnection);
-
-            addAssociatonEnd(edge.getStartNode().getId(), associationConnection, doc, "true");
-            addAssociatonEnd(edge.getEndNode().getId(), associationConnection, doc, "false");
+            
+            AbstractEdge abstractEdge = (AbstractEdge) edge;
+            addAssociatonEnd(edge.getStartNode().getId(), abstractEdge.getStartMultiplicity(), associationConnection, doc, "true");
+            addAssociatonEnd(edge.getEndNode().getId(), abstractEdge.getEndMultiplicity(), associationConnection, doc, "false");
 
             umlNamespace.appendChild(umlAssociation);
 
@@ -227,8 +228,8 @@ public class PersistenceManager {
         }
         parent.appendChild(umlClass);
     }
-
-    private static void addAssociatonEnd(String nodeId, Element association, Document doc, String isStart){
+    
+    private static void addAssociatonEnd(String nodeId, String multiplicityRange, Element association, Document doc, String isStart){
         Element associationEnd = doc.createElement("UML:AssociationEnd");
         associationEnd.setAttribute("xmi.id", "end0");
         associationEnd.setAttribute("type", nodeId);
@@ -241,8 +242,14 @@ public class PersistenceManager {
         Element multiplicityRange1 = doc.createElement("UML:Multiplicity.range");
         multiplicity1.appendChild(multiplicityRange1);
         Element multiplicityRange11 = doc.createElement("UML:MultiplicityRange");
-        multiplicityRange11.setAttribute("upper", ""); //TODO
-        multiplicityRange11.setAttribute("lower", "");
+        // Split multiplicityRange string into upper and lower attributes and add to element.
+        if (multiplicityRange.contains(".")) {
+        	multiplicityRange11.setAttribute("lower", multiplicityRange.substring(0, multiplicityRange.indexOf(".")));
+        	multiplicityRange11.setAttribute("upper", multiplicityRange.substring(multiplicityRange.lastIndexOf(".")+1));
+    	} else {
+    		multiplicityRange11.setAttribute("lower", multiplicityRange); // TODO: Is correct set to lower? 
+        	multiplicityRange11.setAttribute("upper", "");
+    	}
         multiplicityRange1.appendChild(multiplicityRange11);
         association.appendChild(associationEnd);
     }
@@ -329,6 +336,23 @@ public class PersistenceManager {
             } else { //Standard is Assocation
                 edge = new AssociationEdge(idMap.get(startNodeId), idMap.get(endNodeId));
             }
+            // Recovering lower and upper multiplicity
+            NodeList nList2 = associationElement.getElementsByTagName("UML:AssociationEnd");
+            for(int i2 = 0; i2 < nList2.getLength(); i2++) {
+                Element associationEndElement = (Element) nList2.item(i2);
+                NodeList nList3 = associationEndElement.getElementsByTagName("UML:MultiplicityRange");
+                Element multiplicityRangeElement = (Element) nList3.item(0);
+            	String multiplicityRange = multiplicityRangeElement.getAttribute("lower");
+            	if (!multiplicityRangeElement.getAttribute("upper").isEmpty()) {
+            		multiplicityRange = multiplicityRange + ".." + multiplicityRangeElement.getAttribute("upper");
+            	}
+                String isStart = associationEndElement.getAttribute("isStart");
+                if (isStart.equals("true")){
+                	edge.setStartMultiplicity(multiplicityRange);
+                } else {
+                	edge.setEndMultiplicity(multiplicityRange);
+                }
+            }            
             graph.addEdge(edge, false);
         }
 

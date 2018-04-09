@@ -117,8 +117,9 @@ public class TabController {
     }
 
     public void handleMenuActionServer(){
-        Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
-        tabPane.getSelectionModel().select(tab);
+        // Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
+    	// tabPane.getSelectionModel().select(tab);
+    	Tab tab = tabPane.getSelectionModel().getSelectedItem();  
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionServer();
     }
 

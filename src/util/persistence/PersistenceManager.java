@@ -11,17 +11,24 @@ import model.nodes.ClassNode;
 import model.nodes.PackageNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,9 +46,11 @@ public class PersistenceManager {
             DOMSource source = new DOMSource(createXmi(pGraph));
 
             StreamResult result = new StreamResult(new File(path));
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.transform(source, result);
         } catch (TransformerException tfe) {
-            tfe.printStackTrace();
+            tfe.printStackTrace();	
         }
 
     }
@@ -266,6 +275,20 @@ public class PersistenceManager {
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
+        // Remove indentation to avoid errors.
+        XPathFactory xfact = XPathFactory.newInstance();
+        XPath xpath = xfact.newXPath();
+        try {
+			NodeList empty =
+					(NodeList)xpath.evaluate("//text()[normalize-space(.) = '']",
+							doc, XPathConstants.NODESET);
+			for (int i = 0; i < empty.getLength(); i++) {
+			    Node node = empty.item(i);
+			    node.getParentNode().removeChild(node);
+			}
+        } catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}        
         return importXMI(doc);
     }
     public static Graph importXMI(Document doc){

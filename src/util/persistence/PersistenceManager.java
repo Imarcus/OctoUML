@@ -252,13 +252,18 @@ public class PersistenceManager {
         multiplicity1.appendChild(multiplicityRange1);
         Element multiplicityRange11 = doc.createElement("UML:MultiplicityRange");
         // Split multiplicityRange string into upper and lower attributes and add to element.
-        if (multiplicityRange.contains(".")) {
-        	multiplicityRange11.setAttribute("lower", multiplicityRange.substring(0, multiplicityRange.indexOf(".")));
-        	multiplicityRange11.setAttribute("upper", multiplicityRange.substring(multiplicityRange.lastIndexOf(".")+1));
-    	} else {
-    		multiplicityRange11.setAttribute("lower", multiplicityRange); // TODO: Is correct set to lower? 
+        if (multiplicityRange != null) {
+            if (multiplicityRange.contains(".")) {
+            	multiplicityRange11.setAttribute("lower", multiplicityRange.substring(0, multiplicityRange.indexOf(".")));
+            	multiplicityRange11.setAttribute("upper", multiplicityRange.substring(multiplicityRange.lastIndexOf(".")+1));
+        	} else {
+        		multiplicityRange11.setAttribute("lower", multiplicityRange); // TODO: Is correct set to lower? 
+            	multiplicityRange11.setAttribute("upper", "");
+        	}
+        } else {
+    		multiplicityRange11.setAttribute("lower", ""); 
         	multiplicityRange11.setAttribute("upper", "");
-    	}
+        }
         multiplicityRange1.appendChild(multiplicityRange11);
         association.appendChild(associationEnd);
     }

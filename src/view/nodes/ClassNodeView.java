@@ -1,10 +1,15 @@
 package view.nodes;
 
 import javafx.geometry.Bounds;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -13,19 +18,27 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.control.TextField;
+import model.IdentifiedTextField;
 import model.nodes.ClassNode;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.w3c.dom.Element;
+
 
 /**
  * Visual representation of ClassNode class.
  */
 public class ClassNodeView extends AbstractNodeView implements NodeView {
 
-    private Label title;
-    private Label attributes;
-    private Label operations;
+    private TextField title;
+    private List<TextField> attributes;
+    private List<TextField> operations;
 
     private Rectangle rectangle;
 
@@ -80,6 +93,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     private void changeWidth(double width){
+    	TextField textField;
+    	Iterator i;
+    	
         setWidth(width);
         rectangle.setWidth(width);
         container.setMaxWidth(width);
@@ -94,12 +110,20 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
         title.setMaxWidth(width);
         title.setPrefWidth(width);
+        
+        i = attributes.iterator();
+        while (i.hasNext()) {
+        	textField = (TextField) i.next();
+        	textField.setMaxWidth(width);
+        	textField.setPrefWidth(width);
+        }
 
-        attributes.setMaxWidth(width);
-        attributes.setPrefWidth(width);
-
-        operations.setMaxWidth(width);
-        operations.setPrefWidth(width);
+        i = operations.iterator();
+        while (i.hasNext()) {
+        	textField = (TextField) i.next();
+        	textField.setMaxWidth(width);
+        	textField.setPrefWidth(width);
+        }
     }
 
     private void createHandles(){
@@ -133,35 +157,61 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         secondLine = new Separator();
         secondLine.setMaxWidth(node.getWidth());
 
-        title = new Label();
+        title = new TextField();
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
         }
         title.setAlignment(Pos.CENTER);
+        
+        attributes = new ArrayList<>();
+        for(String text : node.getAttributes().split("\\r?\\n")){
+        	TextField textfield = new IdentifiedTextField(text);
+        	textfield.setFont(Font.font("Verdana", 10));
+        	attributes.add(textfield);
+        }
 
-        attributes = new Label(node.getAttributes());
-        attributes.setFont(Font.font("Verdana", 10));
+        operations = new ArrayList<>();
+        for(String text : node.getOperations().split("\\r?\\n")){
+        	TextField textfield = new IdentifiedTextField(text);
+        	textfield.setFont(Font.font("Verdana", 10));
+        	operations.add(textfield);
+        }
 
-        operations = new Label(node.getOperations());
-        operations.setFont(Font.font("Verdana", 10));
-
-
-        if(operations.getText() == null || operations.getText().equals("")){
+        if(operations.isEmpty()){
             secondLine.setVisible(false);
         }
 
         titlePane.getChildren().add(title);
-        vbox.getChildren().addAll(titlePane, firstLine, attributes, secondLine, operations);
+        vbox.getChildren().addAll(titlePane, firstLine);
+        vbox.getChildren().addAll(attributes);
+        vbox.getChildren().addAll(secondLine);
+        vbox.getChildren().addAll(operations);
     }
 
     private void initLooks(){
+    	TextField textfield;
+    	Iterator i;
+    	Background background;
+    	
         rectangle.setStrokeWidth(STROKE_WIDTH);
         rectangle.setFill(Color.LIGHTSKYBLUE);
         rectangle.setStroke(Color.BLACK);
         StackPane.setAlignment(title, Pos.CENTER);
-        VBox.setMargin(attributes, new Insets(5,0,0,5));
-        VBox.setMargin(operations, new Insets(5,0,0,5));
+        background =  new Background(new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY));
+        title.setBackground(background);
+        i = attributes.iterator();
+        while (i.hasNext()) {
+        	textfield = (TextField) i.next();
+        	textfield.setPadding(new Insets(0));
+        	textfield.setBackground(background);
+        }
+        i = operations.iterator();
+        while (i.hasNext()) {
+        	textfield = (TextField) i.next();
+        	textfield.setPadding(new Insets(0));
+        	textfield.setBackground(background);        	
+        }
     }
 
     public void setSelected(boolean selected){
@@ -193,7 +243,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-
+    	Iterator i;
+    	IdentifiedTextField textField;
+    	String array[];
+    	int ind;
+    	
         super.propertyChange(evt);
         if (evt.getPropertyName().equals(Constants.changeNodeX)) {
             setX((double) evt.getNewValue());
@@ -211,10 +265,28 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 firstLine.setVisible(true);
             }
         } else if (evt.getPropertyName().equals(Constants.changeClassNodeAttributes)) {
-            attributes.setText((String) evt.getNewValue());
+        	array = ((String)evt.getNewValue()).split(";");
+        	ind = Integer.parseInt(array[0]);
+        	textField = new IdentifiedTextField(array[1]);
+        	if (attributes.contains(textField)) {
+        		attributes.remove(textField);
+        	}
+        	// ind = -1 means the field was deleted
+        	if (ind != -1) {
+           		attributes.add(ind,textField);
+        	}
         } else if (evt.getPropertyName().equals(Constants.changeClassNodeOperations)) {
-            operations.setText((String) evt.getNewValue());
-            if (operations.getText() == null || operations.getText().equals("")) {
+        	array = ((String)evt.getNewValue()).split(";");
+        	ind = Integer.parseInt(array[0]);
+        	textField = new IdentifiedTextField(array[1]);
+        	if (operations.contains(textField)) {
+        		operations.remove(textField);
+        	}
+        	// ind = -1 means the field was deleted
+        	if (ind != -1) {
+        		operations.add(ind,textField);
+        	}
+            if (operations.isEmpty()) {
                 secondLine.setVisible(false);
             } else {
                 secondLine.setVisible(true);

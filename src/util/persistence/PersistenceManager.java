@@ -29,9 +29,11 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import java.awt.TextField;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Class with static methods for importing and exporting xmi models.
@@ -204,6 +206,7 @@ public class PersistenceManager {
     }
 
     private static void addClassNode(Document doc, ClassNode node, Element parent, Graph pGraph, boolean isChild){
+    	IdentifiedTextField textField;
         Element umlClass = doc.createElement("UML:Class");
         if(isChild){
             umlClass.setAttribute("namespace", ((Element)parent.getParentNode()).getAttribute("xmi.id"));
@@ -215,23 +218,23 @@ public class PersistenceManager {
         Element classifierFeature = doc.createElement("UML:Classifier.feature");
         umlClass.appendChild(classifierFeature);
 
-        int attIdCount = 0;
-        int opIdCount = 0;
         if(node.getAttributes() != null){
             String attributes[] = node.getAttributes().split("\\r?\\n");
             for(String att : attributes){
+            	textField = new IdentifiedTextField(att);
                 Element attribute = doc.createElement("UML:Attribute");
-                attribute.setAttribute("name", att);
-                attribute.setAttribute("xmi.id", "att" + ++attIdCount + "_" + node.getId());
+                attribute.setAttribute("name", textField.getText());
+                attribute.setAttribute("xmi.id", "att" + UUID.randomUUID().toString() + "_" + node.getId());
                 classifierFeature.appendChild(attribute);
             }
         }
         if(node.getOperations() != null){
             String operations[] = node.getOperations().split("\\r?\\n");
             for(String op : operations) {
+            	textField = new IdentifiedTextField(op);
                 Element operation = doc.createElement("UML:Operation");
-                operation.setAttribute("name", op);
-                operation.setAttribute("xmi.id", "oper" + ++opIdCount + "_" + node.getId());
+                operation.setAttribute("name", textField.getText());
+                operation.setAttribute("xmi.id", "oper" + UUID.randomUUID().toString() + "_" + node.getId());
                 classifierFeature.appendChild(operation);
             }
         }

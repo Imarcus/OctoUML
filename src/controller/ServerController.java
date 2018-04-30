@@ -36,7 +36,8 @@ public class ServerController implements PropertyChangeListener {
         graph = pGraph;
         graph.addRemotePropertyChangeListener(this);
 
-        server = new Server();
+        // Increase of buffers size to avoid overflow. Defaults: 16384, 2048
+        server = new Server(16384,8192);
         server.start();
         try {
             server.bind(port,port);

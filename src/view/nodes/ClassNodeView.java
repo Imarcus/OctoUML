@@ -1,5 +1,7 @@
 package view.nodes;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 
 import javafx.geometry.Insets;
@@ -93,9 +95,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     private void changeWidth(double width){
-    	TextField textField;
-    	Iterator i;
-    	
         setWidth(width);
         rectangle.setWidth(width);
         container.setMaxWidth(width);
@@ -110,14 +109,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
         title.setMaxWidth(width);
         title.setPrefWidth(width);
-        
-        i = attributes.iterator();
+
+    	TextField textField;
+    	Iterator i = attributes.iterator();
         while (i.hasNext()) {
         	textField = (TextField) i.next();
         	textField.setMaxWidth(width);
         	textField.setPrefWidth(width);
         }
-
         i = operations.iterator();
         while (i.hasNext()) {
         	textField = (TextField) i.next();
@@ -127,7 +126,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     private void createHandles(){
-
         shortHandleLine = new Line();
         longHandleLine = new Line();
 
@@ -141,6 +139,41 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         longHandleLine.endYProperty().bind(rectangle.heightProperty().subtract(15));
 
         this.getChildren().addAll(shortHandleLine, longHandleLine);
+
+    	title.textProperty().addListener(new ChangeListener<String>() {
+    	    @Override
+    	    public void changed(ObservableValue<? extends String> observable,
+    	            String oldValue, String newValue) {
+    	    	((ClassNode)getRefNode()).setTitle(newValue);
+    	        System.out.println("Title changed to " + newValue + ")\n");
+    	    }
+    	});
+    	Iterator i = attributes.iterator();
+    	while (i.hasNext()){
+    		IdentifiedTextField textField = (IdentifiedTextField) i.next();
+        	textField.textProperty().addListener(new ChangeListener<String>() {
+        	    @Override
+        	    public void changed(ObservableValue<? extends String> observable,
+        	            String oldValue, String newValue) {
+        	    	String fullText = attributes.indexOf(textField) + ";" + textField.getXmiId() + "|" +  newValue;
+        	    	((ClassNode)getRefNode()).setAttributes(fullText);
+        	        System.out.println("Attribute changed to " + fullText + ")\n");
+        	    }
+        	});
+        }
+    	i = operations.iterator();
+    	while (i.hasNext()){
+    		IdentifiedTextField textField = (IdentifiedTextField) i.next();
+        	textField.textProperty().addListener(new ChangeListener<String>() {
+        	    @Override
+        	    public void changed(ObservableValue<? extends String> observable,
+        	            String oldValue, String newValue) {
+        	    	String fullText = operations.indexOf(textField) + ";" + textField.getXmiId() + "|" +  newValue;
+        	    	((ClassNode)getRefNode()).setOperations(fullText);
+        	        System.out.println("Operation changed to " + fullText + ")\n");
+        	    }
+        	});
+        }
     }
 
     private void initVBox(){
@@ -165,17 +198,20 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         title.setAlignment(Pos.CENTER);
         
         attributes = new ArrayList<>();
-        for(String text : node.getAttributes().split("\\r?\\n")){
-        	TextField textfield = new IdentifiedTextField(text);
-        	textfield.setFont(Font.font("Verdana", 10));
-        	attributes.add(textfield);
+        if (node.getAttributes() != null) {
+            for(String text : node.getAttributes().split("\\r?\\n")){
+            	TextField textfield = new IdentifiedTextField(text);
+            	textfield.setFont(Font.font("Verdana", 10));
+            	attributes.add(textfield);
+            }
         }
-
         operations = new ArrayList<>();
-        for(String text : node.getOperations().split("\\r?\\n")){
-        	TextField textfield = new IdentifiedTextField(text);
-        	textfield.setFont(Font.font("Verdana", 10));
-        	operations.add(textfield);
+        if (node.getOperations() != null) {
+            for(String text : node.getOperations().split("\\r?\\n")){
+            	TextField textfield = new IdentifiedTextField(text);
+            	textfield.setFont(Font.font("Verdana", 10));
+            	operations.add(textfield);
+            }
         }
 
         if(operations.isEmpty()){
@@ -245,7 +281,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     public void propertyChange(PropertyChangeEvent evt) {
     	Iterator i;
     	IdentifiedTextField textField;
-    	String array[];
+    	String newValue, array[];
     	int ind;
     	
         super.propertyChange(evt);
@@ -265,7 +301,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 firstLine.setVisible(true);
             }
         } else if (evt.getPropertyName().equals(Constants.changeClassNodeAttributes)) {
-        	array = ((String)evt.getNewValue()).split(";");
+        	newValue = (String) evt.getNewValue();
+        	array = newValue.split(";");
         	ind = Integer.parseInt(array[0]);
         	textField = new IdentifiedTextField(array[1]);
         	if (attributes.contains(textField)) {
@@ -276,7 +313,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
            		attributes.add(ind,textField);
         	}
         } else if (evt.getPropertyName().equals(Constants.changeClassNodeOperations)) {
-        	array = ((String)evt.getNewValue()).split(";");
+        	newValue = (String) evt.getNewValue();
+        	array = newValue.split(";");
         	ind = Integer.parseInt(array[0]);
         	textField = new IdentifiedTextField(array[1]);
         	if (operations.contains(textField)) {

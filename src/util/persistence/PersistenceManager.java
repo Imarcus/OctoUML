@@ -429,12 +429,13 @@ public class PersistenceManager {
             String operations = "";
             for(int i = 0; i < attsOps.getLength(); i++){
                 Element item = ((Element)attsOps.item(i));
+                String name = item.getAttribute("name");
+                String xmiId = item.getAttribute("xmi.id");
                 if(item.getNodeName().equals("UML:Attribute")){
-                    String att = item.getAttribute("name");
-                    attributes = attributes + att + System.getProperty("line.separator");
+                    attributes = attributes + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
                 } else if(item.getNodeName().equals("UML:Operation")){
                     String op = item.getAttribute("name");
-                    operations = operations + op + System.getProperty("line.separator");
+                    operations = operations + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
                 }
             }
             ((ClassNode)abstractNode).setAttributes(attributes);

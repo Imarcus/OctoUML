@@ -37,7 +37,8 @@ public class ClientController implements PropertyChangeListener {
         serverIp = pServerIp;
         port = pPort;
 
-        client = new Client();
+        // Increase of buffers size to avoid overflow. Defaults: 8192, 2048
+        client = new Client(8192,8192);
 
         initKryo(client.getKryo());
 
@@ -63,6 +64,7 @@ public class ClientController implements PropertyChangeListener {
 
     public boolean connect(){
         client.start();
+        int test = client.getTcpWriteBufferSize();
         try {
             client.connect(5000, serverIp, port, port);
         } catch (IOException e) {

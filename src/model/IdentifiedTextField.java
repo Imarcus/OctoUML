@@ -11,13 +11,17 @@ public class IdentifiedTextField extends TextField {
 	private String xmiId;
 	
 	public IdentifiedTextField(String text) {
-		int ind = text.indexOf(SEPARATOR);
-		if (ind != -1) {
-			xmiId = text.substring(0, ind);
-			setText(text.substring(ind+1));
+		if (!text.isEmpty()) {
+			int ind = text.indexOf(SEPARATOR);
+			if (ind != -1) {
+				xmiId = text.substring(0, ind);
+				setText(text.substring(ind+1));
+			} else {
+				xmiId = UUID.randomUUID().toString();
+				setText(text);
+			}
 		} else {
 			xmiId = UUID.randomUUID().toString();
-			setText(text);
 		}
 	}
 

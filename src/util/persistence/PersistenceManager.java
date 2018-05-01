@@ -420,6 +420,7 @@ public class PersistenceManager {
         double y = Double.parseDouble(geometry[1]);
         double width = Double.parseDouble(geometry[2]) - x;
         double height = Double.parseDouble(geometry[3]) - y;
+        int attributesCont, operationsCont;
 
         AbstractNode abstractNode;
         if(!isPackage){
@@ -427,15 +428,19 @@ public class PersistenceManager {
             NodeList attsOps = model.getChildNodes().item(0).getChildNodes();
             String attributes = "";
             String operations = "";
+            attributesCont = 0;
+            operationsCont = 0;
             for(int i = 0; i < attsOps.getLength(); i++){
                 Element item = ((Element)attsOps.item(i));
                 String name = item.getAttribute("name");
                 String xmiId = item.getAttribute("xmi.id");
                 if(item.getNodeName().equals("UML:Attribute")){
-                    attributes = attributes + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
+                    attributes = attributes + attributesCont + ";" + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
+                    attributesCont++;
                 } else if(item.getNodeName().equals("UML:Operation")){
                     String op = item.getAttribute("name");
-                    operations = operations + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
+                    operations = operations + operationsCont + ";" + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
+                    operationsCont++;
                 }
             }
             ((ClassNode)abstractNode).setAttributes(attributes);

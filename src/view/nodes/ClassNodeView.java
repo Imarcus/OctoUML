@@ -39,8 +39,8 @@ import org.w3c.dom.Element;
 public class ClassNodeView extends AbstractNodeView implements NodeView {
 
     private TextField title;
-    private List<TextField> attributes;
-    private List<TextField> operations;
+    private List<IdentifiedTextField> attributes;
+    private List<IdentifiedTextField> operations;
 
     private Rectangle rectangle;
 
@@ -77,8 +77,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         this.setTranslateX(node.getTranslateX());
         this.setTranslateY(node.getTranslateY());
         createHandles();
-
-
     }
 
     private void createRectangles(){
@@ -148,32 +146,40 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	        System.out.println("Title changed to " + newValue + ")\n");
     	    }
     	});
-    	Iterator i = attributes.iterator();
-    	while (i.hasNext()){
-    		IdentifiedTextField textField = (IdentifiedTextField) i.next();
+    	for (TextField textField: attributes) {
         	textField.textProperty().addListener(new ChangeListener<String>() {
         	    @Override
         	    public void changed(ObservableValue<? extends String> observable,
         	            String oldValue, String newValue) {
-        	    	String fullText = attributes.indexOf(textField) + ";" + textField.getXmiId() + "|" +  newValue;
-        	    	((ClassNode)getRefNode()).setAttributes(fullText);
-        	        System.out.println("Attribute changed to " + fullText + ")\n");
+        	        System.out.println("'" + oldValue + "' changed to '" + newValue + "')\n");
+        	    	for (int index = 0; index < attributes.size(); index++) {
+        	    		IdentifiedTextField localTextField = (IdentifiedTextField) attributes.get(index);
+        	    		if (localTextField.getText().equals(newValue)) {
+                	    	String fullText = index + ";" + localTextField.getXmiId() + "|" +  newValue;
+                	    	((ClassNode)getRefNode()).setAttributes(fullText);
+                	        break;
+        	    		}
+        	    	}
         	    }
         	});
-        }
-    	i = operations.iterator();
-    	while (i.hasNext()){
-    		IdentifiedTextField textField = (IdentifiedTextField) i.next();
+    	}
+    	for (TextField textField: operations) {
         	textField.textProperty().addListener(new ChangeListener<String>() {
         	    @Override
         	    public void changed(ObservableValue<? extends String> observable,
         	            String oldValue, String newValue) {
-        	    	String fullText = operations.indexOf(textField) + ";" + textField.getXmiId() + "|" +  newValue;
-        	    	((ClassNode)getRefNode()).setOperations(fullText);
-        	        System.out.println("Operation changed to " + fullText + ")\n");
+        	        System.out.println("'" + oldValue + "' changed to '" + newValue + "')\n");
+        	    	for (int index = 0; index < operations.size(); index++) {
+        	    		IdentifiedTextField localTextField = (IdentifiedTextField) operations.get(index);
+        	    		if (localTextField.getText().equals(newValue)) {
+                	    	String fullText = index + ";" + localTextField.getXmiId() + "|" +  newValue;
+                	    	((ClassNode)getRefNode()).setOperations(fullText);
+                	        break;
+        	    		}
+        	    	}
         	    }
         	});
-        }
+    	}
     }
 
     private void initVBox(){
@@ -200,7 +206,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         attributes = new ArrayList<>();
         if (node.getAttributes() != null) {
             for(String text : node.getAttributes().split("\\r?\\n")){
-            	TextField textfield = new IdentifiedTextField(text);
+            	if (text.contains(";")) {
+            		text = text.substring(text.indexOf(";")+1);
+            	} 
+            	IdentifiedTextField textfield = new IdentifiedTextField(text);
             	textfield.setFont(Font.font("Verdana", 10));
             	attributes.add(textfield);
             }
@@ -208,7 +217,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         operations = new ArrayList<>();
         if (node.getOperations() != null) {
             for(String text : node.getOperations().split("\\r?\\n")){
-            	TextField textfield = new IdentifiedTextField(text);
+               	if (text.contains(";")) {
+            		text = text.substring(text.indexOf(";")+1);
+            	}         	
+            	IdentifiedTextField textfield = new IdentifiedTextField(text);
             	textfield.setFont(Font.font("Verdana", 10));
             	operations.add(textfield);
             }
@@ -279,10 +291,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-    	Iterator i;
-    	IdentifiedTextField textField;
-    	String newValue, array[];
-    	int ind;
+
     	
         super.propertyChange(evt);
         if (evt.getPropertyName().equals(Constants.changeNodeX)) {
@@ -294,41 +303,80 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         } else if (evt.getPropertyName().equals(Constants.changeNodeHeight)) {
             changeHeight((double) evt.getNewValue());
         } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
-            title.setText((String) evt.getNewValue());
+        	String newValue = (String) evt.getNewValue();
+        	// Update text if it was altered
+        	if (!title.getText().equals(newValue)) {
+        		title.setText(newValue);
+        	}            
             if (title.getText() == null || title.getText().equals("")) {
                 firstLine.setVisible(false);
             } else {
                 firstLine.setVisible(true);
             }
         } else if (evt.getPropertyName().equals(Constants.changeClassNodeAttributes)) {
-        	newValue = (String) evt.getNewValue();
-        	array = newValue.split(";");
-        	ind = Integer.parseInt(array[0]);
-        	textField = new IdentifiedTextField(array[1]);
-        	if (attributes.contains(textField)) {
-        		attributes.remove(textField);
-        	}
-        	// ind = -1 means the field was deleted
-        	if (ind != -1) {
-           		attributes.add(ind,textField);
+        	String newValue = (String) evt.getNewValue();
+        	for(String text : newValue.split("\\r?\\n")){
+            	String array[] = text.split(";");
+            	int ind = Integer.parseInt(array[0]);
+            	IdentifiedTextField remoteTextField = new IdentifiedTextField(array[1]);
+            	boolean found = false;
+            	for (int index = 0; index < attributes.size(); index++) {
+            		IdentifiedTextField localTextField = attributes.get(index);
+            		if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
+            			found = true;
+            			if (ind != -1) {
+                			// Update text if it was altered
+                			if (!localTextField.getText().equals(remoteTextField.getText())) {
+                    			localTextField.setText(remoteTextField.getText());
+                			}
+                			// If moved upper or down
+                			if (attributes.indexOf(localTextField) != ind) {
+                				attributes.remove(localTextField);
+                				attributes.add(ind,localTextField);
+                			}
+            			} else {
+                    		attributes.remove(localTextField);
+            			}
+            			break;
+            		}
+            	}
+            	// New attribute
+            	if (!found) {
+            		attributes.add(ind,remoteTextField);
+            	}
         	}
         } else if (evt.getPropertyName().equals(Constants.changeClassNodeOperations)) {
-        	newValue = (String) evt.getNewValue();
-        	array = newValue.split(";");
-        	ind = Integer.parseInt(array[0]);
-        	textField = new IdentifiedTextField(array[1]);
-        	if (operations.contains(textField)) {
-        		operations.remove(textField);
+        	String newValue = (String) evt.getNewValue();
+        	for(String text : newValue.split("\\r?\\n")){
+            	String array[] = text.split(";");
+            	int ind = Integer.parseInt(array[0]);
+            	IdentifiedTextField remoteTextField = new IdentifiedTextField(array[1]);
+            	boolean found = false;
+            	for (int index = 0; index < operations.size(); index++) {
+            		IdentifiedTextField localTextField = operations.get(index);
+            		if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
+            			found = true;
+            			if (ind != -1) {
+                			// Update text if it was altered
+                			if (!localTextField.getText().equals(remoteTextField.getText())) {
+                    			localTextField.setText(remoteTextField.getText());
+                			}
+                			// If moved upper or down
+                			if (operations.indexOf(localTextField) != ind) {
+                				operations.remove(localTextField);
+                				operations.add(ind,localTextField);
+                			}
+            			} else {
+            				operations.remove(localTextField);
+            			}
+            			break;
+            		}
+            	}
+            	// New operation
+            	if (!found) {
+            		operations.add(ind,remoteTextField);
+            	}
         	}
-        	// ind = -1 means the field was deleted
-        	if (ind != -1) {
-        		operations.add(ind,textField);
-        	}
-            if (operations.isEmpty()) {
-                secondLine.setVisible(false);
-            } else {
-                secondLine.setVisible(true);
-            }
         }
     }
 }

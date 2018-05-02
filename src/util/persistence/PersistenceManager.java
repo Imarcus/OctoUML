@@ -8,6 +8,7 @@ import model.*;
 import model.edges.*;
 import model.nodes.AbstractNode;
 import model.nodes.ClassNode;
+import model.nodes.IdentifiedTextField;
 import model.nodes.PackageNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -3,8 +3,6 @@ package model.nodes;
 import util.Constants;
 
 import java.io.Serializable;
-
-import model.IdentifiedTextField;
 /**
  * Represents a UML class.
  */

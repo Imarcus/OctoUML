@@ -3,6 +3,8 @@ package model.nodes;
 import util.Constants;
 
 import java.io.Serializable;
+
+import model.IdentifiedTextField;
 /**
  * Represents a UML class.
  */
@@ -25,12 +27,24 @@ public class ClassNode extends AbstractNode implements Serializable
         attributes = pAttributes;
         changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
         remoteChanges.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
+        int index = attributes.indexOf("-1;");
+        if (index != -1) {
+        	System.out.println("Before: "+attributes);
+        	attributes = attributes.substring(0,index);
+        	System.out.println("After: "+attributes);
+        }
     }
 
     public void setOperations(String pOperations){
         operations = pOperations;
         changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
         remoteChanges.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
+        int index = operations.indexOf("-1;");
+        if (index != -1) {
+        	System.out.println("Before: "+operations);
+        	attributes = operations.substring(0,index);
+        	System.out.println("After: "+operations);
+        }
     }
 
     public void remoteSetAttributes(String pAttributes){

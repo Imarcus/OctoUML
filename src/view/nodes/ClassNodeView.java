@@ -261,12 +261,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
     
     private void createHandlesAttributesOperations(IdentifiedTextField tf,
-    		List<IdentifiedTextField> attributes, String type) {
+    		List<IdentifiedTextField> list, String type) {
     	
     	tf.setOnKeyReleased(new EventHandler<KeyEvent>() {
     	    public void handle(KeyEvent ke) {
-    	    	IdentifiedTextField tf = (IdentifiedTextField) ke.getSource();
-    	    	String fullText = attributes.indexOf(tf) + ";" + tf.getXmiId() + "|" + tf.getText();
+    	    	String fullText = "";
+    	    	for (IdentifiedTextField tf: list) {
+        	    	fullText = fullText + list.indexOf(tf) + ";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
+    	    	}    	    	
     	    	if (type.equals("attribute")) {
     	    		((ClassNode)getRefNode()).setAttributes(fullText);
     	    	} else {
@@ -279,13 +281,19 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	cmItemDelete.setUserData(tf);
     	cmItemDelete.setOnAction(new EventHandler<ActionEvent>() {
     	    public void handle(ActionEvent e) {
-    	    	IdentifiedTextField tf = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
-    	    	String fullText = "-1;" + tf.getXmiId() + "|" + tf.getText();
+    	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
+    	    	String fullText = "";
+    	    	for (IdentifiedTextField tf: list) {
+    	    		if (!tf.equals(modifiedTextField)) {
+            	    	fullText = fullText + list.indexOf(tf) + ";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
+    	    		}
+    	    	}    	    	
+    	    	fullText = fullText + "-1;" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
     	    	if (type.equals("attribute")) {
     	    		((ClassNode)getRefNode()).setAttributes(fullText);
     	    	} else {
     	    		((ClassNode)getRefNode()).setOperations(fullText);
-    	    	}
+    	    	}    	    	
     	    }
     	});
     	
@@ -375,6 +383,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	boolean found = false;
             	for (IdentifiedTextField localTextField: attributes) {
             		if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
+            			System.out.println("Found: "+ind+"|"+localTextField);
             			found = true;
             			if (ind != -1) {
                 			// Update text if it was altered

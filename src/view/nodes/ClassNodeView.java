@@ -262,6 +262,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     
     private void createHandlesAttributesOperations(IdentifiedTextField tf,
     		List<IdentifiedTextField> attributes, String type) {
+    	
     	tf.setOnKeyReleased(new EventHandler<KeyEvent>() {
     	    public void handle(KeyEvent ke) {
     	    	IdentifiedTextField tf = (IdentifiedTextField) ke.getSource();
@@ -273,9 +274,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    	}    	    	
     	    }
     	});
-    	MenuItem item1 = new MenuItem("Delete");
-    	item1.setUserData(tf);
-       	item1.setOnAction(new EventHandler<ActionEvent>() {
+    	
+    	MenuItem cmItemDelete = new MenuItem("Delete");
+    	cmItemDelete.setUserData(tf);
+    	cmItemDelete.setOnAction(new EventHandler<ActionEvent>() {
     	    public void handle(ActionEvent e) {
     	    	IdentifiedTextField tf = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
     	    	String fullText = "-1;" + tf.getXmiId() + "|" + tf.getText();
@@ -286,22 +288,37 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    	}
     	    }
     	});
+    	
+    	MenuItem cmItemAdd;
+    	if (type.equals("attribute")) {
+        	cmItemAdd = new MenuItem("Add attribute");
+        	cmItemAdd.setOnAction(event -> {
+    	    	addAttribute();
+            });            
+    	} else {
+        	cmItemAdd = new MenuItem("Add operation");
+        	cmItemAdd.setOnAction(event -> {
+    	    	addOperation();
+            });            
+    	}
+        
        	ContextMenu contextMenu = new ContextMenu();
-    	contextMenu.getItems().addAll(item1);
+    	contextMenu.getItems().addAll(cmItemDelete,cmItemAdd);
     	tf.setContextMenu(contextMenu);
+    }
+    
+    private void initLooksAttributeOperation(IdentifiedTextField textField) {
+		textField.setFont(Font.font("Verdana", 10));
+        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
+        Background background =  new Background(backgroundFill);
+        textField.setPadding(new Insets(0));
+        textField.setBackground(background);    	
     }
     
     private IdentifiedTextField addAttributeOperationCommon() {
     	IdentifiedTextField textField = new IdentifiedTextField("");
 		vbox.getChildren().add(textField);    	
-
-		// initLooks
-		textField.setFont(Font.font("Verdana", 10));
-        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
-        Background background =  new Background(backgroundFill);
-        textField.setPadding(new Insets(0));
-        textField.setBackground(background);
-
+		initLooksAttributeOperation(textField);
         return textField;
     }
     
@@ -380,6 +397,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	if (!found) {
             		attributes.add(ind,remoteTextField);
             		vbox.getChildren().add(remoteTextField);
+            		initLooksAttributeOperation(remoteTextField);
             	}
         	}
         } else if (evt.getPropertyName().equals(Constants.changeClassNodeOperations)) {

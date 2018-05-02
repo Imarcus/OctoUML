@@ -278,7 +278,86 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    }
     	});
     	
-    	MenuItem cmItemDelete = new MenuItem("Delete");
+    	MenuItem cmItemMoveUp;
+    	cmItemMoveUp = new MenuItem("Move Up");
+    	cmItemMoveUp.setUserData(tf);
+		cmItemMoveUp.setOnAction(new EventHandler<ActionEvent>() {
+    	    public void handle(ActionEvent e) {
+    	    	IdentifiedTextField textField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
+    	    	System.out.println("textField:"+textField);
+    	    	String fullText = "";
+    	    	int index = list.indexOf(textField);
+    	    	System.out.println("index("+index+" > 0");
+    	    	if (index > 0) {
+    	    		index--;
+        	    	list.remove(textField);
+        	    	list.add(index,textField);
+        	    	for (IdentifiedTextField tf: list) {
+            	    	fullText = fullText + list.indexOf(tf) + ";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
+        	    	}    	    	
+        	    	System.out.println("fullText:"+fullText);
+        	    	if (type.equals("attribute")) {
+        				vbox.getChildren().remove(textField);
+        				vbox.getChildren().add(2+index,textField);    	
+        	    		((ClassNode)getRefNode()).setAttributes(fullText);
+        	    	} else {
+        				vbox.getChildren().remove(textField);
+        				vbox.getChildren().add(2+attributes.size()+1+index,textField);    	
+        	    		((ClassNode)getRefNode()).setOperations(fullText);
+        	    	}  
+    	    	}        	    	
+    	    }
+        });
+    	MenuItem cmItemMoveDown;
+    	cmItemMoveDown = new MenuItem("Move Down");    	
+    	cmItemMoveDown.setUserData(tf);
+		cmItemMoveDown.setOnAction(new EventHandler<ActionEvent>() {
+    	    public void handle(ActionEvent e) {
+    	    	IdentifiedTextField textField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
+    	    	System.out.println("textField:"+textField);
+    	    	String fullText = "";
+    	    	int index = list.indexOf(textField);
+    	    	System.out.println("index("+index+" < list.size("+list.size()+")");
+    	    	if (index < list.size()-1) {
+    	    		index++;
+        	    	list.remove(textField);
+        	    	list.add(index,textField);
+        	    	for (IdentifiedTextField tf: list) {
+            	    	fullText = fullText + list.indexOf(tf) + ";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
+        	    	}
+        	    	System.out.println("fullText:"+fullText);
+        	    	if (type.equals("attribute")) {
+        				vbox.getChildren().remove(textField);
+        				vbox.getChildren().add(2+index,textField);    	
+        	    		((ClassNode)getRefNode()).setAttributes(fullText);
+        	    	} else {
+        				vbox.getChildren().remove(textField);
+        				vbox.getChildren().add(2+attributes.size()+1+index,textField);    	
+        	    		((ClassNode)getRefNode()).setOperations(fullText);
+        	    	}  
+        	    }        	    	
+    	    }
+        });    		
+
+    	MenuItem cmItemAdd;
+    	if (type.equals("attribute")) {
+        	cmItemAdd = new MenuItem("Add attribute");
+        	cmItemAdd.setOnAction(event -> {
+    	    	addAttribute();
+            });            
+    	} else {
+        	cmItemAdd = new MenuItem("Add operation");
+        	cmItemAdd.setOnAction(event -> {
+    	    	addOperation();
+            });            
+    	}
+        
+		MenuItem cmItemDelete;
+    	if (type.equals("attribute")) {
+    		cmItemDelete = new MenuItem("Delete attribute");
+    	} else {
+    		cmItemDelete = new MenuItem("Delete operation");
+    	}
     	cmItemDelete.setUserData(tf);
     	cmItemDelete.setOnAction(new EventHandler<ActionEvent>() {
     	    public void handle(ActionEvent e) {
@@ -297,74 +376,12 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    	}    	    	
     	    }
     	});
-    	
-    	MenuItem cmItemMoveUp;
-    	cmItemMoveUp = new MenuItem("Move Up");
-    	cmItemMoveUp.setUserData(tf);
-    	MenuItem cmItemMoveDown;
-    	cmItemMoveDown = new MenuItem("Move Up");    	
-    	cmItemMoveDown.setUserData(tf);
-    	if (type.equals("attribute")) {
-    		cmItemMoveUp.setOnAction(new EventHandler<ActionEvent>() {
-        	    public void handle(ActionEvent e) {
-        	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
-        	    	attributeMoveUp(modifiedTextField);
-        	    }
-            });
-    		cmItemMoveDown.setOnAction(new EventHandler<ActionEvent>() {
-        	    public void handle(ActionEvent e) {
-        	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
-        	    	attributeMoveDown(modifiedTextField);
-        	    }
-            });    		
-    	} else {
-    		cmItemMoveUp.setOnAction(new EventHandler<ActionEvent>() {
-        	    public void handle(ActionEvent e) {
-        	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
-        	    	operationMoveUp(modifiedTextField);
-        	    }
-            });
-    		cmItemMoveDown.setOnAction(new EventHandler<ActionEvent>() {
-        	    public void handle(ActionEvent e) {
-        	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
-        	    	operationMoveDown(modifiedTextField);
-        	    }
-            });            
-    	}   
-    	
-    	MenuItem cmItemAdd;
-    	if (type.equals("attribute")) {
-        	cmItemAdd = new MenuItem("Add attribute");
-        	cmItemAdd.setOnAction(event -> {
-    	    	addAttribute();
-            });            
-    	} else {
-        	cmItemAdd = new MenuItem("Add operation");
-        	cmItemAdd.setOnAction(event -> {
-    	    	addOperation();
-            });            
-    	}
-        
+		
        	ContextMenu contextMenu = new ContextMenu();
-    	contextMenu.getItems().addAll(cmItemDelete,cmItemAdd);
+    	contextMenu.getItems().addAll(cmItemMoveUp,cmItemMoveDown,cmItemAdd,cmItemDelete);
     	tf.setContextMenu(contextMenu);
     }
-    
-    private void attributeMoveUp(IdentifiedTextField textField) {
 
-    }
-
-    private void attributeMoveDown(IdentifiedTextField textField) {
-    	
-    }
-    
-    private void operationMoveUp(IdentifiedTextField textField) {
-    	
-    }
-
-    private void operationMoveDown(IdentifiedTextField textField) {
-    	
-    }    
     
     private void initLooksAttributeOperation(IdentifiedTextField textField) {
 		textField.setFont(Font.font("Verdana", 10));
@@ -443,6 +460,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 			if (attributes.indexOf(localTextField) != ind) {
                 				attributes.remove(localTextField);
                 				attributes.add(ind,localTextField);
+                				vbox.getChildren().remove(localTextField);
+                				vbox.getChildren().add(2+ind,localTextField);    	
+
                 			}
             			} else {
                     		attributes.remove(localTextField);
@@ -477,6 +497,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 			if (operations.indexOf(localTextField) != ind) {
                 				operations.remove(localTextField);
                 				operations.add(ind,localTextField);
+                				vbox.getChildren().remove(localTextField);
+                				vbox.getChildren().add(2+attributes.size()+1+ind,localTextField);    	
                 			}
             			} else {
             				operations.remove(localTextField);

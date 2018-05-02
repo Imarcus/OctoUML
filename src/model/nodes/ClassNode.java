@@ -29,9 +29,7 @@ public class ClassNode extends AbstractNode implements Serializable
         remoteChanges.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
         int index = attributes.indexOf("-1;");
         if (index != -1) {
-        	System.out.println("Before: "+attributes);
         	attributes = attributes.substring(0,index);
-        	System.out.println("After: "+attributes);
         }
     }
 
@@ -41,9 +39,7 @@ public class ClassNode extends AbstractNode implements Serializable
         remoteChanges.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
         int index = operations.indexOf("-1;");
         if (index != -1) {
-        	System.out.println("Before: "+operations);
         	attributes = operations.substring(0,index);
-        	System.out.println("After: "+operations);
         }
     }
 

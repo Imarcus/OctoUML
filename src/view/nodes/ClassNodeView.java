@@ -8,6 +8,7 @@ import javafx.geometry.Bounds;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -323,15 +324,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         textField.setBackground(background);    	
     }
     
-    private IdentifiedTextField addAttributeOperationCommon() {
-    	IdentifiedTextField textField = new IdentifiedTextField("");
-		vbox.getChildren().add(textField);    	
-		initLooksAttributeOperation(textField);
-        return textField;
-    }
     
     public void addAttribute() {
-    	IdentifiedTextField textField = addAttributeOperationCommon();
+    	IdentifiedTextField textField = new IdentifiedTextField("");
+		initLooksAttributeOperation(textField);
+		vbox.getChildren().add(2+attributes.size(),textField);    	
     	
     	// Create Handles
     	createHandlesAttributesOperations(textField, attributes, "attribute");
@@ -341,8 +338,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
     
     public void addOperation() {
-    	IdentifiedTextField textField = addAttributeOperationCommon();
-    	
+    	IdentifiedTextField textField = new IdentifiedTextField("");
+		initLooksAttributeOperation(textField);
+		vbox.getChildren().add(2+attributes.size()+1+operations.size(),textField);    	
+		
     	// Create Handles
     	createHandlesAttributesOperations(textField, operations, "operation");
         
@@ -372,7 +371,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             if (title.getText() == null || title.getText().equals("")) {
                 firstLine.setVisible(false);
             } else {
-                firstLine.setVisible(true);
+            	firstLine.setVisible(true);
             }
         } else if (evt.getPropertyName().equals(Constants.changeClassNodeAttributes)) {
         	String newValue = (String) evt.getNewValue();
@@ -383,7 +382,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	boolean found = false;
             	for (IdentifiedTextField localTextField: attributes) {
             		if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
-            			System.out.println("Found: "+ind+"|"+localTextField);
             			found = true;
             			if (ind != -1) {
                 			// Update text if it was altered
@@ -405,7 +403,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	// New attribute
             	if (!found) {
             		attributes.add(ind,remoteTextField);
-            		vbox.getChildren().add(remoteTextField);
+            		vbox.getChildren().add(2+ind,remoteTextField);
             		initLooksAttributeOperation(remoteTextField);
             	}
         	}
@@ -439,7 +437,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	// New operation
             	if (!found) {
             		operations.add(ind,remoteTextField);
-            		vbox.getChildren().add(remoteTextField);
+            		vbox.getChildren().add(2+attributes.size()+1+ind,remoteTextField);
+            		initLooksAttributeOperation(remoteTextField);
             	}
         	}
         }

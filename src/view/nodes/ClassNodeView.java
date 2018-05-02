@@ -298,6 +298,40 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    }
     	});
     	
+    	MenuItem cmItemMoveUp;
+    	cmItemMoveUp = new MenuItem("Move Up");
+    	cmItemMoveUp.setUserData(tf);
+    	MenuItem cmItemMoveDown;
+    	cmItemMoveDown = new MenuItem("Move Up");    	
+    	cmItemMoveDown.setUserData(tf);
+    	if (type.equals("attribute")) {
+    		cmItemMoveUp.setOnAction(new EventHandler<ActionEvent>() {
+        	    public void handle(ActionEvent e) {
+        	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
+        	    	attributeMoveUp(modifiedTextField);
+        	    }
+            });
+    		cmItemMoveDown.setOnAction(new EventHandler<ActionEvent>() {
+        	    public void handle(ActionEvent e) {
+        	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
+        	    	attributeMoveDown(modifiedTextField);
+        	    }
+            });    		
+    	} else {
+    		cmItemMoveUp.setOnAction(new EventHandler<ActionEvent>() {
+        	    public void handle(ActionEvent e) {
+        	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
+        	    	operationMoveUp(modifiedTextField);
+        	    }
+            });
+    		cmItemMoveDown.setOnAction(new EventHandler<ActionEvent>() {
+        	    public void handle(ActionEvent e) {
+        	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
+        	    	operationMoveDown(modifiedTextField);
+        	    }
+            });            
+    	}   
+    	
     	MenuItem cmItemAdd;
     	if (type.equals("attribute")) {
         	cmItemAdd = new MenuItem("Add attribute");
@@ -316,8 +350,25 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	tf.setContextMenu(contextMenu);
     }
     
+    private void attributeMoveUp(IdentifiedTextField textField) {
+
+    }
+
+    private void attributeMoveDown(IdentifiedTextField textField) {
+    	
+    }
+    
+    private void operationMoveUp(IdentifiedTextField textField) {
+    	
+    }
+
+    private void operationMoveDown(IdentifiedTextField textField) {
+    	
+    }    
+    
     private void initLooksAttributeOperation(IdentifiedTextField textField) {
 		textField.setFont(Font.font("Verdana", 10));
+		textField.setStyle("-fx-prompt-text-fill: black");
         BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
         Background background =  new Background(backgroundFill);
         textField.setPadding(new Insets(0));

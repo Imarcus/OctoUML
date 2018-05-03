@@ -20,32 +20,55 @@ public class ClassNode extends AbstractNode implements Serializable
         this.height = height < CLASS_MIN_HEIGHT ? CLASS_MIN_HEIGHT : height;
     }
 
-
-    public void setAttributes(String pAttributes){
+    public void setAttributesAndOperations(String pAttributes, String pOperations){
+        System.out.println("setAttributesAndOperations");
+        System.out.println("pAttributes:\n"+pAttributes);
+        System.out.println("pOperations:\n"+pOperations);        
         attributes = pAttributes;
-        System.out.println("setAttributes.changes.firePropertyChange");
+        operations = pOperations;
+        System.out.println("changes.firePropertyChange");
         changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
-        System.out.println("setAttributes.remoteChanges.firePropertyChange");
+        System.out.println("remoteChanges.firePropertyChange");
+        remoteChanges.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
+        System.out.println("changes.firePropertyChange");
+        changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
+        System.out.println("remoteChanges.firePropertyChange");
+        remoteChanges.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
+    }    
+    
+    public void setAttributes(String pAttributes){
+        System.out.println("setAttributes");
+        System.out.println("pAttributes:\n"+pAttributes);
+        attributes = pAttributes;
+        System.out.println("changes.firePropertyChange");
+        changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
+        System.out.println("remoteChanges.firePropertyChange");
         remoteChanges.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
     }
 
     public void setOperations(String pOperations){
+        System.out.println("setOperations");
+        System.out.println("pOperations:\n"+pOperations);
         operations = pOperations;
-        System.out.println("setOperations.changes.firePropertyChange");
+        System.out.println("changes.firePropertyChange");
         changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
-        System.out.println("setOperations.remoteChanges.firePropertyChange");
+        System.out.println("remoteChanges.firePropertyChange");
         remoteChanges.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
     }
 
     public void remoteSetAttributes(String pAttributes){
+        System.out.println("remoteSetAttributes");
+        System.out.println("pAttributes:\n"+pAttributes);
         attributes = pAttributes;
-        System.out.println("remoteSetAttributes.changes.firePropertyChange");
+        System.out.println("changes.firePropertyChange");
         changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
     }
 
     public void remoteSetOperations(String pOperations){
+        System.out.println("remoteSetOperations");
+        System.out.println("pOperations:\n"+pOperations);
         operations = pOperations;
-        System.out.println("remoteSetOperations.changes.firePropertyChange");
+        System.out.println("changes.firePropertyChange");
         changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
     }
 

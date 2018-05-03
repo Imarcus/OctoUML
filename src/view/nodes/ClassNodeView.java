@@ -283,6 +283,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	
     	textfield.setOnKeyReleased(new EventHandler<KeyEvent>() {
     	    public void handle(KeyEvent ke) {
+    	    	System.out.println("setOnKeyReleased");
     	    	String fullText = "";
     	    	if (textfield instanceof Attribute) {
         	    	for(Node node: vbox.getChildren()) {
@@ -292,7 +293,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 	    			";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
         	    		}
         	    	}
-    	    		((ClassNode)getRefNode()).setAttributes(fullText);
+        	    	System.out.println("Broadcasting:\n"+fullText);
+        	    	((ClassNode)getRefNode()).setAttributes(fullText);
     	    	} else if (textfield instanceof Operation) {
         	    	for(Node node: vbox.getChildren()) {
         	    		if (node instanceof Operation) {
@@ -301,6 +303,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 	    			";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
         	    		}
         	    	}
+        	    	System.out.println("Broadcasting:\n"+fullText);
     	    		((ClassNode)getRefNode()).setOperations(fullText);
     	    	}    	    	
     	    }
@@ -311,6 +314,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	cmItemMoveUp.setUserData(textfield);
 		cmItemMoveUp.setOnAction(new EventHandler<ActionEvent>() {
     	    public void handle(ActionEvent e) {
+    	    	System.out.println("Move Up");
     	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
     	    	String fullText = "";
     	    	int index = vbox.getChildren().indexOf(modifiedTextField);
@@ -326,7 +330,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 	    			"|" + tf.getText() + System.getProperty("line.separator");
         	    		}
         	    	}
-    	    		((ClassNode)getRefNode()).setAttributes(fullText);
+        	    	System.out.println("Broadcasting:\n"+fullText);
+        	    	((ClassNode)getRefNode()).setAttributes(fullText);
     	    	} else if (textfield instanceof Operation && index > (3+attributesSize())) {
     	    		System.out.println("textfield instanceof Operation && "+index+" > "+(3+attributesSize()));
     	    		index--;
@@ -339,6 +344,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 	    			"|" + tf.getText() + System.getProperty("line.separator");
         	    		}
         	    	}
+        	    	System.out.println("Broadcasting:\n"+fullText);
     	    		((ClassNode)getRefNode()).setOperations(fullText);
     	    	}  
     	    }
@@ -348,6 +354,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	cmItemMoveDown.setUserData(textfield);
 		cmItemMoveDown.setOnAction(new EventHandler<ActionEvent>() {
     	    public void handle(ActionEvent e) {
+    	    	System.out.println("Move Down");
     	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
     	    	String fullText = "";
     	    	int index = vbox.getChildren().indexOf(modifiedTextField);
@@ -363,6 +370,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 	    			"|" + tf.getText() + System.getProperty("line.separator");
         	    		}
         	    	}
+        	    	System.out.println("Broadcasting:\n"+fullText);
     	    		((ClassNode)getRefNode()).setAttributes(fullText);
     	    	} else if (textfield instanceof Operation && index < (2+attributesSize()+operationsSize())) {
     	    		System.out.println("textfield instanceof Operation && "+index+" < "+(2+attributesSize()+operationsSize()));
@@ -376,6 +384,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 	    			"|" + tf.getText() + System.getProperty("line.separator");
         	    		}
         	    	}
+        	    	System.out.println("Broadcasting:\n"+fullText);
     	    		((ClassNode)getRefNode()).setOperations(fullText);
     	    	}  
     	    }
@@ -403,31 +412,28 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	cmItemDelete.setUserData(textfield);
     	cmItemDelete.setOnAction(new EventHandler<ActionEvent>() {
     	    public void handle(ActionEvent e) {
+    	    	System.out.println("Delete attribute/operation");
     	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
     	    	vbox.getChildren().remove(modifiedTextField);
-    	    	String fullText = "";
+    	    	String attributesfullText = "";
     	    	for (Node node: vbox.getChildren()) {
         	    	if (node instanceof Attribute) {
         	    		IdentifiedTextField tf = (IdentifiedTextField) node;
-            	    	fullText = fullText + vbox.getChildren().indexOf(tf) +
+        	    		attributesfullText = attributesfullText + vbox.getChildren().indexOf(tf) +
             	    			";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
         	    	}
     	    	} 
-	    		((ClassNode)getRefNode()).setAttributes(fullText);
-    	    	fullText = "";
+    	    	System.out.println("Broadcasting:\n"+attributesfullText);
+    	    	String operationsFullText = "";
     	    	for (Node node: vbox.getChildren()) {
         	    	if (node instanceof Operation) {
         	    		IdentifiedTextField tf = (IdentifiedTextField) node;
-            	    	fullText = fullText + vbox.getChildren().indexOf(tf) +
+        	    		operationsFullText = operationsFullText + vbox.getChildren().indexOf(tf) +
             	    			";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
         	    	}
     	    	} 
-    	        if (operationsSize() > 0) {
-    	            secondLine.setVisible(true);
-    	        } else {
-    	            secondLine.setVisible(false);
-    	        }
-	    		((ClassNode)getRefNode()).setOperations(fullText);
+    	    	System.out.println("Broadcasting:\n"+operationsFullText);
+	    		((ClassNode)getRefNode()).setAttributesAndOperations(attributesfullText,operationsFullText);
     	    }
     	});
 		
@@ -488,21 +494,22 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         } else if ( evt.getPropertyName().equals(Constants.changeClassNodeAttributes) ) {
         	String newValue = (String) evt.getNewValue();
         	System.out.println("propertyChangeAttributes:\n"+newValue);
-        	// Check for removed attributes or operations
+        	// Check for removed attributes
         	for (int cont = 0; cont < vbox.getChildren().size(); cont++ ) {
         		Node node = vbox.getChildren().get(cont);
         		if ( node instanceof Attribute ) {
             		IdentifiedTextField localTextField = (IdentifiedTextField) node;
             		if (!newValue.contains(localTextField.getXmiId())) {
+                    	System.out.println(localTextField+" not found. Removing...");
                         vbox.getChildren().remove(localTextField);
             		}
         		}
         	}
-        	// Check for new attributes or operations
+        	// Check for new attributes
         	for(String text : newValue.split("\\r?\\n")) {
             	String array[] = text.split(";");
             	int index = Integer.parseInt(array[0]);
-            	IdentifiedTextField remoteTextField = new IdentifiedTextField(array[1]);
+            	Attribute remoteTextField = new Attribute(array[1]);
             	boolean found = false;
             	for (Node node: vbox.getChildren()) {
             		if ( node instanceof Attribute ) {
@@ -514,11 +521,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		}
             	}
             	if (!found) {
-            		vbox.getChildren().add(index,remoteTextField);
+                	System.out.println(remoteTextField+" not found. Adding with index = "+index);
             		initLooksAttributeOperation(remoteTextField);
+            		createHandlesAttributesOperations(remoteTextField);
+            		vbox.getChildren().add(index,remoteTextField);
             	}            	
         	}
-        	// Check for text altered or attribute or operation moved up or down
+        	// Check for text altered or attribute moved up or down
         	for(String text : newValue.split("\\r?\\n")){
             	String array[] = text.split(";");
             	int index = Integer.parseInt(array[0]);
@@ -529,10 +538,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                     	if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
                 			// Update text if it was altered
                 			if (!localTextField.getText().equals(remoteTextField.getText())) {
+                            	System.out.println(localTextField+" is old. Updating to "+remoteTextField);
                     			localTextField.setText(remoteTextField.getText());
                 			}
                 			// If moved upper or down
                 			if (vbox.getChildren().indexOf(localTextField) != index) {
+                            	System.out.println(localTextField+" index is " + vbox.getChildren().indexOf(localTextField) +
+                            			". Updating to index to "+ index);
                 				vbox.getChildren().remove(localTextField);
                 				vbox.getChildren().add(index,localTextField);    	
                 			}
@@ -541,24 +553,31 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		}
             	}
         	}
+	        if (operationsSize() > 0) {
+	            secondLine.setVisible(true);
+	        } else {
+	            secondLine.setVisible(false);
+	        }
+
         } else if ( evt.getPropertyName().equals(Constants.changeClassNodeOperations) ) {
         	String newValue = (String) evt.getNewValue();
         	System.out.println("propertyChangeOperations:\n"+newValue);
-        	// Check for removed attributes or operations
+        	// Check for removed operations
         	for (int cont = 0; cont < vbox.getChildren().size(); cont++ ) {
         		Node node = vbox.getChildren().get(cont);
         		if ( node instanceof Operation ) {
             		IdentifiedTextField localTextField = (IdentifiedTextField) node;
             		if (!newValue.contains(localTextField.getXmiId())) {
+                    	System.out.println(localTextField+" not found. Removing...");
                         vbox.getChildren().remove(localTextField);
             		}
         		}
         	}
-        	// Check for new attributes or operations
+        	// Check for new operations
         	for(String text : newValue.split("\\r?\\n")) {
             	String array[] = text.split(";");
             	int index = Integer.parseInt(array[0]);
-            	IdentifiedTextField remoteTextField = new IdentifiedTextField(array[1]);
+            	Operation remoteTextField = new Operation(array[1]);
             	boolean found = false;
             	for (Node node: vbox.getChildren()) {
             		if ( node instanceof Operation ) {
@@ -570,8 +589,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		}
             	}
             	if (!found) {
-            		vbox.getChildren().add(index,remoteTextField);
+                	System.out.println(remoteTextField+" not found. Adding with index = "+index);
             		initLooksAttributeOperation(remoteTextField);
+            		createHandlesAttributesOperations(remoteTextField);
+            		vbox.getChildren().add(index,remoteTextField);
             	}            	
         	}
         	// Check for text altered or attribute or operation moved up or down
@@ -585,10 +606,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                     	if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
                 			// Update text if it was altered
                 			if (!localTextField.getText().equals(remoteTextField.getText())) {
+                            	System.out.println(localTextField+" is old. Updating to "+remoteTextField);
                     			localTextField.setText(remoteTextField.getText());
                 			}
                 			// If moved upper or down
                 			if (vbox.getChildren().indexOf(localTextField) != index) {
+                            	System.out.println(localTextField+" index is " + vbox.getChildren().indexOf(localTextField) +
+                            			". Updating index to "+ index);
                 				vbox.getChildren().remove(localTextField);
                 				vbox.getChildren().add(index,localTextField);    	
                 			}
@@ -597,6 +621,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		}
             	}
         	}
+	        if (operationsSize() > 0) {
+	            secondLine.setVisible(true);
+	        } else {
+	            secondLine.setVisible(false);
+	        }
         }
     }
 }

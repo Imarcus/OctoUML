@@ -183,6 +183,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         vbox.getChildren().addAll(titlePane, firstLine);
         
         if (node.getAttributes() != null) {
+        	System.out.println("initVBox.node.getAttributes():\n"+node.getAttributes());        	
             for(String text : node.getAttributes().split("\\r?\\n")){
             	if (text.contains(";")) {
             		text = text.substring(text.indexOf(";")+1);
@@ -196,7 +197,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         vbox.getChildren().addAll(secondLine);
 
         if (node.getOperations() != null) {
-            for(String text : node.getOperations().split("\\r?\\n")){
+        	System.out.println("initVBox.node.getOperations():\n"+node.getOperations());        	
+        	for(String text : node.getOperations().split("\\r?\\n")){
                	if (text.contains(";")) {
             		text = text.substring(text.indexOf(";")+1);
             	}         	
@@ -404,30 +406,28 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
     	    	vbox.getChildren().remove(modifiedTextField);
     	    	String fullText = "";
-    	    	if (textfield instanceof Attribute) {
-        	    	for (Node node: vbox.getChildren()) {
-            	    	if (node instanceof Attribute) {
-            	    		IdentifiedTextField tf = (IdentifiedTextField) node;
-                	    	fullText = fullText + vbox.getChildren().indexOf(tf) +
-                	    			";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
-            	    	}
-        	    	} 
-    	    		((ClassNode)getRefNode()).setAttributes(fullText);
-    	    	} else {
-        	    	for (Node node: vbox.getChildren()) {
-            	    	if (node instanceof Operation) {
-            	    		IdentifiedTextField tf = (IdentifiedTextField) node;
-                	    	fullText = fullText + vbox.getChildren().indexOf(tf) +
-                	    			";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
-            	    	}
-        	    	} 
-        	        if (operationsSize() > 0) {
-        	            secondLine.setVisible(true);
-        	        } else {
-        	            secondLine.setVisible(false);
-        	        }
-    	    		((ClassNode)getRefNode()).setOperations(fullText);
-    	    	}    	    	
+    	    	for (Node node: vbox.getChildren()) {
+        	    	if (node instanceof Attribute) {
+        	    		IdentifiedTextField tf = (IdentifiedTextField) node;
+            	    	fullText = fullText + vbox.getChildren().indexOf(tf) +
+            	    			";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
+        	    	}
+    	    	} 
+	    		((ClassNode)getRefNode()).setAttributes(fullText);
+    	    	fullText = "";
+    	    	for (Node node: vbox.getChildren()) {
+        	    	if (node instanceof Operation) {
+        	    		IdentifiedTextField tf = (IdentifiedTextField) node;
+            	    	fullText = fullText + vbox.getChildren().indexOf(tf) +
+            	    			";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
+        	    	}
+    	    	} 
+    	        if (operationsSize() > 0) {
+    	            secondLine.setVisible(true);
+    	        } else {
+    	            secondLine.setVisible(false);
+    	        }
+	    		((ClassNode)getRefNode()).setOperations(fullText);
     	    }
     	});
 		

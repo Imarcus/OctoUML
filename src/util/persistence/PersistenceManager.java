@@ -428,23 +428,28 @@ public class PersistenceManager {
             abstractNode = new ClassNode(x, y, width, height);
             NodeList attsOps = model.getChildNodes().item(0).getChildNodes();
             String attributes = "";
-            String operations = "";
             attributesCont = 0;
-            operationsCont = 0;
             for(int i = 0; i < attsOps.getLength(); i++){
                 Element item = ((Element)attsOps.item(i));
                 String name = item.getAttribute("name");
                 String xmiId = item.getAttribute("xmi.id");
                 if(item.getNodeName().equals("UML:Attribute")){
-                    attributes = attributes + attributesCont + ";" + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
+                    attributes = attributes + (2+attributesCont) + ";" + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
                     attributesCont++;
-                } else if(item.getNodeName().equals("UML:Operation")){
-                    String op = item.getAttribute("name");
-                    operations = operations + operationsCont + ";" + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
-                    operationsCont++;
                 }
             }
             ((ClassNode)abstractNode).setAttributes(attributes);
+            String operations = "";
+            operationsCont = 0;
+            for(int i = 0; i < attsOps.getLength(); i++){
+                Element item = ((Element)attsOps.item(i));
+                String name = item.getAttribute("name");
+                String xmiId = item.getAttribute("xmi.id");
+                if(item.getNodeName().equals("UML:Operation")){
+                    operations = operations + (attributesCont+3+operationsCont) + ";" + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
+                    operationsCont++;
+                }
+            }
             ((ClassNode)abstractNode).setOperations(operations);
         } else {
             abstractNode = new PackageNode(x, y, width, height);

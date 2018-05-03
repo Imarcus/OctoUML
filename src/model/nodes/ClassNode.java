@@ -23,23 +23,29 @@ public class ClassNode extends AbstractNode implements Serializable
 
     public void setAttributes(String pAttributes){
         attributes = pAttributes;
+        System.out.println("setAttributes.changes.firePropertyChange");
         changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
+        System.out.println("setAttributes.remoteChanges.firePropertyChange");
         remoteChanges.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
     }
 
     public void setOperations(String pOperations){
         operations = pOperations;
+        System.out.println("setOperations.changes.firePropertyChange");
         changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
+        System.out.println("setOperations.remoteChanges.firePropertyChange");
         remoteChanges.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
     }
 
     public void remoteSetAttributes(String pAttributes){
         attributes = pAttributes;
+        System.out.println("remoteSetAttributes.changes.firePropertyChange");
         changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
     }
 
     public void remoteSetOperations(String pOperations){
         operations = pOperations;
+        System.out.println("remoteSetOperations.changes.firePropertyChange");
         changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
     }
 

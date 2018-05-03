@@ -25,20 +25,12 @@ public class ClassNode extends AbstractNode implements Serializable
         attributes = pAttributes;
         changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
         remoteChanges.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
-        int index = attributes.indexOf("-1;");
-        if (index != -1) {
-        	attributes = attributes.substring(0,index);
-        }
     }
 
     public void setOperations(String pOperations){
         operations = pOperations;
         changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
         remoteChanges.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
-        int index = operations.indexOf("-1;");
-        if (index != -1) {
-        	attributes = operations.substring(0,index);
-        }
     }
 
     public void remoteSetAttributes(String pAttributes){

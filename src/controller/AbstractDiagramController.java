@@ -607,23 +607,7 @@ public abstract class AbstractDiagramController {
             insertImg.openFileChooser(AbstractDiagramController.this, point);
         });
         
-        MenuItem cmItemAddAttribute= new MenuItem("Add attribute");
-        cmItemAddAttribute.setOnAction(event -> {
-            if (aContextMenu.getOwnerNode() instanceof ClassNodeView) {
-                ((ClassNodeView) aContextMenu.getOwnerNode()).addAttribute();
-            }
-        });
-
-        MenuItem cmItemAddOperation = new MenuItem("Add operation");
-        cmItemAddOperation.setOnAction(event -> {
-            if (aContextMenu.getOwnerNode() instanceof ClassNodeView) {
-                ((ClassNodeView) aContextMenu.getOwnerNode()).addOperation();
-            }
-        });
-        
-        
         aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste, cmItemDelete, cmItemInsertImg);
-        aContextMenu.getItems().addAll(cmItemAddAttribute,cmItemAddOperation);
     }
 
     /**

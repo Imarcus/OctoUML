@@ -10,12 +10,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -25,10 +23,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.stage.WindowEvent;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import model.nodes.Attribute;
 import model.nodes.ClassNode;
 import model.nodes.IdentifiedTextField;
@@ -36,11 +32,7 @@ import model.nodes.Operation;
 import util.Constants;
 
 import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.w3c.dom.Element;
+import java.util.UUID;
 
 
 /**
@@ -178,6 +170,20 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             title.setText(node.getTitle());
         }
         title.setAlignment(Pos.CENTER);
+        
+    	MenuItem cmItemAddAttribute;
+    	cmItemAddAttribute = new MenuItem("Add Attribute");
+    	cmItemAddAttribute.setOnAction(event -> {
+	    	addAttribute();
+        });
+    	MenuItem cmItemAddOperation;
+    	cmItemAddOperation = new MenuItem("Add Operation");
+    	cmItemAddOperation.setOnAction(event -> {
+	    	addOperation();
+        });            
+       	ContextMenu contextMenu = new ContextMenu();
+    	contextMenu.getItems().addAll(cmItemAddAttribute,cmItemAddOperation);
+    	title.setContextMenu(contextMenu);
 
         titlePane.getChildren().add(title);
         vbox.getChildren().addAll(titlePane, firstLine);
@@ -345,19 +351,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    }
         });    		
 
-    	MenuItem cmItemAdd;
-    	if (textfield instanceof Attribute) {
-        	cmItemAdd = new MenuItem("Add attribute");
-        	cmItemAdd.setOnAction(event -> {
-    	    	addAttribute();
-            });            
-    	} else {
-        	cmItemAdd = new MenuItem("Add operation");
-        	cmItemAdd.setOnAction(event -> {
-    	    	addOperation();
-            });            
-    	}
-        
 		MenuItem cmItemDelete;
 		if (textfield instanceof Attribute) {
     		cmItemDelete = new MenuItem("Delete attribute");
@@ -375,14 +368,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	});
 		
        	ContextMenu contextMenu = new ContextMenu();
-    	contextMenu.getItems().addAll(cmItemMoveUp,cmItemMoveDown,cmItemAdd,cmItemDelete);
+    	contextMenu.getItems().addAll(cmItemMoveUp,cmItemMoveDown,cmItemDelete);
     	textfield.setContextMenu(contextMenu);
     }
 
     
     private void initLooksAttributeOperation(IdentifiedTextField textField) {
 		textField.setFont(Font.font("Verdana", 10));
-		textField.setStyle("-fx-prompt-text-fill: white");
+		textField.setStyle("-fx-prompt-text-fill: red");
         BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
         Background background =  new Background(backgroundFill);
         textField.setPadding(new Insets(0));
@@ -393,7 +386,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	String fullText = "";
     	for (Node node: vbox.getChildren()) {
 	    	if (node instanceof Attribute) {
-	    		IdentifiedTextField tf = (IdentifiedTextField) node;
+	    		Attribute tf = (Attribute) node;
 	    		fullText = fullText + vbox.getChildren().indexOf(tf) +
     	    			";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
 	    	}
@@ -405,7 +398,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	String fullText = "";
     	for (Node node: vbox.getChildren()) {
 	    	if (node instanceof Operation) {
-	    		IdentifiedTextField tf = (IdentifiedTextField) node;
+	    		Operation tf = (Operation) node;
 	    		fullText = fullText + vbox.getChildren().indexOf(tf) +
     	    			";" + tf.getXmiId() + "|" + tf.getText() + System.getProperty("line.separator");
 	    	}
@@ -423,6 +416,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     
     public void addAttribute() {
     	Attribute textField = new Attribute("");
+    	textField.setXmiId("att" + UUID.randomUUID().toString()
+        		+ "_" + ((ClassNode)getRefNode()).getId());
 		initLooksAttributeOperation(textField);
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(2+attributesSize(),textField);    	
@@ -431,6 +426,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     
     public void addOperation() {
     	Operation textField = new Operation("");
+    	textField.setXmiId("oper" + UUID.randomUUID().toString()
+        		+ "_" + ((ClassNode)getRefNode()).getId());
 		initLooksAttributeOperation(textField);
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(textField);    	
@@ -468,7 +465,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	for (int cont = 0; cont < vbox.getChildren().size(); cont++ ) {
         		Node node = vbox.getChildren().get(cont);
         		if ( node instanceof Attribute ) {
-            		IdentifiedTextField localTextField = (IdentifiedTextField) node;
+        			Attribute localTextField = (Attribute) node;
             		if (!newValue.contains(localTextField.getXmiId())) {
                     	System.out.println("'"+localTextField+"' not found. Removing...\n");
                         vbox.getChildren().remove(localTextField);
@@ -483,7 +480,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	boolean found = false;
             	for (Node node: vbox.getChildren()) {
             		if ( node instanceof Attribute ) {
-                		IdentifiedTextField localTextField = (IdentifiedTextField) node;
+            			Attribute localTextField = (Attribute) node;
                 		if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
                 			found = true;
                 			break;
@@ -501,10 +498,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	for(String text : newValue.split("\\r?\\n")){
             	String array[] = text.split(";");
             	int index = Integer.parseInt(array[0]);
-            	IdentifiedTextField remoteTextField = new IdentifiedTextField(array[1]);
+            	Attribute remoteTextField = new Attribute(array[1]);
             	for (Node node: vbox.getChildren()) {
             		if ( node instanceof Attribute ) {
-                		IdentifiedTextField localTextField = (IdentifiedTextField) node;
+            			Attribute localTextField = (Attribute) node;
                     	if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
                 			// Update text if it was altered
                 			if (!localTextField.getText().equals(remoteTextField.getText())) {
@@ -535,7 +532,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	for (int cont = 0; cont < vbox.getChildren().size(); cont++ ) {
         		Node node = vbox.getChildren().get(cont);
         		if ( node instanceof Operation ) {
-            		IdentifiedTextField localTextField = (IdentifiedTextField) node;
+        			Operation localTextField = (Operation) node;
             		if (!newValue.contains(localTextField.getXmiId())) {
                     	System.out.println("'"+localTextField+"' not found. Removing...\n");
                         vbox.getChildren().remove(localTextField);
@@ -550,7 +547,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	boolean found = false;
             	for (Node node: vbox.getChildren()) {
             		if ( node instanceof Operation ) {
-                		IdentifiedTextField localTextField = (IdentifiedTextField) node;
+            			Operation localTextField = (Operation) node;
                 		if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
                 			found = true;
                 			break;
@@ -568,10 +565,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	for(String text : newValue.split("\\r?\\n")){
             	String array[] = text.split(";");
             	int index = Integer.parseInt(array[0]);
-            	IdentifiedTextField remoteTextField = new IdentifiedTextField(array[1]);
+            	Operation remoteTextField = new Operation(array[1]);
             	for (Node node: vbox.getChildren()) {
             		if ( node instanceof Operation ) {
-                		IdentifiedTextField localTextField = (IdentifiedTextField) node;
+            			Operation localTextField = (Operation) node;
                     	if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
                 			// Update text if it was altered
                 			if (!localTextField.getText().equals(remoteTextField.getText())) {

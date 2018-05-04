@@ -1,14 +1,17 @@
 package util.persistence;
 
 import javafx.scene.shape.LineTo;
+
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import model.*;
 import model.edges.*;
 import model.nodes.AbstractNode;
+import model.nodes.Attribute;
 import model.nodes.ClassNode;
 import model.nodes.IdentifiedTextField;
+import model.nodes.Operation;
 import model.nodes.PackageNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,7 +33,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import java.awt.TextField;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -222,7 +224,7 @@ public class PersistenceManager {
         if(node.getAttributes() != null){
             String attributes[] = node.getAttributes().split("\\r?\\n");
             for(String att : attributes){
-            	textField = new IdentifiedTextField(att);
+            	textField = new Attribute(att);
                 Element attribute = doc.createElement("UML:Attribute");
                 attribute.setAttribute("name", textField.getText());
                 if (textField.getXmiId().contains("-")) {
@@ -237,7 +239,7 @@ public class PersistenceManager {
         if(node.getOperations() != null){
             String operations[] = node.getOperations().split("\\r?\\n");
             for(String op : operations) {
-            	textField = new IdentifiedTextField(op);
+            	textField = new Operation(op);
                 Element operation = doc.createElement("UML:Operation");
                 operation.setAttribute("name", textField.getText());
                 if (textField.getXmiId().contains("-")) {
@@ -449,7 +451,9 @@ public class PersistenceManager {
                     attributesCont++;
                 }
             }
-            ((ClassNode)abstractNode).setAttributes(attributes);
+            if (attributesCont > 0) {
+                ((ClassNode)abstractNode).setAttributes(attributes);
+            }
             String operations = "";
             operationsCont = 0;
             for(int i = 0; i < attsOps.getLength(); i++){
@@ -462,7 +466,9 @@ public class PersistenceManager {
                     operationsCont++;
                 }
             }
-            ((ClassNode)abstractNode).setOperations(operations);
+            if (operationsCont > 0) {
+                ((ClassNode)abstractNode).setOperations(operations);
+            }
         } else {
             abstractNode = new PackageNode(x, y, width, height);
         }

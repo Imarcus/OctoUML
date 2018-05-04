@@ -1,7 +1,5 @@
 package model.nodes;
 
-import java.util.UUID;
-
 import javafx.scene.control.TextField;
 
 public class IdentifiedTextField extends TextField {
@@ -11,17 +9,22 @@ public class IdentifiedTextField extends TextField {
 	private String xmiId;
 	
 	public IdentifiedTextField(String text) {
+		int index;
+		
 		if (!text.isEmpty()) {
-			int ind = text.indexOf(SEPARATOR);
-			if (ind != -1) {
-				xmiId = text.substring(0, ind);
-				setText(text.substring(ind+1));
+			// Remove index of VBox 
+			index = text.indexOf(";");	
+			if (index != -1) {
+				text = text.substring(index+1);
+			}			
+			// Split xmiId and text			
+			index = text.indexOf(SEPARATOR);
+			if (index != -1) {
+				xmiId = text.substring(0, index);
+				setText(text.substring(index+1));
 			} else {
-				xmiId = UUID.randomUUID().toString();
 				setText(text);
 			}
-		} else {
-			xmiId = UUID.randomUUID().toString();
 		}
 	}
 

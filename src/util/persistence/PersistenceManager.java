@@ -225,7 +225,12 @@ public class PersistenceManager {
             	textField = new IdentifiedTextField(att);
                 Element attribute = doc.createElement("UML:Attribute");
                 attribute.setAttribute("name", textField.getText());
-                attribute.setAttribute("xmi.id", "att" + UUID.randomUUID().toString() + "_" + node.getId());
+                if (textField.getXmiId().contains("-")) {
+                    attribute.setAttribute("xmi.id", textField.getXmiId());
+                } else {
+                    attribute.setAttribute("xmi.id", "att" + UUID.randomUUID().toString()
+                    		+ "_" + node.getId());
+                }
                 classifierFeature.appendChild(attribute);
             }
         }
@@ -235,7 +240,12 @@ public class PersistenceManager {
             	textField = new IdentifiedTextField(op);
                 Element operation = doc.createElement("UML:Operation");
                 operation.setAttribute("name", textField.getText());
-                operation.setAttribute("xmi.id", "oper" + UUID.randomUUID().toString() + "_" + node.getId());
+                if (textField.getXmiId().contains("-")) {
+                	operation.setAttribute("xmi.id", textField.getXmiId());
+                } else {
+                	operation.setAttribute("xmi.id", "oper" + UUID.randomUUID().toString()
+                			+ "_" + node.getId());
+                }
                 classifierFeature.appendChild(operation);
             }
         }
@@ -434,7 +444,8 @@ public class PersistenceManager {
                 String name = item.getAttribute("name");
                 String xmiId = item.getAttribute("xmi.id");
                 if(item.getNodeName().equals("UML:Attribute")){
-                    attributes = attributes + (2+attributesCont) + ";" + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
+                    attributes = attributes + (2+attributesCont) + ";" + xmiId 
+                    		+ IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
                     attributesCont++;
                 }
             }
@@ -446,7 +457,8 @@ public class PersistenceManager {
                 String name = item.getAttribute("name");
                 String xmiId = item.getAttribute("xmi.id");
                 if(item.getNodeName().equals("UML:Operation")){
-                    operations = operations + (attributesCont+3+operationsCont) + ";" + xmiId + IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
+                    operations = operations + (attributesCont+3+operationsCont) + ";" + xmiId
+                    		+ IdentifiedTextField.SEPARATOR + name + System.getProperty("line.separator");
                     operationsCont++;
                 }
             }

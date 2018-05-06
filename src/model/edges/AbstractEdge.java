@@ -163,7 +163,11 @@ public abstract class AbstractEdge implements Edge, Serializable {
         return "EDGE_" + id;
     }
 
-    public static void incrementObjectCount(){
+    public void setId(int id) {
+		this.id = id;
+	}
+
+	public static void incrementObjectCount(){
         objectCount++;
     }
 

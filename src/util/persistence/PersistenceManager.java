@@ -322,6 +322,7 @@ public class PersistenceManager {
         Element umlModel = ((Element)nList.item(0));
         graph.setName(umlModel.getAttribute("name"));
         String modelNamespace = umlModel.getAttribute("xmi.id");
+        graph.setId(Integer.parseInt(modelNamespace.substring(modelNamespace.indexOf("_")+1)));
 
         //Import packages
         nList = doc.getElementsByTagName("UML:Package");
@@ -333,6 +334,7 @@ public class PersistenceManager {
                 if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                     Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
                     AbstractNode node = createAbstractNode(viewElement, modelElement, isChild, true);
+                    node.setId(Integer.parseInt(modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1)));
                     idMap.put(modelElement.getAttribute("xmi.id"), node);
                     graph.addNode(node, false);
                 }
@@ -349,6 +351,7 @@ public class PersistenceManager {
                 if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                     Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
                     AbstractNode node = createAbstractNode(viewElement, modelElement, isChild, false);
+                    node.setId(Integer.parseInt(modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1)));
                     idMap.put(modelElement.getAttribute("xmi.id"), node);
                     graph.addNode(node, false);
                 }
@@ -398,6 +401,7 @@ public class PersistenceManager {
                 }
             }            
             graph.addEdge(edge, false);
+            edge.setId(Integer.parseInt(associationElement.getAttribute("xmi.id").substring(associationElement.getAttribute("xmi.id").indexOf("_")+1)));
         }
 
 

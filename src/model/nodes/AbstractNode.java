@@ -226,8 +226,12 @@ public abstract class AbstractNode implements Node, Serializable
     public String getId(){
         return "NODE_" + id;
     }
+    
+    public void setId(int id) {
+		this.id = id;
+	}
 
-    public static void incrementObjectCount(){
+	public static void incrementObjectCount(){
         objectCount++;
     }
 

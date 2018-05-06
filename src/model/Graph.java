@@ -216,8 +216,12 @@ public class Graph implements Serializable, PropertyChangeListener {
     public String getId(){
         return "GRAPH_" + id;
     }
+    
+    public void setId(int id) {
+		this.id = id;
+	}
 
-    public void addRemotePropertyChangeListener(PropertyChangeListener l) {
+	public void addRemotePropertyChangeListener(PropertyChangeListener l) {
         remoteChanges.addPropertyChangeListener(l);
     }
 

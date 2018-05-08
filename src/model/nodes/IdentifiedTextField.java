@@ -36,8 +36,21 @@ public class IdentifiedTextField extends TextField {
 		this.xmiId = xmiId;
 	}
 	
+    // Make UUIDs short for log purposes
+    private String getShortXmiId() {
+    	String leftside, rightside;
+    	
+    	if (xmiId.contains("-")) {
+        	leftside = xmiId.substring(0, xmiId.indexOf("-")-4);
+        	rightside = xmiId.substring(xmiId.indexOf("-")+24);
+    	} else {
+    		return xmiId;
+    	}
+    	return leftside + ".." + rightside;    		
+    }    
+    
 	public String toString() {
-		return xmiId + SEPARATOR + getText();
+		return getShortXmiId() + SEPARATOR + getText();
 	}
 	
 	@Override

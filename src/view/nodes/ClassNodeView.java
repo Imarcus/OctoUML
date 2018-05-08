@@ -132,12 +132,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
         this.getChildren().addAll(shortHandleLine, longHandleLine);
 
-    	title.textProperty().addListener(new ChangeListener<String>() {
-    	    @Override
-    	    public void changed(ObservableValue<? extends String> observable,
-    	            String oldValue, String newValue) {
-    	        System.out.println("Title '" + newValue + "' updated. Broadcasting...\n");
-    	    	((ClassNode)getRefNode()).setTitle(newValue);
+    	title.setOnKeyReleased(new EventHandler<KeyEvent>() {
+    	    public void handle(KeyEvent ke) {
+    	        System.out.println("Title '" + title.getText() + "' updated. Broadcasting...\n");
+    	    	((ClassNode)getRefNode()).setTitle(title.getText());
     	    }
     	});
     	for(Node node: vbox.getChildren()) {
@@ -194,7 +192,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		text = text.substring(text.indexOf(";")+1);
             	} 
             	Attribute attribute = new Attribute(text);
-            	attribute.setFont(Font.font("Verdana", 10));
                 vbox.getChildren().add(attribute);
             }
         }
@@ -207,7 +204,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		text = text.substring(text.indexOf(";")+1);
             	}         	
             	Operation operation = new Operation(text);
-            	operation.setFont(Font.font("Verdana", 10));
                 vbox.getChildren().add(operation);
             }
         }
@@ -227,13 +223,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
         Background background =  new Background(backgroundFill);
         title.setBackground(background);
-    	for(Node node: vbox.getChildren()) {
-    		if (node instanceof Attribute || node instanceof Operation) {
-    			TextField tf = (TextField) node;
-            	tf.setPadding(new Insets(0));
-            	tf.setBackground(background);
-    		}
-    	}
     }
 
     public void setSelected(boolean selected){
@@ -361,16 +350,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	contextMenu.getItems().addAll(cmItemMoveUp,cmItemMoveDown,cmItemDelete);
     	textfield.setContextMenu(contextMenu);
     }
-
-    
-    private void initLooksAttributeOperation(IdentifiedTextField textField) {
-		textField.setFont(Font.font("Verdana", 10));
-		textField.setStyle("-fx-prompt-text-fill: red");
-        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
-        Background background =  new Background(backgroundFill);
-        textField.setPadding(new Insets(0));
-        textField.setBackground(background);    	
-    }
     
     private String extractAttributesFromVBox() {
     	String fullText = "";
@@ -406,7 +385,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	Attribute textField = new Attribute("");
     	textField.setXmiId("att" + UUID.randomUUID().toString()
         		+ "_" + ((ClassNode)getRefNode()).getId());
-		initLooksAttributeOperation(textField);
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(2+attributesSize(),textField);    	
 		broadcastingAttributesWithOperations();
@@ -416,7 +394,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	Operation textField = new Operation("");
     	textField.setXmiId("oper" + UUID.randomUUID().toString()
         		+ "_" + ((ClassNode)getRefNode()).getId());
-		initLooksAttributeOperation(textField);
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(textField);    	
 		broadcastingAttributesWithOperations();
@@ -476,8 +453,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		}
             	}
             	if (!found) {
-                	System.out.println("Received '"+index+"|"+remoteTextField+"' Adding...\n");
-            		initLooksAttributeOperation(remoteTextField);
+                	System.out.println("Received '"+remoteTextField+"'. Adding...\n");
             		createHandlesAttributesOperations(remoteTextField);
             		vbox.getChildren().add(index,remoteTextField);
             	}            	
@@ -498,7 +474,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 			}
                 			// If moved upper or down
                 			if (vbox.getChildren().indexOf(localTextField) != index) {
-                            	System.out.println("Received '"+localTextField+"'. Updating index to " + index+ "\n");
+                            	System.out.println("Received '"+localTextField+"'. Updating index to " + index + "\n");
                 				vbox.getChildren().remove(localTextField);
                 				vbox.getChildren().add(index,localTextField);    	
                 			}
@@ -521,7 +497,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		if ( node instanceof Operation ) {
         			Operation localTextField = (Operation) node;
             		if (!newValue.contains(localTextField.getXmiId())) {
-                    	System.out.println("Received '"+localTextField+"'. Deleting...");
+                    	System.out.println("Received '"+localTextField+"'. Deleting...\n");
                         vbox.getChildren().remove(localTextField);
             		}
         		}
@@ -543,7 +519,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	}
             	if (!found) {
                 	System.out.println("Received '"+remoteTextField+"'. Adding...\n");
-            		initLooksAttributeOperation(remoteTextField);
             		createHandlesAttributesOperations(remoteTextField);
             		vbox.getChildren().add(index,remoteTextField);
             	}            	

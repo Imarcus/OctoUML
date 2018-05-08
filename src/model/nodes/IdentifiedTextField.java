@@ -1,6 +1,12 @@
 package model.nodes;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 public class IdentifiedTextField extends TextField {
 	
@@ -26,6 +32,12 @@ public class IdentifiedTextField extends TextField {
 				setText(text);
 			}
 		}
+        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
+        Background background =  new Background(backgroundFill);
+    	setPadding(new Insets(0));
+    	setBackground(background);
+    	setFont(Font.font("Verdana", 10));
+		setStyle("-fx-prompt-text-fill: red");
 	}
 
 	public String getXmiId() {

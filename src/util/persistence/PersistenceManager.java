@@ -334,7 +334,15 @@ public class PersistenceManager {
                 if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                     Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
                     AbstractNode node = createAbstractNode(viewElement, modelElement, isChild, true);
-                    node.setId(Integer.parseInt(modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1)));
+                    String id;
+                    try {
+                    	// If id is a int type (for old files), replace for UUID
+                    	Integer.parseInt(modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1));
+                    	id = UUID.randomUUID().toString();
+                    } catch (Exception e) {
+                    	id = modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1);
+                    }
+                    node.setId(id);
                     idMap.put(modelElement.getAttribute("xmi.id"), node);
                     graph.addNode(node, false);
                 }
@@ -351,7 +359,15 @@ public class PersistenceManager {
                 if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                     Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
                     AbstractNode node = createAbstractNode(viewElement, modelElement, isChild, false);
-                    node.setId(Integer.parseInt(modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1)));
+                    String id;
+                    try {
+                    	// If id is a int type (for old files), replace for UUID
+                    	Integer.parseInt(modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1));
+                    	id = UUID.randomUUID().toString();
+                    } catch (Exception e) {
+                    	id = modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1);
+                    }
+                    node.setId(id);
                     idMap.put(modelElement.getAttribute("xmi.id"), node);
                     graph.addNode(node, false);
                 }
@@ -401,11 +417,16 @@ public class PersistenceManager {
                 }
             }            
             graph.addEdge(edge, false);
-            edge.setId(Integer.parseInt(associationElement.getAttribute("xmi.id").substring(associationElement.getAttribute("xmi.id").indexOf("_")+1)));
+            String id;
+            try {
+            	// If id is a int type (for old files), replace for UUID
+            	Integer.parseInt(associationElement.getAttribute("xmi.id").substring(associationElement.getAttribute("xmi.id").indexOf("_")+1));
+            	id = UUID.randomUUID().toString();
+            } catch (Exception e) {
+            	id = associationElement.getAttribute("xmi.id").substring(associationElement.getAttribute("xmi.id").indexOf("_")+1);
+            }
+            edge.setId(id);
         }
-
-
-
 
         //Import sketches
         nList = doc.getElementsByTagName("Sketch");

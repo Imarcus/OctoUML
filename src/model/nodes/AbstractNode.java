@@ -6,6 +6,7 @@ import util.Constants;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * Abstract Node to hide some basic functionality for Nodes.
@@ -21,7 +22,7 @@ public abstract class AbstractNode implements Node, Serializable
 
     private static final long serialVersionUID = 1L;
     protected static int objectCount = 0; //Used to ID instance
-    private int id;
+    private String id;
 
     //Listened to by the view, is always fired.
     protected transient PropertyChangeSupport changes = new PropertyChangeSupport(this);
@@ -43,7 +44,7 @@ public abstract class AbstractNode implements Node, Serializable
         scaleX = 1.0d;
         scaleY = 1.0d;
 
-        id = ++objectCount;
+        id = UUID.randomUUID().toString();
     }
 
     public void setIsChild(boolean pIsChild){
@@ -227,7 +228,7 @@ public abstract class AbstractNode implements Node, Serializable
         return "NODE_" + id;
     }
     
-    public void setId(int id) {
+    public void setId(String id) {
 		this.id = id;
 	}
 

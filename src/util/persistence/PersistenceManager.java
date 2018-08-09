@@ -228,10 +228,14 @@ public class PersistenceManager {
                 Element attribute = doc.createElement("UML:Attribute");
                 attribute.setAttribute("name", textField.getText());
                 if (textField.getXmiId().contains("-")) {
-                    attribute.setAttribute("xmi.id", textField.getXmiId());
+                	if (textField.getXmiId().contains("_")) {
+                		// Remove old id node suffix
+                		attribute.setAttribute("xmi.id", textField.getXmiId().substring(0,textField.getXmiId().indexOf("_")));
+                	} else {
+                		attribute.setAttribute("xmi.id", textField.getXmiId());
+                	}
                 } else {
-                    attribute.setAttribute("xmi.id", "att" + UUID.randomUUID().toString()
-                    		+ "_" + node.getId());
+                    attribute.setAttribute("xmi.id", "att" + UUID.randomUUID().toString());
                 }
                 classifierFeature.appendChild(attribute);
             }
@@ -243,10 +247,14 @@ public class PersistenceManager {
                 Element operation = doc.createElement("UML:Operation");
                 operation.setAttribute("name", textField.getText());
                 if (textField.getXmiId().contains("-")) {
-                	operation.setAttribute("xmi.id", textField.getXmiId());
+                	if (textField.getXmiId().contains("_")) {
+                		// Remove old id node suffix
+                		operation.setAttribute("xmi.id", textField.getXmiId().substring(0,textField.getXmiId().indexOf("_")));
+                	} else {
+                		operation.setAttribute("xmi.id", textField.getXmiId());
+                	}
                 } else {
-                	operation.setAttribute("xmi.id", "oper" + UUID.randomUUID().toString()
-                			+ "_" + node.getId());
+                	operation.setAttribute("xmi.id", "oper" + UUID.randomUUID().toString());
                 }
                 classifierFeature.appendChild(operation);
             }

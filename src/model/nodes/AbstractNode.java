@@ -2,6 +2,7 @@ package model.nodes;
 
 import javafx.geometry.Rectangle2D;
 import util.Constants;
+import util.GlobalVariables;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -139,8 +140,8 @@ public abstract class AbstractNode implements Node, Serializable
         changes.firePropertyChange(Constants.changeNodeWidth, null, this.width);
     }
 
-    public void remoteSetTitle(String pTitle) {
-        this.aTitle = pTitle;
+    public void remoteSetTitle(String[] dataArray) {
+        aTitle = dataArray[2];
         changes.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
     }
 

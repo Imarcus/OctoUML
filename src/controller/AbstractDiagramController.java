@@ -739,7 +739,7 @@ public abstract class AbstractDiagramController {
         } else if (dataArray[0].equals(Constants.changeNodeTitle)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    node.remoteSetTitle(dataArray[2]);
+                    node.remoteSetTitle(dataArray);
                     break;
                 }
             }

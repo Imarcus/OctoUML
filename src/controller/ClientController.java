@@ -14,6 +14,7 @@ import model.nodes.AbstractNode;
 import model.nodes.ClassNode;
 import model.nodes.PackageNode;
 import util.Constants;
+import util.GlobalVariables;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -31,12 +32,11 @@ public class ClientController implements PropertyChangeListener {
     private String serverIp;
     private int port;
 
-
     public ClientController(AbstractDiagramController pDiagramController, String pServerIp, int pPort) {
         diagramController = pDiagramController;
         serverIp = pServerIp;
         port = pPort;
-
+        
         // Increase of buffers size to avoid overflow. Defaults: 8192, 2048
         client = new Client(16384,16384);
 
@@ -44,20 +44,23 @@ public class ClientController implements PropertyChangeListener {
 
         client.addListener(new Listener() {
             public void received (Connection connection, Object object) {
-                if (object instanceof AbstractNode) {
-                    Platform.runLater(() -> diagramController.createNodeView((AbstractNode)object, true));
-                }
-                else if (object instanceof AbstractEdge) {
-                    Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)object, true));
-                }
-                else if (object instanceof Graph){
-                    Graph graph = (Graph) object;
-                    graph.addRemotePropertyChangeListener(ClientController.this);
-                    Platform.runLater(() -> diagramController.load(graph, true));
-                }
-                else if (object instanceof String[]){
-                    Platform.runLater(() -> diagramController.remoteCommand((String[])object));
-                }
+            	if ( object instanceof Object[]) {
+                	Object[] dataArray = (Object[]) object; 
+                    if ( dataArray[0] instanceof AbstractNode) {
+                        Platform.runLater(() -> diagramController.createNodeView((AbstractNode)dataArray[0], true));
+                    } 
+                    else if (dataArray[0] instanceof AbstractEdge) {
+                        Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)dataArray[0], true));
+                    }
+                    else if (dataArray[0] instanceof Graph){
+                        Graph graph = (Graph) dataArray[0];
+                        graph.addRemotePropertyChangeListener(ClientController.this);
+                        Platform.runLater(() -> diagramController.load(graph, true));
+                    }
+                    else if (object instanceof String[]){
+                        Platform.runLater(() -> diagramController.remoteCommand((String[])object));
+                    }
+            	}
             }
         });
     }
@@ -77,8 +80,8 @@ public class ClientController implements PropertyChangeListener {
             client.close();
             return false;
         }
-
-        client.sendTCP(Constants.requestGraph);
+        Object[] dataArray = {Constants.requestGraph, GlobalVariables.getUserName()};
+        client.sendTCP(dataArray);
         return true;
     }
 
@@ -93,79 +96,85 @@ public class ClientController implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.sketchAdd)){
-            String[] dataArray = {Constants.sketchAdd}; //Because serializing Sketch was tricky
+        	String[] dataArray = { Constants.sketchAdd, GlobalVariables.getUserName()}; //Because serializing Sketch was tricky
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchPoint)){
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchPoint, sketch.getId(),
-                    Double.toString(point.getX()), Double.toString(point.getY())};
+                    Double.toString(point.getX()), Double.toString(point.getY()), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchStart)) {
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
-                    Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString()};
+                    Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString(), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.sketchRemove)){
-            String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue()};
+        	String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue(), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
-            client.sendTCP(node);
+            Object[] dataArray = {node, GlobalVariables.getUserName()};
+            client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.NodeRemove)){
-            String[] dataArray = {Constants.NodeRemove, (String)evt.getNewValue()};
+        	String[] dataArray = {Constants.NodeRemove, (String)evt.getNewValue(), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.EdgeAdd)){
             AbstractEdge edge = (AbstractEdge) evt.getNewValue();
-            client.sendTCP(edge);
+            Object[] dataArray = {edge, GlobalVariables.getUserName()};
+            client.sendTCP(dataArray);
         }
         else if(propertyName.equals(Constants.EdgeRemove)) {
-            String [] dataArray = {Constants.EdgeRemove, (String)evt.getNewValue()};
+        	String [] dataArray = {Constants.EdgeRemove, (String)evt.getNewValue(), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeTranslateX) || propertyName.equals(Constants.changeNodeTranslateY)) { //NodeX/Y not needed
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), Double.toString(node.getTranslateX()), Double.toString(node.getTranslateY())};
+            String[] dataArray = {propertyName, node.getId(),
+            		Double.toString(node.getTranslateX()),
+            		Double.toString(node.getTranslateY()), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeWidth) || propertyName.equals(Constants.changeNodeHeight)){
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), Double.toString(node.getWidth()), Double.toString(node.getHeight())};
+            String[] dataArray = {propertyName, node.getId(),
+            		Double.toString(node.getWidth()), 
+            		Double.toString(node.getHeight()), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeTitle)) {
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getTitle()};
+            String[] dataArray = {propertyName, node.getId(), node.getTitle(), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeClassNodeAttributes) || propertyName.equals(Constants.changeClassNodeOperations)){
             ClassNode node = (ClassNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), node.getOperations()};
+            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), node.getOperations(), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){
             AbstractEdge edge = (AbstractEdge) evt.getSource();
-            String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(), edge.getEndMultiplicity()};
+            String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(), edge.getEndMultiplicity(), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeLabel)){
             AbstractEdge edge = (AbstractEdge) evt.getSource();
-            String[] dataArray = {propertyName, edge.getId(), edge.getLabel()};
+            String[] dataArray = {propertyName, edge.getId(), edge.getLabel(), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateX)) {
             Sketch sketch = (Sketch) evt.getSource();
-            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX())};
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX()), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateY)) {
             Sketch sketch = (Sketch) evt.getSource();
-            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY())};
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY()), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
     }
@@ -183,6 +192,7 @@ public class ClientController implements PropertyChangeListener {
         kryo.register(ArrayList.class);
         kryo.register(AbstractEdge.Direction.class);
         kryo.register(String[].class);
+        kryo.register(Object[].class);
     }
 
     public void closeClient(){

@@ -51,27 +51,31 @@ public class ServerController implements PropertyChangeListener {
 
         server.addListener(new Listener() {
             public void received (Connection connection, Object object) {
-                if (object instanceof Sketch) {
-                    Platform.runLater(() -> diagramController.addSketch((Sketch)object, false, true));
-                }
-                else if (object instanceof String) {
-                    String request = (String)object;
-                    if(request.equals(Constants.requestGraph)){
-                        connection.sendTCP(diagramController.getGraphModel());
+            	if ( object instanceof Object[]) {
+                	Object[] dataArray = (Object[]) object; 
+                    if (dataArray[0] instanceof Sketch) {
+                        Platform.runLater(() -> diagramController.addSketch((Sketch)dataArray[0], false, true));
                     }
-                }
-                else if (object instanceof AbstractNode) {
-                    server.sendToAllExceptTCP(connection.getID(), object);
-                    Platform.runLater(() -> diagramController.createNodeView((AbstractNode)object, true));
-                }
-                else if (object instanceof AbstractEdge) {
-                    server.sendToAllExceptTCP(connection.getID(), object);
-                    Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)object, true));
-                }
-                else if (object instanceof String[]){
-                    server.sendToAllExceptTCP(connection.getID(), object);
-                    Platform.runLater(() -> diagramController.remoteCommand((String[])object));
-                }
+                    else if (dataArray[0] instanceof String) {
+                        String request = (String) dataArray[0];
+                        if(request.equals(Constants.requestGraph)){
+                        	Object[] sendDataArray = {diagramController.getGraphModel(), "server"}; 
+                            connection.sendTCP(sendDataArray);
+                        }
+                        else if (object instanceof String[]) {
+                            server.sendToAllExceptTCP(connection.getID(), object);
+                            Platform.runLater(() -> diagramController.remoteCommand((String[])object));
+                        }
+                    }
+                    else if (dataArray[0] instanceof AbstractNode) {
+                        server.sendToAllExceptTCP(connection.getID(), dataArray[0]);
+                        Platform.runLater(() -> diagramController.createNodeView((AbstractNode)dataArray[0], true));
+                    }
+                    else if (dataArray[0] instanceof AbstractEdge) {
+                        server.sendToAllExceptTCP(connection.getID(), dataArray[0]);
+                        Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)dataArray[0], true));
+                    }
+            	} 
             }
 
             public void connected(Connection c){
@@ -94,79 +98,84 @@ public class ServerController implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.sketchAdd)){
-            String[] dataArray = {Constants.sketchAdd};
+            String[] dataArray = {Constants.sketchAdd, "server"};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchPoint)){
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchPoint, sketch.getId(),
-                    Double.toString(point.getX()), Double.toString(point.getY())};
+                    Double.toString(point.getX()), Double.toString(point.getY()), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchStart)) {
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
-                Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString()};
+                Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString(), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.sketchRemove)){
-            String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue()};
+        	String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue(), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
-            server.sendToAllTCP(node);
+            Object[] dataArray = {node, "server"};
+            server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.NodeRemove)){
-            String[] dataArray = {Constants.NodeRemove, (String)evt.getNewValue()};
+        	String[] dataArray = {Constants.NodeRemove, (String)evt.getNewValue(), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.EdgeAdd)){
             AbstractEdge edge = (AbstractEdge) evt.getNewValue();
-            server.sendToAllTCP(edge);
+            Object[] dataArray = {edge, "server"};
+            server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.EdgeRemove)) {
-            String [] dataArray = {Constants.EdgeRemove, (String)evt.getNewValue()};
+        	String [] dataArray = {Constants.EdgeRemove, (String)evt.getNewValue(), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeTranslateX) || propertyName.equals(Constants.changeNodeTranslateY)) { //NodeX/Y not needed
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), Double.toString(node.getTranslateX()), Double.toString(node.getTranslateY())};
+            String[] dataArray = {propertyName, node.getId(), Double.toString(node.getTranslateX()),
+            		Double.toString(node.getTranslateY()), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeWidth) || propertyName.equals(Constants.changeNodeHeight)){
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), Double.toString(node.getWidth()), Double.toString(node.getHeight())};
+            String[] dataArray = {propertyName, node.getId(), Double.toString(node.getWidth()),
+            		Double.toString(node.getHeight()), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeTitle)) {
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getTitle()};
+            String[] dataArray = {propertyName, node.getId(), node.getTitle(), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeClassNodeAttributes) || propertyName.equals(Constants.changeClassNodeOperations)){
             ClassNode node = (ClassNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), node.getOperations()};
+            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), node.getOperations(), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){
             AbstractEdge edge = (AbstractEdge) evt.getSource();
-            String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(), edge.getEndMultiplicity()};
+            String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(),
+            		edge.getEndMultiplicity(), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeLabel)){
                 AbstractEdge edge = (AbstractEdge) evt.getSource();
-                String[] dataArray = {propertyName, edge.getId(), edge.getLabel()};
+                String[] dataArray = {propertyName, edge.getId(), edge.getLabel(), "server"};
                 server.sendToAllTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateX)) {
             Sketch sketch = (Sketch) evt.getSource();
-            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX())};
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX()), "server"};
             server.sendToAllTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateY)) {
             Sketch sketch = (Sketch) evt.getSource();
-            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY())};
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY()), "server"};
             server.sendToAllTCP(dataArray);
         }
     }
@@ -184,6 +193,7 @@ public class ServerController implements PropertyChangeListener {
         kryo.register(ArrayList.class);
         kryo.register(AbstractEdge.Direction.class);
         kryo.register(String[].class);
+        kryo.register(Object[].class);
     }
 
     public void closeServer(){

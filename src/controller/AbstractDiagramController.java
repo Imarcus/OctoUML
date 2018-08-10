@@ -20,6 +20,7 @@ import model.*;
 import model.edges.*;
 import model.nodes.*;
 import util.Constants;
+import util.GlobalVariables;
 import util.NetworkUtils;
 import util.commands.*;
 import util.insertIMG.*;
@@ -516,6 +517,7 @@ public abstract class AbstractDiagramController {
 
         Optional<String> port = portDialog.showAndWait();
 
+        GlobalVariables.setUserName("server");
         ServerController server = new ServerController(graph, this, Integer.parseInt(port.get()));
         serverControllers.add(server);
     }
@@ -525,6 +527,7 @@ public abstract class AbstractDiagramController {
         String[] result = NetworkUtils.queryServerPort();
 
         if (result != null) {
+        	GlobalVariables.setUserName(result[2]);
             ClientController client = new ClientController(this, result[0], Integer.parseInt(result[1]));
             if(!client.connect()){
                 client.close();

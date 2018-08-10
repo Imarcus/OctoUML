@@ -17,7 +17,7 @@ public class NetworkUtils {
 
     public static String[] queryServerPort() {
         // Create the custom dialog.
-        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        Dialog<String[]> dialog = new Dialog<>();
         dialog.setTitle("Connect to server");
         dialog.setHeaderText("Enter server IP and port number");
 
@@ -33,6 +33,8 @@ public class NetworkUtils {
         serverIP.setText("127.0.0.1");
         TextField port = new TextField();
         port.setText("54555");
+        TextField userName = new TextField();
+        userName.setText(System.getProperty("user.name"));
 
         Platform.runLater(() -> serverIP.requestFocus());
 
@@ -40,23 +42,31 @@ public class NetworkUtils {
         grid.add(serverIP, 1, 0);
         grid.add(new Label("Port number:"), 0, 1);
         grid.add(port, 1, 1);
+        grid.add(new Label("User name:"), 0, 2);
+        grid.add(userName, 1, 2);
         dialog.getDialogPane().setContent(grid);
 
         // Convert the result to a username-password-pair when the login button is clicked.
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okButtonType) {
-                return new Pair<>(serverIP.getText(), port.getText());
+                return new String[] {
+                		serverIP.getText(), port.getText(), userName.getText()
+                		};
             }
             return null;
         });
 
-        Optional<Pair<String, String>> result = dialog.showAndWait();
+        Optional<String[]> result = dialog.showAndWait();
 
-        String[] s = new String[2];
-        if (result.isPresent() && validateIP(result.get().getKey()) && Integer.parseInt(result.get().getValue()) >= 1024 && Integer.parseInt(result.get().getValue()) <= 65535) {
-            s[0] = result.get().getKey();
-            s[1] = result.get().getValue();
-
+        String[] s = new String[3];
+        if (result.isPresent() 
+        		&& validateIP(result.get()[0]) 
+        		&& Integer.parseInt(result.get()[1]) >= 1024 
+        		&& Integer.parseInt(result.get()[1]) <= 65535
+        		&& !(result.get()[2].isEmpty())) {
+            s[0] = result.get()[0];
+            s[1] = result.get()[1];
+            s[2] = result.get()[2];
         } else {
             s = null;
             Alert alert = new Alert(Alert.AlertType.WARNING);

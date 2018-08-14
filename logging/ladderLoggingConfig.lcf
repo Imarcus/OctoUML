@@ -1,0 +1,230 @@
+# The root category uses the appender called ROOT_APP. You can comment/uncomment
+# a given line to change the default level of debugging for the entire 
+# application. For development, you probably want DEBUG. For Deployment, you 
+# probably don't want anything but ERROR by default. This can always be changed
+# by editing this file if you need more/less, and you don't have to modify
+# the logging code within the application itself.
+
+
+###################### Root Logger
+## For development
+#log4j.rootCategory=DEBUG, ROOT_APP
+## For deployment
+log4j.rootCategory=ERROR, ROOT_APP 
+
+
+###################### ROOT_APP appender
+# APP is set to be a RollingFileAppender which outputs to the file
+# "ladder.log". If the file gets above a specified size limit, create a new 
+# log file, up to a certain number of log files.
+log4j.appender.ROOT_APP=org.apache.log4j.RollingFileAppender
+log4j.appender.ROOT_APP.File=logging/ladder.log
+# 5MB log size limit
+log4j.appender.ROOT_APP.MaxFileSize=5000KB
+# just one other file, then start to recycle
+log4j.appender.ROOT_APP.MaxBackupIndex=1
+log4j.appender.ROOT_APP.layout=org.apache.log4j.PatternLayout
+# Format to use when logging entries in the ROOT_APP log.
+# See org.apache.log4j.PatternLayout for field details
+# Date, priority, thread, logger location (SLOW), message, endline
+log4j.appender.ROOT_APP.layout.ConversionPattern=%-35d{dd MMM yyyy, HH:mm:ss:SSS} %-5p [%t] %l -- %m%n
+
+
+###################### Class Loggers
+#Examples adding loggers for specific classes/packages
+#
+# Adding a logger to a class
+# log4j.logger.<class name>=DEBUG, <appender 1>
+#
+# Multiple loggers
+# log4j.logger.<class name>=DEBUG, <appender 1>, <appender 2>, ...
+#
+# Currently the available logs are:
+#		HIGH_LEVEL 	- For high level recognition
+#		LOW_LEVEL	- For low level recognition
+#		SEGS		- For segmentations
+#		CON			- Console logging
+
+# These go to both Console (short version) and to the Test file appender
+log4j.logger.test.functional.ladder.recognition.constraint.domains.ShapeDefinitionAccuracyFactory=DEBUG, CONSHORT, TEST
+log4j.logger.test.functional.ladder.recognition.constraint.domains.DomainDescriptionAccuracyTest=DEBUG, CONSHORT, TEST
+
+
+log4j.logger.org.ladder.recognition.constraint.CALVIN=ERROR, HIGH_LEVEL, CON
+log4j.logger.org.ladder.recognition.constraint.builders.ShapeBuilderTracy=ERROR, HIGH_LEVEL, CON
+log4j.logger.org.ladder.recognition.constraint.grouping.PostMidLevelGrouper=ERROR, HIGH_LEVEL, CON
+log4j.logger.org.ladder.recognition.paleo=ERROR, LOW_LEVEL, PALEO
+log4j.logger.org.ladder.recognition.profiling.RunTimeLogger=DEBUG, RUNTIME
+log4j.logger.org.ladder.segmentation=ERROR, LOW_LEVEL, SEGS
+
+log4j.logger.org.ladder.recognition.constraint.domains.compiler.DomainDefinitionCompiler=WARN,CON
+#log4j.logger.org.ladder.recognition.handwriting.HandwritingRecognizer=ERROR, CON
+#log4j.logger.test.functional.ladder.recognition.constraint.domains=INFO, CON
+#log4j.logger.test.functional.ladder.recognition.shapes.SingleShapeAccuracy=INFO, CON
+log4j.logger.org.ladder.recognition.RecognitionManager=ERROR, CON
+#log4j.logger.edu.tamu.deepGreen.recognition.area.AreaRecognizer=DEBUG, CON
+
+## I want to see all the recognition package stuff on the console.
+#log4j.logger.org.ladder.recognition=DEBUG, CON
+## turn constraints off
+#log4j.logger.org.ladder.recognition.constraint.confidence=OFF
+#log4j.logger.org.ladder.recognition.constraint.ConstraintFactory=OFF
+## turn paleo off, except for actual PaleoRecognizer
+#log4j.logger.org.ladder.recognition.paleo=OFF
+#log4j.logger.org.ladder.recognition.paleo.PaleoSketchRecognizer=DEBUG, CON
+## COA TestPanel DEBUG and to the console
+#log4j.logger.edu.tamu.deepGreen.test.COATestPanel=DEBUG, CON
+#log4j.logger.edu.tamu.deepGreen.SIDCLookup=DEBUG, CON
+#log4j.logger.test.ladder.recognition.constraint.domains.SingleExampleShapeAccuracyTest=INFO, CON
+
+###################### LADDER appenders
+# To create an appender, copy one of the ones below and replace the name and file name
+# For example, copy HIGH_LEVEL, replace all instances of HIGH_LEVEL with the new name
+# and change highLevel.log to the name for your log file
+
+
+###################### CON appender
+# CON is set to be a ConsoleAppender which outputs to the file
+# "ladder.log". If the file gets above a specified size limit, create a new 
+# log file, up to a certain number of log files.
+log4j.appender.CON=org.apache.log4j.ConsoleAppender
+log4j.appender.CON.layout=org.apache.log4j.PatternLayout
+# Format to use when logging entries in the CON log.
+# See org.apache.log4j.PatternLayout for field details
+# priority, thread, logger location (SLOW) -- message, endline
+log4j.appender.CON.layout.ConversionPattern=%-5p [%t] %F.%M:%L -- %m%n
+
+
+
+###################### CONSHORT appender
+# CON is set to be a ConsoleAppender which outputs to the file
+# "ladder.log". If the file gets above a specified size limit, create a new 
+# log file, up to a certain number of log files.
+log4j.appender.CONSHORT=org.apache.log4j.ConsoleAppender
+log4j.appender.CONSHORT.layout=org.apache.log4j.PatternLayout
+# Format to use when logging entries in the CON log.
+# See org.apache.log4j.PatternLayout for field details
+# priority, thread, logger location (SLOW) -- message, endline
+log4j.appender.CONSHORT.layout.ConversionPattern=%m%n
+
+
+###################### HIGH_LEVEL appender
+# HIGH_LEVEL is set to be a RollingFileAppender which outputs to the file
+# "highLevel.log". If the file gets above a specified size limit, create a new 
+# log file, up to a certain number of log files.
+log4j.appender.HIGH_LEVEL=org.apache.log4j.RollingFileAppender
+log4j.appender.HIGH_LEVEL.File=logging/highLevel.log
+# 5MB log size limit
+log4j.appender.HIGH_LEVEL.MaxFileSize=5000KB
+# just one other file, then start to recycle
+log4j.appender.HIGH_LEVEL.MaxBackupIndex=1
+log4j.appender.HIGH_LEVEL.layout=org.apache.log4j.PatternLayout
+# Format to use when logging entries in the HIGH_LEVEL log.
+# See org.apache.log4j.PatternLayout for field details
+# Date, priority, thread, logger location (SLOW), message, endline
+log4j.appender.HIGH_LEVEL.layout.ConversionPattern=%-35d{dd MMM yyyy, HH:mm:ss:SSS} %-5p [%t] %l -- %m%n%n
+
+###################### LOW_LEVEL appender
+# LOW_LEVEL is set to be a RollingFileAppender which outputs to the file
+# "lowLevel.log". If the file gets above a specified size limit, create a new 
+# log file, up to a certain number of log files.
+log4j.appender.LOW_LEVEL=org.apache.log4j.RollingFileAppender
+log4j.appender.LOW_LEVEL.File=logging/lowLevel.log
+# 5MB log size limit
+log4j.appender.LOW_LEVEL.MaxFileSize=5000KB
+# just one other file, then start to recycle
+log4j.appender.LOW_LEVEL.MaxBackupIndex=1
+log4j.appender.LOW_LEVEL.layout=org.apache.log4j.PatternLayout
+# Format to use when logging entries in the LOW_LEVEL log.
+# See org.apache.log4j.PatternLayout for field details
+# Date, priority, thread, logger location (SLOW), message, endline
+log4j.appender.LOW_LEVEL.layout.ConversionPattern=%-35d{dd MMM yyyy, HH:mm:ss:SSS} %-5p [%t] %l -- %m%n%n
+
+
+###################### PALEO appender
+# PALEO is set to be a RollingFileAppender which outputs to the file
+# "paleo.log". If the file gets above a specified size limit, create a new 
+# log file, up to a certain number of log files.
+log4j.appender.PALEO=org.apache.log4j.RollingFileAppender
+log4j.appender.PALEO.File=logging/paleo.log
+# 5MB log size limit
+log4j.appender.PALEO.MaxFileSize=5000KB
+# just one other file, then start to recycle
+log4j.appender.PALEO.MaxBackupIndex=1
+log4j.appender.PALEO.layout=org.apache.log4j.PatternLayout
+# Format to use when logging entries in the PALEO log.
+# See org.apache.log4j.PatternLayout for field details
+# Date, priority, thread, logger location (SLOW), message, endline
+log4j.appender.PALEO.layout.ConversionPattern=%-35d{dd MMM yyyy, HH:mm:ss:SSS} %-5p [%t] %l -- %m%n%n
+
+
+###################### SEGS appender
+# SEGS is set to be a RollingFileAppender which outputs to the file
+# "segs.log". If the file gets above a specified size limit, create a new 
+# log file, up to a certain number of log files.
+log4j.appender.SEGS=org.apache.log4j.RollingFileAppender
+log4j.appender.SEGS.File=logging/segmentation.log
+# 5MB log size limit
+log4j.appender.SEGS.MaxFileSize=5000KB
+# just one other file, then start to recycle
+log4j.appender.SEGS.MaxBackupIndex=1
+log4j.appender.SEGS.layout=org.apache.log4j.PatternLayout
+# Format to use when logging entries in the SEGS log.
+# See org.apache.log4j.PatternLayout for field details
+# Date, priority, thread, logger location (SLOW), message, endline
+log4j.appender.SEGS.layout.ConversionPattern=%-35d{dd MMM yyyy, HH:mm:ss:SSS} %-5p [%t] %l -- %m%n%n
+
+
+###################### CONSTR appender
+# CONSTR is set to be a RollingFileAppender which outputs to the file
+# "constraint.log". If the file gets above a specified size limit, create a new 
+# log file, up to a certain number of log files.
+log4j.appender.CONSTR=org.apache.log4j.RollingFileAppender
+log4j.appender.CONSTR.File=logging/constraint.log
+# 5MB log size limit
+log4j.appender.CONSTR.MaxFileSize=5000KB
+# just one other file, then start to recycle
+log4j.appender.CONSTR.MaxBackupIndex=1
+log4j.appender.CONSTR.layout=org.apache.log4j.PatternLayout
+# Format to use when logging entries in the SEGS log.
+# See org.apache.log4j.PatternLayout for field details
+# Date, priority, thread, logger location (SLOW), message, endline
+log4j.appender.CONSTR.layout.ConversionPattern=%-35d{dd MMM yyyy, HH:mm:ss:SSS} %-5p [%t] %l -- %m%n%n
+
+###################### RUNTIME appender
+# RUNTIME is set to be a RollingFileAppender which outputs to the file
+# "runtime.log". If the file gets above a specified size limit, create a new 
+# log file, up to a certain number of log files.
+log4j.appender.RUNTIME=org.apache.log4j.RollingFileAppender
+log4j.appender.RUNTIME.File=logging/runtime.log
+# 5MB log size limit
+log4j.appender.RUNTIME.MaxFileSize=5000KB
+# just one other file, then start to recycle
+log4j.appender.RUNTIME.MaxBackupIndex=1
+log4j.appender.RUNTIME.layout=org.apache.log4j.PatternLayout
+# Format to use when logging entries in the SEGS log.
+# See org.apache.log4j.PatternLayout for field details
+# Date, priority, thread, logger location (SLOW), message, endline
+log4j.appender.RUNTIME.layout.ConversionPattern=%-5p [%t]: %m%n
+
+###################### TEST appender
+# TEST is set to be a FileAppender which outputs to the file
+# "test.log". The logger does NOT append, but overwrites with a new file each 
+# time
+log4j.appender.TEST=org.apache.log4j.FileAppender
+# Do not append, start a new file each time
+log4j.appender.TEST.append=false
+log4j.appender.TEST.File=logging/test.log
+log4j.appender.TEST.layout=org.apache.log4j.PatternLayout
+# Format to use when logging entries in the TEST log.
+# See org.apache.log4j.PatternLayout for field details
+# Date, priority, thread, logger location (SLOW), message, endline
+log4j.appender.TEST.layout.ConversionPattern=%m%n
+
+
+
+# We can create different appenders and files for different parts of LADDER. 
+# These loggers will log their information in their local appenders, PLUS all 
+# that information will also be present in the root logger. But, these 
+# sub-loggers can have different priorities, etc. 
+# For example, here's a logger for objects in org.ladder.core

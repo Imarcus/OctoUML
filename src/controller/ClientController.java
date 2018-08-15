@@ -164,9 +164,14 @@ public class ClientController implements PropertyChangeListener {
             String[] dataArray = {propertyName, node.getId(), node.getTitle(), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
-        else if (propertyName.equals(Constants.changeClassNodeAttributes) || propertyName.equals(Constants.changeClassNodeOperations)){
+        else if (propertyName.equals(Constants.changeClassNodeAttributes)){
             ClassNode node = (ClassNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), node.getOperations(), GlobalVariables.getUserName()};
+            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), GlobalVariables.getUserName()};
+            client.sendTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeClassNodeOperations)){
+            ClassNode node = (ClassNode) evt.getSource();
+            String[] dataArray = {propertyName, node.getId(), node.getOperations(), GlobalVariables.getUserName()};
             client.sendTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){

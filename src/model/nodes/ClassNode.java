@@ -27,16 +27,6 @@ public class ClassNode extends AbstractNode implements Serializable
         this.height = height < CLASS_MIN_HEIGHT ? CLASS_MIN_HEIGHT : height;
     }
 
-    public void setAttributesWithOperations(String pAttributes, String pOperations){
-    	logger.debug("setAttributesWithOperations()");
-    	attributes = pAttributes;
-        operations = pOperations;
-        changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
-        changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
-        remoteChanges.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
-        remoteChanges.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
-    }    
-    
     public void setAttributes(String pAttributes){
     	logger.debug("setAttributes()");
         attributes = pAttributes;
@@ -53,7 +43,7 @@ public class ClassNode extends AbstractNode implements Serializable
 
     public void remoteSetAttributes(String[] pAttributes){
         logger.debug("remoteSetAttributes()");
-        logger.info(GlobalVariables.getUserName() + " reveived from " + pAttributes[4] + ":\n" +
+        logger.info(GlobalVariables.getUserName() + " reveived from " + pAttributes[3] + ":\n" +
     			"attributes:\n"+pAttributes[2]+"\n");
         attributes = pAttributes[2];
         changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
@@ -61,9 +51,9 @@ public class ClassNode extends AbstractNode implements Serializable
 
     public void remoteSetOperations(String[] pOperations){
         logger.debug("remoteSetOperations()");
-        logger.info(GlobalVariables.getUserName() + " reveived from " + pOperations[4] + ":\n" +
-    			"operations:\n"+pOperations[3]+"\n");
-        operations = pOperations[3];
+        logger.info(GlobalVariables.getUserName() + " reveived from " + pOperations[3] + ":\n" +
+    			"operations:\n"+pOperations[2]+"\n");
+        operations = pOperations[2];
         changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
     }
 

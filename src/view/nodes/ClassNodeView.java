@@ -347,7 +347,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    public void handle(ActionEvent e) {
     	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
     	    	vbox.getChildren().remove(modifiedTextField);
-    	    	broadcastingAttributesWithOperations();
+    			if (modifiedTextField instanceof Attribute) {
+        	    	String attributesfullText = extractAttributesFromVBox();
+        			((ClassNode)getRefNode()).setAttributes(attributesfullText);
+    			} else {
+        	    	String operationsfullText = extractOperationsFromVBox();
+        			((ClassNode)getRefNode()).setOperations(operationsfullText);
+    	    	}
     	    }
     	});
 		
@@ -382,13 +388,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	return fullText;
     }    
     
-    private void broadcastingAttributesWithOperations() {
-    	logger.debug("broadcastingAttributesWithOperations()");
-    	String attributesfullText = extractAttributesFromVBox();
-    	String operationsFullText = extractOperationsFromVBox();
-		((ClassNode)getRefNode()).setAttributesWithOperations(attributesfullText,operationsFullText);
-    }
-    
     public void addAttribute() {
     	logger.debug("addAttribute()");
     	Attribute textField = new Attribute("");
@@ -396,7 +395,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		+ "_" + ((ClassNode)getRefNode()).getId());
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(2+attributesSize(),textField);    	
-		broadcastingAttributesWithOperations();
+    	String attributesfullText = extractAttributesFromVBox();
+		((ClassNode)getRefNode()).setAttributes(attributesfullText);
     }
     
     public void addOperation() {
@@ -406,7 +406,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		+ "_" + ((ClassNode)getRefNode()).getId());
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(textField);    	
-		broadcastingAttributesWithOperations();
+    	String operationsFullText = extractOperationsFromVBox();
+		((ClassNode)getRefNode()).setOperations(operationsFullText);
     }    
 
     @Override

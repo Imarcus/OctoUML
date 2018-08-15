@@ -162,9 +162,14 @@ public class ServerController implements PropertyChangeListener {
             String[] dataArray = {propertyName, node.getId(), node.getTitle(), "server"};
             server.sendToAllTCP(dataArray);
         }
-        else if (propertyName.equals(Constants.changeClassNodeAttributes) || propertyName.equals(Constants.changeClassNodeOperations)){
+        else if (propertyName.equals(Constants.changeClassNodeAttributes)){
             ClassNode node = (ClassNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), node.getOperations(), "server"};
+            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), "server"};
+            server.sendToAllTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeClassNodeOperations)){
+            ClassNode node = (ClassNode) evt.getSource();
+            String[] dataArray = {propertyName, node.getId(), node.getOperations(), "server"};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){

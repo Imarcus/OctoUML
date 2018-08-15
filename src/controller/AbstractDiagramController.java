@@ -800,10 +800,16 @@ public abstract class AbstractDiagramController {
                 }
             }
             deleteEdgeView(edgeToBeDeleted, null, false, true);
-        } else if (dataArray[0].equals(Constants.changeClassNodeAttributes) ||dataArray[0].equals(Constants.changeClassNodeOperations)){
+        } else if (dataArray[0].equals(Constants.changeClassNodeAttributes)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
                     ((ClassNode)node).remoteSetAttributes(dataArray);
+                    break;
+                }
+            }
+        } else if (dataArray[0].equals(Constants.changeClassNodeOperations)){
+            for(AbstractNode node : graph.getAllNodes()){
+                if(dataArray[1].equals(node.getId())){
                     ((ClassNode)node).remoteSetOperations(dataArray);
                     break;
                 }

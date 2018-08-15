@@ -1,6 +1,7 @@
 package model.nodes;
 
 import javafx.geometry.Rectangle2D;
+
 import util.Constants;
 import util.GlobalVariables;
 
@@ -9,11 +10,16 @@ import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Abstract Node to hide some basic functionality for Nodes.
  */
 public abstract class AbstractNode implements Node, Serializable
 {
+	private static Logger logger = LoggerFactory.getLogger(AbstractNode.class);
+
     protected static final double CLASS_MIN_WIDTH = 120;
     protected static final double CLASS_MIN_HEIGHT = 100;
     protected static final double LIFELINE_MIN_WIDTH = 120;
@@ -35,6 +41,7 @@ public abstract class AbstractNode implements Node, Serializable
     protected boolean aIsChild;
 
     public AbstractNode(double x, double y, double width, double height){
+    	logger.debug("AbstractNode()");
         this.x = x;
         this.y = y;
         this.width = width;
@@ -49,21 +56,25 @@ public abstract class AbstractNode implements Node, Serializable
     }
 
     public void setIsChild(boolean pIsChild){
+    	logger.debug("setIsChild()");
         aIsChild = pIsChild;
         changes.firePropertyChange(Constants.changeNodeIsChild, null, aIsChild);
     }
 
     public boolean isChild(){
+    	logger.debug("isChild()");
         return aIsChild;
     }
 
     public void setX(double x){
+    	logger.debug("setX()");
         this.x = x;
         changes.firePropertyChange(Constants.changeNodeX, null, this.x);
         remoteChanges.firePropertyChange(Constants.changeNodeX, null, this.x);
     }
 
     public void setY(double y){
+    	logger.debug("setY()");
         this.y = y;
         changes.firePropertyChange(Constants.changeNodeY, null, this.y);
         remoteChanges.firePropertyChange(Constants.changeNodeY, null, this.y);
@@ -74,6 +85,7 @@ public abstract class AbstractNode implements Node, Serializable
      * @param height
      */
     public void setHeight(double height){
+    	logger.debug("setHeight()");
         this.height = height;
         changes.firePropertyChange(Constants.changeNodeHeight, null, this.height);
         remoteChanges.firePropertyChange(Constants.changeNodeHeight, null, this.height);
@@ -84,12 +96,14 @@ public abstract class AbstractNode implements Node, Serializable
      * @param width
      */
     public void setWidth(double width){
+    	logger.debug("setWidth()");
         this.width = width;
         changes.firePropertyChange(Constants.changeNodeWidth, null, this.width);
         remoteChanges.firePropertyChange(Constants.changeNodeWidth, null, this.width);
     }
 
     public void setTitle(String pTitle) {
+    	logger.debug("setTitle()");
         this.aTitle = pTitle;
         changes.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
         remoteChanges.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
@@ -97,6 +111,7 @@ public abstract class AbstractNode implements Node, Serializable
 
     @Override
     public void setTranslateX(double x) {
+    	logger.debug("setTranslateX()");
         translateX = x;
         changes.firePropertyChange(Constants.changeNodeTranslateX, null, translateX);
         remoteChanges.firePropertyChange(Constants.changeNodeTranslateX, null, translateX);
@@ -104,6 +119,7 @@ public abstract class AbstractNode implements Node, Serializable
 
     @Override
     public void setTranslateY(double y) {
+    	logger.debug("setTranslateY()");
         translateY = y;
         changes.firePropertyChange(Constants.changeNodeTranslateY, null, translateY);
         remoteChanges.firePropertyChange(Constants.changeNodeTranslateY, null, translateY);
@@ -111,6 +127,7 @@ public abstract class AbstractNode implements Node, Serializable
 
     @Override
     public void setScaleX(double x) {
+    	logger.debug("setScaleX()");
         scaleX = x;
         changes.firePropertyChange(Constants.changeNodeScaleX, null, scaleX);
         remoteChanges.firePropertyChange(Constants.changeNodeScaleX, null, scaleX);
@@ -118,49 +135,61 @@ public abstract class AbstractNode implements Node, Serializable
 
     @Override
     public void setScaleY(double y) {
+    	logger.debug("setScaleY()");
         scaleY = y;
         changes.firePropertyChange(Constants.changeNodeScaleY, null, scaleY);
         remoteChanges.firePropertyChange(Constants.changeNodeScaleY, null, scaleY);
     }
 
     public void remoteSetX(double x){
+    	logger.debug("remoteSetX()");
         this.x = x;
         changes.firePropertyChange(Constants.changeNodeX, null, this.x);
     }
 
     public void remoteSetY(double y){
+    	logger.debug("remoteSetY()");
         this.y = y;
         changes.firePropertyChange(Constants.changeNodeY, null, this.y);
     }
 
     public void remoteSetHeight(double height){
+    	logger.debug("remoteSetHeight()");
         changes.firePropertyChange(Constants.changeNodeHeight, null, this.height);
     }
     public void remoteSetWidth(double width){
+    	logger.debug("remoteSetWidth()");
         changes.firePropertyChange(Constants.changeNodeWidth, null, this.width);
     }
 
     public void remoteSetTitle(String[] dataArray) {
-        aTitle = dataArray[2];
+        logger.debug("remoteSetTitle()");
+        logger.info(GlobalVariables.getUserName() + " reveived from " + dataArray[3] + ":\n" +
+    			"title '" + dataArray[2] + "'\n");
+    	aTitle = dataArray[2];
         changes.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
     }
 
     public void remoteSetTranslateX(double x) {
+    	logger.debug("remoteSetTranslateX()");
         translateX = x;
         changes.firePropertyChange(Constants.changeNodeTranslateX, null, translateX);
     }
 
     public void remoteSetTranslateY(double y) {
+    	logger.debug("remoteSetTranslateY()");
         translateY = y;
         changes.firePropertyChange(Constants.changeNodeTranslateY, null, translateY);
     }
 
     public void remoteSetScaleX(double x) {
+    	logger.debug("remoteSetScaleX()");
         scaleX = x;
         changes.firePropertyChange(Constants.changeNodeScaleX, null, scaleX);
     }
 
     public void remoteSetScaleY(double y) {
+    	logger.debug("remoteSetScaleY()");
         scaleY = y;
         changes.firePropertyChange(Constants.changeNodeScaleY, null, scaleY);
     }
@@ -207,6 +236,7 @@ public abstract class AbstractNode implements Node, Serializable
 
     @Override
     public Rectangle2D getBounds() {
+    	logger.debug("Rectangle2D()");
         return new Rectangle2D(x, y, width, height);
     }
 
@@ -215,6 +245,7 @@ public abstract class AbstractNode implements Node, Serializable
 
     @Override
     public String toString() {
+    	logger.debug("toString()");
         return super.toString() + " x=" + getX() + " y=" + getY() + " height=" + getHeight() + " width=" + getWidth();
     }
 
@@ -222,7 +253,7 @@ public abstract class AbstractNode implements Node, Serializable
      * No-arg constructor for JavaBean convention
      */
     public AbstractNode(){
-
+    	logger.debug("AbstractNode()");
     }
 
     public String getId(){
@@ -230,26 +261,32 @@ public abstract class AbstractNode implements Node, Serializable
     }
     
     public void setId(String id) {
+    	logger.debug("setId()");
 		this.id = id;
 	}
 
 	public static void incrementObjectCount(){
+    	logger.debug("incrementObjectCount()");
         objectCount++;
     }
 
     public void addPropertyChangeListener(PropertyChangeListener l) {
+    	logger.debug("addPropertyChangeListener()");
         changes.addPropertyChangeListener(l);
     }
 
     public void removePropertyChangeListener(PropertyChangeListener l) {
+    	logger.debug("removePropertyChangeListener()");
         changes.removePropertyChangeListener(l);
     }
 
     public void addRemotePropertyChangeListener(PropertyChangeListener l) {
+    	logger.debug("addRemotePropertyChangeListener()");
         remoteChanges.addPropertyChangeListener(l);
     }
 
     public void removeRemotePropertyChangeListener(PropertyChangeListener l){
+    	logger.debug("removeRemotePropertyChangeListener()");
         remoteChanges.removePropertyChangeListener(l);
     }
 }

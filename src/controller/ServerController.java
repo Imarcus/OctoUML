@@ -1,6 +1,7 @@
 package controller;
 
 import com.esotericsoftware.kryo.Kryo;
+
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
@@ -18,12 +19,16 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Forward changes in the graph to all clients.
  * Used by MainController for turning the diagram in to a host for clients to connect to.
  */
 public class ServerController implements PropertyChangeListener {
 
+	private static Logger logger = LoggerFactory.getLogger(ServerController.class);
     private Graph graph;
     private Server server;
     private AbstractDiagramController diagramController;
@@ -31,6 +36,7 @@ public class ServerController implements PropertyChangeListener {
     private int nrClients = 0;
 
     public ServerController(Graph pGraph, AbstractDiagramController pDiagramController, int pPort) {
+    	logger.debug("ServerController()");
         diagramController = pDiagramController;
         port = pPort;
         graph = pGraph;
@@ -52,6 +58,7 @@ public class ServerController implements PropertyChangeListener {
         server.addListener(new Listener() {
             public void received (Connection connection, Object object) {
             	if ( object instanceof Object[]) {
+                	logger.debug("received()");
                 	Object[] dataArray = (Object[]) object; 
                     if (dataArray[0] instanceof Sketch) {
                         Platform.runLater(() -> diagramController.addSketch((Sketch)dataArray[0], false, true));
@@ -96,6 +103,7 @@ public class ServerController implements PropertyChangeListener {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+    	logger.debug("propertyChange()");
         String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.sketchAdd)){
             String[] dataArray = {Constants.sketchAdd, "server"};
@@ -181,6 +189,7 @@ public class ServerController implements PropertyChangeListener {
     }
 
     private void initKryo(Kryo kryo){
+    	logger.debug("initKryo()");
         kryo.register(ClassNode.class);
         kryo.register(AbstractNode.class);
         kryo.register(PackageNode.class);
@@ -197,6 +206,7 @@ public class ServerController implements PropertyChangeListener {
     }
 
     public void closeServer(){
+    	logger.debug("closeServer()");
         server.close();
         server.stop();
     }

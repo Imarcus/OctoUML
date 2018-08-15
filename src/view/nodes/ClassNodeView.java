@@ -32,12 +32,15 @@ import util.GlobalVariables;
 
 import java.beans.PropertyChangeEvent;
 import java.util.UUID;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Visual representation of ClassNode class.
  */
 public class ClassNodeView extends AbstractNodeView implements NodeView {
+	
+	private static Logger logger = LoggerFactory.getLogger(ClassNodeView.class);
 
     private TextField title;
 
@@ -56,7 +59,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     private final int STROKE_WIDTH = 1;
 
     public ClassNodeView(ClassNode node) {
-        super(node);
+    	super(node);
+    	logger.debug("ClassNodeView()");
         //setChangeListeners();
 
         container = new StackPane();
@@ -79,6 +83,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     private void createRectangles(){
+    	logger.debug("createRectangles()");
         ClassNode node = (ClassNode) getRefNode();
         changeHeight(node.getHeight());
         changeWidth(node.getWidth());
@@ -87,11 +92,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     private void changeHeight(double height){
+    	logger.debug("changeHeight()");
         setHeight(height);
         rectangle.setHeight(height);
     }
 
     private void changeWidth(double width){
+    	logger.debug("changeWidth()");
         setWidth(width);
         rectangle.setWidth(width);
         container.setMaxWidth(width);
@@ -117,6 +124,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     private void createHandles(){
+    	logger.debug("createHandles()");
         shortHandleLine = new Line();
         longHandleLine = new Line();
 
@@ -147,6 +155,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     private void initVBox(){
+    	logger.debug("initVBox()");
         ClassNode node = (ClassNode) getRefNode();
 
         vbox.setPadding(new Insets(5, 0, 5, 0));
@@ -214,6 +223,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     private void initLooks(){
+    	logger.debug("initLooks()");
         rectangle.setStrokeWidth(STROKE_WIDTH);
         rectangle.setFill(Color.LIGHTSKYBLUE);
         rectangle.setStroke(Color.BLACK);
@@ -224,6 +234,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     public void setSelected(boolean selected){
+    	logger.debug("setSelected()");
         if(selected){
             rectangle.setStrokeWidth(2);
             setStroke(Constants.selected_color);
@@ -234,14 +245,17 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
 
     public void setStrokeWidth(double scale){
+    	logger.debug("setStrokeWidth()");
         rectangle.setStrokeWidth(scale);
     }
 
     public void setFill(Paint p) {
+    	logger.debug("setFill()");
         rectangle.setFill(p);
     }
 
     public void setStroke(Paint p) {
+    	logger.debug("setStroke()");
         rectangle.setStroke(p);
     }
 
@@ -270,7 +284,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
     
     private void createHandlesAttributesOperations(IdentifiedTextField textfield) {
-    	
+    	logger.debug("createHandlesAttributesOperations()");
     	textfield.setOnKeyReleased(new EventHandler<KeyEvent>() {
     	    public void handle(KeyEvent ke) {
     	    	if (textfield instanceof Attribute) {
@@ -343,6 +357,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
     
     private String extractAttributesFromVBox() {
+    	logger.debug("extractAttributesFromVBox()");
     	String fullText = "";
     	for (Node node: vbox.getChildren()) {
 	    	if (node instanceof Attribute) {
@@ -355,6 +370,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
     
     private String extractOperationsFromVBox() {
+    	logger.debug("extractOperationsFromVBox()");
     	String fullText = "";
     	for (Node node: vbox.getChildren()) {
 	    	if (node instanceof Operation) {
@@ -367,12 +383,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }    
     
     private void broadcastingAttributesWithOperations() {
+    	logger.debug("broadcastingAttributesWithOperations()");
     	String attributesfullText = extractAttributesFromVBox();
     	String operationsFullText = extractOperationsFromVBox();
 		((ClassNode)getRefNode()).setAttributesWithOperations(attributesfullText,operationsFullText);
     }
     
     public void addAttribute() {
+    	logger.debug("addAttribute()");
     	Attribute textField = new Attribute("");
     	textField.setXmiId("att" + UUID.randomUUID().toString()
         		+ "_" + ((ClassNode)getRefNode()).getId());
@@ -382,6 +400,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
     
     public void addOperation() {
+    	logger.debug("addOperation()");
     	Operation textField = new Operation("");
     	textField.setXmiId("oper" + UUID.randomUUID().toString()
         		+ "_" + ((ClassNode)getRefNode()).getId());
@@ -392,7 +411,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-
+    	logger.debug("propertyChange()");
     	
         super.propertyChange(evt);
         if (evt.getPropertyName().equals(Constants.changeNodeX)) {
@@ -407,8 +426,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	String newValue = (String) evt.getNewValue();
         	// Update text if it was altered
         	if (!title.getText().equals(newValue)) {
-    	        System.out.println("ClassNodeView.propertyChange() " + GlobalVariables.getUserName() + "\n" +
-    	    			"Received title '" + newValue + "'. Updating...\n");
         		title.setText(newValue);
         	}            
             if (title.getText() == null || title.getText().equals("")) {
@@ -424,8 +441,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		if ( node instanceof Attribute ) {
         			Attribute localTextField = (Attribute) node;
             		if (!newValue.contains(localTextField.getXmiId())) {
-                    	System.out.println("ClassNodeView.propertyChange() " + GlobalVariables.getUserName() + "\n" + 
-            	    			"Received '"+localTextField+"'. Deleting...\n");
                         vbox.getChildren().remove(localTextField);
             		}
         		}
@@ -446,8 +461,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		}
             	}
             	if (!found) {
-                	System.out.println("ClassNodeView.propertyChange() " + GlobalVariables.getUserName() + "\n" +
-        	    			"Received '"+remoteTextField+"'. Adding...\n");
             		createHandlesAttributesOperations(remoteTextField);
             		vbox.getChildren().add(index,remoteTextField);
             	}            	
@@ -463,14 +476,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                     	if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
                 			// Update text if it was altered
                 			if (!localTextField.getText().equals(remoteTextField.getText())) {
-                            	System.out.println("ClassNodeView.propertyChange() " + GlobalVariables.getUserName() + "\n" + 
-                    	    			"Received '"+remoteTextField+"'. Updating text...\n");
                     			localTextField.setText(remoteTextField.getText());
                 			}
                 			// If moved upper or down
                 			if (vbox.getChildren().indexOf(localTextField) != index) {
-                            	System.out.println("ClassNodeView.propertyChange() " + GlobalVariables.getUserName() + "\n" + 
-                    	    			"Received '"+localTextField+"'. Updating index to " + index + "\n");
                 				vbox.getChildren().remove(localTextField);
                 				vbox.getChildren().add(index,localTextField);    	
                 			}
@@ -493,8 +502,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		if ( node instanceof Operation ) {
         			Operation localTextField = (Operation) node;
             		if (!newValue.contains(localTextField.getXmiId())) {
-                    	System.out.println("ClassNodeView.propertyChange() " + GlobalVariables.getUserName() + "\n" +  
-            	    			"Received '"+localTextField+"'. Deleting...\n");
                         vbox.getChildren().remove(localTextField);
             		}
         		}
@@ -515,8 +522,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		}
             	}
             	if (!found) {
-                	System.out.println("ClassNodeView.propertyChange() " + GlobalVariables.getUserName() + "\n" + 
-        	    			"Received '"+remoteTextField+"'. Adding...\n");
             		createHandlesAttributesOperations(remoteTextField);
             		vbox.getChildren().add(index,remoteTextField);
             	}            	
@@ -532,14 +537,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                     	if (localTextField.getXmiId().equals(remoteTextField.getXmiId())) {
                 			// Update text if it was altered
                 			if (!localTextField.getText().equals(remoteTextField.getText())) {
-                            	System.out.println("ClassNodeView.propertyChange() " + GlobalVariables.getUserName() + "\n" + 
-                    	    			"Received '"+remoteTextField+"'. Updating text...\n");
                     			localTextField.setText(remoteTextField.getText());
                 			}
                 			// If moved upper or down
                 			if (vbox.getChildren().indexOf(localTextField) != index) {
-                            	System.out.println("ClassNodeView.propertyChange() " + GlobalVariables.getUserName() + "\n" + 
-                    	    			"Received '"+localTextField+"'. Updating index to " + index+ "\n");
                 				vbox.getChildren().remove(localTextField);
                 				vbox.getChildren().add(index,localTextField);    	
                 			}

@@ -1,6 +1,7 @@
 package controller;
 
 import com.esotericsoftware.kryo.Kryo;
+
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -15,11 +16,13 @@ import model.nodes.ClassNode;
 import model.nodes.PackageNode;
 import util.Constants;
 import util.GlobalVariables;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Communicates changes in the graph to and from the host.
@@ -27,12 +30,14 @@ import java.util.ArrayList;
  */
 public class ClientController implements PropertyChangeListener {
 
+	private static Logger logger = LoggerFactory.getLogger(ClientController.class);
     private AbstractDiagramController diagramController;
     private Client client;
     private String serverIp;
     private int port;
 
     public ClientController(AbstractDiagramController pDiagramController, String pServerIp, int pPort) {
+    	logger.debug("ClientController()");
         diagramController = pDiagramController;
         serverIp = pServerIp;
         port = pPort;
@@ -45,6 +50,7 @@ public class ClientController implements PropertyChangeListener {
         client.addListener(new Listener() {
             public void received (Connection connection, Object object) {
             	if ( object instanceof Object[]) {
+                	logger.debug("received()");
                 	Object[] dataArray = (Object[]) object; 
                     if ( dataArray[0] instanceof AbstractNode) {
                         Platform.runLater(() -> diagramController.createNodeView((AbstractNode)dataArray[0], true));
@@ -66,6 +72,7 @@ public class ClientController implements PropertyChangeListener {
     }
 
     public boolean connect(){
+    	logger.debug("connect()");
         client.start();
         int test = client.getTcpWriteBufferSize();
         try {
@@ -86,6 +93,7 @@ public class ClientController implements PropertyChangeListener {
     }
 
     public void close(){
+    	logger.debug("close()");
         client.close();
     }
 
@@ -94,7 +102,9 @@ public class ClientController implements PropertyChangeListener {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        String propertyName = evt.getPropertyName();
+    	logger.debug("propertyChange()");
+
+    	String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.sketchAdd)){
         	String[] dataArray = { Constants.sketchAdd, GlobalVariables.getUserName()}; //Because serializing Sketch was tricky
             client.sendTCP(dataArray);
@@ -180,6 +190,7 @@ public class ClientController implements PropertyChangeListener {
     }
 
     private void initKryo(Kryo kryo){
+    	logger.debug("initKryo()");
         kryo.register(ClassNode.class);
         kryo.register(AbstractNode.class);
         kryo.register(PackageNode.class);
@@ -196,6 +207,7 @@ public class ClientController implements PropertyChangeListener {
     }
 
     public void closeClient(){
+    	logger.debug("closeClient()");
         client.close();
     }
 }

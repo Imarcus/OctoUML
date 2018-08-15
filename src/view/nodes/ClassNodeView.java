@@ -27,6 +27,7 @@ import model.nodes.Attribute;
 import model.nodes.ClassNode;
 import model.nodes.IdentifiedTextField;
 import model.nodes.Operation;
+import model.nodes.Title;
 import util.Constants;
 import util.GlobalVariables;
 
@@ -42,12 +43,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	
 	private static Logger logger = LoggerFactory.getLogger(ClassNodeView.class);
 
-    private TextField title;
-
     private Rectangle rectangle;
 
     private StackPane container;
-    private StackPane titlePane;
     private VBox vbox;
 
     private Separator firstLine;
@@ -111,11 +109,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         secondLine.setMaxWidth(width);
         secondLine.setPrefWidth(width);
 
-        title.setMaxWidth(width);
-        title.setPrefWidth(width);
-    	
     	for(Node node: vbox.getChildren()) {
-    		if (node instanceof Attribute || node instanceof Operation) {
+    		if (node instanceof Attribute
+    				|| node instanceof Operation
+    				|| node instanceof Title) {
     			TextField tf = (TextField) node;
     			tf.setMaxWidth(width);
     			tf.setPrefWidth(width);
@@ -139,17 +136,20 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
         this.getChildren().addAll(shortHandleLine, longHandleLine);
 
-    	title.setOnKeyReleased(new EventHandler<KeyEvent>() {
-    	    public void handle(KeyEvent ke) {
-    	    	((ClassNode)getRefNode()).setTitle(title.getText());
-    	    }
-    	});
     	for(Node node: vbox.getChildren()) {
     		if (node instanceof Attribute) {
             	createHandlesAttributesOperations((Attribute) node);
     		}
-    		if (node instanceof Operation) {
+    		else if (node instanceof Operation) {
             	createHandlesAttributesOperations((Operation) node);
+    		}
+    		else if (node instanceof Title) {
+    			Title title = (Title) node;
+    			title.setOnKeyReleased(new EventHandler<KeyEvent>() {
+    	    	    public void handle(KeyEvent ke) {
+    	    	    	((ClassNode)getRefNode()).setTitle(title.getText());
+    	    	    }
+    	    	});
     		}
     	}
     }
@@ -161,15 +161,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         vbox.setPadding(new Insets(5, 0, 5, 0));
         vbox.setSpacing(5);
 
-        titlePane = new StackPane();
-
         firstLine = new Separator();
         firstLine.setMaxWidth(node.getWidth());
 
         secondLine = new Separator();
         secondLine.setMaxWidth(node.getWidth());
 
-        title = new TextField();
+        Title title = new Title();
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
@@ -190,8 +188,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	contextMenu.getItems().addAll(cmItemAddAttribute,cmItemAddOperation);
     	title.setContextMenu(contextMenu);
 
-        titlePane.getChildren().add(title);
-        vbox.getChildren().addAll(titlePane, firstLine);
+        vbox.getChildren().addAll(title, firstLine);
         
         if (node.getAttributes() != null) {
             for(String text : node.getAttributes().split("\\r?\\n")){
@@ -227,10 +224,15 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         rectangle.setStrokeWidth(STROKE_WIDTH);
         rectangle.setFill(Color.LIGHTSKYBLUE);
         rectangle.setStroke(Color.BLACK);
-        StackPane.setAlignment(title, Pos.CENTER);
         BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
         Background background =  new Background(backgroundFill);
-        title.setBackground(background);
+    	for(Node node: vbox.getChildren()) {
+    		if (node instanceof Title) {
+    			Title title = (Title) node;
+    	        StackPane.setAlignment(title, Pos.CENTER);
+    	        title.setBackground(background);
+    		}
+    	}        
     }
 
     public void setSelected(boolean selected){
@@ -426,14 +428,19 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
         	String newValue = (String) evt.getNewValue();
         	// Update text if it was altered
-        	if (!title.getText().equals(newValue)) {
-        		title.setText(newValue);
-        	}            
-            if (title.getText() == null || title.getText().equals("")) {
-                firstLine.setVisible(false);
-            } else {
-            	firstLine.setVisible(true);
-            }
+        	for(Node node: vbox.getChildren()) {
+        		if (node instanceof Title) {
+        			Title title = (Title) node;
+                	if (!title.getText().equals(newValue)) {
+                		title.setText(newValue);
+                	}            
+                    if (title.getText() == null || title.getText().equals("")) {
+                        firstLine.setVisible(false);
+                    } else {
+                    	firstLine.setVisible(true);
+                    }
+        		}
+        	}        
         } else if ( evt.getPropertyName().equals(Constants.changeClassNodeAttributes) ) {
         	String newValue = (String) evt.getNewValue();
         	// Check for removed attributes

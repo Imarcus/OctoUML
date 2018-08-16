@@ -32,6 +32,8 @@ import util.Constants;
 import util.GlobalVariables;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,8 @@ import org.slf4j.LoggerFactory;
 public class ClassNodeView extends AbstractNodeView implements NodeView {
 	
 	private static Logger logger = LoggerFactory.getLogger(ClassNodeView.class);
+	
+	private List<Object> originalValues;
 
     private Rectangle rectangle;
 
@@ -190,6 +194,12 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
         vbox.getChildren().addAll(title, firstLine);
         
+        // Store original value of title
+        Title oldTitle = new Title();
+        oldTitle.setText(title.getText());
+        originalValues = new ArrayList();
+        originalValues.add(oldTitle);
+        
         if (node.getAttributes() != null) {
             for(String text : node.getAttributes().split("\\r?\\n")){
             	if (text.contains(";")) {
@@ -197,6 +207,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	} 
             	Attribute attribute = new Attribute(text);
                 vbox.getChildren().add(attribute);
+                
+                // Store original value of attribute
+                Attribute oldAttribue = new Attribute(text);
+                originalValues.add(oldAttribue);
             }
         }
 
@@ -209,7 +223,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	}         	
             	Operation operation = new Operation(text);
                 vbox.getChildren().add(operation);
-            }
+
+                // Store original value of operation
+                Operation oldOperation = new Operation(text);
+                originalValues.add(oldOperation);
+        	}
         }
 
         if (operationsSize() > 0) {
@@ -426,21 +444,67 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         } else if (evt.getPropertyName().equals(Constants.changeNodeHeight)) {
             changeHeight((double) evt.getNewValue());
         } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
-        	String newValue = (String) evt.getNewValue();
-        	// Update text if it was altered
-        	for(Node node: vbox.getChildren()) {
-        		if (node instanceof Title) {
-        			Title title = (Title) node;
-                	if (!title.getText().equals(newValue)) {
-                		title.setText(newValue);
-                	}            
-                    if (title.getText() == null || title.getText().equals("")) {
-                        firstLine.setVisible(false);
-                    } else {
-                    	firstLine.setVisible(true);
-                    }
-        		}
-        	}        
+        	// Local set title
+        	if (evt.getNewValue() instanceof String) {
+            	String newValue = (String) evt.getNewValue();
+            	// Update text if it was altered
+            	for(Node node: vbox.getChildren()) {
+            		if (node instanceof Title) {
+            			Title title = (Title) node;
+                    	if (!title.getText().equals(newValue)) {
+                    		title.setText(newValue);
+                    	}            
+                        if (title.getText() == null || title.getText().equals("")) {
+                            firstLine.setVisible(false);
+                        } else {
+                        	firstLine.setVisible(true);
+                        }
+                		break;
+            		}
+            	}
+        	}
+        	// Remote set title
+        	else { 
+            	String[] dataArray = (String[]) evt.getNewValue();
+            	String newTitle = dataArray[2];
+            	// Update text if it was altered
+            	for(Node node: vbox.getChildren()) {
+            		if (node instanceof Title) {
+            			Title currentTitle = (Title) node;
+                    	if (!currentTitle.getText().equals(newTitle)) {
+                    		// If the collaboration type is synchronous, simply update the title
+                	        if (GlobalVariables.getColaborationType().equals(Constants.collaborationTypeSynchronous)) {
+                        		currentTitle.setText(newTitle);
+                	        }
+                	        // If the type of collaboration is hybrid (UMLCollab), the appropriate merge method will be evaluated
+                	        else {
+                	        	// Get original value to compare with current and new one 
+                	        	for(Object object: originalValues) {
+                            		if (object instanceof Title) {
+                            			Title originalTitle = (Title) object;
+                            			// If the original value is equal to the current value, do a simple automatic merge
+                            			if (originalTitle.getText().equals(currentTitle.getText())) {
+                                    		currentTitle.setText(newTitle);
+                                			((ClassNode)getRefNode()).setTitleOnly(newTitle);
+                            		        BackgroundFill backgroundFill = new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY);
+                            		        Background background =  new Background(backgroundFill);
+                            		        currentTitle.setBackground(background);
+                            			}
+                            			// If the original value is different from the current value, a conflict must be dealt with
+                            			else {
+                            		        BackgroundFill backgroundFill = new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY);
+                            		        Background background =  new Background(backgroundFill);
+                            		        currentTitle.setBackground(background);
+                            			}
+                            			break;	
+                            		}
+                	        	}
+                	        }
+                    	}            
+                		break;
+            		}
+            	}        
+        	}
         } else if ( evt.getPropertyName().equals(Constants.changeClassNodeAttributes) ) {
         	String newValue = (String) evt.getNewValue();
         	// Check for removed attributes

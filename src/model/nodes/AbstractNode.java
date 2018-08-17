@@ -111,10 +111,10 @@ public abstract class AbstractNode implements Node, Serializable
     	logger.debug("setTitle()");
         this.aTitle = pTitle;
         changes.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
-        if (GlobalVariables.getColaborationType().equals(Constants.collaborationTypeSynchronous)) {
+        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
             remoteChanges.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
         }
-        // Else only for test, remove when sync button implemented
+        // TODO: Else only for test, remove when sync button implemented
         else {
             remoteChanges.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
         }
@@ -177,7 +177,7 @@ public abstract class AbstractNode implements Node, Serializable
         logger.debug("remoteSetTitle()");
         logger.info(GlobalVariables.getUserName() + " reveived from " + dataArray[3] + ":\n" +
     			"title '" + dataArray[2] + "'\n");
-        if (GlobalVariables.getColaborationType().equals(Constants.collaborationTypeSynchronous)) {
+        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
            	aTitle = dataArray[2];
         }
         changes.firePropertyChange(Constants.changeNodeTitle, null, dataArray);

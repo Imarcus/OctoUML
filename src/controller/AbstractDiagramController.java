@@ -538,22 +538,20 @@ public abstract class AbstractDiagramController {
 
     public void handleMenuActionServer(){
     	logger.debug("handleMenuActionServer()");
-        TextInputDialog portDialog = new TextInputDialog("54555");
-        portDialog.setTitle("Server Port");
-        portDialog.setHeaderText("Please enter port number");
-        portDialog.setContentText("Port:");
+        String[] result = NetworkUtils.ServerConfigDialog();
 
-        Optional<String> port = portDialog.showAndWait();
-
-        GlobalVariables.setUserName("server");
-        ServerController server = new ServerController(graph, this, Integer.parseInt(port.get()));
-        serverControllers.add(server);
+        if (result != null) {
+        	GlobalVariables.setCollaborationType(result[1]);
+        	GlobalVariables.setUserName(result[2]);
+            ServerController server = new ServerController(graph, this, Integer.parseInt(result[0]));
+            serverControllers.add(server);
+        }
     }
 
     public boolean handleMenuActionClient(){
     	logger.debug("handleMenuActionClient()");
 
-        String[] result = NetworkUtils.queryServerPort();
+        String[] result = NetworkUtils.clientConfigDialog();
 
         if (result != null) {
         	GlobalVariables.setUserName(result[2]);
@@ -570,6 +568,25 @@ public abstract class AbstractDiagramController {
         }
     }
 
+    public boolean handleMenuActionChangeCollaborationType(){
+    	logger.debug("handleMenuActionChangeCollaborationType()");
+
+        String[] result = NetworkUtils.clientConfigDialog();
+
+        if (result != null) {
+    		// TODO: Implement method
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean handleMenuActionCommit(){
+    	logger.debug("handleMenuActionCommit()");
+    	// TODO: Implement method
+    	return true;
+    }
+    
     public void setServerLabel(String s){
     	logger.debug("setServerLabel()");
         serverLabel.setText(s);

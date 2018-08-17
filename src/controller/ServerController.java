@@ -13,6 +13,7 @@ import model.nodes.AbstractNode;
 import model.nodes.ClassNode;
 import model.nodes.PackageNode;
 import util.Constants;
+import util.GlobalVariables;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -66,7 +67,9 @@ public class ServerController implements PropertyChangeListener {
                     else if (dataArray[0] instanceof String) {
                         String request = (String) dataArray[0];
                         if(request.equals(Constants.requestGraph)){
-                        	Object[] sendDataArray = {diagramController.getGraphModel(), "server"}; 
+                        	Object[] sendDataArray = {diagramController.getGraphModel(),
+                        			GlobalVariables.getCollaborationType(),
+                        			GlobalVariables.getUserName()}; 
                             connection.sendTCP(sendDataArray);
                         }
                         else if (object instanceof String[]) {
@@ -106,89 +109,94 @@ public class ServerController implements PropertyChangeListener {
     	logger.debug("propertyChange()");
         String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.sketchAdd)){
-            String[] dataArray = {Constants.sketchAdd, "server"};
+            String[] dataArray = {Constants.sketchAdd, GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchPoint)){
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchPoint, sketch.getId(),
-                    Double.toString(point.getX()), Double.toString(point.getY()), "server"};
+                    Double.toString(point.getX()), Double.toString(point.getY()), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchStart)) {
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
-                Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString(), "server"};
+                Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString(), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.sketchRemove)){
-        	String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue(), "server"};
+        	String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue(), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
-            Object[] dataArray = {node, "server"};
+            Object[] dataArray = {node, GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.NodeRemove)){
-        	String[] dataArray = {Constants.NodeRemove, (String)evt.getNewValue(), "server"};
+        	String[] dataArray = {Constants.NodeRemove, (String)evt.getNewValue(), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.EdgeAdd)){
             AbstractEdge edge = (AbstractEdge) evt.getNewValue();
-            Object[] dataArray = {edge, "server"};
+            Object[] dataArray = {edge, GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.EdgeRemove)) {
-        	String [] dataArray = {Constants.EdgeRemove, (String)evt.getNewValue(), "server"};
+        	String [] dataArray = {Constants.EdgeRemove, (String)evt.getNewValue(), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeTranslateX) || propertyName.equals(Constants.changeNodeTranslateY)) { //NodeX/Y not needed
             AbstractNode node = (AbstractNode) evt.getSource();
             String[] dataArray = {propertyName, node.getId(), Double.toString(node.getTranslateX()),
-            		Double.toString(node.getTranslateY()), "server"};
+            		Double.toString(node.getTranslateY()), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeWidth) || propertyName.equals(Constants.changeNodeHeight)){
             AbstractNode node = (AbstractNode) evt.getSource();
             String[] dataArray = {propertyName, node.getId(), Double.toString(node.getWidth()),
-            		Double.toString(node.getHeight()), "server"};
+            		Double.toString(node.getHeight()), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeTitle)) {
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getTitle(), "server"};
+            String[] dataArray = {propertyName, node.getId(), node.getTitle(), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeClassNodeAttributes)){
             ClassNode node = (ClassNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), "server"};
+            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeClassNodeOperations)){
             ClassNode node = (ClassNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getOperations(), "server"};
+            String[] dataArray = {propertyName, node.getId(), node.getOperations(), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){
             AbstractEdge edge = (AbstractEdge) evt.getSource();
             String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(),
-            		edge.getEndMultiplicity(), "server"};
+            		edge.getEndMultiplicity(), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeLabel)){
                 AbstractEdge edge = (AbstractEdge) evt.getSource();
-                String[] dataArray = {propertyName, edge.getId(), edge.getLabel(), "server"};
+                String[] dataArray = {propertyName, edge.getId(), edge.getLabel(), GlobalVariables.getUserName()};
                 server.sendToAllTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateX)) {
             Sketch sketch = (Sketch) evt.getSource();
-            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX()), "server"};
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX()), GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateY)) {
             Sketch sketch = (Sketch) evt.getSource();
-            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY()), "server"};
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY()), GlobalVariables.getUserName()};
+            server.sendToAllTCP(dataArray);
+        } else if (propertyName.equals(Constants.changeCollaborationType)) {
+        	Object[] dataArray = {diagramController.getGraphModel(),
+        			GlobalVariables.getCollaborationType(),
+        			GlobalVariables.getUserName()}; 
             server.sendToAllTCP(dataArray);
         }
     }

@@ -62,9 +62,21 @@ public class ClientController implements PropertyChangeListener {
                         Graph graph = (Graph) dataArray[0];
                         graph.addRemotePropertyChangeListener(ClientController.this);
                         Platform.runLater(() -> diagramController.load(graph, true));
+                    	GlobalVariables.setCollaborationType((String)dataArray[1]);
+                    	logger.info("Collaboration type setted to " + dataArray[1]);
                     }
-                    else if (object instanceof String[]){
-                        Platform.runLater(() -> diagramController.remoteCommand((String[])object));
+                    else if (dataArray[0] instanceof String){
+                    	String request = (String) dataArray[0];
+                        if(request.equals(Constants.changeCollaborationType)){
+                        	GlobalVariables.setCollaborationType((String)dataArray[1]);
+                        	logger.info("Collaboration type changed to " + dataArray[1]);
+                            Graph graph = (Graph) dataArray[2];
+                            graph.addRemotePropertyChangeListener(ClientController.this);
+                            Platform.runLater(() -> diagramController.load(graph, true));
+                        }
+                    	else if (object instanceof String[]){
+                            Platform.runLater(() -> diagramController.remoteCommand((String[])object));
+                    	}
                     }
             	}
             }
@@ -74,7 +86,6 @@ public class ClientController implements PropertyChangeListener {
     public boolean connect(){
     	logger.debug("connect()");
         client.start();
-        int test = client.getTcpWriteBufferSize();
         try {
             client.connect(5000, serverIp, port, port);
         } catch (IOException e) {

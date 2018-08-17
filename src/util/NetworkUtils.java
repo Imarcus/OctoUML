@@ -2,6 +2,7 @@ package util;
 
 import controller.ClientController;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -15,11 +16,11 @@ import java.util.regex.Pattern;
  */
 public class NetworkUtils {
 
-    public static String[] queryServerPort() {
+    public static String[] clientConfigDialog() {
         // Create the custom dialog.
         Dialog<String[]> dialog = new Dialog<>();
         dialog.setTitle("Connect to server");
-        dialog.setHeaderText("Enter server IP and port number");
+        dialog.setHeaderText("Enter server IP, port number and user name");
 
         ButtonType okButtonType = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
@@ -77,6 +78,124 @@ public class NetworkUtils {
         return s;
     }
 
+    public static String[] ServerConfigDialog() {
+        // Create the custom dialog.
+        Dialog<String[]> dialog = new Dialog<>();
+        dialog.setTitle("Launch Server");
+        dialog.setHeaderText("Enter port number, collaboration type and user name");
+
+        ButtonType okButtonType = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField port = new TextField();
+        port.setText("54555");
+        ChoiceBox collaborationType = new ChoiceBox(FXCollections.observableArrayList(
+        	    "Synchronous", "UMLCollab")
+        );
+        collaborationType.setValue("Synchronous");
+        
+        TextField userName = new TextField();
+        userName.setText(System.getProperty("user.name"));
+
+        Platform.runLater(() -> collaborationType.requestFocus());
+
+        grid.add(new Label("Port number:"), 0, 0);
+        grid.add(port, 1, 0);
+        grid.add(new Label("Collaboration type:"), 0, 1);
+        grid.add(collaborationType, 1, 1);
+        grid.add(new Label("User name:"), 0, 2);
+        grid.add(userName, 1, 2);
+        dialog.getDialogPane().setContent(grid);
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okButtonType) {
+                return new String[] {
+                		port.getText(),
+                		(String) collaborationType.getSelectionModel().getSelectedItem(),
+                		userName.getText()
+                		};
+            }
+            return null;
+        });
+
+        Optional<String[]> result = dialog.showAndWait();
+
+        String[] s = new String[3];
+        if (result.isPresent() 
+        		&& Integer.parseInt(result.get()[0]) >= 1024 
+        		&& Integer.parseInt(result.get()[0]) <= 65535
+        		&& !(result.get()[1].isEmpty())
+        		&& !(result.get()[2].isEmpty())) {
+            s[0] = result.get()[0];
+            s[1] = result.get()[1];
+            s[2] = result.get()[2];
+        } else {
+            s = null;
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid input");
+            alert.setHeaderText("Invalip input. \nClosing diagram.");
+            alert.showAndWait();
+        }
+        return s;
+    }
+
+    public static String[] changeCollaborationTypeDialog() {
+        // Create the custom dialog.
+        Dialog<String[]> dialog = new Dialog<>();
+        dialog.setTitle("Change collaboration type");
+        dialog.setHeaderText("Warning: All clients models with be descarted and replaced for server model");
+
+        ButtonType okButtonType = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        ChoiceBox collaborationType = new ChoiceBox(FXCollections.observableArrayList(
+        	    "Synchronous", "UMLCollab")
+        );
+        collaborationType.setValue("Synchronous");
+
+        Platform.runLater(() -> collaborationType.requestFocus());
+
+        grid.add(new Label("Collaboration type:"), 0, 1);
+        grid.add(collaborationType, 1, 1);
+        dialog.getDialogPane().setContent(grid);
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okButtonType) {
+                return new String[] {
+                		(String) collaborationType.getSelectionModel().getSelectedItem()
+                		};
+            }
+            return null;
+        });
+
+        Optional<String[]> result = dialog.showAndWait();
+
+        String[] s = new String[3];
+        if (result.isPresent() 
+        		&& !(result.get()[0].isEmpty())) {
+            s[0] = result.get()[0];
+        } else {
+            s = null;
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid input");
+            alert.setHeaderText("Invalip input. \nClosing diagram.");
+            alert.showAndWait();
+        }
+        return s;
+    }
+    
     //Regex for IPv4-pattern, found: http://stackoverflow.com/questions/5667371/validate-ipv4-address-in-java
     private static final Pattern PATTERN = Pattern.compile(
             "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");

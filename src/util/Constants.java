@@ -12,11 +12,12 @@ public class Constants {
 
     public static int GRID_DISTANCE = 20;
 
-    public static String collaborationTypeSynchronous = "synchronous";
-    public static String collaborationTypeUmlCollab = "umlCollab";
+    public static String collaborationTypeSynchronous = "Synchronous";
+    public static String collaborationTypeUMLCollab = "UMLCollab";
 
     //--------------------- Network Constants -----------------------------------
     public static String requestGraph = "RequestGraph";
+    public static String changeCollaborationType = "ChangeCollaborationType";
     public static String NodeAdd = "NodeAdd";
     public static String NodeRemove = "NodeRemove";
     public static String EdgeAdd = "EdgeAdd";

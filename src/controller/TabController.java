@@ -131,6 +131,14 @@ public class TabController {
         }
     }
 
+    public void handleMenuActionChangeCollaborationType(){
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionChangeCollaborationType();
+    }
+    
+    public void handleMenuActionCommit(){
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionCommit();
+    }
+    
     public void handleMenuActionImage(){
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionImage();
     }

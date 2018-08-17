@@ -454,11 +454,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                     	if (!title.getText().equals(newValue)) {
                     		title.setText(newValue);
                     	}            
-                        if (title.getText() == null || title.getText().equals("")) {
-                            firstLine.setVisible(false);
-                        } else {
-                        	firstLine.setVisible(true);
-                        }
                 		break;
             		}
             	}
@@ -473,7 +468,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             			Title currentTitle = (Title) node;
                     	if (!currentTitle.getText().equals(newTitle)) {
                     		// If the collaboration type is synchronous, simply update the title
-                	        if (GlobalVariables.getColaborationType().equals(Constants.collaborationTypeSynchronous)) {
+                	        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
                         		currentTitle.setText(newTitle);
                 	        }
                 	        // If the type of collaboration is hybrid (UMLCollab), the appropriate merge method will be evaluated

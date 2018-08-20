@@ -33,7 +33,9 @@ import util.GlobalVariables;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +47,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	
 	private static Logger logger = LoggerFactory.getLogger(ClassNodeView.class);
 	
-	private List<Object> originalValues;
+	private List<Object> originalValues = new ArrayList<>();
+	private Map<String, Map<String, Object>> changedValues = new HashMap<String, Map<String, Object>>();
 
     private Rectangle rectangle;
 
@@ -197,7 +200,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         // Store original value of title
         Title oldTitle = new Title();
         oldTitle.setText(title.getText());
-        originalValues = new ArrayList();
         originalValues.add(oldTitle);
         
         if (node.getAttributes() != null) {
@@ -444,62 +446,85 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         } else if (evt.getPropertyName().equals(Constants.changeNodeHeight)) {
             changeHeight((double) evt.getNewValue());
         } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
-        	// Local set title
+        	// Get current value
+        	Title currentTitle = null;
+        	for(Node node: vbox.getChildren()) {
+        		if (node instanceof Title) {
+        			currentTitle = (Title) node;
+            		break;
+        		}
+        	}
+        	// Get new value
+        	String newValue;
+        	String[] dataArray = null;
+        	// From local change
         	if (evt.getNewValue() instanceof String) {
-            	String newValue = (String) evt.getNewValue();
-            	// Update text if it was altered
-            	for(Node node: vbox.getChildren()) {
-            		if (node instanceof Title) {
-            			Title title = (Title) node;
-                    	if (!title.getText().equals(newValue)) {
-                    		title.setText(newValue);
-                    	}            
-                		break;
-            		}
+            	newValue = (String) evt.getNewValue();
+        	}
+        	// From remote change
+        	else {
+            	dataArray = (String[]) evt.getNewValue();
+            	newValue = dataArray[2];
+        	}
+        	// Update text only if it was altered
+        	if (!currentTitle.getText().equals(newValue)) {
+            	// If collaboration type is synchronous, simple update 
+            	if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+            		currentTitle.setText(newValue);
+            		logger.debug("The type of collaboration is synchronous, performed simple update");
             	}
-        	}
-        	// Remote set title
-        	else { 
-            	String[] dataArray = (String[]) evt.getNewValue();
-            	String newTitle = dataArray[2];
-            	// Update text if it was altered
-            	for(Node node: vbox.getChildren()) {
-            		if (node instanceof Title) {
-            			Title currentTitle = (Title) node;
-                    	if (!currentTitle.getText().equals(newTitle)) {
-                    		// If the collaboration type is synchronous, simply update the title
-                	        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
-                        		currentTitle.setText(newTitle);
-                	        }
-                	        // If the type of collaboration is hybrid (UMLCollab), the appropriate merge method will be evaluated
-                	        else {
-                	        	// Get original value to compare with current and new one 
-                	        	for(Object object: originalValues) {
-                            		if (object instanceof Title) {
-                            			Title originalTitle = (Title) object;
-                            			// If the original value is equal to the current value, do a simple automatic merge
-                            			if (originalTitle.getText().equals(currentTitle.getText())) {
-                                    		currentTitle.setText(newTitle);
-                                			((ClassNode)getRefNode()).setTitleOnly(newTitle);
-                            		        BackgroundFill backgroundFill = new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY);
-                            		        Background background =  new Background(backgroundFill);
-                            		        currentTitle.setBackground(background);
-                            			}
-                            			// If the original value is different from the current value, a conflict must be dealt with
-                            			else {
-                            		        BackgroundFill backgroundFill = new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY);
-                            		        Background background =  new Background(backgroundFill);
-                            		        currentTitle.setBackground(background);
-                            			}
-                            			break;	
-                            		}
-                	        	}
-                	        }
-                    	}            
-                		break;
-            		}
-            	}        
-        	}
+            	// If collaboration type UMLCollab, carry out special treatment
+            	else {
+                	// If it is a local change (occurs only without unresolved conflicts),
+            		// update and records the change 
+                	if (evt.getNewValue() instanceof String) {
+                		logger.debug("Local change, performed simple update and record of the change");
+                		currentTitle.setText(newValue);
+        		        // Records the change
+        		        Title changedTitle = new Title();
+        		        changedTitle.setText(newValue);
+        		        Map<String, Object> map = new HashMap<String, Object>();
+        		    	map.put(GlobalVariables.getUserName(), changedTitle);
+        		        changedValues.put(dataArray[1],map);
+                	}
+            		// For a remote change, check proper merge method
+                	else {
+                		// Set backgrounds for automatic merge and conflicts
+        		        BackgroundFill backgroundFill = new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY);
+        		        Background backgroundAutomaticMerge =  new Background(backgroundFill);
+        		        backgroundFill = new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY);
+        		        Background backgroundConflict =  new Background(backgroundFill);
+                		// If no previous changes were made, simple do a automatic merge
+                		if (changedValues.get(dataArray[1]) == null) {
+                    		logger.debug("Remote change without previous changes, performed automatic merge");
+	        				// Automatic merge title
+	                		currentTitle.setText(newValue);
+	            			((ClassNode)getRefNode()).setTitleOnly(newValue);
+	            			// Indicates the automatic merge
+	        		        currentTitle.setBackground(backgroundAutomaticMerge);
+                		}
+    	        		// If previous changes were made, deal with a possible conflict
+        	        	else {
+        	        		// Get changes for this element
+        	        		Map<String, Object> map = changedValues.get(dataArray[1]);
+        	        		// If a remote user send a new update from previous one, simply updates
+            		        if (map.get(dataArray[3]) != null) {
+                        		logger.debug("New remote change frow same user, update pending evaluation dispatch queue");
+            		        	// TODO: Update pending evaluation dispatch queue
+            		        	// Update the records of the merge
+                		        Title changedTitle = new Title();
+                		        changedTitle.setText(newValue);
+            	        		map.put(dataArray[3],changedTitle);
+            		        }
+        	        		// If a remote user send a update without a previous one
+            		        else {
+                        		logger.debug("Totally new change, added to update pending evaluation dispatch queue");
+            		        	// TODO: Add to pending evaluation dispatch queue
+            		        }
+            	        }
+    	        	}
+            	}
+        	}            
         } else if ( evt.getPropertyName().equals(Constants.changeClassNodeAttributes) ) {
         	String newValue = (String) evt.getNewValue();
         	// Check for removed attributes

@@ -64,12 +64,19 @@ public class ClientController implements PropertyChangeListener {
                         Platform.runLater(() -> diagramController.load(graph, true));
                     	GlobalVariables.setCollaborationType((String)dataArray[1]);
                     	logger.info("Collaboration type setted to " + dataArray[1]);
+                        Platform.runLater(() -> diagramController.setServerLabel("User: "+ GlobalVariables.getUserName() +
+                        		"\nCollaboration type: " + GlobalVariables.getCollaborationType() +
+                        		"\nClient mode"));
+                    	
                     }
                     else if (dataArray[0] instanceof String){
                     	String request = (String) dataArray[0];
                         if(request.equals(Constants.changeCollaborationType)){
                         	GlobalVariables.setCollaborationType((String)dataArray[1]);
                         	logger.info("Collaboration type changed to " + dataArray[1]);
+                            Platform.runLater(() -> diagramController.setServerLabel("User: "+ GlobalVariables.getUserName() +
+                            		"\nCollaboration type: " + GlobalVariables.getCollaborationType() +
+                            		"\nClient mode"));
                             Graph graph = (Graph) dataArray[2];
                             graph.addRemotePropertyChangeListener(ClientController.this);
                             Platform.runLater(() -> diagramController.load(graph, true));

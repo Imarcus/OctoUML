@@ -109,14 +109,16 @@ public abstract class AbstractNode implements Node, Serializable
     
     public void setTitle(String pTitle) {
     	logger.debug("setTitle()");
-        this.aTitle = pTitle;
-        changes.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
+    	if (aTitle == null) {
+           	aTitle = pTitle;
+    	}
+        changes.firePropertyChange(Constants.changeNodeTitle, null, pTitle);
         if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
-            remoteChanges.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
+            remoteChanges.firePropertyChange(Constants.changeNodeTitle, null, pTitle);
         }
         // TODO: Else only for test, remove when sync button implemented
         else {
-            remoteChanges.firePropertyChange(Constants.changeNodeTitle, null, aTitle);
+            remoteChanges.firePropertyChange(Constants.changeNodeTitle, null, pTitle);
         }
     }
 

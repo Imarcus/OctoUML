@@ -466,65 +466,72 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	dataArray = (String[]) evt.getNewValue();
             	newValue = dataArray[2];
         	}
-        	// Update text only if it was altered
-        	if (!currentTitle.getText().equals(newValue)) {
-            	// If collaboration type is synchronous, simple update 
-            	if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+        	// If collaboration type is synchronous, simple update 
+        	if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+        		logger.debug("The type of collaboration is synchronous, performed simple update");
+        		if (!currentTitle.getText().equals(newValue) ) {
             		currentTitle.setText(newValue);
-            		logger.debug("The type of collaboration is synchronous, performed simple update");
-            	}
-            	// If collaboration type UMLCollab, carry out special treatment
-            	else {
-                	// If it is a local change (occurs only without unresolved conflicts),
-            		// update and records the change 
-                	if (evt.getNewValue() instanceof String) {
-                		logger.debug("Local change, performed simple update and record of the change");
+        		}
+    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
+        	}
+        	// If collaboration type UMLCollab, carry out special treatment
+        	else {
+            	// If it is a local change (occurs only without unresolved conflicts),
+        		// update and records the change 
+            	if (evt.getNewValue() instanceof String) {
+            		logger.debug("Local change, performed simple update and record of the change");
+            		if (!currentTitle.getText().equals(newValue) ) {
                 		currentTitle.setText(newValue);
-        		        // Records the change
-        		        Title changedTitle = new Title();
-        		        changedTitle.setText(newValue);
-        		        Map<String, Object> map = new HashMap<String, Object>();
-        		    	map.put(GlobalVariables.getUserName(), changedTitle);
-        		        changedValues.put(dataArray[1],map);
-                	}
-            		// For a remote change, check proper merge method
-                	else {
-                		// Set backgrounds for automatic merge and conflicts
-        		        BackgroundFill backgroundFill = new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY);
-        		        Background backgroundAutomaticMerge =  new Background(backgroundFill);
-        		        backgroundFill = new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY);
-        		        Background backgroundConflict =  new Background(backgroundFill);
-                		// If no previous changes were made, simple do a automatic merge
-                		if (changedValues.get(dataArray[1]) == null) {
-                    		logger.debug("Remote change without previous changes, performed automatic merge");
-	        				// Automatic merge title
-	                		currentTitle.setText(newValue);
-	            			((ClassNode)getRefNode()).setTitleOnly(newValue);
-	            			// Indicates the automatic merge
-	        		        currentTitle.setBackground(backgroundAutomaticMerge);
-                		}
-    	        		// If previous changes were made, deal with a possible conflict
-        	        	else {
-        	        		// Get changes for this element
-        	        		Map<String, Object> map = changedValues.get(dataArray[1]);
-        	        		// If a remote user send a new update from previous one, simply updates
-            		        if (map.get(dataArray[3]) != null) {
-                        		logger.debug("New remote change frow same user, update pending evaluation dispatch queue");
-            		        	// TODO: Update pending evaluation dispatch queue
-            		        	// Update the records of the merge
-                		        Title changedTitle = new Title();
-                		        changedTitle.setText(newValue);
-            	        		map.put(dataArray[3],changedTitle);
-            		        }
-        	        		// If a remote user send a update without a previous one
-            		        else {
-                        		logger.debug("Totally new change, added to update pending evaluation dispatch queue");
-            		        	// TODO: Add to pending evaluation dispatch queue
-            		        }
-            	        }
-    	        	}
+            		}
+	    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
+    		        // Records the change
+    		        Title changedTitle = new Title();
+    		        changedTitle.setText(newValue);
+    		        Map<String, Object> map = new HashMap<String, Object>();
+    		    	map.put(GlobalVariables.getUserName(), changedTitle);
+    		        changedValues.put(((ClassNode)getRefNode()).getId(),map);
             	}
-        	}            
+        		// For a remote change, check proper merge method
+            	else {
+            		// Set backgrounds for automatic merge and conflicts
+    		        BackgroundFill backgroundFill = new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY);
+    		        Background backgroundAutomaticMerge =  new Background(backgroundFill);
+    		        backgroundFill = new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY);
+    		        Background backgroundConflict =  new Background(backgroundFill);
+            		// If no previous changes were made, simple do a automatic merge
+            		if (changedValues.get(((ClassNode)getRefNode()).getId()) == null) {
+                		logger.debug("Remote change without previous changes, performed automatic merge");
+        				// Automatic merge title
+                		if (!currentTitle.getText().equals(newValue) ) {
+                    		currentTitle.setText(newValue);
+                		}
+    	    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
+            			// Indicates the automatic merge
+        		        currentTitle.setBackground(backgroundAutomaticMerge);
+            		}
+	        		// If previous changes were made, deal with a possible conflict
+    	        	else {
+    	        		// Get changes for this element
+    	        		Map<String, Object> map = changedValues.get(((ClassNode)getRefNode()).getId());
+    	        		// If a remote user send a new update from previous one, simply updates
+        		        if (map.get(dataArray[3]) != null) {
+                    		logger.debug("New remote change frow same user, update pending evaluation dispatch queue");
+        		        	// TODO: Update pending evaluation dispatch queue
+        		        	// Update the records of the merge
+            		        Title changedTitle = new Title();
+            		        changedTitle.setText(newValue);
+        	        		map.put(dataArray[3],changedTitle);
+        		        }
+    	        		// If a remote user send a update without a previous one
+        		        else {
+                    		logger.debug("Totally new change, added to update pending evaluation dispatch queue");
+        		        	// TODO: Add to pending evaluation dispatch queue
+                			// Indicates the automatic merge
+            		        currentTitle.setBackground(backgroundConflict);
+        		        }
+        	        }
+	        	}
+        	}
         } else if ( evt.getPropertyName().equals(Constants.changeClassNodeAttributes) ) {
         	String newValue = (String) evt.getNewValue();
         	// Check for removed attributes

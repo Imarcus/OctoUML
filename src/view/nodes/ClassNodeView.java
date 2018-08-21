@@ -1,5 +1,6 @@
 package view.nodes;
 
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -8,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.Background;
@@ -32,7 +34,9 @@ import util.Constants;
 import util.GlobalVariables;
 
 import java.beans.PropertyChangeEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +66,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     private Line longHandleLine;
 
     private final int STROKE_WIDTH = 1;
+    
+    private Title title;
 
     public ClassNodeView(ClassNode node) {
     	super(node);
@@ -143,20 +149,18 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
         this.getChildren().addAll(shortHandleLine, longHandleLine);
 
-    	for(Node node: vbox.getChildren()) {
+		title.setOnKeyReleased(new EventHandler<KeyEvent>() {
+    	    public void handle(KeyEvent ke) {
+    	    	((ClassNode)getRefNode()).setTitle(title.getText());
+    	    }
+    	});
+        
+        for(Node node: vbox.getChildren()) {
     		if (node instanceof Attribute) {
             	createHandlesAttributesOperations((Attribute) node);
     		}
     		else if (node instanceof Operation) {
             	createHandlesAttributesOperations((Operation) node);
-    		}
-    		else if (node instanceof Title) {
-    			Title title = (Title) node;
-    			title.setOnKeyReleased(new EventHandler<KeyEvent>() {
-    	    	    public void handle(KeyEvent ke) {
-    	    	    	((ClassNode)getRefNode()).setTitle(title.getText());
-    	    	    }
-    	    	});
     		}
     	}
     }
@@ -174,13 +178,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         secondLine = new Separator();
         secondLine.setMaxWidth(node.getWidth());
 
-        Title title = new Title();
+        title = new Title();
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         if(node.getTitle() != null) {
             title.setText(node.getTitle());
         }
         title.setAlignment(Pos.CENTER);
         
+        // Set add attribute and operation context menus
     	MenuItem cmItemAddAttribute;
     	cmItemAddAttribute = new MenuItem("Add Attribute");
     	cmItemAddAttribute.setOnAction(event -> {
@@ -190,9 +195,31 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	cmItemAddOperation = new MenuItem("Add Operation");
     	cmItemAddOperation.setOnAction(event -> {
 	    	addOperation();
-        });            
+        });
        	ContextMenu contextMenu = new ContextMenu();
     	contextMenu.getItems().addAll(cmItemAddAttribute,cmItemAddOperation);
+    	// Add context menu for collaboration type UMLCollab
+    	Menu cmHistory = new Menu ("History");
+    	cmHistory.setVisible(false);
+    	// Add context menu item "dismiss automatic merge indicator" 
+  		MenuItem cmItemDismiss = new MenuItem("Dismiss automatic merge indicator");
+    	cmItemDismiss.setOnAction(event -> {
+	        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
+	    	title.setBackground(new Background(backgroundFill));
+        });
+    	cmHistory.getItems().add(cmItemDismiss);
+    	// Add context menu item "Clear all" 
+  		MenuItem cmItemClearAll = new MenuItem("Clear all");
+  		cmItemClearAll.setOnAction(event -> {
+    		while (cmHistory.getItems().size() > 2) {
+    	    	cmHistory.getItems().remove(cmHistory.getItems().get(2));
+    		}
+	        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
+	    	title.setBackground(new Background(backgroundFill));
+        	cmHistory.setVisible(false);
+        });
+    	cmHistory.getItems().add(cmItemClearAll);
+    	contextMenu.getItems().addAll(cmHistory);
     	title.setContextMenu(contextMenu);
 
         vbox.getChildren().addAll(title, firstLine);
@@ -246,13 +273,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         rectangle.setStroke(Color.BLACK);
         BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
         Background background =  new Background(backgroundFill);
-    	for(Node node: vbox.getChildren()) {
-    		if (node instanceof Title) {
-    			Title title = (Title) node;
-    	        StackPane.setAlignment(title, Pos.CENTER);
-    	        title.setBackground(background);
-    		}
-    	}        
+        StackPane.setAlignment(title, Pos.CENTER);
+        title.setBackground(background);
     }
 
     public void setSelected(boolean selected){
@@ -446,14 +468,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         } else if (evt.getPropertyName().equals(Constants.changeNodeHeight)) {
             changeHeight((double) evt.getNewValue());
         } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
-        	// Get current value
-        	Title currentTitle = null;
-        	for(Node node: vbox.getChildren()) {
-        		if (node instanceof Title) {
-        			currentTitle = (Title) node;
-            		break;
-        		}
-        	}
         	// Get new value
         	String newValue;
         	String[] dataArray = null;
@@ -469,8 +483,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	// If collaboration type is synchronous, simple update 
         	if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
         		logger.debug("The type of collaboration is synchronous, performed simple update");
-        		if (!currentTitle.getText().equals(newValue) ) {
-            		currentTitle.setText(newValue);
+        		if (!title.getText().equals(newValue) ) {
+        			title.setText(newValue);
         		}
     	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
         	}
@@ -480,8 +494,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		// update and records the change 
             	if (evt.getNewValue() instanceof String) {
             		logger.debug("Local change, performed simple update and record of the change");
-            		if (!currentTitle.getText().equals(newValue) ) {
-                		currentTitle.setText(newValue);
+            		if (!title.getText().equals(newValue) ) {
+            			title.setText(newValue);
             		}
 	    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
     		        // Records the change
@@ -494,20 +508,40 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		// For a remote change, check proper merge method
             	else {
             		// Set backgrounds for automatic merge and conflicts
-    		        BackgroundFill backgroundFill = new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY);
+    		        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
+    		        Background backgroundDefault =  new Background(backgroundFill);
+    		        backgroundFill = new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY);
     		        Background backgroundAutomaticMerge =  new Background(backgroundFill);
     		        backgroundFill = new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY);
     		        Background backgroundConflict =  new Background(backgroundFill);
+    		        // Get current date and time and remote user
+    		        String dateTimeUser = " (by " + dataArray[3] + " in " +
+    		        		new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(new Date()) + ")";
             		// If no previous changes were made, simple do a automatic merge
             		if (changedValues.get(((ClassNode)getRefNode()).getId()) == null) {
                 		logger.debug("Remote change without previous changes, performed automatic merge");
         				// Automatic merge title
-                		if (!currentTitle.getText().equals(newValue) ) {
-                    		currentTitle.setText(newValue);
+                		if (!title.getText().equals(newValue) ) {
+                			title.setText(newValue);
                 		}
     	    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
             			// Indicates the automatic merge
-        		        currentTitle.setBackground(backgroundAutomaticMerge);
+    	    	    	title.setBackground(backgroundAutomaticMerge);
+        		        // Set interface for proper action
+        		       	ContextMenu contextMenu = title.getContextMenu();
+    	    	    	ObservableList<MenuItem> observableList = contextMenu.getItems();
+      	    	  	  	for(int i = 0; i < observableList.size(); i++) {
+      	    	  	  		// Get History context menu item
+      	    	  	  		if(observableList.get(i).getText().equals("History")){
+      	    	  	  			Menu cmHistory = (Menu) observableList.get(i);
+      	      	    	  	  	cmHistory.setVisible(true);
+      	    	  	  			// Add new merge history
+      	    	  	  			MenuItem cmChange = new MenuItem("title merged to '" + dataArray[2] + "'" +
+      	    	  	  					dateTimeUser);
+      	      	    	  	  	cmHistory.getItems().add(2, cmChange);
+      	      	    	  	  	break;
+      	    	  	  		}
+      	    	  	  	}
             		}
 	        		// If previous changes were made, deal with a possible conflict
     	        	else {
@@ -527,7 +561,23 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                     		logger.debug("Totally new change, added to update pending evaluation dispatch queue");
         		        	// TODO: Add to pending evaluation dispatch queue
                 			// Indicates the automatic merge
-            		        currentTitle.setBackground(backgroundConflict);
+                    		title.setBackground(backgroundConflict);
+            		        // Set interface for proper action
+            		       	ContextMenu contextMenu = title.getContextMenu();
+            		    	Menu cmChange = new Menu("Conflicting title: '" + dataArray[2] + "')" +
+            		    			dateTimeUser);
+            		    	MenuItem cmItemActionAprove = new MenuItem("Aprove");
+            		    	cmItemActionAprove.setOnAction(event -> {
+            	    	    	title.setBackground(backgroundDefault);
+            		    		contextMenu.getItems().remove(cmChange);
+            		        });            
+            		    	MenuItem cmItemActionReject = new MenuItem("Reject");
+            		    	cmItemActionReject.setOnAction(event -> {
+            	    	    	title.setBackground(backgroundDefault);
+            		    		contextMenu.getItems().remove(cmChange);
+            		        });            
+            		    	cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
+            		    	contextMenu.getItems().addAll(cmChange);
         		        }
         	        }
 	        	}
@@ -655,4 +705,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	        }
         }
     }
+
+	private void dismissAutomaticMerge(MenuItem cmItemChange) {
+		// TODO Auto-generated method stub
+		
+	}
 }

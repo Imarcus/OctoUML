@@ -25,6 +25,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
+import model.RemoteChange;
 import model.nodes.Attribute;
 import model.nodes.ClassNode;
 import model.nodes.IdentifiedTextField;
@@ -200,23 +201,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	contextMenu.getItems().addAll(cmItemAddAttribute,cmItemAddOperation);
     	// Add context menu for collaboration type UMLCollab
     	Menu cmHistory = new Menu ("History");
-    	cmHistory.setVisible(false);
-    	// Add context menu item "dismiss automatic merge indicator" 
-  		MenuItem cmItemDismiss = new MenuItem("Dismiss automatic merge indicator");
-    	cmItemDismiss.setOnAction(event -> {
-	        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
-	    	title.setBackground(new Background(backgroundFill));
-        });
-    	cmHistory.getItems().add(cmItemDismiss);
     	// Add context menu item "Clear all" 
   		MenuItem cmItemClearAll = new MenuItem("Clear all");
   		cmItemClearAll.setOnAction(event -> {
-    		while (cmHistory.getItems().size() > 2) {
-    	    	cmHistory.getItems().remove(cmHistory.getItems().get(2));
+    		while (cmHistory.getItems().size() > 1) {
+    	    	cmHistory.getItems().remove(cmHistory.getItems().get(1));
     		}
 	        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
 	    	title.setBackground(new Background(backgroundFill));
-        	cmHistory.setVisible(false);
         });
     	cmHistory.getItems().add(cmItemClearAll);
     	contextMenu.getItems().addAll(cmHistory);
@@ -452,7 +444,76 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		vbox.getChildren().add(textField);    	
     	String operationsFullText = extractOperationsFromVBox();
 		((ClassNode)getRefNode()).setOperations(operationsFullText);
-    }    
+    }
+    
+    private Menu getHistoryMenu (TextField textField) {
+		// Record conflict decision to history
+    	ObservableList<MenuItem> list = textField.getContextMenu().getItems();
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).getText().equals("History")) {
+				return (Menu) list.get(2);
+			}
+		}
+		return null;
+    }
+    
+    private String getDateTimeUserSuffixString(String userName) {
+		Date currentDate = new Date();
+        String dateTimeUserSuffixString = " (by " + userName + " in " +
+        		new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(currentDate) + ")";
+        return dateTimeUserSuffixString;
+    }
+    
+    private void recordConflict(TextField textField, String userName, String newValue, Map<String, Object> map, int menuInsertIndex ) {
+		// Set backgrounds for automatic merge and conflicts
+        Background backgroundDefault =  new Background(new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY));
+        // Create conflict record
+        Menu cmChange = new Menu("Conflicting value: '" + newValue + "'" +
+        		getDateTimeUserSuffixString(userName));
+        // Create aprove option
+        MenuItem cmItemActionAprove = new MenuItem("Aprove");
+    	cmItemActionAprove.setOnAction(event -> {
+			// TODO: Merge
+    		if (!textField.getText().equals(newValue) ) {
+    			textField.setText(newValue);
+    		}
+	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
+			// TODO: Remove conflict indication
+	    	textField.setBackground(backgroundDefault);
+	    	textField.getContextMenu().getItems().remove(cmChange);
+    		// TODO: Remove other conflicts from pending evaluation dispatch queue
+    		while (textField.getContextMenu().getItems().size() > 3) {
+    			textField.getContextMenu().getItems().remove(textField.getContextMenu().getItems().get(2));
+    		}
+    		// Record conflict decision to history
+  			Menu cmHistory = getHistoryMenu(textField);
+  			MenuItem cmChangeAproved = new MenuItem(cmChange.getText() +
+  					". Aproved.");
+  	  	  	cmHistory.getItems().add(1, cmChangeAproved);
+    		// Replace the records of the change from remote user to local user
+    		map.remove(userName);
+	        Title changedTitle = new Title();
+	        changedTitle.setText(newValue);
+	        map.put(GlobalVariables.getUserName(),changedTitle);
+        });            
+        // Create reject option
+    	MenuItem cmItemActionReject = new MenuItem("Reject");
+    	cmItemActionReject.setOnAction(event -> {
+    		textField.setBackground(backgroundDefault);
+    		textField.getContextMenu().getItems().remove(cmChange);
+    		// Record conflict decision to history
+  			Menu cmHistory = getHistoryMenu(textField);
+  			MenuItem cmChangeRejected = new MenuItem(cmChange.getText() +
+  					". Rejected.");
+  	  	  	cmHistory.getItems().add(1, cmChangeRejected);
+    		// Remove the records of the change from remote user
+    		map.remove(userName);
+        });            
+		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
+    	title.getContextMenu().getItems().add(menuInsertIndex,cmChange);
+		// Indicates the conflict
+    	textField.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -494,6 +555,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		// update and records the change 
             	if (evt.getNewValue() instanceof String) {
             		logger.debug("Local change, performed simple update and record of the change");
+            		// Local update
             		if (!title.getText().equals(newValue) ) {
             			title.setText(newValue);
             		}
@@ -507,16 +569,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	}
         		// For a remote change, check proper merge method
             	else {
-            		// Set backgrounds for automatic merge and conflicts
-    		        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
-    		        Background backgroundDefault =  new Background(backgroundFill);
-    		        backgroundFill = new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY);
-    		        Background backgroundAutomaticMerge =  new Background(backgroundFill);
-    		        backgroundFill = new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY);
-    		        Background backgroundConflict =  new Background(backgroundFill);
-    		        // Get current date and time and remote user
-    		        String dateTimeUser = " (by " + dataArray[3] + " in " +
-    		        		new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(new Date()) + ")";
+            		// Get remote user name
+            		String userName = dataArray[3];
             		// If no previous changes were made, simple do a automatic merge
             		if (changedValues.get(((ClassNode)getRefNode()).getId()) == null) {
                 		logger.debug("Remote change without previous changes, performed automatic merge");
@@ -525,59 +579,43 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 			title.setText(newValue);
                 		}
     	    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
+    	  	  			// Add new merge history
+    	  	  			MenuItem cmChange = new MenuItem("title merged to '" + newValue + "'" +
+    	  	  					getDateTimeUserSuffixString(userName));
+    	  	  			Menu cmHistory = getHistoryMenu(title);
+      	    	  	  	cmHistory.getItems().add(1, cmChange);
             			// Indicates the automatic merge
-    	    	    	title.setBackground(backgroundAutomaticMerge);
-        		        // Set interface for proper action
-        		       	ContextMenu contextMenu = title.getContextMenu();
-    	    	    	ObservableList<MenuItem> observableList = contextMenu.getItems();
-      	    	  	  	for(int i = 0; i < observableList.size(); i++) {
-      	    	  	  		// Get History context menu item
-      	    	  	  		if(observableList.get(i).getText().equals("History")){
-      	    	  	  			Menu cmHistory = (Menu) observableList.get(i);
-      	      	    	  	  	cmHistory.setVisible(true);
-      	    	  	  			// Add new merge history
-      	    	  	  			MenuItem cmChange = new MenuItem("title merged to '" + dataArray[2] + "'" +
-      	    	  	  					dateTimeUser);
-      	      	    	  	  	cmHistory.getItems().add(2, cmChange);
-      	      	    	  	  	break;
-      	    	  	  		}
-      	    	  	  	}
+    	    	    	title.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
             		}
 	        		// If previous changes were made, deal with a possible conflict
     	        	else {
     	        		// Get changes for this element
     	        		Map<String, Object> map = changedValues.get(((ClassNode)getRefNode()).getId());
     	        		// If a remote user send a new update from previous one, simply updates
-        		        if (map.get(dataArray[3]) != null) {
-                    		logger.debug("New remote change frow same user, update pending evaluation dispatch queue");
+        		        if (map.get(userName) != null) {
+                    		logger.debug("New remote change frow same user, updating conflicting pending evaluation dispatch queue");
         		        	// TODO: Update pending evaluation dispatch queue
-        		        	// Update the records of the merge
+                    		for (int i = 0; i < title.getContextMenu().getItems().size(); i++) {
+                    			if (title.getContextMenu().getItems().get(i).getText().contains(userName)) {
+                    				title.getContextMenu().getItems().remove(title.getContextMenu().getItems().get(i));
+                    				recordConflict(title, userName, newValue, map, i);
+                            		break;
+                    			}
+                    		}
+                    		// Update the records of the merge
             		        Title changedTitle = new Title();
             		        changedTitle.setText(newValue);
-        	        		map.put(dataArray[3],changedTitle);
+        	        		map.put(userName,changedTitle);
         		        }
     	        		// If a remote user send a update without a previous one
         		        else {
-                    		logger.debug("Totally new change, added to update pending evaluation dispatch queue");
-        		        	// TODO: Add to pending evaluation dispatch queue
-                			// Indicates the automatic merge
-                    		title.setBackground(backgroundConflict);
+                    		logger.debug("Totally new change, added to conflicting pending evaluation dispatch queue");
             		        // Set interface for proper action
-            		       	ContextMenu contextMenu = title.getContextMenu();
-            		    	Menu cmChange = new Menu("Conflicting title: '" + dataArray[2] + "')" +
-            		    			dateTimeUser);
-            		    	MenuItem cmItemActionAprove = new MenuItem("Aprove");
-            		    	cmItemActionAprove.setOnAction(event -> {
-            	    	    	title.setBackground(backgroundDefault);
-            		    		contextMenu.getItems().remove(cmChange);
-            		        });            
-            		    	MenuItem cmItemActionReject = new MenuItem("Reject");
-            		    	cmItemActionReject.setOnAction(event -> {
-            	    	    	title.setBackground(backgroundDefault);
-            		    		contextMenu.getItems().remove(cmChange);
-            		        });            
-            		    	cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
-            		    	contextMenu.getItems().addAll(cmChange);
+            				recordConflict(title, userName, newValue, map, 2);
+                    		// Update the records of the merge
+            		        Title changedTitle = new Title();
+            		        changedTitle.setText(newValue);
+        	        		map.put(userName,changedTitle);
         		        }
         	        }
 	        	}

@@ -3,15 +3,19 @@ package util.commands;
 import model.nodes.ClassNode;
 import model.nodes.Node;
 
+import java.util.List;
+
+import model.nodes.Attribute;
+
 /**
  * Created by chalmers on 2016-08-29.
  */
 public class SetNodeAttributeCommand implements Command {
     private ClassNode node;
-    private String newAttribute;
-    private String oldAttribute;
+    private List<Attribute> newAttribute;
+    private List<Attribute> oldAttribute;
 
-    public SetNodeAttributeCommand(ClassNode pNode, String pNewAttribute, String pOldAttribute){
+    public SetNodeAttributeCommand(ClassNode pNode, List<Attribute> pNewAttribute, List<Attribute> pOldAttribute){
         node = pNode;
         newAttribute = pNewAttribute;
         oldAttribute = pOldAttribute;
@@ -31,11 +35,11 @@ public class SetNodeAttributeCommand implements Command {
         return node;
     }
 
-    public String getNewAttribute() {
+    public List<Attribute> getNewAttribute() {
         return newAttribute;
     }
 
-    public String getOldAttribute() {
+    public List<Attribute> getOldAttribute() {
         return oldAttribute;
     }
 }

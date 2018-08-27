@@ -817,14 +817,14 @@ public abstract class AbstractDiagramController {
                 }
             }
             deleteEdgeView(edgeToBeDeleted, null, false, true);
-        } else if (dataArray[0].equals(Constants.changeClassNodeAttributes)){
+        } else if (dataArray[0].equals(Constants.changeClassNodeAttribute)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
                     ((ClassNode)node).remoteSetAttributes(dataArray);
                     break;
                 }
             }
-        } else if (dataArray[0].equals(Constants.changeClassNodeOperations)){
+        } else if (dataArray[0].equals(Constants.changeClassNodeOperation)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
                     ((ClassNode)node).remoteSetOperations(dataArray);

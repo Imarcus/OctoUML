@@ -34,8 +34,8 @@ public class Constants {
     public static String changeNodeScaleX = "NodeScaleX";
     public static String changeNodeScaleY = "NodeScaleY";
     public static String changeNodeTitle = "NodeTitle";
-    public static String changeClassNodeAttributes = "ClassNodeAttributes";
-    public static String changeClassNodeOperations = "ClassNodeOperations";
+    public static String changeClassNodeAttribute = "ClassNodeAttributes";
+    public static String changeClassNodeOperation = "ClassNodeOperations";
     public static String changeNodeIsChild = "ClassNodeIsChild";
     public static String changeLifelineLength = "LifelineLength";
 

@@ -1,17 +1,20 @@
 package util.commands;
 
+import java.util.List;
+
 import model.nodes.ClassNode;
 import model.nodes.Node;
+import model.nodes.Operation;
 
 /**
  * Created by chalmers on 2016-08-29.
  */
 public class SetNodeOperationsCommand implements Command {
     private ClassNode node;
-    private String newOperations;
-    private String oldOperations;
+    private List<Operation> newOperations;
+    private List<Operation> oldOperations;
 
-    public SetNodeOperationsCommand(ClassNode pNode, String pNewOperations, String pOldOperations){
+    public SetNodeOperationsCommand(ClassNode pNode, List<Operation> pNewOperations, List<Operation> pOldOperations){
         node = pNode;
         newOperations = pNewOperations;
         oldOperations = pOldOperations;
@@ -31,11 +34,11 @@ public class SetNodeOperationsCommand implements Command {
         return node;
     }
 
-    public String getNewOperations() {
+    public List<Operation> getNewOperations() {
         return newOperations;
     }
 
-    public String getOldOperations() {
+    public List<Operation> getOldOperations() {
         return oldOperations;
     }
 }

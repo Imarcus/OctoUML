@@ -1,9 +1,10 @@
 package model.nodes;
 
 import util.Constants;
-import util.GlobalVariables;
-
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +15,8 @@ public class ClassNode extends AbstractNode implements Serializable
 {
 	private static final Logger logger = LoggerFactory.getLogger(ClassNode.class);
     private static final String TYPE = "CLASS";
-    private String attributes;
-    private String operations;
+    private List<Attribute> attributes;
+    private List<Operation> operations;
 
     public ClassNode(double x, double y, double width, double height)
     {
@@ -27,42 +28,90 @@ public class ClassNode extends AbstractNode implements Serializable
         this.height = height < CLASS_MIN_HEIGHT ? CLASS_MIN_HEIGHT : height;
     }
 
-    public void setAttributes(String pAttributes){
+    public void setAttributes(List<Attribute> pAttributes) {
     	logger.debug("setAttributes()");
-        attributes = pAttributes;
-        changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
-        remoteChanges.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
+    	attributes = pAttributes;
+    }    
+    
+    public void setAttribute(Attribute pAttribute){
+    	logger.debug("setAttributes()");
+    	for(Attribute tf: attributes) {
+    		if (tf.getId().equals(pAttribute.getId())) {
+    			attributes.remove(tf);
+    			try {
+    				attributes.add(pAttribute.getIndex(), pAttribute);    			
+    			} catch(Exception e) {
+    				attributes.add(pAttribute);
+    			}
+    			pAttribute.setIndex(attributes.indexOf(pAttribute));
+    		}
+    	}
+        changes.firePropertyChange(Constants.changeClassNodeAttribute, null, pAttribute);
+        remoteChanges.firePropertyChange(Constants.changeClassNodeAttribute, null, pAttribute);
     }
 
-    public void setOperations(String pOperations){
+    public void setOperations(List<Operation> pOperation) {
     	logger.debug("setOperations()");
-        operations = pOperations;
-        changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
-        remoteChanges.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
+    	operations = pOperation;
+    }    
+
+    public void setOperation(Operation pOperation){
+    	logger.debug("setOperations()");
+    	for(Operation tf: operations) {
+    		if (tf.getId().equals(pOperation.getId())) {
+    			operations.remove(tf);
+    			try {
+    				operations.add(pOperation.getIndex(), pOperation);    			
+    			} catch(Exception e) {
+    				operations.add(pOperation);
+    			}
+    			pOperation.setIndex(operations.indexOf(pOperation));
+    		}
+    	}
+        changes.firePropertyChange(Constants.changeClassNodeOperation, null, pOperation);
+        remoteChanges.firePropertyChange(Constants.changeClassNodeOperation, null, pOperation);
     }
 
-    public void remoteSetAttributes(String[] pAttributes){
+    public void remoteSetAttributes(Object[] dataArray) { 
         logger.debug("remoteSetAttributes()");
-        logger.info(GlobalVariables.getUserName() + " reveived from " + pAttributes[3] + ":\n" +
-    			"attributes:\n"+pAttributes[2]+"\n");
-        attributes = pAttributes[2];
-        changes.firePropertyChange(Constants.changeClassNodeAttributes, null, attributes);
+        Attribute attribute = (Attribute) dataArray[3]; 
+    	for(Attribute tf: attributes) {
+    		if (tf.getId().equals(attribute.getId())) {
+    			attributes.remove(tf);
+    			try {
+    				attributes.add(attribute.getIndex(), attribute);    			
+    			} catch(Exception e) {
+    				attributes.add(attribute);
+    			}
+    			attribute.setIndex(attributes.indexOf(attribute));
+    		}
+    	}
+        changes.firePropertyChange(Constants.changeClassNodeAttribute, null, dataArray);
     }
 
-    public void remoteSetOperations(String[] pOperations){
+    public void remoteSetOperations(Object[] dataArray){
         logger.debug("remoteSetOperations()");
-        logger.info(GlobalVariables.getUserName() + " reveived from " + pOperations[3] + ":\n" +
-    			"operations:\n"+pOperations[2]+"\n");
-        operations = pOperations[2];
-        changes.firePropertyChange(Constants.changeClassNodeOperations, null, operations);
+        Operation operation = (Operation) dataArray[3]; 
+    	for(Operation tf: operations) {
+    		if (tf.getId().equals(operation.getId())) {
+    			operations.remove(tf);
+    			try {
+    				operations.add(operation.getIndex(), operation);    			
+    			} catch(Exception e) {
+    				operations.add(operation);
+    			}
+    			operation.setIndex(operations.indexOf(operation));
+    		}
+    	}
+        changes.firePropertyChange(Constants.changeClassNodeOperation, null, dataArray);
     }
 
-    public String getAttributes(){
-        return attributes;
+    public List<Attribute> getAttributes(){
+    	return attributes;
     }
 
-    public String getOperations(){
-        return operations;
+    public List<Operation> getOperations(){
+    	return operations;
     }
 
     @Override
@@ -82,7 +131,7 @@ public class ClassNode extends AbstractNode implements Serializable
             newCopy.setAttributes(this.attributes);
         }
         if(this.operations != null){
-            newCopy.setOperations(operations);
+            newCopy.setOperations(this.operations);
         }
         newCopy.setTranslateX(this.getTranslateX());
         newCopy.setTranslateY(this.getTranslateY());

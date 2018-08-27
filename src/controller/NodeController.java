@@ -1,6 +1,5 @@
 package controller;
 
-import controller.dialog.NodeEditDialogController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -316,7 +315,7 @@ public class NodeController {
 
     public void onDoubleClick(AbstractNodeView nodeView){
         if(nodeView instanceof ClassNodeView){
-            showClassNodeEditDialog((ClassNode) diagramController.getNodeMap().get(nodeView));
+        	// ClassNodeEditDialog deplecated
         }
         else { //PackageNode
             showNodeTitleDialog(diagramController.getNodeMap().get(nodeView));
@@ -409,97 +408,5 @@ public class NodeController {
         aDrawPane.getChildren().add(group);
 
         return true;
-    }
-
-    public boolean showClassNodeEditDialog(ClassNode node) {
-        if(diagramController.voiceController.voiceEnabled) {
-
-            //Change variable testing in MainController to 1(true)
-            diagramController.voiceController.testing = 1;
-
-            String title = "";
-            int time = 0;
-            //Looking for a name you want to add to the class or until 5 seconds have passed
-            while ((title.equals("") || title == null) && time < 500) {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                //Check if a name has been commanded
-                title = diagramController.voiceController.titleName;
-                time++;
-            }
-
-            //Change variable testing in MainController to 0(false)
-            diagramController.voiceController.testing = 0;
-
-            //If name found in less then 5 seconds it sets the name to the class
-            if (time < 500) {
-                diagramController.voiceController.titleName = "";
-                node.setTitle(title);
-            }
-            //Else the name is not changed to a new name
-            else {
-                diagramController.voiceController.titleName = "";
-            }
-        }
-
-
-        try {
-            //Load the classDiagramView.fxml file and create a new stage for the popup
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("view/fxml/nodeEditDialog.fxml"));
-
-            AnchorPane dialog = loader.load();
-            dialog.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(1), null)));
-            dialog.setStyle("-fx-border-color: black");
-            //Set location for dialog.
-            double maxX = aDrawPane.getWidth() - dialog.getPrefWidth();
-            double maxY = aDrawPane.getHeight() - dialog.getPrefHeight();
-            dialog.setLayoutX(Math.min(maxX,node.getTranslateX()+5));
-            dialog.setLayoutY(Math.min(maxY, node.getTranslateY()+5));
-
-            NodeEditDialogController controller = loader.getController();
-            controller.setNode(node);
-            controller.getOkButton().setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    CompoundCommand command = new CompoundCommand();
-                    if(controller.hasTitledChanged()){
-                        command.add(new SetNodeTitleCommand(node, controller.getTitle(), node.getTitle()));
-                        node.setTitle(controller.getTitle());
-                    }
-                    if(controller.hasAttributesChanged()){
-                        command.add(new SetNodeAttributeCommand(node, controller.getAttributes(), node.getAttributes()));
-                        node.setAttributes(controller.getAttributes());
-                    }
-                    if(controller.hasOperationsChanged()){
-                        command.add(new SetNodeOperationsCommand(node, controller.getOperations(), node.getOperations()));
-                        node.setOperations(controller.getOperations());
-                    }
-                    if(command.size() > 0){
-                        diagramController.getUndoManager().add(command);
-                    }
-                    aDrawPane.getChildren().remove(dialog);
-                    diagramController.removeDialog(dialog);
-                }
-            });
-
-            controller.getCancelButton().setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    aDrawPane.getChildren().remove(dialog);
-                    diagramController.removeDialog(dialog);
-                }
-            });
-            aDrawPane.getChildren().add(dialog);
-            diagramController.addDialog(dialog);
-            return controller.isOkClicked();
-
-        } catch (IOException e) {
-            //Exception gets thrown if the classDiagramView.fxml file could not be loaded
-            e.printStackTrace();
-            return false;
-        }
     }
 }

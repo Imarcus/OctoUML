@@ -1,9 +1,10 @@
 package model.nodes;
 
 import util.Constants;
+import util.GlobalVariables;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -27,6 +28,32 @@ public class ClassNode extends AbstractNode implements Serializable
         this.width = width < CLASS_MIN_WIDTH ? CLASS_MIN_WIDTH : width;
         this.height = height < CLASS_MIN_HEIGHT ? CLASS_MIN_HEIGHT : height;
     }
+    
+    private int indexOfAttribute(Attribute newValue) {
+    	int cont = 0;
+    	for(String oldValueStr: attributes) {
+    		Attribute oldValue = new Attribute("");
+    		oldValue.toString(oldValueStr);
+    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+    			return cont;
+    		}
+    		cont++;
+    	}
+    	return -1;
+    }
+
+    private int indexOfOperation(Operation newValue) {
+    	int cont = 0;
+    	for(String oldValueStr: operations) {
+    		Operation oldValue = new Operation("");
+    		oldValue.toString(oldValueStr);
+    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+    			return cont;
+    		}
+    		cont++;
+    	}
+    	return -1;
+    }
 
     public void setAttributesStr(List<String> pAttributes) {
     	logger.debug("setAttributes(List<String>)");
@@ -43,10 +70,10 @@ public class ClassNode extends AbstractNode implements Serializable
     	for(Attribute attribute: pAttributes) {
     		attributes.add(attribute.toString());
     	}
-    }    
+    }
     
-    public void setAttribute(int index, Attribute newValue){
-    	logger.debug("setAttribute()");
+    public void setAttributeOnly(int index, Attribute newValue){
+    	logger.debug("setAttributeOnly()");
     	for(String oldValueStr: attributes) {
     		Attribute oldValue = new Attribute("");
     		oldValue.toString(oldValueStr);
@@ -60,16 +87,33 @@ public class ClassNode extends AbstractNode implements Serializable
         		break;
     		}
     	}
-    	String newValueStr = attributes.indexOf(newValue.toString()) + "|" + newValue;
-        changes.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
-        remoteChanges.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
+    }
+    
+    
+    public void setAttribute(int index, Attribute newValue){
+    	logger.debug("setAttribute()");
+    	if (attributes == null) {
+    		attributes = new ArrayList<>();
+    	}
+       	setAttributeOnly(index, newValue);
+    	String newValueStr = indexOfAttribute(newValue) + "|" + newValue;
+
+    	changes.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
+
+        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+            remoteChanges.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
+        }
+        // TODO: Else only for test, remove when sync button implemented
+        else {
+            remoteChanges.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
+        }
     }
 
     public void setOperationsStr(List<String> pOperation) {
     	logger.debug("setOperations(List<String>)");
 		operations = pOperation;
     }     
-    
+
     public void setOperations(List<Operation> pOperation) {
     	logger.debug("setOperations(List<Operation>)");
     	if (operations == null) {
@@ -82,8 +126,8 @@ public class ClassNode extends AbstractNode implements Serializable
     	}
     }    
 
-    public void setOperation(int index, Operation newValue){
-    	logger.debug("setOperation()");
+    public void setOperationOnly(int index, Operation newValue){
+    	logger.debug("setOperationOnly()");
     	for(String oldValueStr: operations) {
     		Operation oldValue = new Operation("");
     		oldValue.toString(oldValueStr);
@@ -97,54 +141,73 @@ public class ClassNode extends AbstractNode implements Serializable
         		break;
     		}
     	}
-    	String newValueStr = operations.indexOf(newValue.toString()) + "|" + newValue;
-        changes.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
-        remoteChanges.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
+    }
+    
+    public void setOperation(int index, Operation newValue){
+    	logger.debug("setOperation()");
+    	if (operations == null) {
+    		operations = new ArrayList<>();
+    	}
+       	setOperationOnly(index, newValue);
+
+    	String newValueStr = indexOfOperation(newValue) + "|" + newValue;
+
+    	changes.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
+    	
+        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+            remoteChanges.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
+        }
+        // TODO: Else only for test, remove when sync button implemented
+        else {
+            remoteChanges.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
+        }
     }
 
     public void remoteSetAttribute(String[] dataArray) { 
         logger.debug("remoteSetAttributes()");
-        String newValueStr = (String) dataArray[3];
-        int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
-        Attribute newValue = new Attribute("");
-        newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
-    	for(String oldValueStr: attributes) {
-    		Attribute oldValue = new Attribute("");
-    		oldValue.toString(oldValueStr);
-    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
-    			attributes.remove(oldValueStr);
-    			try {
-    				attributes.add(index, newValue.toString());    			
-    			} catch(Exception e) {
-    				attributes.add(newValue.toString());
-    			}
-        		break;
-    		}
-    	}
-    	newValueStr = attributes.indexOf(newValue.toString()) + "|" + newValue;
-        changes.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
+        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+            String newValueStr = (String) dataArray[3];
+            int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
+            Attribute newValue = new Attribute("");
+            newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
+        	for(String oldValueStr: attributes) {
+        		Attribute oldValue = new Attribute("");
+        		oldValue.toString(oldValueStr);
+        		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+        			attributes.remove(oldValueStr);
+        			try {
+        				attributes.add(index, newValue.toString());    			
+        			} catch(Exception e) {
+        				attributes.add(newValue.toString());
+        			}
+            		break;
+        		}
+        	}
+        }        
+        changes.firePropertyChange(Constants.changeClassNodeAttribute, null, dataArray);
     }
 
     public void remoteSetOperation(Object[] dataArray){
         logger.debug("remoteSetOperations()");
-        String newValueStr = (String) dataArray[3];
-        int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
-        Operation newValue = new Operation("");
-        newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
-    	for(String oldValueStr: operations) {
-    		Operation oldValue = new Operation("");
-    		oldValue.toString(oldValueStr);
-    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
-    			operations.remove(oldValueStr);
-    			try {
-    				operations.add(index, newValue.toString());    			
-    			} catch(Exception e) {
-    				operations.add(newValue.toString());
-    			}
-        		break;
-    		}
-    	}
-    	newValueStr = operations.indexOf(newValue.toString()) + "|" + newValue;
+        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+            String newValueStr = (String) dataArray[3];
+            int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
+            Operation newValue = new Operation("");
+            newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
+        	for(String oldValueStr: operations) {
+        		Operation oldValue = new Operation("");
+        		oldValue.toString(oldValueStr);
+        		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+        			operations.remove(oldValueStr);
+        			try {
+        				operations.add(index, newValue.toString());    			
+        			} catch(Exception e) {
+        				operations.add(newValue.toString());
+        			}
+            		break;
+        		}
+        	}
+        }        
         changes.firePropertyChange(Constants.changeClassNodeOperation, null, dataArray);
     }
 

@@ -620,7 +620,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
         	// Check for removed attributes
         	if (index == -1) {
-            	for (Node node: vbox.getChildren()) {
+            	for (int i = 0; i <  vbox.getChildren().size(); i++) {
+            		Node node = vbox.getChildren().get(i);
             		if ( node instanceof Attribute ) {
             			Attribute oldValue = (Attribute) node;
                 		if (newValue.getXmiId().equals(oldValue.getXmiId())) {
@@ -669,7 +670,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
         	// Check for removed attributes
         	if (index == -1) {
-            	for (Node node: vbox.getChildren()) {
+            	for (int i = 0; i <  vbox.getChildren().size(); i++) {
+            		Node node = vbox.getChildren().get(i);
             		if ( node instanceof Operation ) {
             			Operation oldValue = (Operation) node;
                 		if (newValue.getXmiId().equals(oldValue.getXmiId())) {

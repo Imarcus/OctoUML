@@ -5,17 +5,12 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
-import com.sun.javafx.geom.RectBounds;
-
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import model.*;
 import model.edges.*;
 import model.nodes.AbstractNode;
-import model.nodes.Attribute;
 import model.nodes.ClassNode;
-import model.nodes.Operation;
 import model.nodes.PackageNode;
 import util.Constants;
 import util.GlobalVariables;
@@ -179,17 +174,15 @@ public class ServerController implements PropertyChangeListener {
         else if (propertyName.equals(Constants.changeClassNodeAttribute)){
         	Object[] sourceDataArray = (Object[]) evt.getSource();
             ClassNode node = (ClassNode) sourceDataArray[0];
-            int index = (int) sourceDataArray[1];
-            Attribute attribute = (Attribute) sourceDataArray[2];
-            Object[] dataArray = {propertyName, node.getId(), index, attribute, GlobalVariables.getUserName()};
+            String newValueStr = (String) sourceDataArray[1];
+            Object[] dataArray = {propertyName, node.getId(), newValueStr, GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeClassNodeOperation)){
         	Object[] sourceDataArray = (Object[]) evt.getSource();
             ClassNode node = (ClassNode) sourceDataArray[0];
-            int index = (int) sourceDataArray[1];
-            Operation operation = (Operation) sourceDataArray[2];
-            Object[] dataArray = {propertyName, node.getId(), index, operation, GlobalVariables.getUserName()};
+            String newValueStr = (String) sourceDataArray[1];
+            Object[] dataArray = {propertyName, node.getId(), newValueStr, GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){
@@ -233,10 +226,6 @@ public class ServerController implements PropertyChangeListener {
         kryo.register(AbstractEdge.Direction.class);
         kryo.register(String[].class);
         kryo.register(Object[].class);
-        kryo.register(Attribute.class);
-        kryo.register(Operation.class);
-        kryo.register(RectBounds.class);
-        kryo.register(SimpleObjectProperty.class);
     }
 
     public void closeServer(){

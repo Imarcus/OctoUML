@@ -2,6 +2,7 @@ package model.nodes;
 
 import util.Constants;
 import util.GlobalVariables;
+import weka.core.AdditionalMeasureProducer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -72,20 +73,55 @@ public class ClassNode extends AbstractNode implements Serializable
     	}
     }
     
-    public void setAttributeOnly(int index, Attribute newValue){
-    	logger.debug("setAttributeOnly()");
+    private void removeAttribute(Attribute newValue) {
     	for(String oldValueStr: attributes) {
     		Attribute oldValue = new Attribute("");
     		oldValue.toString(oldValueStr);
     		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
     			attributes.remove(oldValueStr);
+        		break;
+    		}
+    	}    	
+    }
+
+    private void removeOperation(Operation newValue) {
+    	for(String oldValueStr: operations) {
+    		Operation oldValue = new Operation("");
+    		oldValue.toString(oldValueStr);
+    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+    			operations.remove(oldValueStr);
+        		break;
+    		}
+    	}    	
+    }    
+
+    public void setAttributeOnly(int index, Attribute newValue){
+    	logger.debug("setAttributeOnly()");
+    	if (index == -1) {
+    		removeAttribute(newValue);
+    	} else {
+    		boolean found = false;
+        	for(String oldValueStr: attributes) {
+        		Attribute oldValue = new Attribute("");
+        		oldValue.toString(oldValueStr);
+        		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+        			found = true;
+        			attributes.remove(oldValueStr);
+        			try {
+        				attributes.add(index, newValue.toString());    			
+        			} catch(Exception e) {
+        				attributes.add(newValue.toString());
+        			}
+            		break;
+        		}
+        	}
+        	if (!found) {
     			try {
     				attributes.add(index, newValue.toString());    			
     			} catch(Exception e) {
     				attributes.add(newValue.toString());
     			}
-        		break;
-    		}
+        	}
     	}
     }
     
@@ -96,7 +132,12 @@ public class ClassNode extends AbstractNode implements Serializable
     		attributes = new ArrayList<>();
     	}
        	setAttributeOnly(index, newValue);
-    	String newValueStr = indexOfAttribute(newValue) + "|" + newValue;
+       	String newValueStr;
+    	if (index == -1) {
+        	newValueStr = index + "|" + newValue;
+    	} else {
+        	newValueStr = indexOfAttribute(newValue) + "|" + newValue;
+    	}
 
     	changes.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
 
@@ -124,22 +165,35 @@ public class ClassNode extends AbstractNode implements Serializable
     	for(Operation operation: pOperation) {
     		operations.add(operation.toString());
     	}
-    }    
-
+    }
+    
     public void setOperationOnly(int index, Operation newValue){
     	logger.debug("setOperationOnly()");
-    	for(String oldValueStr: operations) {
-    		Operation oldValue = new Operation("");
-    		oldValue.toString(oldValueStr);
-    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
-    			operations.remove(oldValueStr);
+    	if (index == -1) {
+    		removeOperation(newValue);
+    	} else {
+    		boolean found = false;
+        	for(String oldValueStr: operations) {
+        		Operation oldValue = new Operation("");
+        		oldValue.toString(oldValueStr);
+        		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+        			found = true;
+        			operations.remove(oldValueStr);
+        			try {
+        				operations.add(index, newValue.toString());    			
+        			} catch(Exception e) {
+        				operations.add(newValue.toString());
+        			}
+            		break;
+        		}
+        	}
+        	if (!found) {
     			try {
     				operations.add(index, newValue.toString());    			
     			} catch(Exception e) {
     				operations.add(newValue.toString());
     			}
-        		break;
-    		}
+        	}
     	}
     }
     
@@ -149,8 +203,12 @@ public class ClassNode extends AbstractNode implements Serializable
     		operations = new ArrayList<>();
     	}
        	setOperationOnly(index, newValue);
-
-    	String newValueStr = indexOfOperation(newValue) + "|" + newValue;
+       	String newValueStr;
+    	if (index == -1) {
+        	newValueStr = index + "|" + newValue;
+    	} else {
+        	newValueStr = indexOfOperation(newValue) + "|" + newValue;
+    	}
 
     	changes.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
     	
@@ -166,7 +224,7 @@ public class ClassNode extends AbstractNode implements Serializable
     public void remoteSetAttribute(String[] dataArray) { 
         logger.debug("remoteSetAttributes()");
         if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
-            String newValueStr = (String) dataArray[3];
+            String newValueStr = (String) dataArray[2];
             int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
             Attribute newValue = new Attribute("");
             newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
@@ -190,7 +248,7 @@ public class ClassNode extends AbstractNode implements Serializable
     public void remoteSetOperation(Object[] dataArray){
         logger.debug("remoteSetOperations()");
         if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
-            String newValueStr = (String) dataArray[3];
+            String newValueStr = (String) dataArray[2];
             int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
             Operation newValue = new Operation("");
             newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));

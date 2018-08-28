@@ -172,17 +172,15 @@ public class ServerController implements PropertyChangeListener {
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeClassNodeAttribute)){
-        	Object[] sourceDataArray = (Object[]) evt.getSource();
-            ClassNode node = (ClassNode) sourceDataArray[0];
-            String newValueStr = (String) sourceDataArray[1];
-            Object[] dataArray = {propertyName, node.getId(), newValueStr, GlobalVariables.getUserName()};
+        	AbstractNode node = (AbstractNode) evt.getSource();
+            String newValueStr = (String) evt.getNewValue();
+            String[] dataArray = {propertyName, node.getId(), newValueStr, GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeClassNodeOperation)){
-        	Object[] sourceDataArray = (Object[]) evt.getSource();
-            ClassNode node = (ClassNode) sourceDataArray[0];
-            String newValueStr = (String) sourceDataArray[1];
-            Object[] dataArray = {propertyName, node.getId(), newValueStr, GlobalVariables.getUserName()};
+        	AbstractNode node = (AbstractNode) evt.getSource();
+            String newValueStr = (String) evt.getNewValue();
+            String[] dataArray = {propertyName, node.getId(), newValueStr, GlobalVariables.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){

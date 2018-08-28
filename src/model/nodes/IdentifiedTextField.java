@@ -61,10 +61,6 @@ public class IdentifiedTextField extends TextField {
     	return leftside + ".." + rightside;    		
     }    
     
-	public String toString() {
-		return getShortXmiId() + SEPARATOR + getText();
-	}
-	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof IdentifiedTextField) {
@@ -80,5 +76,18 @@ public class IdentifiedTextField extends TextField {
 			}
 		}
 		return false;
+	}
+
+	public String toStringShort() {
+		return getShortXmiId() + SEPARATOR + getText();
+	}
+	
+	public String toString() {
+		return getXmiId() + "|" + getText();
+	}
+	
+	public void toString(String value) {
+		setXmiId(value.substring(0, value.indexOf("|")));
+		setText(value.substring(value.indexOf("|")+1));
 	}
 }

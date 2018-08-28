@@ -336,7 +336,24 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	}
     	return -1;
     }
-    
+
+    private void addAttributeOperationToVbox(int index, IdentifiedTextField newValue) {
+    	if (newValue instanceof Attribute) {
+    		index = index + 2;
+    		try {
+        		vbox.getChildren().add(index,newValue);
+    		} catch(Exception e) {
+        		vbox.getChildren().add(newValue);
+    		}    		
+    	} else if (newValue instanceof Operation) {
+    		index = index + 2 + attributesSize();
+    		try {
+        		vbox.getChildren().add(index,newValue);
+    		} catch(Exception e) {
+        		vbox.getChildren().add(newValue);
+    		}    		
+    	}
+    }    
     
     private void createHandlesAttributesOperations(IdentifiedTextField textfield) {
     	logger.debug("createHandlesAttributesOperations()");
@@ -357,13 +374,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    public void handle(ActionEvent e) {
     	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
     	    	int index = vbox.getChildren().indexOf(modifiedTextField);
-	    		index--;
     	    	if (modifiedTextField instanceof Attribute && index > 2) {
+    	    		index--;
     	    		Attribute tf = (Attribute) modifiedTextField;
     	    		vbox.getChildren().remove(tf);
        				vbox.getChildren().add(index,tf);
         	    	((ClassNode)getRefNode()).setAttribute(indexOf(tf), tf);
     	    	} else if (textfield instanceof Operation && index > (3+attributesSize())) {
+    	    		index--;
     	    		Operation tf = (Operation) modifiedTextField;
     	    		vbox.getChildren().remove(tf);
        				vbox.getChildren().add(index,tf);
@@ -378,13 +396,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    public void handle(ActionEvent e) {
     	    	IdentifiedTextField modifiedTextField = (IdentifiedTextField) ((MenuItem) e.getSource()).getUserData();
     	    	int index = vbox.getChildren().indexOf(modifiedTextField);
-	    		index++;
     	    	if (textfield instanceof Attribute && index < (1+attributesSize())) {
+    	    		index++;
     	    		Attribute tf = (Attribute) textfield;
     	    		vbox.getChildren().remove(tf);
        				vbox.getChildren().add(index,tf);
         	    	((ClassNode)getRefNode()).setAttribute(indexOf(tf), tf);
     	    	} else if (textfield instanceof Operation && index < (2+attributesSize()+operationsSize())) {
+    	    		index++;
     	    		Operation tf = (Operation) textfield;
     				vbox.getChildren().remove(tf);
     				vbox.getChildren().add(index,tf);
@@ -422,18 +441,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     public void addAttribute() {
     	logger.debug("addAttribute()");
     	Attribute textField = new Attribute("");
-    	textField.setXmiId("att" + UUID.randomUUID().toString()
-        		+ "_" + ((ClassNode)getRefNode()).getId());
+    	textField.setXmiId("att" + UUID.randomUUID().toString());
     	createHandlesAttributesOperations(textField);
-		vbox.getChildren().add(2+attributesSize(),textField);
+		vbox.getChildren().add(textField);
 		((ClassNode)getRefNode()).setAttribute(indexOf(textField),textField);
     }
     
     public void addOperation() {
     	logger.debug("addOperation()");
     	Operation textField = new Operation("");
-    	textField.setXmiId("oper" + UUID.randomUUID().toString()
-        		+ "_" + ((ClassNode)getRefNode()).getId());
+    	textField.setXmiId("oper" + UUID.randomUUID().toString());
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(textField);    	
 		((ClassNode)getRefNode()).setOperation(indexOf(textField),textField);
@@ -506,6 +523,58 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	title.getContextMenu().getItems().add(menuInsertIndex,cmChange);
 		// Indicates the conflict
     	textField.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+    }
+    
+    private IdentifiedTextField getAttributeOperation(String xmiId) {
+    	for (int i = 0; i <  vbox.getChildren().size(); i++) {
+    		Node node = vbox.getChildren().get(i);
+    		if ( node instanceof Attribute || node instanceof Operation ) {
+    			IdentifiedTextField tf = (IdentifiedTextField) node;
+        		if (tf.getXmiId().equals(xmiId)) {
+                    return tf;
+        		}
+    		}
+    	}  
+    	return null;
+    }
+    
+    public void updateAttributeOperation(String type, String newValueStr) {
+    	logger.debug("updateAttributeOperation(type: '"+type+"' newValueStr: '"+newValueStr+"')");
+		int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
+		IdentifiedTextField newValue;
+		if (type.equals(Constants.changeClassNodeAttribute)) {
+			newValue = new Attribute("");
+		} else {
+			newValue = new Operation("");
+		}
+		newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
+    	// Check for removed attributes
+    	if (index == -1) {
+    		if (getAttributeOperation(newValue.getXmiId()) != null) {
+                vbox.getChildren().remove(getAttributeOperation(newValue.getXmiId()));
+    		}
+    	} else {
+        	// Check for new attributes and deal with text altered or attribute moved up or down
+        	boolean found = false;
+    		if (getAttributeOperation(newValue.getXmiId()) != null) {
+            	found = true;
+    			IdentifiedTextField oldValue = getAttributeOperation(newValue.getXmiId());
+    			// Update text if it was altered
+    			if (!oldValue.getText().equals(newValue.getText())) {
+    				oldValue.setText(newValue.getText());
+    			}
+    			// If moved upper or down
+    			if (indexOf(oldValue) != index) {
+    				vbox.getChildren().remove(oldValue);
+    				addAttributeOperationToVbox(index,newValue);
+    			}
+    		}
+        	// For a new attribute
+        	if (!found) {
+        		createHandlesAttributesOperations(newValue);
+				addAttributeOperationToVbox(index,newValue);
+        	}            	
+    	}
     }
 
     @Override
@@ -614,105 +683,33 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	        	}
         	}
         } else if ( evt.getPropertyName().equals(Constants.changeClassNodeAttribute) ) {
-        	String newValueStr = (String) evt.getNewValue();
-    		int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
-    		Attribute newValue = new Attribute("");
-    		newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
-        	// Check for removed attributes
-        	if (index == -1) {
-            	for (int i = 0; i <  vbox.getChildren().size(); i++) {
-            		Node node = vbox.getChildren().get(i);
-            		if ( node instanceof Attribute ) {
-            			Attribute oldValue = (Attribute) node;
-                		if (newValue.getXmiId().equals(oldValue.getXmiId())) {
-                            vbox.getChildren().remove(oldValue);
-                		}
-            		}
-            	}
+        	// Get new value
+        	String newValue;
+        	String[] dataArray = null;
+        	// From local change
+        	if (evt.getNewValue() instanceof String) {
+            	newValue = (String) evt.getNewValue();
         	}
-        	// Check for new attributes and deal with text altered or attribute moved up or down
-        	boolean found = false;
-        	for (Node node: vbox.getChildren()) {
-        		if ( node instanceof Attribute ) {
-        			Attribute oldValue = (Attribute) node;
-                	if (oldValue.getXmiId().equals(newValue.getXmiId())) {
-            			found = true;
-            			// Update text if it was altered
-            			if (!oldValue.getText().equals(newValue.getText())) {
-            				oldValue.setText(newValue.getText());
-            			}
-            			// If moved upper or down
-            			if (vbox.getChildren().indexOf(oldValue)-2 != index) {
-            				vbox.getChildren().remove(oldValue);
-                    		try {
-                        		vbox.getChildren().add(index+2,newValue);
-                    		} catch(Exception e) {
-                        		vbox.getChildren().add(newValue);
-                    		}
-            			}
-            			break;
-            		}
-        		}
+        	// From remote change
+        	else {
+            	dataArray = (String[]) evt.getNewValue();
+            	newValue = dataArray[2];
         	}
-        	// For a new attribute
-        	if (!found) {
-        		createHandlesAttributesOperations(newValue);
-        		try {
-            		vbox.getChildren().add(index+2,newValue);
-        		} catch(Exception e) {
-            		vbox.getChildren().add(newValue);
-        		}
-        	}            	
+        	updateAttributeOperation(Constants.changeClassNodeAttribute, newValue);
         } else if ( evt.getPropertyName().equals(Constants.changeClassNodeOperation) ) {
-        	String newValueStr = (String) evt.getNewValue();
-    		int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
-    		Operation newValue = new Operation("");
-    		newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
-        	// Check for removed attributes
-        	if (index == -1) {
-            	for (int i = 0; i <  vbox.getChildren().size(); i++) {
-            		Node node = vbox.getChildren().get(i);
-            		if ( node instanceof Operation ) {
-            			Operation oldValue = (Operation) node;
-                		if (newValue.getXmiId().equals(oldValue.getXmiId())) {
-                            vbox.getChildren().remove(oldValue);
-                		}
-            		}
-            	}
+        	// Get new value
+        	String newValue;
+        	String[] dataArray = null;
+        	// From local change
+        	if (evt.getNewValue() instanceof String) {
+            	newValue = (String) evt.getNewValue();
         	}
-        	// Check for new attributes and deal with text altered or attribute moved up or down
-        	boolean found = false;
-        	for (Node node: vbox.getChildren()) {
-        		if ( node instanceof Operation ) {
-        			Operation oldValue = (Operation) node;
-                	if (oldValue.getXmiId().equals(newValue.getXmiId())) {
-            			found = true;
-            			// Update text if it was altered
-            			if (!oldValue.getText().equals(newValue.getText())) {
-            				oldValue.setText(newValue.getText());
-            			}
-            			// If moved upper or down
-            			if (vbox.getChildren().indexOf(oldValue)-2-attributesSize() != index) {
-            				vbox.getChildren().remove(oldValue);
-                    		try {
-                        		vbox.getChildren().add(index+2+attributesSize(),newValue);
-                    		} catch(Exception e) {
-                        		vbox.getChildren().add(newValue);
-                    		}
-            			}
-            			break;
-            		}
-        		}
+        	// From remote change
+        	else {
+            	dataArray = (String[]) evt.getNewValue();
+            	newValue = dataArray[2];
         	}
-        	// For a new attribute
-        	if (!found) {
-        		createHandlesAttributesOperations(newValue);
-        		try {
-            		vbox.getChildren().add(index+2+attributesSize(),newValue);
-        		} catch(Exception e) {
-            		vbox.getChildren().add(newValue);
-        		}
-        	}            	
+        	updateAttributeOperation(Constants.changeClassNodeOperation, newValue);
         }
     }
 

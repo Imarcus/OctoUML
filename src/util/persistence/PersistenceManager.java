@@ -477,7 +477,7 @@ public class PersistenceManager {
                 String name = item.getAttribute("name");
                 String xmiId = item.getAttribute("xmi.id");
                 if(item.getNodeName().equals("UML:Attribute")){
-                	Attribute tf = new Attribute(attributesCont,name);
+                	Attribute tf = new Attribute(name);
                 	tf.setXmiId(xmiId);
                 	attributes.add(tf);
                     attributesCont++;
@@ -493,7 +493,7 @@ public class PersistenceManager {
                 String name = item.getAttribute("name");
                 String xmiId = item.getAttribute("xmi.id");
                 if(item.getNodeName().equals("UML:Operation")){
-                	Operation tf = new Operation(operationsCont,name);
+                	Operation tf = new Operation(name);
                 	tf.setXmiId(xmiId);
                 	operations.add(tf);
                     operationsCont++;

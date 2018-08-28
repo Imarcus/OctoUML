@@ -820,14 +820,14 @@ public abstract class AbstractDiagramController {
         } else if (dataArray[0].equals(Constants.changeClassNodeAttribute)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    ((ClassNode)node).remoteSetAttributes(dataArray);
+                    ((ClassNode)node).remoteSetAttribute(dataArray);
                     break;
                 }
             }
         } else if (dataArray[0].equals(Constants.changeClassNodeOperation)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    ((ClassNode)node).remoteSetOperations(dataArray);
+                    ((ClassNode)node).remoteSetOperation(dataArray);
                     break;
                 }
             }

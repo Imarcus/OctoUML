@@ -15,8 +15,8 @@ public class ClassNode extends AbstractNode implements Serializable
 {
 	private static final Logger logger = LoggerFactory.getLogger(ClassNode.class);
     private static final String TYPE = "CLASS";
-    private List<Attribute> attributes;
-    private List<Operation> operations;
+    private List<String> attributes;
+    private List<String> operations;
 
     public ClassNode(double x, double y, double width, double height)
     {
@@ -28,90 +28,148 @@ public class ClassNode extends AbstractNode implements Serializable
         this.height = height < CLASS_MIN_HEIGHT ? CLASS_MIN_HEIGHT : height;
     }
 
-    public void setAttributes(List<Attribute> pAttributes) {
-    	logger.debug("setAttributes()");
+    public void setAttributesStr(List<String> pAttributes) {
+    	logger.debug("setAttributes(List<String>)");
     	attributes = pAttributes;
+    }      
+    
+    public void setAttributes(List<Attribute> pAttributes) {
+    	logger.debug("setAttributes(List<Attribute>)");
+    	if (attributes == null) {
+    		attributes = new ArrayList<>();
+    	} else {
+    		attributes.clear();
+    	}
+    	for(Attribute attribute: pAttributes) {
+    		attributes.add(attribute.toString());
+    	}
     }    
     
-    public void setAttribute(Attribute pAttribute){
-    	logger.debug("setAttributes()");
-    	for(Attribute tf: attributes) {
-    		if (tf.getId().equals(pAttribute.getId())) {
-    			attributes.remove(tf);
+    public void setAttribute(int index, Attribute newValue){
+    	logger.debug("setAttribute()");
+    	for(String oldValueStr: attributes) {
+    		Attribute oldValue = new Attribute("");
+    		oldValue.toString(oldValueStr);
+    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+    			attributes.remove(oldValueStr);
     			try {
-    				attributes.add(pAttribute.getIndex(), pAttribute);    			
+    				attributes.add(index, newValue.toString());    			
     			} catch(Exception e) {
-    				attributes.add(pAttribute);
+    				attributes.add(newValue.toString());
     			}
-    			pAttribute.setIndex(attributes.indexOf(pAttribute));
+        		break;
     		}
     	}
-        changes.firePropertyChange(Constants.changeClassNodeAttribute, null, pAttribute);
-        remoteChanges.firePropertyChange(Constants.changeClassNodeAttribute, null, pAttribute);
+    	String newValueStr = attributes.indexOf(newValue.toString()) + "|" + newValue;
+        changes.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
+        remoteChanges.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
     }
 
+    public void setOperationsStr(List<String> pOperation) {
+    	logger.debug("setOperations(List<String>)");
+		operations = pOperation;
+    }     
+    
     public void setOperations(List<Operation> pOperation) {
-    	logger.debug("setOperations()");
-    	operations = pOperation;
+    	logger.debug("setOperations(List<Operation>)");
+    	if (operations == null) {
+    		operations = new ArrayList<>();
+    	} else {
+    		operations.clear();
+    	}
+    	for(Operation operation: pOperation) {
+    		operations.add(operation.toString());
+    	}
     }    
 
-    public void setOperation(Operation pOperation){
-    	logger.debug("setOperations()");
-    	for(Operation tf: operations) {
-    		if (tf.getId().equals(pOperation.getId())) {
-    			operations.remove(tf);
+    public void setOperation(int index, Operation newValue){
+    	logger.debug("setOperation()");
+    	for(String oldValueStr: operations) {
+    		Operation oldValue = new Operation("");
+    		oldValue.toString(oldValueStr);
+    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+    			operations.remove(oldValueStr);
     			try {
-    				operations.add(pOperation.getIndex(), pOperation);    			
+    				operations.add(index, newValue.toString());    			
     			} catch(Exception e) {
-    				operations.add(pOperation);
+    				operations.add(newValue.toString());
     			}
-    			pOperation.setIndex(operations.indexOf(pOperation));
+        		break;
     		}
     	}
-        changes.firePropertyChange(Constants.changeClassNodeOperation, null, pOperation);
-        remoteChanges.firePropertyChange(Constants.changeClassNodeOperation, null, pOperation);
+    	String newValueStr = operations.indexOf(newValue.toString()) + "|" + newValue;
+        changes.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
+        remoteChanges.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
     }
 
-    public void remoteSetAttributes(Object[] dataArray) { 
+    public void remoteSetAttribute(String[] dataArray) { 
         logger.debug("remoteSetAttributes()");
-        Attribute attribute = (Attribute) dataArray[3]; 
-    	for(Attribute tf: attributes) {
-    		if (tf.getId().equals(attribute.getId())) {
-    			attributes.remove(tf);
+        String newValueStr = (String) dataArray[3];
+        int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
+        Attribute newValue = new Attribute("");
+        newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
+    	for(String oldValueStr: attributes) {
+    		Attribute oldValue = new Attribute("");
+    		oldValue.toString(oldValueStr);
+    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+    			attributes.remove(oldValueStr);
     			try {
-    				attributes.add(attribute.getIndex(), attribute);    			
+    				attributes.add(index, newValue.toString());    			
     			} catch(Exception e) {
-    				attributes.add(attribute);
+    				attributes.add(newValue.toString());
     			}
-    			attribute.setIndex(attributes.indexOf(attribute));
+        		break;
     		}
     	}
-        changes.firePropertyChange(Constants.changeClassNodeAttribute, null, dataArray);
+    	newValueStr = attributes.indexOf(newValue.toString()) + "|" + newValue;
+        changes.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
     }
 
-    public void remoteSetOperations(Object[] dataArray){
+    public void remoteSetOperation(Object[] dataArray){
         logger.debug("remoteSetOperations()");
-        Operation operation = (Operation) dataArray[3]; 
-    	for(Operation tf: operations) {
-    		if (tf.getId().equals(operation.getId())) {
-    			operations.remove(tf);
+        String newValueStr = (String) dataArray[3];
+        int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
+        Operation newValue = new Operation("");
+        newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
+    	for(String oldValueStr: operations) {
+    		Operation oldValue = new Operation("");
+    		oldValue.toString(oldValueStr);
+    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+    			operations.remove(oldValueStr);
     			try {
-    				operations.add(operation.getIndex(), operation);    			
+    				operations.add(index, newValue.toString());    			
     			} catch(Exception e) {
-    				operations.add(operation);
+    				operations.add(newValue.toString());
     			}
-    			operation.setIndex(operations.indexOf(operation));
+        		break;
     		}
     	}
+    	newValueStr = operations.indexOf(newValue.toString()) + "|" + newValue;
         changes.firePropertyChange(Constants.changeClassNodeOperation, null, dataArray);
     }
 
     public List<Attribute> getAttributes(){
-    	return attributes;
+    	List<Attribute> list = new ArrayList<>();
+    	if (attributes != null) {
+        	for (String string: attributes) {
+        		Attribute attribute = new Attribute("");
+        		attribute.toString(string);
+        		list.add(attribute);
+        	}
+    	}
+    	return list;
     }
 
     public List<Operation> getOperations(){
-    	return operations;
+    	List<Operation> list = new ArrayList<>();
+    	if (operations != null) {
+        	for (String string: operations) {
+        		Operation operation = new Operation("");
+        		operation.toString(string);
+        		list.add(operation);
+        	}
+    	}
+    	return list;
     }
 
     @Override
@@ -128,10 +186,10 @@ public class ClassNode extends AbstractNode implements Serializable
 
         }
         if(this.attributes != null){
-            newCopy.setAttributes(this.attributes);
+            newCopy.setAttributesStr(this.attributes);
         }
         if(this.operations != null){
-            newCopy.setOperations(this.operations);
+            newCopy.setOperationsStr(this.operations);
         }
         newCopy.setTranslateX(this.getTranslateX());
         newCopy.setTranslateY(this.getTranslateY());

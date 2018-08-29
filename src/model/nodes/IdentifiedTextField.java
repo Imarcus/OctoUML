@@ -86,8 +86,9 @@ public class IdentifiedTextField extends TextField {
 		return getXmiId() + "|" + getText();
 	}
 	
-	public void toString(String value) {
+	public IdentifiedTextField toString(String value) {
 		setXmiId(value.substring(0, value.indexOf("|")));
 		setText(value.substring(value.indexOf("|")+1));
+		return this;
 	}
 }

@@ -538,27 +538,116 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	return null;
     }
     
-    public void updateAttributeOperation(String type, String newValueStr) {
-    	logger.debug("updateAttributeOperation(type: '"+type+"' newValueStr: '"+newValueStr+"')");
-		int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
-		IdentifiedTextField newValue;
-		if (type.equals(Constants.changeClassNodeAttribute)) {
-			newValue = new Attribute("");
-		} else {
-			newValue = new Operation("");
-		}
-		newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
+    public void umlCollabTitle(PropertyChangeEvent evt) {
+    	// *** Get new value ***
+    	String newValue;
+    	String[] dataArray = null;
+    	// From local change
+    	if (evt.getNewValue() instanceof String) {
+        	newValue = (String) evt.getNewValue();
+    	}
+    	// From remote change
+    	else {
+        	dataArray = (String[]) evt.getNewValue();
+        	newValue = dataArray[2];
+    	}
+    	
+    	// *** Get old value ***
+    	Title oldValue = title;
+    	
+    	// *** Synchronous collaboration type *** 
+    	if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+    		logger.debug("The type of collaboration is synchronous, performed simple update");
+    		// Update old value
+    		if (!oldValue.getText().equals(newValue) ) {
+    			oldValue.setText(newValue);
+    		}
+	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
+    	}
+
+    	// *** UMLCollab collaboration type ***
+    	else {
+        	// *** Local change ***
+        	if (evt.getNewValue() instanceof String) {
+        		logger.debug("Local change, performed simple update and record of the change");
+        		// Update old value
+        		if (!oldValue.getText().equals(newValue) ) {
+        			oldValue.setText(newValue);
+        		}
+    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
+		        // Records the change
+		        TextField change = new Title();
+		        change.setText(newValue);
+		        Map<String, Object> map = new HashMap<String, Object>();
+		    	map.put(GlobalVariables.getUserName(), change);
+		        changedValues.put(((ClassNode)getRefNode()).getId(),map);
+        	}
+    		// *** Remote change ***
+        	else {
+        		// Get remote user name
+        		String userName = dataArray[3];
+        		// If no previous changes were made, simple do a automatic merge
+        		if (changedValues.get(((ClassNode)getRefNode()).getId()) == null) {
+            		logger.debug("Remote change without previous changes, performed automatic merge");
+            		// Update old value
+            		if (!oldValue.getText().equals(newValue) ) {
+            			oldValue.setText(newValue);
+            		}
+	    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
+	  	  			// Add new merge history
+	  	  			MenuItem cmChange = new MenuItem("Merged to '" + newValue + "'" +
+	  	  					getDateTimeUserSuffixString(userName));
+	  	  			Menu cmHistory = getHistoryMenu(oldValue);
+  	    	  	  	cmHistory.getItems().add(1, cmChange);
+        			// Indicates the automatic merge
+  	    	  	  	oldValue.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+        		}
+        		// If previous changes were made, deal with a possible conflict
+	        	else {
+	        		// Get changes for this element
+	        		Map<String, Object> map = changedValues.get(((ClassNode)getRefNode()).getId());
+	        		// If a remote user send a new update from previous one, simply updates
+    		        if (map.get(userName) != null) {
+                		logger.debug("New remote change frow same user, updating conflicting pending evaluation dispatch queue");
+                		for (int i = 0; i < title.getContextMenu().getItems().size(); i++) {
+                			if (oldValue.getContextMenu().getItems().get(i).getText().contains(userName)) {
+                				oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(i));
+                				recordConflict(oldValue, userName, newValue, map, i);
+                        		break;
+                			}
+                		}
+        		        // Records the change
+        		        Title change = new Title();
+        		        change.setText(newValue);
+    	        		map.put(userName,change);
+    		        }
+	        		// If a remote user send a update without a previous one
+    		        else {
+                		logger.debug("Totally new change, added to conflicting pending evaluation dispatch queue");
+        		        // Set interface for proper action
+        				recordConflict(title, userName, newValue, map, 2);
+                		// Update the records of the merge
+        		        Title change = new Title();
+        		        change.setText(newValue);
+    	        		map.put(userName,change);
+    		        }
+    	        }
+        	}
+    	}
+    }
+
+    public void updateAttributeOperation2(PropertyChangeEvent evt, int index, IdentifiedTextField oldValue, IdentifiedTextField newValue) {
+    	logger.debug("updateAttributeOperation()");
     	// Check for removed attributes
     	if (index == -1) {
-    		if (getAttributeOperation(newValue.getXmiId()) != null) {
-                vbox.getChildren().remove(getAttributeOperation(newValue.getXmiId()));
+    		if (oldValue != null) {
+                vbox.getChildren().remove(oldValue);
     		}
     	} else {
         	// Check for new attributes and deal with text altered or attribute moved up or down
         	boolean found = false;
-    		if (getAttributeOperation(newValue.getXmiId()) != null) {
+    		if (oldValue != null) {
             	found = true;
-    			IdentifiedTextField oldValue = getAttributeOperation(newValue.getXmiId());
     			// Update text if it was altered
     			if (!oldValue.getText().equals(newValue.getText())) {
     				oldValue.setText(newValue.getText());
@@ -575,8 +664,126 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 				addAttributeOperationToVbox(index,newValue);
         	}            	
     	}
+		if (evt.getPropertyName().equals(Constants.changeClassNodeAttribute)) {
+	    	((ClassNode)getRefNode()).setAttributeOnly(index,(Attribute)newValue);
+		} else {
+	    	((ClassNode)getRefNode()).setOperationOnly(index,(Operation)newValue);
+		}
     }
+    
+    public void umlCollabAttributeOperation(PropertyChangeEvent evt) {
+    	// *** Get new value ***
+    	IdentifiedTextField newValue;
+    	String newValueStr;
+    	String[] dataArray = null;
+    	// From local change
+    	if (evt.getNewValue() instanceof String) {
+        	newValueStr = (String) evt.getNewValue();
+    	}
+    	// From remote change
+    	else {
+        	dataArray = (String[]) evt.getNewValue();
+        	newValueStr = dataArray[2];
+    	}
+		int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
+		if (evt.getPropertyName().equals(Constants.changeClassNodeAttribute)) {
+			newValue = new Attribute("");
+		} else {
+			newValue = new Operation("");
+		}
+		newValue.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
+    	
+    	// *** Get old value ***
+    	IdentifiedTextField oldValue = getAttributeOperation(newValue.getXmiId());
+    	
+    	// *** Synchronous collaboration type *** 
+    	if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+    		logger.debug("The type of collaboration is synchronous, performed simple update");
+    		// Update old value
+    		updateAttributeOperation2(evt, index, oldValue, newValue);
+    	}
 
+    	// *** UMLCollab collaboration type ***
+    	else {
+        	// *** Local change ***
+        	if (evt.getNewValue() instanceof String) {
+        		logger.debug("Local change, performed simple update and record of the change");
+        		// Update old value
+        		updateAttributeOperation2(evt, index, oldValue, newValue);
+		        // Records the change
+		        IdentifiedTextField change;
+				if (evt.getPropertyName().equals(Constants.changeClassNodeAttribute)) {
+					change = new Attribute("");
+				} else {
+					change = new Operation("");
+				}
+				change.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
+		        Map<String, Object> map = new HashMap<String, Object>();
+		    	map.put(GlobalVariables.getUserName(), change);
+		        changedValues.put(((ClassNode)getRefNode()).getId(),map);
+        	}
+    		// *** Remote change ***
+        	else {
+        		// Get remote user name
+        		String userName = dataArray[3];
+        		// If no previous changes were made, simple do a automatic merge
+        		if (changedValues.get(((ClassNode)getRefNode()).getId()) == null) {
+            		logger.debug("Remote change without previous changes, performed automatic merge");
+            		// Update old value
+            		updateAttributeOperation2(evt, index, oldValue, newValue);
+	  	  			// Add new merge history
+	  	  			MenuItem cmChange = new MenuItem("Merged to '" + newValue + "'" +
+	  	  					getDateTimeUserSuffixString(userName));
+	  	  			Menu cmHistory = getHistoryMenu(oldValue);
+  	    	  	  	cmHistory.getItems().add(1, cmChange);
+        			// Indicates the automatic merge
+  	    	  	  	oldValue.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+        		}
+        		// If previous changes were made, deal with a possible conflict
+	        	else {
+	        		// Get changes for this element
+	        		Map<String, Object> map = changedValues.get(((ClassNode)getRefNode()).getId());
+	        		// If a remote user send a new update from previous one, simply updates
+    		        if (map.get(userName) != null) {
+                		logger.debug("New remote change frow same user, updating conflicting pending evaluation dispatch queue");
+                		for (int i = 0; i < title.getContextMenu().getItems().size(); i++) {
+                			if (oldValue.getContextMenu().getItems().get(i).getText().contains(userName)) {
+                				oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(i));
+                				//recordConflict(oldValue, userName, newValue, map, i);
+                        		break;
+                			}
+                		}
+        		        // Records the change
+        		        IdentifiedTextField change;
+        				if (evt.getPropertyName().equals(Constants.changeClassNodeAttribute)) {
+        					change = new Attribute("");
+        				} else {
+        					change = new Operation("");
+        				}
+        				change.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
+    	        		map.put(userName,change);
+    		        }
+	        		// If a remote user send a update without a previous one
+    		        else {
+                		logger.debug("Totally new change, added to conflicting pending evaluation dispatch queue");
+        		        // Set interface for proper action
+        				//recordConflict(title, userName, newValue, map, 2);
+                		// Update the records of the merge
+        		        IdentifiedTextField change;
+        				if (evt.getPropertyName().equals(Constants.changeClassNodeAttribute)) {
+        					change = new Attribute("");
+        				} else {
+        					change = new Operation("");
+        				}
+        				change.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
+    	        		map.put(userName,change);
+    		        }
+    	        }
+        	}
+    	}
+    }
+    
+    
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
     	logger.debug("propertyChange()");
@@ -591,125 +798,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         } else if (evt.getPropertyName().equals(Constants.changeNodeHeight)) {
             changeHeight((double) evt.getNewValue());
         } else if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
-        	// Get new value
-        	String newValue;
-        	String[] dataArray = null;
-        	// From local change
-        	if (evt.getNewValue() instanceof String) {
-            	newValue = (String) evt.getNewValue();
-        	}
-        	// From remote change
-        	else {
-            	dataArray = (String[]) evt.getNewValue();
-            	newValue = dataArray[2];
-        	}
-        	// If collaboration type is synchronous, simple update 
-        	if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
-        		logger.debug("The type of collaboration is synchronous, performed simple update");
-        		if (!title.getText().equals(newValue) ) {
-        			title.setText(newValue);
-        		}
-    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
-        	}
-        	// If collaboration type UMLCollab, carry out special treatment
-        	else {
-            	// If it is a local change (occurs only without unresolved conflicts),
-        		// update and records the change 
-            	if (evt.getNewValue() instanceof String) {
-            		logger.debug("Local change, performed simple update and record of the change");
-            		// Local update
-            		if (!title.getText().equals(newValue) ) {
-            			title.setText(newValue);
-            		}
-	    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
-    		        // Records the change
-    		        Title changedTitle = new Title();
-    		        changedTitle.setText(newValue);
-    		        Map<String, Object> map = new HashMap<String, Object>();
-    		    	map.put(GlobalVariables.getUserName(), changedTitle);
-    		        changedValues.put(((ClassNode)getRefNode()).getId(),map);
-            	}
-        		// For a remote change, check proper merge method
-            	else {
-            		// Get remote user name
-            		String userName = dataArray[3];
-            		// If no previous changes were made, simple do a automatic merge
-            		if (changedValues.get(((ClassNode)getRefNode()).getId()) == null) {
-                		logger.debug("Remote change without previous changes, performed automatic merge");
-        				// Automatic merge title
-                		if (!title.getText().equals(newValue) ) {
-                			title.setText(newValue);
-                		}
-    	    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
-    	  	  			// Add new merge history
-    	  	  			MenuItem cmChange = new MenuItem("title merged to '" + newValue + "'" +
-    	  	  					getDateTimeUserSuffixString(userName));
-    	  	  			Menu cmHistory = getHistoryMenu(title);
-      	    	  	  	cmHistory.getItems().add(1, cmChange);
-            			// Indicates the automatic merge
-    	    	    	title.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
-            		}
-	        		// If previous changes were made, deal with a possible conflict
-    	        	else {
-    	        		// Get changes for this element
-    	        		Map<String, Object> map = changedValues.get(((ClassNode)getRefNode()).getId());
-    	        		// If a remote user send a new update from previous one, simply updates
-        		        if (map.get(userName) != null) {
-                    		logger.debug("New remote change frow same user, updating conflicting pending evaluation dispatch queue");
-        		        	// TODO: Update pending evaluation dispatch queue
-                    		for (int i = 0; i < title.getContextMenu().getItems().size(); i++) {
-                    			if (title.getContextMenu().getItems().get(i).getText().contains(userName)) {
-                    				title.getContextMenu().getItems().remove(title.getContextMenu().getItems().get(i));
-                    				recordConflict(title, userName, newValue, map, i);
-                            		break;
-                    			}
-                    		}
-                    		// Update the records of the merge
-            		        Title changedTitle = new Title();
-            		        changedTitle.setText(newValue);
-        	        		map.put(userName,changedTitle);
-        		        }
-    	        		// If a remote user send a update without a previous one
-        		        else {
-                    		logger.debug("Totally new change, added to conflicting pending evaluation dispatch queue");
-            		        // Set interface for proper action
-            				recordConflict(title, userName, newValue, map, 2);
-                    		// Update the records of the merge
-            		        Title changedTitle = new Title();
-            		        changedTitle.setText(newValue);
-        	        		map.put(userName,changedTitle);
-        		        }
-        	        }
-	        	}
-        	}
+        	umlCollabTitle(evt);
         } else if ( evt.getPropertyName().equals(Constants.changeClassNodeAttribute) ) {
-        	// Get new value
-        	String newValue;
-        	String[] dataArray = null;
-        	// From local change
-        	if (evt.getNewValue() instanceof String) {
-            	newValue = (String) evt.getNewValue();
-        	}
-        	// From remote change
-        	else {
-            	dataArray = (String[]) evt.getNewValue();
-            	newValue = dataArray[2];
-        	}
-        	updateAttributeOperation(Constants.changeClassNodeAttribute, newValue);
+        	umlCollabAttributeOperation(evt);
         } else if ( evt.getPropertyName().equals(Constants.changeClassNodeOperation) ) {
-        	// Get new value
-        	String newValue;
-        	String[] dataArray = null;
-        	// From local change
-        	if (evt.getNewValue() instanceof String) {
-            	newValue = (String) evt.getNewValue();
-        	}
-        	// From remote change
-        	else {
-            	dataArray = (String[]) evt.getNewValue();
-            	newValue = dataArray[2];
-        	}
-        	updateAttributeOperation(Constants.changeClassNodeOperation, newValue);
+        	umlCollabAttributeOperation(evt);
         }
     }
 

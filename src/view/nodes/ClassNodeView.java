@@ -332,7 +332,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	if (tf instanceof Attribute) {
     		return vbox.getChildren().indexOf(tf)-2;
     	} else if (tf instanceof Operation) {
-    		return vbox.getChildren().indexOf(tf)-2-attributesSize();
+    		return vbox.getChildren().indexOf(tf)-3-attributesSize();
     	}
     	return -1;
     }
@@ -346,7 +346,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		vbox.getChildren().add(newValue);
     		}    		
     	} else if (newValue instanceof Operation) {
-    		index = index + 2 + attributesSize();
+    		index = index + 3 + attributesSize();
     		try {
         		vbox.getChildren().add(index,newValue);
     		} catch(Exception e) {
@@ -566,7 +566,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     			// If moved upper or down
     			if (indexOf(oldValue) != index) {
     				vbox.getChildren().remove(oldValue);
-    				addAttributeOperationToVbox(index,newValue);
+    				addAttributeOperationToVbox(index,oldValue);
     			}
     		}
         	// For a new attribute

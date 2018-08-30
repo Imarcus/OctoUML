@@ -483,8 +483,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     
     private void recordConflict(TextField oldValue, Object newValue, String userName,
     		int indexContextMenu, int indexNewValue, Map<String, Object> map) {
-		// Set backgrounds for automatic merge and conflicts
-        Background backgroundDefault =  new Background(new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY));
         // Create conflict record
         String newValueStr = null;
 		if (oldValue instanceof Title) {
@@ -509,8 +507,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		updateAttributeOperation(indexNewValue, (IdentifiedTextField)oldValue, (IdentifiedTextField)newValue);
     		}
 			// TODO: Remove conflict indication
-	    	oldValue.setBackground(backgroundDefault);
-	    	oldValue.getContextMenu().getItems().remove(cmChange);
+      	  	oldValue.setStyle("-fx-text-inner-color: black;");
+      	  	oldValue.getContextMenu().getItems().remove(cmChange);
     		// TODO: Remove other conflicts from pending evaluation dispatch queue
 	        if (oldValue instanceof Title) {
 	    		while (oldValue.getContextMenu().getItems().size() > 3) {
@@ -543,7 +541,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         // Create reject option
     	MenuItem cmItemActionReject = new MenuItem("Reject");
     	cmItemActionReject.setOnAction(event -> {
-    		oldValue.setBackground(backgroundDefault);
+      	  	oldValue.setStyle("-fx-text-inner-color: black;");
     		oldValue.getContextMenu().getItems().remove(cmChange);
     		// Record conflict decision to history
   			Menu cmHistory = getHistoryMenu(oldValue);
@@ -556,7 +554,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
 		oldValue.getContextMenu().getItems().add(indexContextMenu,cmChange);
 		// Indicates the conflict
-    	oldValue.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+  	  	oldValue.setStyle("-fx-text-inner-color: red;");
     }
     
     private IdentifiedTextField getAttributeOperation(String xmiId) {
@@ -634,7 +632,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	  	  			Menu cmHistory = getHistoryMenu(oldValue);
   	    	  	  	cmHistory.getItems().add(1, cmChange);
         			// Indicates the automatic merge
-  	    	  	  	oldValue.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+  	    	  	  	oldValue.setStyle("-fx-text-inner-color: green;");
         		}
         		// If previous changes were made, deal with a possible conflict
 	        	else {
@@ -771,7 +769,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	  	  			Menu cmHistory = getHistoryMenu(oldValue);
   	    	  	  	cmHistory.getItems().add(1, cmChange);
         			// Indicates the automatic merge
-  	    	  	  	oldValue.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+  	    	  	  	oldValue.setStyle("-fx-text-inner-color: green;");
         		}
         		// If previous changes were made, deal with a possible conflict
 	        	else {

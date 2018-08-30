@@ -435,6 +435,19 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		
        	ContextMenu contextMenu = new ContextMenu();
     	contextMenu.getItems().addAll(cmItemMoveUp,cmItemMoveDown,cmItemDelete);
+    	// Add context menu for collaboration type UMLCollab
+    	Menu cmHistory = new Menu ("History");
+    	// Add context menu item "Clear all" 
+  		MenuItem cmItemClearAll = new MenuItem("Clear all");
+  		cmItemClearAll.setOnAction(event -> {
+    		while (cmHistory.getItems().size() > 1) {
+    	    	cmHistory.getItems().remove(cmHistory.getItems().get(1));
+    		}
+	        BackgroundFill backgroundFill = new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY);
+	    	title.setBackground(new Background(backgroundFill));
+        });
+    	cmHistory.getItems().add(cmItemClearAll);
+    	contextMenu.getItems().addAll(cmHistory);
     	textfield.setContextMenu(contextMenu);
     }
     
@@ -461,7 +474,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	ObservableList<MenuItem> list = textField.getContextMenu().getItems();
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i).getText().equals("History")) {
-				return (Menu) list.get(2);
+				return (Menu) list.get(i);
 			}
 		}
 		return null;
@@ -474,45 +487,58 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         return dateTimeUserSuffixString;
     }
     
-    private void recordConflict(TextField textField, String userName, String newValue, Map<String, Object> map, int menuInsertIndex ) {
+    private void recordConflict(TextField oldValue, Object newValue, String userName,
+    		int indexContextMenu, int indexNewValue, Map<String, Object> map) {
 		// Set backgrounds for automatic merge and conflicts
         Background backgroundDefault =  new Background(new BackgroundFill(Color.LIGHTSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY));
         // Create conflict record
-        Menu cmChange = new Menu("Conflicting value: '" + newValue + "'" +
+        String newValueStr = null;
+		if (oldValue instanceof Title) {
+			newValueStr = (String) newValue;
+		} else if (oldValue instanceof Attribute
+				|| oldValue instanceof Operation) {
+			newValueStr = ((TextField)newValue).getText();
+		}
+        Menu cmChange = new Menu("Conflicting value: '" + newValueStr + "'" +
         		getDateTimeUserSuffixString(userName));
         // Create aprove option
         MenuItem cmItemActionAprove = new MenuItem("Aprove");
     	cmItemActionAprove.setOnAction(event -> {
-			// TODO: Merge
-    		if (!textField.getText().equals(newValue) ) {
-    			textField.setText(newValue);
+	    	// Update old value
+    		if (oldValue instanceof Title) {
+        		if (!oldValue.getText().equals(((TextField)newValue).getText()) ) {
+        			oldValue.setText(((TextField)newValue).getText());
+        		}
+    	    	((ClassNode)getRefNode()).setTitleOnly(((TextField)newValue).getText());
+    		} else if (oldValue instanceof Attribute
+    				|| oldValue instanceof Operation) {
+        		updateAttributeOperation(indexNewValue, (IdentifiedTextField)oldValue, (IdentifiedTextField)newValue);
     		}
-	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
 			// TODO: Remove conflict indication
-	    	textField.setBackground(backgroundDefault);
-	    	textField.getContextMenu().getItems().remove(cmChange);
+	    	oldValue.setBackground(backgroundDefault);
+	    	oldValue.getContextMenu().getItems().remove(cmChange);
     		// TODO: Remove other conflicts from pending evaluation dispatch queue
-    		while (textField.getContextMenu().getItems().size() > 3) {
-    			textField.getContextMenu().getItems().remove(textField.getContextMenu().getItems().get(2));
+    		while (oldValue.getContextMenu().getItems().size() > 3) {
+    			oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(2));
     		}
     		// Record conflict decision to history
-  			Menu cmHistory = getHistoryMenu(textField);
+  			Menu cmHistory = getHistoryMenu(oldValue);
   			MenuItem cmChangeAproved = new MenuItem(cmChange.getText() +
   					". Aproved.");
   	  	  	cmHistory.getItems().add(1, cmChangeAproved);
     		// Replace the records of the change from remote user to local user
     		map.remove(userName);
 	        Title changedTitle = new Title();
-	        changedTitle.setText(newValue);
+	        changedTitle.setText(((TextField)newValue).getText());
 	        map.put(GlobalVariables.getUserName(),changedTitle);
         });            
         // Create reject option
     	MenuItem cmItemActionReject = new MenuItem("Reject");
     	cmItemActionReject.setOnAction(event -> {
-    		textField.setBackground(backgroundDefault);
-    		textField.getContextMenu().getItems().remove(cmChange);
+    		oldValue.setBackground(backgroundDefault);
+    		oldValue.getContextMenu().getItems().remove(cmChange);
     		// Record conflict decision to history
-  			Menu cmHistory = getHistoryMenu(textField);
+  			Menu cmHistory = getHistoryMenu(oldValue);
   			MenuItem cmChangeRejected = new MenuItem(cmChange.getText() +
   					". Rejected.");
   	  	  	cmHistory.getItems().add(1, cmChangeRejected);
@@ -520,9 +546,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		map.remove(userName);
         });            
 		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
-    	title.getContextMenu().getItems().add(menuInsertIndex,cmChange);
+    	title.getContextMenu().getItems().add(indexContextMenu,cmChange);
 		// Indicates the conflict
-    	textField.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+    	oldValue.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
     }
     
     private IdentifiedTextField getAttributeOperation(String xmiId) {
@@ -612,7 +638,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 		for (int i = 0; i < title.getContextMenu().getItems().size(); i++) {
                 			if (oldValue.getContextMenu().getItems().get(i).getText().contains(userName)) {
                 				oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(i));
-                				recordConflict(oldValue, userName, newValue, map, i);
+                				recordConflict(oldValue, newValue, userName, i, 0,  map);
                         		break;
                 			}
                 		}
@@ -625,7 +651,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		        else {
                 		logger.debug("Totally new change, added to conflicting pending evaluation dispatch queue");
         		        // Set interface for proper action
-        				recordConflict(title, userName, newValue, map, 2);
+        				recordConflict(oldValue, newValue, userName, 2, 0, map);
                 		// Update the records of the merge
         		        Title change = new Title();
         		        change.setText(newValue);
@@ -636,7 +662,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	}
     }
 
-    public void updateAttributeOperation2(PropertyChangeEvent evt, int index, IdentifiedTextField oldValue, IdentifiedTextField newValue) {
+    public void updateAttributeOperation(int index, IdentifiedTextField oldValue, IdentifiedTextField newValue) {
     	logger.debug("updateAttributeOperation()");
     	// Check for removed attributes
     	if (index == -1) {
@@ -664,7 +690,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 				addAttributeOperationToVbox(index,newValue);
         	}            	
     	}
-		if (evt.getPropertyName().equals(Constants.changeClassNodeAttribute)) {
+		if (oldValue instanceof Attribute) {
 	    	((ClassNode)getRefNode()).setAttributeOnly(index,(Attribute)newValue);
 		} else {
 	    	((ClassNode)getRefNode()).setOperationOnly(index,(Operation)newValue);
@@ -700,7 +726,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
     		logger.debug("The type of collaboration is synchronous, performed simple update");
     		// Update old value
-    		updateAttributeOperation2(evt, index, oldValue, newValue);
+    		updateAttributeOperation(index, oldValue, newValue);
     	}
 
     	// *** UMLCollab collaboration type ***
@@ -709,7 +735,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	if (evt.getNewValue() instanceof String) {
         		logger.debug("Local change, performed simple update and record of the change");
         		// Update old value
-        		updateAttributeOperation2(evt, index, oldValue, newValue);
+        		updateAttributeOperation(index, oldValue, newValue);
 		        // Records the change
 		        IdentifiedTextField change;
 				if (evt.getPropertyName().equals(Constants.changeClassNodeAttribute)) {
@@ -720,7 +746,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 				change.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
 		        Map<String, Object> map = new HashMap<String, Object>();
 		    	map.put(GlobalVariables.getUserName(), change);
-		        changedValues.put(((ClassNode)getRefNode()).getId(),map);
+		        changedValues.put(newValue.getXmiId(),map);
         	}
     		// *** Remote change ***
         	else {
@@ -730,7 +756,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		if (changedValues.get(((ClassNode)getRefNode()).getId()) == null) {
             		logger.debug("Remote change without previous changes, performed automatic merge");
             		// Update old value
-            		updateAttributeOperation2(evt, index, oldValue, newValue);
+            		updateAttributeOperation(index, oldValue, newValue);
 	  	  			// Add new merge history
 	  	  			MenuItem cmChange = new MenuItem("Merged to '" + newValue + "'" +
 	  	  					getDateTimeUserSuffixString(userName));
@@ -749,7 +775,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 		for (int i = 0; i < title.getContextMenu().getItems().size(); i++) {
                 			if (oldValue.getContextMenu().getItems().get(i).getText().contains(userName)) {
                 				oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(i));
-                				//recordConflict(oldValue, userName, newValue, map, i);
+                				recordConflict(oldValue, newValue, userName, i, index, map);
                         		break;
                 			}
                 		}
@@ -767,7 +793,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		        else {
                 		logger.debug("Totally new change, added to conflicting pending evaluation dispatch queue");
         		        // Set interface for proper action
-        				//recordConflict(title, userName, newValue, map, 2);
+        				recordConflict(oldValue, newValue, userName, 2, index, map);
                 		// Update the records of the merge
         		        IdentifiedTextField change;
         				if (evt.getPropertyName().equals(Constants.changeClassNodeAttribute)) {

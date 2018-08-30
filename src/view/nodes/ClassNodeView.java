@@ -512,8 +512,15 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	    	oldValue.setBackground(backgroundDefault);
 	    	oldValue.getContextMenu().getItems().remove(cmChange);
     		// TODO: Remove other conflicts from pending evaluation dispatch queue
-    		while (oldValue.getContextMenu().getItems().size() > 3) {
-    			oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(2));
+	        if (oldValue instanceof Title) {
+	    		while (oldValue.getContextMenu().getItems().size() > 3) {
+	    			oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(2));
+	    		}
+	        } else if (oldValue instanceof Attribute
+	        		|| oldValue instanceof Operation) {
+	    		while (oldValue.getContextMenu().getItems().size() > 4) {
+	    			oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(3));
+	    		}
     		}
     		// Record conflict decision to history
   			Menu cmHistory = getHistoryMenu(oldValue);
@@ -522,9 +529,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
   	  	  	cmHistory.getItems().add(1, cmChangeAproved);
     		// Replace the records of the change from remote user to local user
     		map.remove(userName);
-	        Title changedTitle = new Title();
-	        changedTitle.setText(((TextField)newValue).getText());
-	        map.put(GlobalVariables.getUserName(),changedTitle);
+	        Object change = null;
+	        if (oldValue instanceof Title) {
+	        	change = new Title();
+		        ((Title)change).setText(((Title)newValue).getText());
+	        } else if (oldValue instanceof Attribute) {
+	        	change = new Attribute("");
+	        } else if (oldValue instanceof Operation) {
+	        	change = new Operation("");
+    		}
+	        map.put(GlobalVariables.getUserName(),change);
         });            
         // Create reject option
     	MenuItem cmItemActionReject = new MenuItem("Reject");
@@ -540,7 +554,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		map.remove(userName);
         });            
 		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
-    	title.getContextMenu().getItems().add(indexContextMenu,cmChange);
+		oldValue.getContextMenu().getItems().add(indexContextMenu,cmChange);
 		// Indicates the conflict
     	oldValue.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
     }
@@ -629,7 +643,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	        		// If a remote user send a new update from previous one, simply updates
     		        if (map.get(userName) != null) {
                 		logger.debug("New remote change frow same user, updating conflicting pending evaluation dispatch queue");
-                		for (int i = 0; i < title.getContextMenu().getItems().size(); i++) {
+                		for (int i = 0; i < oldValue.getContextMenu().getItems().size(); i++) {
                 			if (oldValue.getContextMenu().getItems().get(i).getText().contains(userName)) {
                 				oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(i));
                 				recordConflict(oldValue, newValue, userName, i, 0,  map);
@@ -766,7 +780,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	        		// If a remote user send a new update from previous one, simply updates
     		        if (map.get(userName) != null) {
                 		logger.debug("New remote change frow same user, updating conflicting pending evaluation dispatch queue");
-                		for (int i = 0; i < title.getContextMenu().getItems().size(); i++) {
+                		for (int i = 0; i < oldValue.getContextMenu().getItems().size(); i++) {
                 			if (oldValue.getContextMenu().getItems().get(i).getText().contains(userName)) {
                 				oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(i));
                 				recordConflict(oldValue, newValue, userName, i, index, map);
@@ -787,7 +801,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		        else {
                 		logger.debug("Totally new change, added to conflicting pending evaluation dispatch queue");
         		        // Set interface for proper action
-        				recordConflict(oldValue, newValue, userName, 2, index, map);
+        				recordConflict(oldValue, newValue, userName, 3, index, map);
                 		// Update the records of the merge
         		        IdentifiedTextField change;
         				if (evt.getPropertyName().equals(Constants.changeClassNodeAttribute)) {

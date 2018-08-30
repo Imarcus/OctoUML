@@ -53,7 +53,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	
 	private static Logger logger = LoggerFactory.getLogger(ClassNodeView.class);
 	
-	private List<Object> originalValues = new ArrayList<>();
 	private Map<String, Map<String, Object>> changedValues = new HashMap<String, Map<String, Object>>();
 
     private Rectangle rectangle;
@@ -216,11 +215,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	title.setContextMenu(contextMenu);
 
         vbox.getChildren().addAll(title, firstLine);
-        
-        // Store original value of title
-        Title oldTitle = new Title();
-        oldTitle.setText(title.getText());
-        originalValues.add(oldTitle);
         
         if (node.getAttributes() != null) {
         	Iterator<Attribute> i = node.getAttributes().iterator();
@@ -753,7 +747,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		// Get remote user name
         		String userName = dataArray[3];
         		// If no previous changes were made, simple do a automatic merge
-        		if (changedValues.get(((ClassNode)getRefNode()).getId()) == null) {
+        		if (changedValues.get(newValue.getXmiId()) == null) {
             		logger.debug("Remote change without previous changes, performed automatic merge");
             		// Update old value
             		updateAttributeOperation(index, oldValue, newValue);
@@ -768,7 +762,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		// If previous changes were made, deal with a possible conflict
 	        	else {
 	        		// Get changes for this element
-	        		Map<String, Object> map = changedValues.get(((ClassNode)getRefNode()).getId());
+	        		Map<String, Object> map = changedValues.get(newValue.getXmiId());
 	        		// If a remote user send a new update from previous one, simply updates
     		        if (map.get(userName) != null) {
                 		logger.debug("New remote change frow same user, updating conflicting pending evaluation dispatch queue");

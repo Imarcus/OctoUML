@@ -126,7 +126,7 @@ public class ClassNode extends AbstractNode implements Serializable
     }
     
     
-    public void setAttribute(int index, Attribute newValue){
+    public void setAttribute(int index, Attribute newValue, boolean transmit){
     	logger.debug("setAttribute()");
     	if (attributes == null) {
     		attributes = new ArrayList<>();
@@ -141,11 +141,8 @@ public class ClassNode extends AbstractNode implements Serializable
 
     	changes.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
 
-        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
-            remoteChanges.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
-        }
-        // TODO: Else only for test, remove when sync button implemented
-        else {
+        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)
+        		|| transmit ) {
             remoteChanges.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
         }
     }
@@ -197,7 +194,7 @@ public class ClassNode extends AbstractNode implements Serializable
     	}
     }
     
-    public void setOperation(int index, Operation newValue){
+    public void setOperation(int index, Operation newValue, boolean transmit){
     	logger.debug("setOperation()");
     	if (operations == null) {
     		operations = new ArrayList<>();
@@ -212,11 +209,8 @@ public class ClassNode extends AbstractNode implements Serializable
 
     	changes.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
     	
-        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
-            remoteChanges.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
-        }
-        // TODO: Else only for test, remove when sync button implemented
-        else {
+        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)
+        		|| transmit) {
             remoteChanges.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
         }
     }
@@ -303,7 +297,7 @@ public class ClassNode extends AbstractNode implements Serializable
         newCopy.setScaleY(this.getScaleY());
 
         if(this.getTitle() != null){
-            newCopy.setTitle(this.getTitle());
+            newCopy.setTitle(this.getTitle(),false);
 
         }
         if(this.attributes != null){

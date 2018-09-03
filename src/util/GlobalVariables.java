@@ -1,7 +1,10 @@
 package util;
 
-public class GlobalVariables {
+import java.util.HashMap;
+import java.util.Map;
 
+public class GlobalVariables {
+ 
 	private static String userName;
 	private static String collaborationType = Constants.collaborationTypeSynchronous;
 	

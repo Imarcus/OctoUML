@@ -26,6 +26,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import model.RemoteChange;
+import model.nodes.AbstractNode;
 import model.nodes.Attribute;
 import model.nodes.ClassNode;
 import model.nodes.IdentifiedTextField;
@@ -33,6 +34,7 @@ import model.nodes.Operation;
 import model.nodes.Title;
 import util.Constants;
 import util.GlobalVariables;
+import view.edges.AbstractEdgeView;
 
 import java.beans.PropertyChangeEvent;
 import java.text.SimpleDateFormat;
@@ -42,6 +44,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +57,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	private static Logger logger = LoggerFactory.getLogger(ClassNodeView.class);
 	
 	private Map<String, Map<String, Object>> changedValues = new HashMap<String, Map<String, Object>>();
-
+	
+	
     private Rectangle rectangle;
 
     private StackPane container;
@@ -152,7 +156,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
 		title.setOnKeyReleased(new EventHandler<KeyEvent>() {
     	    public void handle(KeyEvent ke) {
-    	    	((ClassNode)getRefNode()).setTitle(title.getText());
+    	    	((ClassNode)getRefNode()).setTitle(title.getText(),false);
     	    }
     	});
         
@@ -354,9 +358,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	textfield.setOnKeyReleased(new EventHandler<KeyEvent>() {
     	    public void handle(KeyEvent ke) {
     	    	if (textfield instanceof Attribute) {
-        	    	((ClassNode)getRefNode()).setAttribute(indexOf(textfield), (Attribute)textfield);
+        	    	((ClassNode)getRefNode()).setAttribute(indexOf(textfield), (Attribute)textfield, false);
     	    	} else if (textfield instanceof Operation) {
-    	    		((ClassNode)getRefNode()).setOperation(indexOf(textfield), (Operation)textfield);
+    	    		((ClassNode)getRefNode()).setOperation(indexOf(textfield), (Operation)textfield, false);
     	    	}    	    	
     	    }
     	});
@@ -373,13 +377,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    		Attribute tf = (Attribute) modifiedTextField;
     	    		vbox.getChildren().remove(tf);
        				vbox.getChildren().add(index,tf);
-        	    	((ClassNode)getRefNode()).setAttribute(indexOf(tf), tf);
+        	    	((ClassNode)getRefNode()).setAttribute(indexOf(tf), tf, false);
     	    	} else if (textfield instanceof Operation && index > (3+attributesSize())) {
     	    		index--;
     	    		Operation tf = (Operation) modifiedTextField;
     	    		vbox.getChildren().remove(tf);
        				vbox.getChildren().add(index,tf);
-    	    		((ClassNode)getRefNode()).setOperation(indexOf(tf), tf);
+    	    		((ClassNode)getRefNode()).setOperation(indexOf(tf), tf, false);
     	    	}  
     	    }
         });
@@ -395,13 +399,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    		Attribute tf = (Attribute) textfield;
     	    		vbox.getChildren().remove(tf);
        				vbox.getChildren().add(index,tf);
-        	    	((ClassNode)getRefNode()).setAttribute(indexOf(tf), tf);
+        	    	((ClassNode)getRefNode()).setAttribute(indexOf(tf), tf, false);
     	    	} else if (textfield instanceof Operation && index < (2+attributesSize()+operationsSize())) {
     	    		index++;
     	    		Operation tf = (Operation) textfield;
     				vbox.getChildren().remove(tf);
     				vbox.getChildren().add(index,tf);
-    	    		((ClassNode)getRefNode()).setOperation(indexOf(tf), tf);
+    	    		((ClassNode)getRefNode()).setOperation(indexOf(tf), tf, false);
     	    	}  
     	    }
         });    		
@@ -419,10 +423,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    	vbox.getChildren().remove(modifiedTextField);
     			if (modifiedTextField instanceof Attribute) {
     				Attribute tf = (Attribute) modifiedTextField;
-        			((ClassNode)getRefNode()).setAttribute(-1,tf);
+        			((ClassNode)getRefNode()).setAttribute(-1,tf, false);
     			} else {
     				Operation tf = (Operation) modifiedTextField;
-        			((ClassNode)getRefNode()).setOperation(-1,tf);
+        			((ClassNode)getRefNode()).setOperation(-1,tf, false);
     	    	}
     	    }
     	});
@@ -451,7 +455,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	textField.setXmiId("att" + UUID.randomUUID().toString());
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(textField);
-		((ClassNode)getRefNode()).setAttribute(indexOf(textField),textField);
+		((ClassNode)getRefNode()).setAttribute(indexOf(textField),textField, false);
     }
     
     public void addOperation() {
@@ -460,7 +464,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	textField.setXmiId("oper" + UUID.randomUUID().toString());
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(textField);    	
-		((ClassNode)getRefNode()).setOperation(indexOf(textField),textField);
+		((ClassNode)getRefNode()).setOperation(indexOf(textField),textField, false);
     }
     
     private Menu getHistoryMenu (TextField textField) {
@@ -480,10 +484,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(currentDate) + ")";
         return dateTimeUserSuffixString;
     }
-    
+
+    // Create conflict record
     private void recordConflict(TextField oldValue, Object newValue, String userName,
     		int indexContextMenu, int indexNewValue, Map<String, Object> map) {
-        // Create conflict record
         String newValueStr = null;
 		if (oldValue instanceof Title) {
 			newValueStr = (String) newValue;
@@ -498,10 +502,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	cmItemActionAprove.setOnAction(event -> {
 	    	// Update old value
     		if (oldValue instanceof Title) {
-        		if (!oldValue.getText().equals(((TextField)newValue).getText()) ) {
-        			oldValue.setText(((TextField)newValue).getText());
+        		if (!oldValue.getText().equals((String)newValue) ) {
+        			oldValue.setText((String)newValue);
         		}
-    	    	((ClassNode)getRefNode()).setTitleOnly(((TextField)newValue).getText());
+    	    	((ClassNode)getRefNode()).setTitleOnly((String)newValue);
     		} else if (oldValue instanceof Attribute
     				|| oldValue instanceof Operation) {
         		updateAttributeOperation(indexNewValue, (IdentifiedTextField)oldValue, (IdentifiedTextField)newValue);
@@ -612,7 +616,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		        change.setText(newValue);
 		        Map<String, Object> map = new HashMap<String, Object>();
 		    	map.put(GlobalVariables.getUserName(), change);
-		        changedValues.put(((ClassNode)getRefNode()).getId(),map);
+		    	changedValues.put(((ClassNode)getRefNode()).getId(),map);
         	}
     		// *** Remote change ***
         	else {
@@ -752,7 +756,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 				change.toString(newValueStr.substring(newValueStr.indexOf("|")+1));
 		        Map<String, Object> map = new HashMap<String, Object>();
 		    	map.put(GlobalVariables.getUserName(), change);
-		        changedValues.put(newValue.getXmiId(),map);
+		    	changedValues.put(newValue.getXmiId(),map);
         	}
     		// *** Remote change ***
         	else {
@@ -813,6 +817,33 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	        }
         	}
     	}
+    }
+    
+    public void commitChanges(){
+    	logger.debug("handleMenuActionCommit()");
+		Set<String> ids = changedValues.keySet();
+		for (String id : ids)
+		{
+			if(id != null) {
+				Map<String, Object> map = changedValues.get(id);
+				Set<String> userNames = map.keySet();
+				for (String userName : userNames)
+				{
+					Object newValue = map.get(userName);
+			        if (newValue instanceof Title) {
+	        	    	((ClassNode)getRefNode()).setTitle(title.getText(),true);
+			        }
+			        else if (newValue instanceof Attribute){
+			        	Attribute attribute = (Attribute) getAttributeOperation(((Attribute)newValue).getXmiId());
+	        	    	((ClassNode)getRefNode()).setAttribute(indexOf(attribute), attribute, true);
+			        }
+			        else if (newValue instanceof Operation){
+			        	Operation operation = (Operation) getAttributeOperation(((Operation)newValue).getXmiId());
+	        	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true);
+			        }
+			    }
+			}
+		}    	
     }
     
     

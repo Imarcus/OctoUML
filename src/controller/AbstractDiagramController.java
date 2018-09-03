@@ -583,7 +583,11 @@ public abstract class AbstractDiagramController {
 
     public boolean handleMenuActionCommit(){
     	logger.debug("handleMenuActionCommit()");
-    	// TODO: Implement method
+        for (AbstractNodeView nodeView : allNodeViews) {
+        	if (nodeView instanceof ClassNodeView) {
+        		((ClassNodeView)nodeView).commitChanges();
+        	}
+        }
     	return true;
     }
     

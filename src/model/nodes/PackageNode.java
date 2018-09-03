@@ -85,7 +85,7 @@ public class PackageNode extends AbstractNode
         newCopy.setScaleY(this.getScaleY());
 
         if(this.getTitle() != null){
-            newCopy.setTitle(this.getTitle());
+            newCopy.setTitle(this.getTitle(), false);
 
         }
         /*if(this.getChildNodes() != null){

@@ -52,11 +52,12 @@ public class ServerController implements PropertyChangeListener {
             e.printStackTrace();
         }
 
-        Platform.runLater(() -> diagramController.setServerLabel("User: "+ GlobalVariables.getUserName() +
-        		"\nCollaboration type: " + GlobalVariables.getCollaborationType() +
-        		"\nServer mode (clients: " + Integer.toString(nrClients) + ")") );
+        Platform.runLater(() -> diagramController.setServerLabel(
+        		GlobalVariables.getString("user") + ": " + GlobalVariables.getUserName() +
+        		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getCollaborationType() +
+        		"\n" + GlobalVariables.getString("serverMode") + " (" + GlobalVariables.getString("clients") + ": " +
+        		Integer.toString(nrClients) + ")") );
         initKryo(server.getKryo());
-
 
         server.addListener(new Listener() {
             public void received (Connection connection, Object object) {
@@ -92,16 +93,20 @@ public class ServerController implements PropertyChangeListener {
 
             public void connected(Connection c){
                 nrClients++;
-                Platform.runLater(() -> diagramController.setServerLabel("User: "+ GlobalVariables.getUserName() +
-                		"\nCollaboration type: " + GlobalVariables.getCollaborationType() +
-                		"\nServer mode (clients: " + Integer.toString(nrClients) + ")") );
+                Platform.runLater(() -> diagramController.setServerLabel(
+                		GlobalVariables.getString("user") + ": " + GlobalVariables.getUserName() +
+                		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getCollaborationType() +
+                		"\n" + GlobalVariables.getString("serverMode") + " (" + GlobalVariables.getString("clients") + ": " +
+                		Integer.toString(nrClients) + ")") );
             }
 
             public void disconnected(Connection c){
                 nrClients--;
-                Platform.runLater(() -> diagramController.setServerLabel("User: "+ GlobalVariables.getUserName() +
-                		"\nCollaboration type: " + GlobalVariables.getCollaborationType() +
-                		"\nServer mode (clients: " + Integer.toString(nrClients) + ")") );
+                Platform.runLater(() -> diagramController.setServerLabel(
+                		GlobalVariables.getString("user") + ": " + GlobalVariables.getUserName() +
+                		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getCollaborationType() +
+                		"\n" + GlobalVariables.getString("serverMode") + " (" + GlobalVariables.getString("clients") + ": " +
+                		Integer.toString(nrClients) + ")") );
             }
         });
 

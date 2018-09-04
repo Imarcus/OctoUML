@@ -58,7 +58,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	
 	private Map<String, Map<String, Object>> changedValues = new HashMap<String, Map<String, Object>>();
 	
-	
     private Rectangle rectangle;
 
     private StackPane container;
@@ -192,21 +191,21 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         
         // Set add attribute and operation context menus
     	MenuItem cmItemAddAttribute;
-    	cmItemAddAttribute = new MenuItem("Add Attribute");
+    	cmItemAddAttribute = new MenuItem(GlobalVariables.getString("addAttribute"));
     	cmItemAddAttribute.setOnAction(event -> {
 	    	addAttribute();
         });
     	MenuItem cmItemAddOperation;
-    	cmItemAddOperation = new MenuItem("Add Operation");
+    	cmItemAddOperation = new MenuItem(GlobalVariables.getString("addOperation"));
     	cmItemAddOperation.setOnAction(event -> {
 	    	addOperation();
         });
        	ContextMenu contextMenu = new ContextMenu();
     	contextMenu.getItems().addAll(cmItemAddAttribute,cmItemAddOperation);
     	// Add context menu for collaboration type UMLCollab
-    	Menu cmHistory = new Menu ("History");
+    	Menu cmHistory = new Menu (GlobalVariables.getString("history"));
     	// Add context menu item "Clear all" 
-  		MenuItem cmItemClearAll = new MenuItem("Clear all");
+  		MenuItem cmItemClearAll = new MenuItem(GlobalVariables.getString("clearAll"));
   		cmItemClearAll.setOnAction(event -> {
     		while (cmHistory.getItems().size() > 1) {
     	    	cmHistory.getItems().remove(cmHistory.getItems().get(1));
@@ -366,7 +365,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	});
     	
     	MenuItem cmItemMoveUp;
-    	cmItemMoveUp = new MenuItem("Move Up");
+    	cmItemMoveUp = new MenuItem(GlobalVariables.getString("moveUp"));
     	cmItemMoveUp.setUserData(textfield);
 		cmItemMoveUp.setOnAction(new EventHandler<ActionEvent>() {
     	    public void handle(ActionEvent e) {
@@ -388,7 +387,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    }
         });
     	MenuItem cmItemMoveDown;
-    	cmItemMoveDown = new MenuItem("Move Down");    	
+    	cmItemMoveDown = new MenuItem(GlobalVariables.getString("moveDown"));    	
     	cmItemMoveDown.setUserData(textfield);
 		cmItemMoveDown.setOnAction(new EventHandler<ActionEvent>() {
     	    public void handle(ActionEvent e) {
@@ -412,9 +411,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
 		MenuItem cmItemDelete;
 		if (textfield instanceof Attribute) {
-    		cmItemDelete = new MenuItem("Delete attribute");
+    		cmItemDelete = new MenuItem(GlobalVariables.getString("deleteAttribute"));
 		} else {
-    		cmItemDelete = new MenuItem("Delete operation");
+    		cmItemDelete = new MenuItem(GlobalVariables.getString("deleteOperation"));
     	}
     	cmItemDelete.setUserData(textfield);
     	cmItemDelete.setOnAction(new EventHandler<ActionEvent>() {
@@ -434,9 +433,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
        	ContextMenu contextMenu = new ContextMenu();
     	contextMenu.getItems().addAll(cmItemMoveUp,cmItemMoveDown,cmItemDelete);
     	// Add context menu for collaboration type UMLCollab
-    	Menu cmHistory = new Menu ("History");
+    	Menu cmHistory = new Menu (GlobalVariables.getString("history"));
     	// Add context menu item "Clear all" 
-  		MenuItem cmItemClearAll = new MenuItem("Clear all");
+  		MenuItem cmItemClearAll = new MenuItem(GlobalVariables.getString("clearAll"));
   		cmItemClearAll.setOnAction(event -> {
     		while (cmHistory.getItems().size() > 1) {
     	    	cmHistory.getItems().remove(cmHistory.getItems().get(1));
@@ -471,7 +470,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		// Record conflict decision to history
     	ObservableList<MenuItem> list = textField.getContextMenu().getItems();
 		for (int i = 0; i < list.size(); i++) {
-			if (list.get(i).getText().equals("History")) {
+			if (list.get(i).getText().equals(GlobalVariables.getString("history"))) {
 				return (Menu) list.get(i);
 			}
 		}
@@ -495,10 +494,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 				|| oldValue instanceof Operation) {
 			newValueStr = ((TextField)newValue).getText();
 		}
-        Menu cmChange = new Menu("Conflicting value: '" + newValueStr + "'" +
+        Menu cmChange = new Menu(GlobalVariables.getString("conflictingValue") + ": '" + newValueStr + "'" +
         		getDateTimeUserSuffixString(userName));
         // Create aprove option
-        MenuItem cmItemActionAprove = new MenuItem("Accept");
+        MenuItem cmItemActionAprove = new MenuItem(GlobalVariables.getString("accept"));
     	cmItemActionAprove.setOnAction(event -> {
 	    	// Update old value
     		if (oldValue instanceof Title) {
@@ -527,14 +526,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		// Record conflict decision to history
   			Menu cmHistory = getHistoryMenu(oldValue);
   			MenuItem cmChangeAproved = new MenuItem(cmChange.getText() +
-  					". Accepted.");
+  					". " + GlobalVariables.getString("accepted") + ".");
   	  	  	cmHistory.getItems().add(1, cmChangeAproved);
     		// Replace the records of the change from remote user to local user
     		map.remove(userName);
 	        Object change = null;
 	        if (oldValue instanceof Title) {
 	        	change = new Title();
-		        ((Title)change).setText(((Title)newValue).getText());
+		        ((Title)change).setText(((String)newValue));
 	        } else if (oldValue instanceof Attribute) {
 	        	change = new Attribute("");
 	        } else if (oldValue instanceof Operation) {
@@ -543,14 +542,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	        map.put(GlobalVariables.getUserName(),change);
         });            
         // Create reject option
-    	MenuItem cmItemActionReject = new MenuItem("Reject");
+    	MenuItem cmItemActionReject = new MenuItem(GlobalVariables.getString("reject"));
     	cmItemActionReject.setOnAction(event -> {
       	  	oldValue.setStyle("-fx-text-inner-color: black;");
     		oldValue.getContextMenu().getItems().remove(cmChange);
     		// Record conflict decision to history
   			Menu cmHistory = getHistoryMenu(oldValue);
   			MenuItem cmChangeRejected = new MenuItem(cmChange.getText() +
-  					". Rejected.");
+  					". " + GlobalVariables.getString("rejected") + ".");
   	  	  	cmHistory.getItems().add(1, cmChangeRejected);
     		// Remove the records of the change from remote user
     		map.remove(userName);
@@ -631,8 +630,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		}
 	    	    	((ClassNode)getRefNode()).setTitleOnly(newValue);
 	  	  			// Add new merge history
-	  	  			MenuItem cmChange = new MenuItem("Merged to '" + newValue + "'" +
-	  	  					getDateTimeUserSuffixString(userName));
+	  	  			MenuItem cmChange = new MenuItem(GlobalVariables.getString("mergedTo") + " '" +
+	  	  					newValue + "'" + getDateTimeUserSuffixString(userName));
 	  	  			Menu cmHistory = getHistoryMenu(oldValue);
   	    	  	  	cmHistory.getItems().add(1, cmChange);
         			// Indicates the automatic merge
@@ -768,8 +767,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		// Update old value
             		updateAttributeOperation(index, oldValue, newValue);
 	  	  			// Add new merge history
-	  	  			MenuItem cmChange = new MenuItem("Merged to '" + newValue + "'" +
-	  	  					getDateTimeUserSuffixString(userName));
+	  	  			MenuItem cmChange = new MenuItem(GlobalVariables.getString("mergedTo") +
+	  	  					" '" + newValue + "'" + getDateTimeUserSuffixString(userName));
 	  	  			Menu cmHistory = getHistoryMenu(oldValue);
   	    	  	  	cmHistory.getItems().add(1, cmChange);
         			// Indicates the automatic merge

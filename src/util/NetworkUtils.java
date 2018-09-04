@@ -19,8 +19,8 @@ public class NetworkUtils {
     public static String[] clientConfigDialog() {
         // Create the custom dialog.
         Dialog<String[]> dialog = new Dialog<>();
-        dialog.setTitle("Connect to server");
-        dialog.setHeaderText("Enter server IP, port number and user name");
+        dialog.setTitle(GlobalVariables.getString("connectToServerTitle"));
+        dialog.setHeaderText(GlobalVariables.getString("connectToServerHeaderText"));
 
         ButtonType okButtonType = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
@@ -30,20 +30,20 @@ public class NetworkUtils {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
-        TextField serverIP = new TextField();
-        serverIP.setText("127.0.0.1");
+        TextField ip = new TextField();
+        ip.setText("127.0.0.1");
         TextField port = new TextField();
         port.setText("54555");
         TextField userName = new TextField();
         userName.setText(System.getProperty("user.name"));
 
-        Platform.runLater(() -> serverIP.requestFocus());
+        Platform.runLater(() -> ip.requestFocus());
 
-        grid.add(new Label("Server IP:"), 0, 0);
-        grid.add(serverIP, 1, 0);
-        grid.add(new Label("Port number:"), 0, 1);
+        grid.add(new Label("IP:"), 0, 0);
+        grid.add(ip, 1, 0);
+        grid.add(new Label(GlobalVariables.getString("port")+":"), 0, 1);
         grid.add(port, 1, 1);
-        grid.add(new Label("User name:"), 0, 2);
+        grid.add(new Label(GlobalVariables.getString("userName")+":"), 0, 2);
         grid.add(userName, 1, 2);
         dialog.getDialogPane().setContent(grid);
 
@@ -51,7 +51,7 @@ public class NetworkUtils {
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okButtonType) {
                 return new String[] {
-                		serverIP.getText(), port.getText(), userName.getText()
+                		ip.getText(), port.getText(), userName.getText()
                 		};
             }
             return null;
@@ -81,8 +81,8 @@ public class NetworkUtils {
     public static String[] ServerConfigDialog() {
         // Create the custom dialog.
         Dialog<String[]> dialog = new Dialog<>();
-        dialog.setTitle("Launch Server");
-        dialog.setHeaderText("Enter port number, collaboration type and user name");
+        dialog.setTitle(GlobalVariables.getString("launchServerTitle"));
+        dialog.setHeaderText(GlobalVariables.getString("launchServerHeaderText"));
 
         ButtonType okButtonType = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
@@ -94,7 +94,7 @@ public class NetworkUtils {
 
         TextField port = new TextField();
         port.setText("54555");
-        ChoiceBox collaborationType = new ChoiceBox(FXCollections.observableArrayList(
+        ChoiceBox<String> collaborationType = new ChoiceBox<String>(FXCollections.observableArrayList(
         	    "Synchronous", "UMLCollab")
         );
         collaborationType.setValue("Synchronous");
@@ -104,11 +104,11 @@ public class NetworkUtils {
 
         Platform.runLater(() -> collaborationType.requestFocus());
 
-        grid.add(new Label("Port number:"), 0, 0);
+        grid.add(new Label(GlobalVariables.getString("port") + ":"), 0, 0);
         grid.add(port, 1, 0);
-        grid.add(new Label("Collaboration type:"), 0, 1);
+        grid.add(new Label(GlobalVariables.getString("collaborationType") + ":"), 0, 1);
         grid.add(collaborationType, 1, 1);
-        grid.add(new Label("User name:"), 0, 2);
+        grid.add(new Label(GlobalVariables.getString("userName") + ":"), 0, 2);
         grid.add(userName, 1, 2);
         dialog.getDialogPane().setContent(grid);
 

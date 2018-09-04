@@ -80,11 +80,11 @@ public class ServerController implements PropertyChangeListener {
                         }
                     }
                     else if (dataArray[0] instanceof AbstractNode) {
-                        server.sendToAllExceptTCP(connection.getID(), dataArray[0]);
+                        server.sendToAllExceptTCP(connection.getID(), dataArray);
                         Platform.runLater(() -> diagramController.createNodeView((AbstractNode)dataArray[0], true));
                     }
                     else if (dataArray[0] instanceof AbstractEdge) {
-                        server.sendToAllExceptTCP(connection.getID(), dataArray[0]);
+                        server.sendToAllExceptTCP(connection.getID(), dataArray);
                         Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)dataArray[0], true));
                     }
             	} 

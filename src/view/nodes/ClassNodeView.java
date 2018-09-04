@@ -498,7 +498,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         Menu cmChange = new Menu("Conflicting value: '" + newValueStr + "'" +
         		getDateTimeUserSuffixString(userName));
         // Create aprove option
-        MenuItem cmItemActionAprove = new MenuItem("Aprove");
+        MenuItem cmItemActionAprove = new MenuItem("Accept");
     	cmItemActionAprove.setOnAction(event -> {
 	    	// Update old value
     		if (oldValue instanceof Title) {
@@ -527,7 +527,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		// Record conflict decision to history
   			Menu cmHistory = getHistoryMenu(oldValue);
   			MenuItem cmChangeAproved = new MenuItem(cmChange.getText() +
-  					". Aproved.");
+  					". Accepted.");
   	  	  	cmHistory.getItems().add(1, cmChangeAproved);
     		// Replace the records of the change from remote user to local user
     		map.remove(userName);

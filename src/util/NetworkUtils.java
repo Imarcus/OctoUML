@@ -100,7 +100,7 @@ public class NetworkUtils {
         collaborationType.setValue("Synchronous");
         
         TextField userName = new TextField();
-        userName.setText(System.getProperty("user.name"));
+        userName.setText(GlobalVariables.getString("server"));
 
         Platform.runLater(() -> collaborationType.requestFocus());
 

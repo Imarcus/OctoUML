@@ -479,8 +479,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     
     private String getDateTimeUserSuffixString(String userName) {
 		Date currentDate = new Date();
-        String dateTimeUserSuffixString = " (by " + userName + " in " +
-        		new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(currentDate) + ")";
+        String dateTimeUserSuffixString = " (" + GlobalVariables.getString("by") + " " + userName +
+        		" " + GlobalVariables.getString("in") + " " + new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(currentDate) + ")";
         return dateTimeUserSuffixString;
     }
 
@@ -768,7 +768,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		updateAttributeOperation(index, oldValue, newValue);
 	  	  			// Add new merge history
 	  	  			MenuItem cmChange = new MenuItem(GlobalVariables.getString("mergedTo") +
-	  	  					" '" + newValue + "'" + getDateTimeUserSuffixString(userName));
+	  	  					" '" + newValue.getText() + "'" + getDateTimeUserSuffixString(userName));
 	  	  			Menu cmHistory = getHistoryMenu(oldValue);
   	    	  	  	cmHistory.getItems().add(1, cmChange);
         			// Indicates the automatic merge

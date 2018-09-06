@@ -56,7 +56,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	
 	private static Logger logger = LoggerFactory.getLogger(ClassNodeView.class);
 	
-	private Map<String, Object> changedValues = new HashMap<String, Object>();
+	private Map<String, Object> localChangedValues = new HashMap<String, Object>();
+	private Map<String, Object> valuesPendingForTransmit = new HashMap<String, Object>();
 	
     private Rectangle rectangle;
 
@@ -507,16 +508,19 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		}
 	    	((ClassNode)getRefNode()).setTitleOnly(((TextField)newValue).getText());
     	} else {
-        	// Check for removed attributes
-        	if (index == -1) {
-        		if (oldValue != null) {
+        	// It is a new value
+    		if (oldValue == null) {
+        		createHandlesAttributesOperations(((IdentifiedTextField)newValue));
+				addAttributeOperationToVbox(index,((IdentifiedTextField)newValue));
+    		}
+    		// It is a deleted or updated value
+    		else {
+            	// It is a deleted value
+            	if (index == -1) {
                     vbox.getChildren().remove(oldValue);
-        		}
-        	} else {
-            	// Check for new attributes and deal with text altered or attribute moved up or down
-            	boolean found = false;
-        		if (oldValue != null) {
-                	found = true;
+            	}
+            	// It is a updated value
+            	else {
         			// Update text if it was altered
         			if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText())) {
         				((TextField)oldValue).setText(((TextField)newValue).getText());
@@ -526,14 +530,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         				vbox.getChildren().remove(oldValue);
         				addAttributeOperationToVbox(index,(IdentifiedTextField)oldValue);
         			}
-        		}
-            	// For a new attribute
-            	if (!found) {
-            		createHandlesAttributesOperations(((IdentifiedTextField)newValue));
-    				addAttributeOperationToVbox(index,((IdentifiedTextField)newValue));
-            	}            	
-        	}
-    		if (oldValue instanceof Attribute) {
+            	}
+    		}
+    		if (newValue instanceof Attribute) {
     	    	((ClassNode)getRefNode()).setAttributeOnly(index,(Attribute)newValue);
     		} else {
     	    	((ClassNode)getRefNode()).setOperationOnly(index,(Operation)newValue);
@@ -557,7 +556,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 			((IdentifiedTextField)change).toString(((IdentifiedTextField)newValue).toString());
 			id = ((IdentifiedTextField)newValue).getXmiId();
     	}    	
-    	changedValues.put(id, change);
+    	localChangedValues.put(id, change);
+    	valuesPendingForTransmit.put(id, change);
     }
     
     public void umlCollab(PropertyChangeEvent evt) {
@@ -626,19 +626,26 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		id = ((IdentifiedTextField)newValue).getXmiId();
             	}
         		// If no previous changes were made, simple do a automatic merge
-        		if (changedValues.get(id) == null) {
+        		if (localChangedValues.get(id) == null) {
             		logger.debug("Remote change without previous changes, performed automatic merge");
             		// Update old value
             		updateTextField(evt, index, oldValue, newValue);
 	    	    	// Add new merge history
 	            	MenuItem cmChange = new MenuItem(GlobalVariables.getString("mergedTo") + " '" +
 	  	  					newValueStr + "'" + getDateTimeUserSuffixString(userName));
-	  	  			Menu cmHistory = getHistoryMenu((TextField)oldValue);
+	            	Menu cmHistory;
+  	    	  	  	if (oldValue != null) {
+  		  	  			cmHistory = getHistoryMenu((TextField)oldValue);
+  	    	  	  	} else {
+  		  	  			cmHistory = getHistoryMenu((TextField)newValue);
+  	    	  	  	}
 	  	  			cmHistory.getItems().add(1, cmChange);
-  	        		// Records the change
-  	            	recordChange(newValue);
   	    	  	  	// Indicates the automatic merge
-  	    	  	  	((TextField)oldValue).setStyle("-fx-text-inner-color: green;");
+  	    	  	  	if (oldValue != null) {
+  	  	    	  	  	((TextField)oldValue).setStyle("-fx-text-inner-color: green;");
+  	    	  	  	} else {
+  	  	    	  	  	((TextField)newValue).setStyle("-fx-text-inner-color: green;");
+  	    	  	  	}
         		}
         		// If previous changes were made, record conflict
 	        	else {
@@ -736,10 +743,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     // Transmit all changes made by local user or from a remote change but accepted by local user
 	public void commitChanges(){
     	logger.debug("handleMenuActionCommit()");
-		Set<String> ids = changedValues.keySet();
+		Set<String> ids = valuesPendingForTransmit.keySet();
 		for (String id : ids)
 		{
-			Object newValue = changedValues.get(id);
+			Object newValue = valuesPendingForTransmit.get(id);
 	        if (newValue instanceof Title) {
     	    	((ClassNode)getRefNode()).setTitle(((Title)newValue).getText(),true);
 	        }
@@ -751,7 +758,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	        	Operation operation = (Operation) getAttributeOperation(((Operation)newValue).getXmiId());
     	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true);
 	        }
-		}    	
+		}
+		valuesPendingForTransmit.clear();
     }
 
 	private void dismissAutomaticMerge(MenuItem cmItemChange) {

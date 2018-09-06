@@ -56,7 +56,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	
 	private static Logger logger = LoggerFactory.getLogger(ClassNodeView.class);
 	
-	private Map<String, Map<String, Object>> changedValues = new HashMap<String, Map<String, Object>>();
+	private Map<String, Object> changedValues = new HashMap<String, Object>();
 	
     private Rectangle rectangle;
 
@@ -485,78 +485,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		" " + GlobalVariables.getString("in") + " " + new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(currentDate) + ")";
         return dateTimeUserSuffixString;
     }
-
-    // Create conflict record
-    private void recordConflict(PropertyChangeEvent evt, TextField oldValue, Object newValue, String userName,
-    		int indexContextMenu, int indexNewValue, Map<String, Object> map) {
-        String newValueStr = null;
-		newValueStr = ((TextField)newValue).getText();
-        Menu cmChange = new Menu(GlobalVariables.getString("conflictingValue") + ": '" + newValueStr + "'" +
-        		getDateTimeUserSuffixString(userName));
-        // Create aprove option
-        MenuItem cmItemActionAprove = new MenuItem(GlobalVariables.getString("accept"));
-    	cmItemActionAprove.setOnAction(event -> {
-	    	// Update old value
-    		if (oldValue instanceof Title) {
-        		if (!oldValue.getText().equals(((TextField)newValue).getText())) {
-        			oldValue.setText(((TextField)newValue).getText());
-        		}
-    	    	((ClassNode)getRefNode()).setTitleOnly(((TextField)newValue).getText());
-    		} else if (oldValue instanceof Attribute
-    				|| oldValue instanceof Operation) {
-        		updateTextField(evt, indexNewValue, (IdentifiedTextField)oldValue, newValue);
-    		}
-			// TODO: Remove conflict indication
-      	  	oldValue.setStyle("-fx-text-inner-color: black;");
-      	  	oldValue.getContextMenu().getItems().remove(cmChange);
-    		// TODO: Remove other conflicts from pending evaluation dispatch queue
-	        if (oldValue instanceof Title) {
-	    		while (oldValue.getContextMenu().getItems().size() > 3) {
-	    			oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(2));
-	    		}
-	        } else if (oldValue instanceof Attribute
-	        		|| oldValue instanceof Operation) {
-	    		while (oldValue.getContextMenu().getItems().size() > 4) {
-	    			oldValue.getContextMenu().getItems().remove(oldValue.getContextMenu().getItems().get(3));
-	    		}
-    		}
-    		// Record conflict decision to history
-  			Menu cmHistory = getHistoryMenu(oldValue);
-  			MenuItem cmChangeAproved = new MenuItem(cmChange.getText() +
-  					". " + GlobalVariables.getString("accepted") + ".");
-  	  	  	cmHistory.getItems().add(1, cmChangeAproved);
-    		// Replace the records of the change from remote user to local user
-    		map.remove(userName);
-	        Object change = null;
-	        if (oldValue instanceof Title) {
-	        	change = new Title();
-		        ((Title)change).setText((((TextField)newValue).getText()));
-	        } else if (oldValue instanceof Attribute) {
-	        	change = new Attribute("");
-	        } else if (oldValue instanceof Operation) {
-	        	change = new Operation("");
-    		}
-	        map.put(GlobalVariables.getUserName(),change);
-        });            
-        // Create reject option
-    	MenuItem cmItemActionReject = new MenuItem(GlobalVariables.getString("reject"));
-    	cmItemActionReject.setOnAction(event -> {
-      	  	oldValue.setStyle("-fx-text-inner-color: black;");
-    		oldValue.getContextMenu().getItems().remove(cmChange);
-    		// Record conflict decision to history
-  			Menu cmHistory = getHistoryMenu(oldValue);
-  			MenuItem cmChangeRejected = new MenuItem(cmChange.getText() +
-  					". " + GlobalVariables.getString("rejected") + ".");
-  	  	  	cmHistory.getItems().add(1, cmChangeRejected);
-    		// Remove the records of the change from remote user
-    		map.remove(userName);
-        });            
-		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
-		oldValue.getContextMenu().getItems().add(indexContextMenu,cmChange);
-		// Indicates the conflict
-  	  	oldValue.setStyle("-fx-text-inner-color: red;");
-    }
-    
+  	  	
     private IdentifiedTextField getAttributeOperation(String xmiId) {
     	for (int i = 0; i <  vbox.getChildren().size(); i++) {
     		Node node = vbox.getChildren().get(i);
@@ -612,7 +541,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	}
     }
 
-    private void recordChange(Map<String, Object> map, Object newValue, String userName) {
+    private void recordChange(Object newValue) {
         Object change;
         String id;
     	if (newValue instanceof Title) {
@@ -628,8 +557,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 			((IdentifiedTextField)change).toString(((IdentifiedTextField)newValue).toString());
 			id = ((IdentifiedTextField)newValue).getXmiId();
     	}    	
-    	map.put(userName, change);
-    	changedValues.put(id, map);
+    	changedValues.put(id, change);
     }
     
     public void umlCollab(PropertyChangeEvent evt) {
@@ -684,19 +612,20 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		// Update old value
         		updateTextField(evt, index, oldValue, newValue);
         		// Records the change
-            	recordChange(new HashMap<String, Object>(), newValue, GlobalVariables.getUserName());
+            	recordChange(newValue);
         	}
     		// *** Remote change ***
         	else {
         		// Get remote user name
         		String userName = dataArray[3];
-        		// If no previous changes were made, simple do a automatic merge
+        		// Get proper id for the object
         		String id;
             	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
             		id = ((ClassNode)getRefNode()).getId();
             	} else {
             		id = ((IdentifiedTextField)newValue).getXmiId();
             	}
+        		// If no previous changes were made, simple do a automatic merge
         		if (changedValues.get(id) == null) {
             		logger.debug("Remote change without previous changes, performed automatic merge");
             		// Update old value
@@ -706,42 +635,79 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	  	  					newValueStr + "'" + getDateTimeUserSuffixString(userName));
 	  	  			Menu cmHistory = getHistoryMenu((TextField)oldValue);
 	  	  			cmHistory.getItems().add(1, cmChange);
+  	        		// Records the change
+  	            	recordChange(newValue);
   	    	  	  	// Indicates the automatic merge
   	    	  	  	((TextField)oldValue).setStyle("-fx-text-inner-color: green;");
         		}
-        		// If previous changes were made, deal with a possible conflict
+        		// If previous changes were made, record conflict
 	        	else {
-	        		// Get changes for this element
-	        		Map<String, Object> map = changedValues.get(id);
-	        		// If a remote user send a new update from previous one, simply updates
-    		        if (map.get(userName) != null) {
-    		        	logger.debug("New remote change frow same user, updating conflicting pending evaluation dispatch queue");
-    		        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
-                			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(userName)) {
-                				((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(i));
-            	            	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
-                    				recordConflict(evt, (TextField)oldValue, newValue, userName, i, 0,  map);
-            	            	} else {
-        	        				recordConflict(evt, (TextField)oldValue, newValue, userName, i, index, map);
-            	            	}
-                        		break;
-                			}
-                		}
-    	        		// Records the change
-    	            	recordChange(map, newValue, userName);
-    		        }
-	        		// If a remote user send a update without a previous one
-    		        else {
-    		        	logger.debug("Totally new change, added to conflicting pending evaluation dispatch queue");
-    		        	// Set interface for proper action
-    	            	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
-        		        	recordConflict(evt, (TextField)oldValue, newValue, userName, 2, 0, map);
-    	            	} else {
-        					recordConflict(evt, (TextField)oldValue, newValue, userName, 3, index, map);
-    	            	}
-    	        		// Records the change
-    	            	recordChange(map, newValue, userName);
-    		        }
+		        	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
+		        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
+	        			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(userName)) {
+	    		        	logger.debug("New remote change frow same user, removing old value from pending evaluation dispatch queue");
+	        				((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(i));
+	        			}
+	        		}
+		        	// Create conflict record
+		            Menu cmChange = new Menu(GlobalVariables.getString("conflictingValue") + ": '" + newValueStr + "'" +
+		            		getDateTimeUserSuffixString(userName));
+		            if (newValue instanceof Title) {
+			    		((TextField)oldValue).getContextMenu().getItems().add(2,cmChange);
+		            } else {
+			    		((TextField)oldValue).getContextMenu().getItems().add(3,cmChange);
+		            }		            
+		            // Create aprove option
+		            MenuItem cmItemActionAprove = new MenuItem(GlobalVariables.getString("accept"));
+		            cmItemActionAprove.setUserData(index);
+		        	cmItemActionAprove.setOnAction(event -> {
+		    	    	// Update old value
+		        		updateTextField(evt, (int)cmItemActionAprove.getUserData(), oldValue, newValue);
+		        		// Clear pending evaluation dispatch queue
+		    	        if (oldValue instanceof Title) {
+		    	    		while (((TextField)oldValue).getContextMenu().getItems().size() > 3) {
+		    	    			((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(2));
+		    	    		}
+		    	        } else if (oldValue instanceof Attribute
+		    	        		|| oldValue instanceof Operation) {
+		    	    		while (((TextField)oldValue).getContextMenu().getItems().size() > 4) {
+		    	    			((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(3));
+		    	    		}
+		        		}
+		        		// Record conflict decision to history
+		      			Menu cmHistory = getHistoryMenu(((TextField)oldValue));
+		      			MenuItem cmChangeAproved = new MenuItem(cmChange.getText() +
+		      					". " + GlobalVariables.getString("accepted") + ".");
+		      	  	  	cmHistory.getItems().add(1, cmChangeAproved);
+	  	        		// Records the change
+	  	            	recordChange(newValue);
+		    			// Remove conflict indication
+		        		((TextField)oldValue).setStyle("-fx-text-inner-color: black;");
+		            });            
+		            // Create reject option
+		        	MenuItem cmItemActionReject = new MenuItem(GlobalVariables.getString("reject"));
+		        	cmItemActionReject.setOnAction(event -> {
+		        		// Remove conflict from pending evaluation dispatch queue
+		        		((TextField)oldValue).getContextMenu().getItems().remove(cmChange);
+		        		// Record conflict decision to history
+		      			Menu cmHistory = getHistoryMenu(((TextField)oldValue));
+		      			MenuItem cmChangeRejected = new MenuItem(cmChange.getText() +
+		      					". " + GlobalVariables.getString("rejected") + ".");
+		      	  	  	cmHistory.getItems().add(1, cmChangeRejected);
+		    			// Remove conflict indication only with empty pending evaluation dispatch queue
+		        		if (newValue instanceof Title) {
+			        		if (((TextField)oldValue).getContextMenu().getItems().size() == 3) {
+			        			((TextField)oldValue).setStyle("-fx-text-inner-color: black;");
+			        		}
+		        		} else {
+			        		if (((TextField)oldValue).getContextMenu().getItems().size() == 4) {
+			        			((TextField)oldValue).setStyle("-fx-text-inner-color: black;");
+			        		}
+		        		}
+		            });        
+		    		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
+		    		// Indicates the conflict
+		    		((TextField)oldValue).setStyle("-fx-text-inner-color: red;");
 	        	}
         	}
     	}
@@ -766,31 +732,25 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	umlCollab(evt);
         }
     }
-
+    
+    // Transmit all changes made by local user or from a remote change but accepted by local user
 	public void commitChanges(){
     	logger.debug("handleMenuActionCommit()");
 		Set<String> ids = changedValues.keySet();
 		for (String id : ids)
 		{
-			if(id != null) {
-				Map<String, Object> map = changedValues.get(id);
-				Set<String> userNames = map.keySet();
-				for (String userName : userNames)
-				{
-					Object newValue = map.get(userName);
-			        if (newValue instanceof Title) {
-	        	    	((ClassNode)getRefNode()).setTitle(title.getText(),true);
-			        }
-			        else if (newValue instanceof Attribute){
-			        	Attribute attribute = (Attribute) getAttributeOperation(((Attribute)newValue).getXmiId());
-	        	    	((ClassNode)getRefNode()).setAttribute(indexOf(attribute), attribute, true);
-			        }
-			        else if (newValue instanceof Operation){
-			        	Operation operation = (Operation) getAttributeOperation(((Operation)newValue).getXmiId());
-	        	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true);
-			        }
-			    }
-			}
+			Object newValue = changedValues.get(id);
+	        if (newValue instanceof Title) {
+    	    	((ClassNode)getRefNode()).setTitle(((Title)newValue).getText(),true);
+	        }
+	        else if (newValue instanceof Attribute){
+	        	Attribute attribute = (Attribute) getAttributeOperation(((Attribute)newValue).getXmiId());
+    	    	((ClassNode)getRefNode()).setAttribute(indexOf(attribute), attribute, true);
+	        }
+	        else if (newValue instanceof Operation){
+	        	Operation operation = (Operation) getAttributeOperation(((Operation)newValue).getXmiId());
+    	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true);
+	        }
 		}    	
     }
 

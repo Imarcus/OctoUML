@@ -159,7 +159,7 @@ public class NetworkUtils {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
-        ChoiceBox collaborationType = new ChoiceBox(FXCollections.observableArrayList(
+        ChoiceBox<String> collaborationType = new ChoiceBox<String>(FXCollections.observableArrayList(
         	    "Synchronous", "UMLCollab")
         );
         collaborationType.setValue("Synchronous");

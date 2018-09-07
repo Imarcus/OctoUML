@@ -54,7 +54,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	private static Logger logger = LoggerFactory.getLogger(ClassNodeView.class);
 	
 	private Map<String, Object> localChangedValues = new HashMap<String, Object>();
-	private Map<String, Object> valuesPendingForTransmit = new HashMap<String, Object>();
 	
     private Rectangle rectangle;
 
@@ -603,7 +602,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 			id = ((IdentifiedTextField)newValue).getXmiId();
     	}    	
     	localChangedValues.put(id, change);
-    	valuesPendingForTransmit.put(id, change);
     }
     
     public void umlCollab(PropertyChangeEvent evt) {
@@ -798,10 +796,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     // Transmit all changes made by local user or from a remote change but accepted by local user
 	public void commitChanges(){
     	logger.debug("handleMenuActionCommit()");
-		Set<String> ids = valuesPendingForTransmit.keySet();
+		Set<String> ids = localChangedValues.keySet();
 		for (String id : ids)
 		{
-			Object newValue = valuesPendingForTransmit.get(id);
+			Object newValue = localChangedValues.get(id);
 	        if (newValue instanceof Title) {
     	    	((ClassNode)getRefNode()).setTitle(((Title)newValue).getText(),true);
 	        }
@@ -814,7 +812,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true);
 	        }
 		}
-		valuesPendingForTransmit.clear();
     }
 
 	private void dismissAutomaticMerge(MenuItem cmItemChange) {

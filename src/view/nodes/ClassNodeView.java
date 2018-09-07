@@ -1,10 +1,23 @@
 package view.nodes;
 
+import java.beans.PropertyChangeEvent;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -12,6 +25,8 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -23,10 +38,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
-import model.RemoteChange;
-import model.nodes.AbstractNode;
 import model.nodes.Attribute;
 import model.nodes.ClassNode;
 import model.nodes.IdentifiedTextField;
@@ -34,20 +45,6 @@ import model.nodes.Operation;
 import model.nodes.Title;
 import util.Constants;
 import util.GlobalVariables;
-import view.edges.AbstractEdgeView;
-
-import java.beans.PropertyChangeEvent;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Visual representation of ClassNode class.
@@ -456,7 +453,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	Attribute textField = new Attribute("");
     	textField.setXmiId("att" + UUID.randomUUID().toString());
     	createHandlesAttributesOperations(textField);
-		vbox.getChildren().add(textField);
+		vbox.getChildren().add(attributesSize()+2,textField);
 		((ClassNode)getRefNode()).setAttribute(indexOf(textField),textField, false);
     }
     
@@ -465,7 +462,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	Operation textField = new Operation("");
     	textField.setXmiId("oper" + UUID.randomUUID().toString());
     	createHandlesAttributesOperations(textField);
-		vbox.getChildren().add(textField);    	
+		vbox.getChildren().add(attributesSize()+operationsSize()+3,textField);    	
 		((ClassNode)getRefNode()).setOperation(indexOf(textField),textField, false);
     }
     
@@ -499,47 +496,96 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	}  
     	return null;
     }
+
+    public boolean elementUpdated(PropertyChangeEvent evt, int index, Object oldValue, Object newValue) {
+    	logger.debug("elementUpdated()");
+    	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
+    		if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText()) ) {
+    			return true;
+    		}
+    	} else {
+        	// It is a new value
+    		if (oldValue == null) {
+    			return true;
+    		}
+    		// It is a deleted or updated value
+    		else {
+            	// It is a deleted value
+            	if (index == -1) {
+        			return true;
+            	}
+            	// It is a updated value
+            	else {
+        			// Update text if it was altered
+        			if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText())) {
+            			return true;
+        			}
+        			// If moved upper or down
+        			if (indexOf(((IdentifiedTextField)oldValue)) != index) {
+            			return true;
+        			}
+            	}
+    		}
+    	}
+    	return false;
+    }
     
-    public void updateTextField(PropertyChangeEvent evt, int index, Object oldValue, Object newValue) {
+    public boolean updateTextField(PropertyChangeEvent evt, int index, Object oldValue, Object newValue) {
     	logger.debug("updateAttributeOperation()");
+    	boolean updated = false;
     	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
     		if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText()) ) {
     			((TextField)oldValue).setText(((TextField)newValue).getText());
+    			updated = true;
     		}
-	    	((ClassNode)getRefNode()).setTitleOnly(((TextField)newValue).getText());
     	} else {
         	// It is a new value
     		if (oldValue == null) {
         		createHandlesAttributesOperations(((IdentifiedTextField)newValue));
 				addAttributeOperationToVbox(index,((IdentifiedTextField)newValue));
+    			updated = true;
     		}
     		// It is a deleted or updated value
     		else {
             	// It is a deleted value
             	if (index == -1) {
                     vbox.getChildren().remove(oldValue);
+        			updated = true;
             	}
             	// It is a updated value
             	else {
         			// Update text if it was altered
         			if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText())) {
         				((TextField)oldValue).setText(((TextField)newValue).getText());
+            			updated = true;
         			}
         			// If moved upper or down
         			if (indexOf(((IdentifiedTextField)oldValue)) != index) {
         				vbox.getChildren().remove(oldValue);
         				addAttributeOperationToVbox(index,(IdentifiedTextField)oldValue);
+            			updated = true;
         			}
             	}
     		}
+    	}
+    	return updated;
+    }
+    
+    public boolean updateModel(PropertyChangeEvent evt, int index, Object oldValue, Object newValue) {
+    	logger.debug("notifyModel()");
+    	boolean updated = false;
+    	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
+	    	((ClassNode)getRefNode()).setTitleOnly(((TextField)newValue).getText());
+    	} else {
     		if (newValue instanceof Attribute) {
     	    	((ClassNode)getRefNode()).setAttributeOnly(index,(Attribute)newValue);
     		} else {
     	    	((ClassNode)getRefNode()).setOperationOnly(index,(Operation)newValue);
     		}
     	}
+    	return updated;
     }
-
+    
     private void recordChange(Object newValue) {
         Object change;
         String id;
@@ -603,19 +649,24 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		logger.debug("The type of collaboration is synchronous, performed simple update");
     		// Update old value
     		updateTextField(evt, index, oldValue, newValue);
+    		updateModel(evt, index, oldValue, newValue);
     	}
     	// *** UMLCollab collaboration type ***
     	else {
         	// *** Local change ***
         	if (evt.getNewValue() instanceof String) {
-        		logger.debug("Local change, performed simple update and record of the change");
-        		// Update old value
-        		updateTextField(evt, index, oldValue, newValue);
+        		logger.debug("Local change, update already done, only updating model and recording the change");
+        		// Update model
+        		updateModel(evt, index, oldValue, newValue);
         		// Records the change
             	recordChange(newValue);
         	}
     		// *** Remote change ***
         	else {
+        		// Abort if remote change does not differ from local one
+        		if (!elementUpdated(evt, index, oldValue, newValue)) {
+        			return;
+        		}
         		// Get remote user name
         		String userName = dataArray[3];
         		// Get proper id for the object
@@ -627,9 +678,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	}
         		// If no previous changes were made, simple do a automatic merge
         		if (localChangedValues.get(id) == null) {
-            		logger.debug("Remote change without previous changes, performed automatic merge");
+               		logger.debug("Remote change without previous changes, performed automatic merge");
             		// Update old value
-            		updateTextField(evt, index, oldValue, newValue);
+        			updateTextField(evt, index, oldValue, newValue);
+        			// Update model
+            		updateModel(evt, index, oldValue, newValue);
 	    	    	// Add new merge history
 	            	MenuItem cmChange = new MenuItem(GlobalVariables.getString("mergedTo") + " '" +
 	  	  					newValueStr + "'" + getDateTimeUserSuffixString(userName));
@@ -670,6 +723,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		        	cmItemActionAprove.setOnAction(event -> {
 		    	    	// Update old value
 		        		updateTextField(evt, (int)cmItemActionAprove.getUserData(), oldValue, newValue);
+		        		// Update model
+		        		updateModel(evt, (int)cmItemActionAprove.getUserData(), oldValue, newValue);
 		        		// Clear pending evaluation dispatch queue
 		    	        if (oldValue instanceof Title) {
 		    	    		while (((TextField)oldValue).getContextMenu().getItems().size() > 3) {

@@ -54,6 +54,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	private static Logger logger = LoggerFactory.getLogger(ClassNodeView.class);
 	
 	private Map<String, Object> localChangedValues = new HashMap<String, Object>();
+	private Map<String, Object> localRemovedValues = new HashMap<String, Object>();
 	
     private Rectangle rectangle;
 
@@ -503,16 +504,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     			return true;
     		}
     	} else {
-        	// It is a new value
-    		if (oldValue == null) {
+        	// It is a deleted value
+        	if (index == -1) {
     			return true;
-    		}
-    		// It is a deleted or updated value
+        	}
+    		// It is a new or updated value
     		else {
-            	// It is a deleted value
-            	if (index == -1) {
+            	// It is a new value
+        		if (oldValue == null) {
         			return true;
-            	}
+        		}
             	// It is a updated value
             	else {
         			// Update text if it was altered
@@ -538,19 +539,19 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     			updated = true;
     		}
     	} else {
-        	// It is a new value
-    		if (oldValue == null) {
-        		createHandlesAttributesOperations(((IdentifiedTextField)newValue));
-				addAttributeOperationToVbox(index,((IdentifiedTextField)newValue));
+        	// It is a deleted value
+        	if (index == -1) {
+                vbox.getChildren().remove(oldValue);
     			updated = true;
-    		}
-    		// It is a deleted or updated value
+        	}
+    		// It is a new or updated value
     		else {
-            	// It is a deleted value
-            	if (index == -1) {
-                    vbox.getChildren().remove(oldValue);
+            	// It is a new value
+        		if (oldValue == null) {
+            		createHandlesAttributesOperations(((IdentifiedTextField)newValue));
+    				addAttributeOperationToVbox(index,((IdentifiedTextField)newValue));
         			updated = true;
-            	}
+        		}
             	// It is a updated value
             	else {
         			// Update text if it was altered
@@ -585,7 +586,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	return updated;
     }
     
-    private void recordChange(Object newValue) {
+    private void recordChange(Object newValue, boolean removed) {
         Object change;
         String id;
     	if (newValue instanceof Title) {
@@ -600,8 +601,12 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 			}
 			((IdentifiedTextField)change).toString(((IdentifiedTextField)newValue).toString());
 			id = ((IdentifiedTextField)newValue).getXmiId();
-    	}    	
-    	localChangedValues.put(id, change);
+    	}
+    	if (removed) {
+    		localRemovedValues.put(id, change);
+    	} else {
+        	localChangedValues.put(id, change);
+    	}
     }
     
     public void umlCollab(PropertyChangeEvent evt) {
@@ -657,7 +662,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		// Update model
         		updateModel(evt, index, oldValue, newValue);
         		// Records the change
-            	recordChange(newValue);
+        		if (index == -1) {
+                	recordChange(newValue, true);
+        		} else {
+                	recordChange(newValue, false);
+        		}
         	}
     		// *** Remote change ***
         	else {
@@ -740,7 +749,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		      					". " + GlobalVariables.getString("accepted") + ".");
 		      	  	  	cmHistory.getItems().add(1, cmChangeAproved);
 	  	        		// Records the change
-	  	            	recordChange(newValue);
+		        		if ((int)cmItemActionAprove.getUserData() == -1) {
+		                	recordChange(newValue, true);
+		        		} else {
+		                	recordChange(newValue, false);
+		        		}		      	  	  	
 		    			// Remove conflict indication
 		        		((TextField)oldValue).setStyle("-fx-text-inner-color: black;");
 		            });            
@@ -810,6 +823,19 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	        else if (newValue instanceof Operation){
 	        	Operation operation = (Operation) getAttributeOperation(((Operation)newValue).getXmiId());
     	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true);
+	        }
+		}
+		ids = localRemovedValues.keySet();
+		for (String id : ids)
+		{
+			Object newValue = localRemovedValues.get(id);
+	        if (newValue instanceof Attribute){
+	        	Attribute attribute = (Attribute) newValue;
+    	    	((ClassNode)getRefNode()).setAttribute(-1, attribute, true);
+	        }
+	        else if (newValue instanceof Operation){
+	        	Operation operation = (Operation) newValue;
+    	    	((ClassNode)getRefNode()).setOperation(-1, operation, true);
 	        }
 		}
     }

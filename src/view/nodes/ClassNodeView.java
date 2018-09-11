@@ -529,6 +529,52 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	}
     	return false;
     }
+
+    public String getUpdateTypeString(PropertyChangeEvent evt, int index, Object oldValue, Object newValue) {
+    	logger.debug("elementUpdated()");
+    	String updateType = "";
+    	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
+    		if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText()) ) {
+    			updateType = GlobalVariables.getString("updatedTo") + " '" + ((TextField)newValue).getText() + "'";
+    		}
+    	} else {
+        	// It is a deleted value
+        	if (index == -1) {
+        		updateType = GlobalVariables.getString("elementDeleted");
+        	}
+    		// It is a new or updated value
+    		else {
+            	// It is a new value
+        		if (oldValue == null) {
+        			updateType = GlobalVariables.getString("newElement");
+        		}
+            	// It is a updated value
+            	else {
+        			// Update text if it was altered
+        			if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText())) {
+            			updateType = GlobalVariables.getString("updatedTo") + " '" + ((TextField)newValue).getText() + "'";
+        			}
+        			// If moved upper or down
+        			if (indexOf(((IdentifiedTextField)oldValue)) != index) {
+        				if (!updateType.equals("")) {
+        					updateType = updateType + " " + GlobalVariables.getString("and") + " ";
+        				}
+            			if (indexOf(((IdentifiedTextField)oldValue)) < index) {
+            				updateType = updateType + GlobalVariables.getString("movedDown") +
+                					" " + (index-indexOf(((IdentifiedTextField)oldValue))) +
+                					" " + GlobalVariables.getString("positions");
+            			} else if (indexOf(((IdentifiedTextField)oldValue)) > index) {
+            				updateType = updateType + GlobalVariables.getString("movedUp") +
+                					" " + (indexOf(((IdentifiedTextField)oldValue))-index) +
+                					" " + GlobalVariables.getString("positions");
+            			}
+        			}
+            	}
+    		}
+    	}
+    	return updateType;
+    }
+    
     
     public boolean updateTextField(PropertyChangeEvent evt, int index, Object oldValue, Object newValue) {
     	logger.debug("updateAttributeOperation()");
@@ -684,15 +730,17 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		id = ((IdentifiedTextField)newValue).getXmiId();
             	}
         		// If no previous changes were made, simple do a automatic merge
-        		if (localChangedValues.get(id) == null) {
+        		if (localChangedValues.get(id) == null && localRemovedValues.get(id) == null) {
                		logger.debug("Remote change without previous changes, performed automatic merge");
+	    	    	// Get merge string
+	            	MenuItem cmChange = new MenuItem(GlobalVariables.getString("merged") + ": " +
+		            		getUpdateTypeString(evt, index, oldValue, newValue) + " " +
+		            		getDateTimeUserSuffixString(userName));
             		// Update old value
         			updateTextField(evt, index, oldValue, newValue);
         			// Update model
             		updateModel(evt, index, oldValue, newValue);
 	    	    	// Add new merge history
-	            	MenuItem cmChange = new MenuItem(GlobalVariables.getString("mergedTo") + " '" +
-	  	  					newValueStr + "'" + getDateTimeUserSuffixString(userName));
 	            	Menu cmHistory;
   	    	  	  	if (oldValue != null) {
   		  	  			cmHistory = getHistoryMenu((TextField)oldValue);
@@ -717,7 +765,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	        			}
 	        		}
 		        	// Create conflict record
-		            Menu cmChange = new Menu(GlobalVariables.getString("conflictingValue") + ": '" + newValueStr + "'" +
+		            Menu cmChange = new Menu(GlobalVariables.getString("conflict") + ": " +
+		            		getUpdateTypeString(evt, index, oldValue, newValue) + " " +
 		            		getDateTimeUserSuffixString(userName));
 		            if (newValue instanceof Title) {
 			    		((TextField)oldValue).getContextMenu().getItems().add(2,cmChange);

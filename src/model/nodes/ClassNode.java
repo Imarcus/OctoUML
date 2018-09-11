@@ -17,8 +17,8 @@ public class ClassNode extends AbstractNode implements Serializable
 {
 	private static final Logger logger = LoggerFactory.getLogger(ClassNode.class);
     private static final String TYPE = "CLASS";
-    private List<String> attributes;
-    private List<String> operations;
+    private List<String> attributes = new ArrayList<>();
+    private List<String> operations = new ArrayList<>();
 
     public ClassNode(double x, double y, double width, double height)
     {
@@ -63,25 +63,23 @@ public class ClassNode extends AbstractNode implements Serializable
     
     public void setAttributes(List<Attribute> pAttributes) {
     	logger.debug("setAttributes(List<Attribute>)");
-    	if (attributes == null) {
-    		attributes = new ArrayList<>();
-    	} else {
-    		attributes.clear();
-    	}
+		attributes.clear();
     	for(Attribute attribute: pAttributes) {
     		attributes.add(attribute.toString());
     	}
     }
     
     private void removeAttribute(Attribute newValue) {
-    	for(String oldValueStr: attributes) {
-    		Attribute oldValue = new Attribute("");
-    		oldValue.toString(oldValueStr);
-    		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
-    			attributes.remove(oldValueStr);
-        		break;
-    		}
-    	}    	
+    	if (newValue != null) {
+        	for(String oldValueStr: attributes) {
+        		Attribute oldValue = new Attribute("");
+        		oldValue.toString(oldValueStr);
+        		if (oldValue.getXmiId().equals(newValue.getXmiId())) {
+        			attributes.remove(oldValueStr);
+            		break;
+        		}
+        	}    	
+    	}
     }
 
     private void removeOperation(Operation newValue) {
@@ -128,9 +126,6 @@ public class ClassNode extends AbstractNode implements Serializable
     
     public void setAttribute(int index, Attribute newValue, boolean transmit){
     	logger.debug("setAttribute()");
-    	if (attributes == null) {
-    		attributes = new ArrayList<>();
-    	}
        	setAttributeOnly(index, newValue);
        	String newValueStr;
     	if (index == -1) {
@@ -154,11 +149,7 @@ public class ClassNode extends AbstractNode implements Serializable
 
     public void setOperations(List<Operation> pOperation) {
     	logger.debug("setOperations(List<Operation>)");
-    	if (operations == null) {
-    		operations = new ArrayList<>();
-    	} else {
-    		operations.clear();
-    	}
+		operations.clear();
     	for(Operation operation: pOperation) {
     		operations.add(operation.toString());
     	}

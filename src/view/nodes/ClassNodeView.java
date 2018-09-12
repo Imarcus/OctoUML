@@ -425,7 +425,12 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     			} else {
     				Operation tf = (Operation) modifiedTextField;
         			((ClassNode)getRefNode()).setOperation(-1,tf, false);
-    	    	}
+        	        if (operationsSize() > 0) {
+        	            secondLine.setVisible(true);
+        	        } else {
+        	            secondLine.setVisible(false);
+        	        }
+    	        }
     	    }
     	});
 		
@@ -464,6 +469,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(attributesSize()+operationsSize()+3,textField);    	
 		((ClassNode)getRefNode()).setOperation(indexOf(textField),textField, false);
+        secondLine.setVisible(true);
     }
     
     private Menu getHistoryMenu (TextField textField) {
@@ -479,7 +485,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     
     private String getDateTimeUserSuffixString(String userName) {
 		Date currentDate = new Date();
-        String dateTimeUserSuffixString = " (" + GlobalVariables.getString("by") + " " + userName +
+        String dateTimeUserSuffixString = "(" + GlobalVariables.getString("by") + " " + userName +
         		" " + GlobalVariables.getString("in") + " " + new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(currentDate) + ")";
         return dateTimeUserSuffixString;
     }
@@ -508,6 +514,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	if (index == -1) {
     			return true;
         	}
+        	// Special case when received a attribute or operation that was deleted locally
+	       	 else if (index == -2) {
+    			return true;
+	       	}
     		// It is a new or updated value
     		else {
             	// It is a new value
@@ -541,6 +551,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	// It is a deleted value
         	if (index == -1) {
         		updateType = GlobalVariables.getString("elementDeleted");
+        	}
+        	// Special case when received a attribute or operation that was deleted locally
+        	 else if (index == -2) {
+        		updateType = GlobalVariables.getString("localDeleteConfictsWithRemoteUpdate");
         	}
     		// It is a new or updated value
     		else {
@@ -583,35 +597,52 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText()) ) {
     			((TextField)oldValue).setText(((TextField)newValue).getText());
     			updated = true;
+    	    	logger.debug("old value updated");
     		}
     	} else {
         	// It is a deleted value
-        	if (index == -1) {
-                vbox.getChildren().remove(oldValue);
-    			updated = true;
-        	}
-    		// It is a new or updated value
-    		else {
+    		if (index == -1 || index == -2 || oldValue == null) {
+            	if (index == -1) {
+                    vbox.getChildren().remove(oldValue);
+        			updated = true;
+        	    	logger.debug("old removed");
+            	}
+            	// Special case when received a attribute or operation that was deleted locally and now rejected
+            	else if (index == -2) {
+                    vbox.getChildren().remove(newValue);
+        			updated = true;
+        	    	logger.debug("new value removed");
+            	}
             	// It is a new value
-        		if (oldValue == null) {
+                else if (oldValue == null) {
             		createHandlesAttributesOperations(((IdentifiedTextField)newValue));
     				addAttributeOperationToVbox(index,((IdentifiedTextField)newValue));
         			updated = true;
+        	    	logger.debug("new value created");
         		}
-            	// It is a updated value
-            	else {
-        			// Update text if it was altered
-        			if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText())) {
-        				((TextField)oldValue).setText(((TextField)newValue).getText());
-            			updated = true;
-        			}
-        			// If moved upper or down
-        			if (indexOf(((IdentifiedTextField)oldValue)) != index) {
-        				vbox.getChildren().remove(oldValue);
-        				addAttributeOperationToVbox(index,(IdentifiedTextField)oldValue);
-            			updated = true;
-        			}
+            	if (evt.getPropertyName().equals(Constants.changeClassNodeOperation)) {
+                    if (operationsSize() > 0) {
+                        secondLine.setVisible(true);
+                    } else {
+                        secondLine.setVisible(false);
+                    }
             	}
+    		}
+        	// It is a updated value
+    		else {
+    			// Update text if it was altered
+    			if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText())) {
+    				((TextField)oldValue).setText(((TextField)newValue).getText());
+        			updated = true;
+        	    	logger.debug("old value updated");
+    			}
+    			// If moved up or down
+    			if (indexOf(((IdentifiedTextField)oldValue)) != index) {
+    				vbox.getChildren().remove(oldValue);
+    				addAttributeOperationToVbox(index,(IdentifiedTextField)oldValue);
+        			updated = true;
+        	    	logger.debug("old value moved up or down");
+    			}
     		}
     	}
     	return updated;
@@ -649,9 +680,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 			id = ((IdentifiedTextField)newValue).getXmiId();
     	}
     	if (removed) {
+    		localChangedValues.remove(id);
     		localRemovedValues.put(id, change);
     	} else {
         	localChangedValues.put(id, change);
+    		localRemovedValues.remove(id);
     	}
     }
     
@@ -741,33 +774,93 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         			// Update model
             		updateModel(evt, index, oldValue, newValue);
 	    	    	// Add new merge history
-	            	Menu cmHistory;
+	            	Menu cmHistory = null;
   	    	  	  	if (oldValue != null) {
   		  	  			cmHistory = getHistoryMenu((TextField)oldValue);
-  	    	  	  	} else {
+  	    	  	  	} else if (newValue != null) {
   		  	  			cmHistory = getHistoryMenu((TextField)newValue);
   	    	  	  	}
-	  	  			cmHistory.getItems().add(1, cmChange);
+  	    	  	  	if (cmHistory != null) {
+  		  	  			cmHistory.getItems().add(1, cmChange);
+  	    	  	  	}
   	    	  	  	// Indicates the automatic merge
   	    	  	  	if (oldValue != null) {
   	  	    	  	  	((TextField)oldValue).setStyle("-fx-text-inner-color: green;");
-  	    	  	  	} else {
+  	    	  	  	} else if (newValue != null) {
   	  	    	  	  	((TextField)newValue).setStyle("-fx-text-inner-color: green;");
   	    	  	  	}
         		}
+        		// When receiving a attribute or operation that was deleted locally
+	        	else if (localRemovedValues.get(id) != null && index != -1) {
+		            // We need to recreate removed element again
+		        	if (!evt.getPropertyName().equals(Constants.changeNodeTitle)) {
+                		createHandlesAttributesOperations(((IdentifiedTextField)newValue));
+        				addAttributeOperationToVbox(index,((IdentifiedTextField)newValue));
+	  	        		// Records the change
+	                	recordChange(newValue, false);
+		        	}
+	    	    	// Get conflict string
+		            Menu cmChange = new Menu(GlobalVariables.getString("conflict") + ": " +
+		            		getUpdateTypeString(evt, -2, oldValue, newValue) + " " +
+		            		getDateTimeUserSuffixString(userName));
+	        		// Create conflict record
+		            if (newValue instanceof Title) {
+			    		((TextField)newValue).getContextMenu().getItems().add(2,cmChange);
+		            } else {
+			    		((TextField)newValue).getContextMenu().getItems().add(3,cmChange);
+		            }		            
+		            // Create aprove option
+		            MenuItem cmItemActionAprove = new MenuItem(GlobalVariables.getString("accept"));
+		            cmItemActionAprove.setUserData(index);
+		        	cmItemActionAprove.setOnAction(event -> {
+		        		// Remove conflict from pending evaluation dispatch queue
+		        		((TextField)newValue).getContextMenu().getItems().remove(cmChange);
+		        		// Record conflict decision to history
+		      			Menu cmHistory = getHistoryMenu(((TextField)newValue));
+		      			MenuItem cmChangeRejected = new MenuItem(cmChange.getText() +
+		      					". " + GlobalVariables.getString("accepted") + ".");
+		      	  	  	cmHistory.getItems().add(1, cmChangeRejected);
+	  	        		// Records the change
+	                	recordChange(newValue, false);
+		    			// Remove conflict indication only with empty pending evaluation dispatch queue
+		        		if (newValue instanceof Title) {
+			        		if (((TextField)newValue).getContextMenu().getItems().size() == 3) {
+			        			((TextField)newValue).setStyle("-fx-text-inner-color: black;");
+			        		}
+		        		} else {
+			        		if (((TextField)newValue).getContextMenu().getItems().size() == 4) {
+			        			((TextField)newValue).setStyle("-fx-text-inner-color: black;");
+			        		}
+		        		}
+		            });            
+		            // Create reject option
+		        	MenuItem cmItemActionReject = new MenuItem(GlobalVariables.getString("reject"));
+		        	cmItemActionReject.setOnAction(event -> {
+		    	    	// Remove new value
+		        		updateTextField(evt, -2, oldValue, newValue);
+	  	        		// Records the change
+	                	recordChange(newValue, true);
+		            });        
+		    		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
+		    		((TextField)newValue).setStyle("-fx-text-inner-color: red;");
+	        	}
         		// If previous changes were made, record conflict
-	        	else {
+	        	else if (localChangedValues.get(id) != null) {
 		        	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
-		        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
-	        			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(userName)) {
-	    		        	logger.debug("New remote change frow same user, removing old value from pending evaluation dispatch queue");
-	        				((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(i));
-	        			}
+	        		if (oldValue != null) {
+			        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
+		        			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(userName)) {
+		    		        	logger.debug("New remote change frow same user, removing old value from pending evaluation dispatch queue");
+		        				((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(i));
+		        			}
+		        		}
 	        		}
-		        	// Create conflict record
+	    	    	// Get conflict string
 		            Menu cmChange = new Menu(GlobalVariables.getString("conflict") + ": " +
 		            		getUpdateTypeString(evt, index, oldValue, newValue) + " " +
 		            		getDateTimeUserSuffixString(userName));
+	            
+	        		// Create conflict record
 		            if (newValue instanceof Title) {
 			    		((TextField)oldValue).getContextMenu().getItems().add(2,cmChange);
 		            } else {
@@ -808,6 +901,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		            });            
 		            // Create reject option
 		        	MenuItem cmItemActionReject = new MenuItem(GlobalVariables.getString("reject"));
+		        	cmItemActionReject.setUserData(index);
 		        	cmItemActionReject.setOnAction(event -> {
 		        		// Remove conflict from pending evaluation dispatch queue
 		        		((TextField)oldValue).getContextMenu().getItems().remove(cmChange);
@@ -829,7 +923,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		            });        
 		    		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
 		    		// Indicates the conflict
-		    		((TextField)oldValue).setStyle("-fx-text-inner-color: red;");
+		    		if (oldValue != null) {
+			    		((TextField)oldValue).setStyle("-fx-text-inner-color: red;");
+		    		} else if (newValue != null) {
+			    		((TextField)newValue).setStyle("-fx-text-inner-color: red;");
+		    		}
 	        	}
         	}
     	}

@@ -759,7 +759,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 			        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
 		        			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(userName)) {
 		    		        	logger.debug("New remote change frow same user, removing old value from pending evaluation dispatch queue");
-		        				((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(i));
+		    	        		// Record conflict decision to history
+		    	      			Menu cmHistory = getHistoryMenu(((TextField)oldValue));
+		    	      			MenuItem cmChange = new MenuItem(((TextField)oldValue).getContextMenu().getItems().get(i).getText() +
+		    	      					". " + GlobalVariables.getString("discardedRemoteVersionMatchsLocalVersion") + ".");
+		    	      	  	  	cmHistory.getItems().add(1, cmChange);
+		    		        	// Removing old value from pending evaluation dispatch queue
+		    	      	  	  	((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(i));
 		        			}
 		        		}
 	        		}

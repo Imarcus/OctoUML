@@ -749,12 +749,32 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	}
     		// *** Remote change ***
         	else {
-        		// Abort if remote change does not differ from local one
-        		if (!elementUpdated(evt, index, oldValue, newValue)) {
-        			return;
-        		}
         		// Get remote user name
         		String userName = dataArray[3];
+        		// If remote change does not differ from local one, nothing do so, except remove
+        		// old conflicts from same user from conflicting pending evaluation dispatch queue
+        		if (!elementUpdated(evt, index, oldValue, newValue)) {
+		        	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
+	        		if (oldValue != null) {
+			        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
+		        			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(userName)) {
+		    		        	logger.debug("New remote change frow same user, removing old value from pending evaluation dispatch queue");
+		        				((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(i));
+		        			}
+		        		}
+	        		}
+	    			// Remove conflict indication only with empty pending evaluation dispatch queue
+	        		if (oldValue instanceof Title) {
+		        		if (((TextField)oldValue).getContextMenu().getItems().size() == 3) {
+		        			((TextField)oldValue).setStyle("-fx-text-inner-color: black;");
+		        		}
+	        		} else {
+		        		if (((TextField)oldValue).getContextMenu().getItems().size() == 4) {
+		        			((TextField)oldValue).setStyle("-fx-text-inner-color: black;");
+		        		}
+	        		}
+        			return;
+        		}
         		// Get proper id for the object
         		String id;
             	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {

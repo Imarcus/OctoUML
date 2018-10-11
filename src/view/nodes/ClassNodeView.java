@@ -588,7 +588,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	}
         	// Special case when received a attribute or operation that was deleted locally
         	 else if (index == -2) {
-        		updateType = GlobalVariables.getString("localDeleteConfictsWithRemoteUpdate");
+        		updateType = GlobalVariables.getString("remoteUpdateConfictsWithLocalDelete");
         	}
     		// It is a new or updated value
     		else {
@@ -882,8 +882,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		updateTextField(evt, index, oldValue, newValue);
     		updateModel(evt, index, oldValue, newValue);
     	}
+    	
     	// *** UMLCollab collaboration type ***
     	else {
+    		
         	// *** Local change ***
         	if (evt.getNewValue() instanceof String) {
         		logger.debug("Local change, update already done, only updating model and recording the change");
@@ -896,15 +898,24 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 	recordChange(newValue, false, null);
         		}
         	}
+        	
     		// *** Remote change ***
         	else {
-        		// If remote change does not differ from local one, nothing do so, except remove
-        		// old conflicts from same user from conflicting pending evaluation dispatch queue
+
+        		// Get proper id for the object
+        		String id;
+            	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
+            		id = ((ClassNode)getRefNode()).getId();
+            	} else {
+            		id = ((IdentifiedTextField)newValue).getXmiId();
+            	}
+        		
+        		// *** NO CHANGES, REMOTE ELEMENT EQUALS LOCAL ELEMENT ***
         		if (!elementUpdated(evt, index, oldValue, newValue)) {
     	    		logger.info(GlobalVariables.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
     	    				"\nOld value: '" + ((TextField)oldValue).getText() + "'" +
-    	    				"\nRemote change does not differ from local one");
+    	    				"\nNo changes, remote element equals local element.");
 		        	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
 	        		if (oldValue != null) {
 			        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
@@ -921,14 +932,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		        		}
 	        		}
 	    			// Remove conflict indication
-	        		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue((TextField)oldValue);
-	        		
+	        		// TODO: When it is green, should not be removed the conflict indication
+	        		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue((TextField)oldValue);	        		
 	            	// If old value id differ from newValue id then the new value have the same
-	            	// name of old value, so there is a special conflict case
+	            	// name of old value. In this case only a id update is needed
 	            	if (oldValue != null &&
 	            			(oldValue instanceof Attribute || oldValue instanceof Operation)  &&
 	            			(!((IdentifiedTextField)oldValue).getXmiId().equals(((IdentifiedTextField)newValue).getXmiId())) ) {
-    		        	logger.debug("Remote new element name matchs local element name without changes, updating id.");
+    		        	logger.info("Remote new element name matchs local element name without changes.");
     		        	String oldId = ((IdentifiedTextField)oldValue).getXmiId();
 	            		((IdentifiedTextField)oldValue).setXmiId(((IdentifiedTextField)newValue).getXmiId());
 	            		// Replace the record of the change of old id for new one
@@ -937,27 +948,18 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	            		} else {
 	                    	recordChange(oldValue, false, oldId);
 	            		}
-	            	}
-	        		
+	            	}	        		
         			return;
         		}
-        		// Get proper id for the object
-        		String id;
-            	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
-            		id = ((ClassNode)getRefNode()).getId();
-            	} else {
-            		id = ((IdentifiedTextField)newValue).getXmiId();
-            	}
-            	
-            	// If old value id differ from newValue id then the new value have the same
-            	// name of old value, so there is a special conflict case
+        		
+            	// CONFLICT, REMOTE NEW ELEMENT NAME MATCHS LOCAL ELEMENT NAME WITH CHANGES
             	if (oldValue != null &&
             			(oldValue instanceof Attribute || oldValue instanceof Operation)  &&
             			(!((IdentifiedTextField)oldValue).getXmiId().equals(((IdentifiedTextField)newValue).getXmiId())) ) {
     	    		logger.info(GlobalVariables.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
     	    				"\nOld value: '" + ((TextField)oldValue).getText() + "'" +
-    	    				"\nRemote new element name matchs local element name with changes, record conflict and updating id.");
+    	    				"\nConflict, remote new element name matchs local element name with changes.");
 		        	String oldId = ((IdentifiedTextField)oldValue).getXmiId();
             		((IdentifiedTextField)oldValue).setXmiId(((IdentifiedTextField)newValue).getXmiId());
             		// Replace the record of the change of old id for new one
@@ -970,12 +972,12 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	        		return;
             	}
             	
-        		// If no previous changes were made, simple do a automatic merge
-        		if (localChangedValues.get(id) == null && localRemovedValues.get(id) == null) {
+        		// SIMPLE MERGE, REMOTE CHANGE WITHOUT LOCAL CHANGES
+        		if (localChangedValues.get(id) == null && localRemovedValues.get(id) == null  && index != -1) {
     	    		logger.info(GlobalVariables.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
     	    				"\nOld value: '" + oldValue + "'" +
-    	    				"\nRemote change without local change, performing automatic merge");
+    	    				"\nSimple merge, remote change without local change");
 	    	    	// Get merge string
 	            	MenuItem cmChange = new MenuItem(GlobalVariables.getString("merged") + ": " +
 		            		getUpdateTypeString(evt, index, oldValue, newValue) + " " +
@@ -1001,12 +1003,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
   	  	    	  	  	((TextField)newValue).setStyle("-fx-text-inner-color: green;");
   	    	  	  	}
         		}
-        		// When receiving a attribute or operation that was deleted locally
+        		
+        		// CONFLICT, REMOTE CHANGE WITH LOCAL DELETE
 	        	else if (localRemovedValues.get(id) != null && index != -1) {
     	    		logger.info(GlobalVariables.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
-    	    				"\nOld value: '" + ((TextField)oldValue).getText() + "'" +
-    	    				"\nLocal delete with remote change, recording conflict");
+    	    				"\nOld value: '" + oldValue + "'" +
+    	    				"\nConflict, remote change with local delete");
 		            // We need to recreate removed element again
 		        	if (!evt.getPropertyName().equals(Constants.changeNodeTitle)) {
                 		createHandlesAttributesOperations(((IdentifiedTextField)newValue));
@@ -1051,12 +1054,18 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		    		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
 		    		((TextField)newValue).setStyle("-fx-text-inner-color: red;");
 	        	}
-        		// If previous changes were made, record conflict
-	        	else if (localChangedValues.get(id) != null) {
-    	    		logger.info(GlobalVariables.getUserName() +
+        		
+        		// CONFLICT, REMOTE CHANGE WITH LOCAL CHANGE OR REMOTE DELETE WITHOUT LOCAL CHANGE
+	        	else if (localChangedValues.get(id) != null
+	        			|| localChangedValues.get(id) != null && index == -1) {
+	        		String logMessage = GlobalVariables.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
-    	    				"\nOld value: '" + ((TextField)oldValue).getText() + "'" +
-    	    				"\nLocal change with remote change, recording conflict");
+    	    				"\nOld value: '" + ((TextField)oldValue).getText() + "'";
+	        		if (index != -1) {
+	    	    		logger.info(logMessage + "\nRemote change with Local change, recording conflict");
+	        		} else {
+	    	    		logger.info(logMessage + "\nRemote delete without local change, recording conflict");
+	        		}
 	        		RemoteChangeToLocalChangeConflict(evt, (TextField) oldValue, (TextField) newValue, index, userName);
 	        	}
         	}

@@ -492,22 +492,93 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         return dateTimeUserSuffixString;
     }
     
-    private String extractNameFromAttributeOperation(String element) {
-    	String name = element.replace(" ","");
-    	if (name.contains("-")) {
-        	name = name.substring(name.indexOf("-")+1);
+    private List<String> split(Attribute element) {
+     	String aux = element.getText().replace(" ","");
+        String visibility, name, returnType;
+        List<String> list = new ArrayList<>();
+
+        //Get visibility;
+    	if (aux.contains("-")) {
+    		visibility = "-";
+        	aux = aux.substring(aux.indexOf("-")+1);
+    	} else if (aux.contains("+")) {
+    		visibility = "+";
+        	aux = aux.substring(aux.indexOf("+")+1);
+    	} else {
+        	visibility = "-";
     	}
-    	if (name.contains("+")) {
-        	name = name.substring(name.indexOf("+")+1);
+    	list.add(visibility);
+    	
+        //Get name and return type;
+    	if (aux.contains(":")) {
+        	name = aux.substring(0, aux.indexOf(":"));
+        	returnType = aux.substring(aux.indexOf(":")+1);
+    	} else {
+        	name = aux;
+        	returnType = "";
     	}
-    	if (name.contains(":")) {
-        	name = name.substring(0, name.indexOf(":"));
+    	list.add(name);
+		list.add(returnType);
+    	return list;
+    }
+    
+    private List<String> split(Operation element) {
+     	String aux = element.getText().replace(" ","");
+        String visibility, name, arguments, returnType;
+        List<String> list = new ArrayList<>();
+
+        //Get visibility;
+    	if (aux.contains("-")) {
+    		visibility = "-";
+        	aux = aux.substring(aux.indexOf("-")+1);
+    	} else if (aux.contains("+")) {
+    		visibility = "+";
+        	aux = aux.substring(aux.indexOf("+")+1);
+    	} else {
+        	visibility = "-";
     	}
-    	if (name.contains("(")) {
-        	name = name.substring(0, name.indexOf("("));
+    	list.add(visibility);
+    	
+        //Get name
+    	if (aux.contains("(")) {
+        	name = aux.substring(0, aux.indexOf("("));
+    	} if (aux.contains(":")) {
+        	name = aux.substring(0, aux.indexOf(":"));
+    	} else {
+    		name = aux;
     	}
-    	logger.debug("extractNameFromAttributeOperation(" + element + ") returns " + name);
-    	return name;
+    	list.add(name);
+    	
+        //Get arguments
+    	if ( aux.contains("(") && aux.contains(")")
+    			&& ( (aux.indexOf(")")-aux.indexOf(")")) > 1 )
+    			) {    		
+        	arguments = aux.substring(aux.indexOf("(")+1, aux.indexOf(")"));
+    	} else {
+    		arguments = "";
+    	}
+    	list.add(arguments);    	
+
+        //Get return type
+    	if (aux.contains(":")) {
+        	returnType = aux.substring(aux.indexOf(":")+1);
+    	} else if (aux.contains(")")) {
+    		returnType = aux.substring(aux.indexOf(")")+1);
+    	} else {
+    		returnType = "";
+    	}
+		list.add(returnType);
+    	return list;
+    }
+    
+    private String extractNameFromAttributeOperation(IdentifiedTextField element) {
+        List<String> list;
+    	if (element instanceof Attribute) {
+        	list = split((Attribute)element);
+    	} else {
+        	list = split((Operation)element);
+    	}
+    	return list.get(1);
     }
   	  	
     private IdentifiedTextField getAttributeOperation(IdentifiedTextField oldValue) {
@@ -526,8 +597,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		Node node = vbox.getChildren().get(i);
     		if ( node instanceof Attribute || node instanceof Operation ) {
     			IdentifiedTextField tf = (IdentifiedTextField) node;
-        		if (extractNameFromAttributeOperation(tf.getText())
-        				.equals(extractNameFromAttributeOperation(oldValue.getText()))) {
+        		if (extractNameFromAttributeOperation(tf)
+        				.equals(extractNameFromAttributeOperation(oldValue))) {
                     return tf;
         		}
     		}

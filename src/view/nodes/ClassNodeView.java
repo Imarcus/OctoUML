@@ -678,7 +678,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             				newValueList = split((Attribute)newValue);
         				} else {
             				oldValueList = split((Operation)oldValue);
-            				newValueList = split((Attribute)newValue);
+            				newValueList = split((Operation)newValue);
         				}	
         				if ( !oldValueList.get(0).equals(newValueList.get(0)) ) {
         					updateTypeStringList.add( GlobalVariables.getString("visibilityModifiedTo") +
@@ -694,13 +694,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             							" '" + newValueList.get(2) + "'" );
             				}
         				} else {
-            				if ( !oldValueList.get(3).equals(newValueList.get(3)) ) {
+            				if ( !oldValueList.get(2).equals(newValueList.get(2)) ) {
             					updateTypeStringList.add( GlobalVariables.getString("argumentsModifiedTo") +
-            							" '" + newValueList.get(3) + "'" );
+            							" '" + newValueList.get(2) + "'" );
             				}
-            				if ( !oldValueList.get(4).equals(newValueList.get(4)) ) {
+            				if ( !oldValueList.get(3).equals(newValueList.get(3)) ) {
             					updateTypeStringList.add( GlobalVariables.getString("returnTypeModifiedTo") +
-            							" '" + newValueList.get(4) + "'" );
+            							" '" + newValueList.get(3) + "'" );
             				}
         				}
         			}

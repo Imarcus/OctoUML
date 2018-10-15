@@ -1024,7 +1024,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		if (!elementUpdated(evt, index, oldValue, newValue)) {
     	    		logger.info(GlobalVariables.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
-    	    				"\nOld value: '" + ((TextField)oldValue).getText() + "'" +
+    	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nNo changes, remote element equals local element.");
 		        	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
 	        		if (oldValue != null) {
@@ -1068,7 +1068,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             			(!((IdentifiedTextField)oldValue).getXmiId().equals(((IdentifiedTextField)newValue).getXmiId())) ) {
     	    		logger.info(GlobalVariables.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
-    	    				"\nOld value: '" + ((TextField)oldValue).getText() + "'" +
+    	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nConflict, remote new element name matchs local element name with changes.");
 		        	String oldId = ((IdentifiedTextField)oldValue).getXmiId();
             		((IdentifiedTextField)oldValue).setXmiId(((IdentifiedTextField)newValue).getXmiId());
@@ -1165,16 +1165,20 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		    		((TextField)newValue).setStyle("-fx-text-inner-color: red;");
 	        	}
         		
-        		// CONFLICT, REMOTE CHANGE WITH LOCAL CHANGE OR REMOTE DELETE WITHOUT LOCAL CHANGE
+        		// CONFLICT, REMOTE CHANGE WITH LOCAL CHANGE OR REMOTE DELETE WITH/WITHOUT LOCAL CHANGE
 	        	else if (localChangedValues.get(id) != null
-	        			|| localChangedValues.get(id) != null && index == -1) {
+	        			|| index == -1) {
 	        		String logMessage = GlobalVariables.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
-    	    				"\nOld value: '" + ((TextField)oldValue).getText() + "'";
+    	    				"\nOld value: '" + oldValue + "'";
 	        		if (index != -1) {
 	    	    		logger.info(logMessage + "\nRemote change with Local change, recording conflict");
 	        		} else {
-	    	    		logger.info(logMessage + "\nRemote delete without local change, recording conflict");
+	        			if (localChangedValues.get(id) != null) {
+		    	    		logger.info(logMessage + "\nRemote delete with local change, recording conflict");
+	        			} else {
+		    	    		logger.info(logMessage + "\nRemote delete without local change, recording conflict");
+	        			}
 	        		}
 	        		RemoteChangeToLocalChangeConflict(evt, (TextField) oldValue, (TextField) newValue, index, userName);
 	        	}

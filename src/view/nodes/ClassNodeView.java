@@ -641,57 +641,96 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		}
     	}
     	return false;
-    }
-
-    
+    }    
     
     public String getUpdateTypeString(PropertyChangeEvent evt, int index, Object oldValue, Object newValue) {
     	logger.debug("elementUpdated()");
-    	String updateType = "";
+    	List<String> updateTypeStringList = new ArrayList<String>();
+    	String updateTypeString = "";
     	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
     		if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText()) ) {
-    			updateType = GlobalVariables.getString("updatedTo") + " '" + ((TextField)newValue).getText() + "'";
+    			updateTypeStringList.add(GlobalVariables.getString("updatedTo") +
+    					" '" + ((TextField)newValue).getText() + "'");
     		}
     	} else {
         	// It is a deleted value
         	if (index == -1) {
-        		updateType = GlobalVariables.getString("elementDeleted");
+        		updateTypeStringList.add(GlobalVariables.getString("elementDeleted"));
         	}
         	// Special case when received a attribute or operation that was deleted locally
         	 else if (index == -2) {
-        		updateType = GlobalVariables.getString("remoteUpdateConfictsWithLocalDelete");
+        		 updateTypeStringList.add(GlobalVariables.getString("remoteUpdateConfictsWithLocalDelete"));
         	}
     		// It is a new or updated value
     		else {
             	// It is a new value
         		if (oldValue == null) {
-        			updateType = GlobalVariables.getString("newElement");
+        			updateTypeStringList.add(GlobalVariables.getString("newElement"));
         		}
             	// It is a updated value
             	else {
         			// Update text if it was altered
         			if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText())) {
-            			updateType = GlobalVariables.getString("updatedTo") + " '" + ((TextField)newValue).getText() + "'";
+        				List<String> oldValueList;
+        				List<String> newValueList;
+        				if (oldValue instanceof Attribute) {
+            				oldValueList = split((Attribute)oldValue);
+            				newValueList = split((Attribute)newValue);
+        				} else {
+            				oldValueList = split((Operation)oldValue);
+            				newValueList = split((Attribute)newValue);
+        				}	
+        				if ( !oldValueList.get(0).equals(newValueList.get(0)) ) {
+        					updateTypeStringList.add( GlobalVariables.getString("visibilityModifiedTo") +
+        							" '" + newValueList.get(0) + "'" );
+        				}
+        				if ( !oldValueList.get(1).equals(newValueList.get(1)) ) {
+        					updateTypeStringList.add( GlobalVariables.getString("nameModifiedTo") +
+        							" '" + newValueList.get(1) + "'" );
+        				}
+        				if (oldValue instanceof Attribute) {
+            				if ( !oldValueList.get(2).equals(newValueList.get(2)) ) {
+            					updateTypeStringList.add( GlobalVariables.getString("returnTypeModifiedTo") +
+            							" '" + newValueList.get(2) + "'" );
+            				}
+        				} else {
+            				if ( !oldValueList.get(3).equals(newValueList.get(3)) ) {
+            					updateTypeStringList.add( GlobalVariables.getString("argumentsModifiedTo") +
+            							" '" + newValueList.get(3) + "'" );
+            				}
+            				if ( !oldValueList.get(4).equals(newValueList.get(4)) ) {
+            					updateTypeStringList.add( GlobalVariables.getString("returnTypeModifiedTo") +
+            							" '" + newValueList.get(4) + "'" );
+            				}
+        				}
         			}
         			// If moved upper or down
         			if (indexOf(((IdentifiedTextField)oldValue)) != index) {
-        				if (!updateType.equals("")) {
-        					updateType = updateType + " " + GlobalVariables.getString("and") + " ";
-        				}
             			if (indexOf(((IdentifiedTextField)oldValue)) < index) {
-            				updateType = updateType + GlobalVariables.getString("movedDown") +
+            				updateTypeStringList.add(GlobalVariables.getString("movedDown") +
                 					" " + (index-indexOf(((IdentifiedTextField)oldValue))) +
-                					" " + GlobalVariables.getString("positions");
+                					" " + GlobalVariables.getString("positions") );
             			} else if (indexOf(((IdentifiedTextField)oldValue)) > index) {
-            				updateType = updateType + GlobalVariables.getString("movedUp") +
+            				updateTypeStringList.add( GlobalVariables.getString("movedUp") +
                 					" " + (indexOf(((IdentifiedTextField)oldValue))-index) +
-                					" " + GlobalVariables.getString("positions");
+                					" " + GlobalVariables.getString("positions") );
             			}
         			}
             	}
     		}
     	}
-    	return updateType;
+    	
+    	if (updateTypeStringList.size() > 0) {
+        	updateTypeString = updateTypeStringList.get(0);
+        	for(int cont = 1; cont < updateTypeStringList.size()-1; cont++) {
+        		updateTypeString = updateTypeString + ", " + updateTypeStringList.get(cont);
+        	}
+        	if (updateTypeStringList.size() > 1) {
+            	updateTypeString = updateTypeString + " " + GlobalVariables.getString("and") + " " +
+            			updateTypeStringList.get(updateTypeStringList.size()-1);
+        	}
+    	}
+    	return updateTypeString;
     }
     
     

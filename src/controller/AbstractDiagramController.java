@@ -641,10 +641,13 @@ public abstract class AbstractDiagramController {
         MenuItem cmItemDelete = new MenuItem("Delete");
         cmItemDelete.setOnAction(event -> {
             //TODO Is this really needed? Why just not delete all selected?
-            if (aContextMenu.getOwnerNode() instanceof AbstractNodeView) {
-                deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false, false);
-            }
-            deleteSelected();
+        	//TODO: Reactivate code when UMLCollab class delete support is implemented
+        	if (!GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeUMLCollab)) {
+	            if (aContextMenu.getOwnerNode() instanceof AbstractNodeView) {
+	                deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false, false);
+	            }
+	            deleteSelected();
+        	}
         });
 
         MenuItem cmItemCopy = new MenuItem("Copy");

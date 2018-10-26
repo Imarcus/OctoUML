@@ -362,14 +362,14 @@ public class NodeController {
             //If name found in less then 5 seconds it sets the name to the package
             if(time < 500) {
                 diagramController.voiceController.titleName = "";
-                node.setTitle(title2,false);
+                node.setTitle(title2,false, null);
             }
             //Else the name is not changed to a new name
             else{
                 diagramController.voiceController.titleName = "";
             }
 
-            node.setTitle(title2,false);
+            node.setTitle(title2,false,null);
         }
 
         VBox group = new VBox();
@@ -379,7 +379,7 @@ public class NodeController {
         okButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                node.setTitle(input.getText(),false);
+                node.setTitle(input.getText(),false, null);
                 aDrawPane.getChildren().remove(group);
             }
         });

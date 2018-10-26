@@ -505,7 +505,7 @@ public class PersistenceManager {
         } else {
             abstractNode = new PackageNode(x, y, width, height);
         }
-        abstractNode.setTitle(model.getAttribute("name"),false);
+        abstractNode.setTitle(model.getAttribute("name"),false, null);
         abstractNode.setIsChild(isChild);
 
         return abstractNode;

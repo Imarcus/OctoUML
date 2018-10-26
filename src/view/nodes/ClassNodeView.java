@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import controller.AbstractDiagramController;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -70,10 +71,15 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     private final int STROKE_WIDTH = 1;
     
     private Title title;
+    
+    private AbstractDiagramController abstractDiagramController;
 
-    public ClassNodeView(ClassNode node) {
+    public ClassNodeView(ClassNode node, AbstractDiagramController abstractDiagramController) {
     	super(node);
     	logger.debug("ClassNodeView()");
+    	
+    	this.abstractDiagramController = abstractDiagramController;
+    	
         //setChangeListeners();
 
         container = new StackPane();
@@ -153,7 +159,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
 		title.setOnKeyReleased(new EventHandler<KeyEvent>() {
     	    public void handle(KeyEvent ke) {
-    	    	((ClassNode)getRefNode()).setTitle(title.getText(),false);
+    	    	((ClassNode)getRefNode()).setTitle(title.getText(),false, abstractDiagramController.getCollaborationType());
     	    }
     	});
         
@@ -356,9 +362,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	textfield.setOnKeyReleased(new EventHandler<KeyEvent>() {
     	    public void handle(KeyEvent ke) {
     	    	if (textfield instanceof Attribute) {
-        	    	((ClassNode)getRefNode()).setAttribute(indexOf(textfield), (Attribute)textfield, false);
+        	    	((ClassNode)getRefNode()).setAttribute(indexOf(textfield), (Attribute)textfield, false, abstractDiagramController.getCollaborationType());
     	    	} else if (textfield instanceof Operation) {
-    	    		((ClassNode)getRefNode()).setOperation(indexOf(textfield), (Operation)textfield, false);
+    	    		((ClassNode)getRefNode()).setOperation(indexOf(textfield), (Operation)textfield, false, abstractDiagramController.getCollaborationType());
     	    	}    	    	
     	    }
     	});
@@ -375,13 +381,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    		Attribute tf = (Attribute) modifiedTextField;
     	    		vbox.getChildren().remove(tf);
        				vbox.getChildren().add(index,tf);
-        	    	((ClassNode)getRefNode()).setAttribute(indexOf(tf), tf, false);
+        	    	((ClassNode)getRefNode()).setAttribute(indexOf(tf), tf, false, abstractDiagramController.getCollaborationType());
     	    	} else if (textfield instanceof Operation && index > (3+attributesSize())) {
     	    		index--;
     	    		Operation tf = (Operation) modifiedTextField;
     	    		vbox.getChildren().remove(tf);
        				vbox.getChildren().add(index,tf);
-    	    		((ClassNode)getRefNode()).setOperation(indexOf(tf), tf, false);
+    	    		((ClassNode)getRefNode()).setOperation(indexOf(tf), tf, false, abstractDiagramController.getCollaborationType());
     	    	}  
     	    }
         });
@@ -397,13 +403,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    		Attribute tf = (Attribute) textfield;
     	    		vbox.getChildren().remove(tf);
        				vbox.getChildren().add(index,tf);
-        	    	((ClassNode)getRefNode()).setAttribute(indexOf(tf), tf, false);
+        	    	((ClassNode)getRefNode()).setAttribute(indexOf(tf), tf, false, abstractDiagramController.getCollaborationType());
     	    	} else if (textfield instanceof Operation && index < (2+attributesSize()+operationsSize())) {
     	    		index++;
     	    		Operation tf = (Operation) textfield;
     				vbox.getChildren().remove(tf);
     				vbox.getChildren().add(index,tf);
-    	    		((ClassNode)getRefNode()).setOperation(indexOf(tf), tf, false);
+    	    		((ClassNode)getRefNode()).setOperation(indexOf(tf), tf, false, abstractDiagramController.getCollaborationType());
     	    	}  
     	    }
         });    		
@@ -421,10 +427,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    	vbox.getChildren().remove(modifiedTextField);
     			if (modifiedTextField instanceof Attribute) {
     				Attribute tf = (Attribute) modifiedTextField;
-        			((ClassNode)getRefNode()).setAttribute(-1,tf, false);
+        			((ClassNode)getRefNode()).setAttribute(-1,tf, false, abstractDiagramController.getCollaborationType());
     			} else {
     				Operation tf = (Operation) modifiedTextField;
-        			((ClassNode)getRefNode()).setOperation(-1,tf, false);
+        			((ClassNode)getRefNode()).setOperation(-1,tf, false, abstractDiagramController.getCollaborationType());
         	        if (operationsSize() > 0) {
         	            secondLine.setVisible(true);
         	        } else {
@@ -459,7 +465,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	textField.setXmiId("att" + UUID.randomUUID().toString());
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(attributesSize()+2,textField);
-		((ClassNode)getRefNode()).setAttribute(indexOf(textField),textField, false);
+		((ClassNode)getRefNode()).setAttribute(indexOf(textField),textField, false, abstractDiagramController.getCollaborationType());
     }
     
     public void addOperation() {
@@ -468,7 +474,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	textField.setXmiId("oper" + UUID.randomUUID().toString());
     	createHandlesAttributesOperations(textField);
 		vbox.getChildren().add(attributesSize()+operationsSize()+3,textField);    	
-		((ClassNode)getRefNode()).setOperation(indexOf(textField),textField, false);
+		((ClassNode)getRefNode()).setOperation(indexOf(textField),textField, false, abstractDiagramController.getCollaborationType());
         secondLine.setVisible(true);
     }
     
@@ -986,7 +992,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	} 
     	
     	// *** Synchronous collaboration type *** 
-    	if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+    	if (abstractDiagramController.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
     		logger.debug("The type of collaboration is synchronous, performed simple update");
     		// Update old value
     		updateTextField(evt, index, oldValue, newValue);
@@ -1022,7 +1028,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		
         		// *** NO CHANGES, REMOTE ELEMENT EQUALS LOCAL ELEMENT ***
         		if (!elementUpdated(evt, index, oldValue, newValue)) {
-    	    		logger.info(GlobalVariables.getUserName() +
+    	    		logger.info(abstractDiagramController.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
     	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nNo changes, remote element equals local element.");
@@ -1066,7 +1072,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	if (oldValue != null &&
             			(oldValue instanceof Attribute || oldValue instanceof Operation)  &&
             			(!((IdentifiedTextField)oldValue).getXmiId().equals(((IdentifiedTextField)newValue).getXmiId())) ) {
-    	    		logger.info(GlobalVariables.getUserName() +
+    	    		logger.info(abstractDiagramController.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
     	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nConflict, remote new element name matchs local element name with changes.");
@@ -1084,7 +1090,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	
         		// SIMPLE MERGE, REMOTE CHANGE WITHOUT LOCAL CHANGES
         		if (localChangedValues.get(id) == null && localRemovedValues.get(id) == null  && index != -1) {
-    	    		logger.info(GlobalVariables.getUserName() +
+    	    		logger.info(abstractDiagramController.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
     	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nSimple merge, remote change without local change");
@@ -1116,7 +1122,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		
         		// CONFLICT, REMOTE CHANGE WITH LOCAL DELETE
 	        	else if (localRemovedValues.get(id) != null && index != -1) {
-    	    		logger.info(GlobalVariables.getUserName() +
+    	    		logger.info(abstractDiagramController.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
     	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nConflict, remote change with local delete");
@@ -1168,7 +1174,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		// CONFLICT, REMOTE CHANGE WITH LOCAL CHANGE OR REMOTE DELETE WITH/WITHOUT LOCAL CHANGE
 	        	else if (localChangedValues.get(id) != null
 	        			|| index == -1) {
-	        		String logMessage = GlobalVariables.getUserName() +
+	        		String logMessage = abstractDiagramController.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
     	    				"\nOld value: '" + oldValue + "'";
 	        		if (index != -1) {
@@ -1214,15 +1220,15 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		{
 			Object newValue = localChangedValues.get(id);
 	        if (newValue instanceof Title) {
-    	    	((ClassNode)getRefNode()).setTitle(((Title)newValue).getText(),true);
+    	    	((ClassNode)getRefNode()).setTitle(((Title)newValue).getText(),true, abstractDiagramController.getCollaborationType());
 	        }
 	        else if (newValue instanceof Attribute){
 	        	Attribute attribute = (Attribute) getAttributeOperation((Attribute)newValue);
-    	    	((ClassNode)getRefNode()).setAttribute(indexOf(attribute), attribute, true);
+    	    	((ClassNode)getRefNode()).setAttribute(indexOf(attribute), attribute, true, abstractDiagramController.getCollaborationType());
 	        }
 	        else if (newValue instanceof Operation){
 	        	Operation operation = (Operation) getAttributeOperation((Operation)newValue);
-    	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true);
+    	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true, abstractDiagramController.getCollaborationType());
 	        }
 		}
 		ids = localRemovedValues.keySet();
@@ -1231,11 +1237,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 			Object newValue = localRemovedValues.get(id);
 	        if (newValue instanceof Attribute){
 	        	Attribute attribute = (Attribute) newValue;
-    	    	((ClassNode)getRefNode()).setAttribute(-1, attribute, true);
+    	    	((ClassNode)getRefNode()).setAttribute(-1, attribute, true, abstractDiagramController.getCollaborationType());
 	        }
 	        else if (newValue instanceof Operation){
 	        	Operation operation = (Operation) newValue;
-    	    	((ClassNode)getRefNode()).setOperation(-1, operation, true);
+    	    	((ClassNode)getRefNode()).setOperation(-1, operation, true, abstractDiagramController.getCollaborationType());
 	        }
 		}
     }

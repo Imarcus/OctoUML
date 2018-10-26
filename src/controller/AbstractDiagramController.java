@@ -120,6 +120,8 @@ public abstract class AbstractDiagramController {
     ContextMenu aContextMenu;
     private AbstractDiagramController instance = this;
 
+	private String userName;
+	private String collaborationType = Constants.collaborationTypeSynchronous;
 
     public void initialize() {
     	logger.debug("initialize()");
@@ -158,6 +160,22 @@ public abstract class AbstractDiagramController {
     }
 
     abstract void initNodeActions(AbstractNodeView nodeView);
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String newValue) {
+		userName = newValue;
+	}
+
+	public String getCollaborationType() {
+		return collaborationType;
+	}
+
+	public void setCollaborationType(String newValue) {
+		collaborationType = newValue;
+	}
 
     //----------------- DELETING ----------------------------------------
 
@@ -541,8 +559,8 @@ public abstract class AbstractDiagramController {
         String[] result = NetworkUtils.ServerConfigDialog();
 
         if (result != null) {
-        	GlobalVariables.setCollaborationType(result[1]);
-        	GlobalVariables.setUserName(result[2]);
+        	this.setCollaborationType(result[1]);
+        	this.setUserName(result[2]);
             ServerController server = new ServerController(graph, this, Integer.parseInt(result[0]));
             serverControllers.add(server);
         }
@@ -554,7 +572,7 @@ public abstract class AbstractDiagramController {
         String[] result = NetworkUtils.clientConfigDialog();
 
         if (result != null) {
-        	GlobalVariables.setUserName(result[2]);
+        	this.setUserName(result[2]);
             ClientController client = new ClientController(this, result[0], Integer.parseInt(result[1]));
             if(!client.connect()){
                 client.close();
@@ -642,7 +660,7 @@ public abstract class AbstractDiagramController {
         cmItemDelete.setOnAction(event -> {
             //TODO Is this really needed? Why just not delete all selected?
         	//TODO: Reactivate code when UMLCollab class delete support is implemented
-        	if (!GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeUMLCollab)) {
+        	if (!this.getCollaborationType().equals(Constants.collaborationTypeUMLCollab)) {
 	            if (aContextMenu.getOwnerNode() instanceof AbstractNodeView) {
 	                deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false, false);
 	            }
@@ -682,7 +700,7 @@ public abstract class AbstractDiagramController {
     	logger.debug("createNodeView()");
         AbstractNodeView newView;
         if (node instanceof ClassNode) {
-            newView = new ClassNodeView((ClassNode) node);
+            newView = new ClassNodeView((ClassNode) node, this);
         } else if (node instanceof PackageNode) {
             newView = new PackageNodeView((PackageNode) node);
         } else {
@@ -802,7 +820,7 @@ public abstract class AbstractDiagramController {
         } else if (dataArray[0].equals(Constants.changeNodeTitle)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    node.remoteSetTitle(dataArray);
+                    node.remoteSetTitle(dataArray, getCollaborationType());
                     break;
                 }
             }
@@ -827,14 +845,14 @@ public abstract class AbstractDiagramController {
         } else if (dataArray[0].equals(Constants.changeClassNodeAttribute)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    ((ClassNode)node).remoteSetAttribute(dataArray);
+                    ((ClassNode)node).remoteSetAttribute(dataArray, getCollaborationType());
                     break;
                 }
             }
         } else if (dataArray[0].equals(Constants.changeClassNodeOperation)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    ((ClassNode)node).remoteSetOperation(dataArray);
+                    ((ClassNode)node).remoteSetOperation(dataArray, getCollaborationType());
                     break;
                 }
             }

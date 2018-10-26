@@ -124,7 +124,7 @@ public class ClassNode extends AbstractNode implements Serializable
     }
     
     
-    public void setAttribute(int index, Attribute newValue, boolean transmit){
+    public void setAttribute(int index, Attribute newValue, boolean transmit, String collaborationType){
     	logger.debug("setAttribute()");
        	setAttributeOnly(index, newValue);
        	String newValueStr;
@@ -136,7 +136,7 @@ public class ClassNode extends AbstractNode implements Serializable
 
     	changes.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
 
-        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)
+        if (collaborationType.equals(Constants.collaborationTypeSynchronous)
         		|| transmit ) {
             remoteChanges.firePropertyChange(Constants.changeClassNodeAttribute, null, newValueStr);
         }
@@ -185,7 +185,7 @@ public class ClassNode extends AbstractNode implements Serializable
     	}
     }
     
-    public void setOperation(int index, Operation newValue, boolean transmit){
+    public void setOperation(int index, Operation newValue, boolean transmit, String collaborationType){
     	logger.debug("setOperation()");
     	if (operations == null) {
     		operations = new ArrayList<>();
@@ -200,15 +200,15 @@ public class ClassNode extends AbstractNode implements Serializable
 
     	changes.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
     	
-        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)
+        if (collaborationType.equals(Constants.collaborationTypeSynchronous)
         		|| transmit) {
             remoteChanges.firePropertyChange(Constants.changeClassNodeOperation, null, newValueStr);
         }
     }
 
-    public void remoteSetAttribute(String[] dataArray) { 
+    public void remoteSetAttribute(String[] dataArray, String collaborationType) { 
         logger.debug("remoteSetAttributes()");
-        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+        if (collaborationType.equals(Constants.collaborationTypeSynchronous)) {
             String newValueStr = (String) dataArray[2];
             int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
             Attribute newValue = new Attribute("");
@@ -230,9 +230,9 @@ public class ClassNode extends AbstractNode implements Serializable
         changes.firePropertyChange(Constants.changeClassNodeAttribute, null, dataArray);
     }
 
-    public void remoteSetOperation(Object[] dataArray){
+    public void remoteSetOperation(Object[] dataArray, String collaborationType){
         logger.debug("remoteSetOperations()");
-        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+        if (collaborationType.equals(Constants.collaborationTypeSynchronous)) {
             String newValueStr = (String) dataArray[2];
             int index = Integer.parseInt(newValueStr.substring(0, newValueStr.indexOf("|")));
             Operation newValue = new Operation("");
@@ -288,7 +288,7 @@ public class ClassNode extends AbstractNode implements Serializable
         newCopy.setScaleY(this.getScaleY());
 
         if(this.getTitle() != null){
-            newCopy.setTitle(this.getTitle(),false);
+            newCopy.setTitle(this.getTitle(),false, null);
 
         }
         if(this.attributes != null){

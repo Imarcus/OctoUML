@@ -53,10 +53,11 @@ public class ServerController implements PropertyChangeListener {
         }
 
         Platform.runLater(() -> diagramController.setServerLabel(
-        		GlobalVariables.getString("user") + ": " + GlobalVariables.getUserName() +
-        		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getCollaborationType() +
-        		"\n" + GlobalVariables.getString("serverMode") + " (" + GlobalVariables.getString("clients") + ": " +
-        		Integer.toString(nrClients) + ")") );
+        		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +
+        		"\n" + GlobalVariables.getString("collaborationType") + ": " + diagramController.getCollaborationType() +
+        		"\n" + GlobalVariables.getString("serverMode") +
+        		" (" + GlobalVariables.getString("port") + ": " + port + ", " +
+        		GlobalVariables.getString("clients") + ": " + Integer.toString(nrClients) + ")") );
         initKryo(server.getKryo());
 
         server.addListener(new Listener() {
@@ -71,8 +72,8 @@ public class ServerController implements PropertyChangeListener {
                         String request = (String) dataArray[0];
                         if(request.equals(Constants.requestGraph)){
                         	Object[] sendDataArray = {diagramController.getGraphModel(),
-                        			GlobalVariables.getCollaborationType(),
-                        			GlobalVariables.getUserName()}; 
+                        			diagramController.getCollaborationType(),
+                        			diagramController.getUserName()}; 
                             connection.sendTCP(sendDataArray);
                         }
                         else if (object instanceof String[]) {
@@ -94,19 +95,21 @@ public class ServerController implements PropertyChangeListener {
             public void connected(Connection c){
                 nrClients++;
                 Platform.runLater(() -> diagramController.setServerLabel(
-                		GlobalVariables.getString("user") + ": " + GlobalVariables.getUserName() +
-                		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getCollaborationType() +
-                		"\n" + GlobalVariables.getString("serverMode") + " (" + GlobalVariables.getString("clients") + ": " +
-                		Integer.toString(nrClients) + ")") );
+                		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +
+                		"\n" + GlobalVariables.getString("collaborationType") + ": " + diagramController.getCollaborationType() +
+                		"\n" + GlobalVariables.getString("serverMode") +
+                		" (" + GlobalVariables.getString("port") + ": " + port + ", " +
+                		GlobalVariables.getString("clients") + ": " + Integer.toString(nrClients) + ")") );
             }
 
             public void disconnected(Connection c){
                 nrClients--;
                 Platform.runLater(() -> diagramController.setServerLabel(
-                		GlobalVariables.getString("user") + ": " + GlobalVariables.getUserName() +
-                		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getCollaborationType() +
-                		"\n" + GlobalVariables.getString("serverMode") + " (" + GlobalVariables.getString("clients") + ": " +
-                		Integer.toString(nrClients) + ")") );
+                		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +
+                		"\n" + GlobalVariables.getString("collaborationType") + ": " + diagramController.getCollaborationType() +
+                		"\n" + GlobalVariables.getString("serverMode") +
+                		" (" + GlobalVariables.getString("port") + ": " + port + ", " +
+                		GlobalVariables.getString("clients") + ": " + Integer.toString(nrClients) + ")") );
             }
         });
 
@@ -120,96 +123,96 @@ public class ServerController implements PropertyChangeListener {
     	logger.debug("propertyChange()");
         String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.sketchAdd)){
-            String[] dataArray = {Constants.sketchAdd, GlobalVariables.getUserName()};
+            String[] dataArray = {Constants.sketchAdd, diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchPoint)){
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchPoint, sketch.getId(),
-                    Double.toString(point.getX()), Double.toString(point.getY()), GlobalVariables.getUserName()};
+                    Double.toString(point.getX()), Double.toString(point.getY()), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchStart)) {
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
-                Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString(), GlobalVariables.getUserName()};
+                Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString(), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.sketchRemove)){
-        	String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue(), GlobalVariables.getUserName()};
+        	String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue(), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
-            Object[] dataArray = {node, GlobalVariables.getUserName()};
+            Object[] dataArray = {node, diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.NodeRemove)){
-        	String[] dataArray = {Constants.NodeRemove, (String)evt.getNewValue(), GlobalVariables.getUserName()};
+        	String[] dataArray = {Constants.NodeRemove, (String)evt.getNewValue(), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.EdgeAdd)){
             AbstractEdge edge = (AbstractEdge) evt.getNewValue();
-            Object[] dataArray = {edge, GlobalVariables.getUserName()};
+            Object[] dataArray = {edge, diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.EdgeRemove)) {
-        	String [] dataArray = {Constants.EdgeRemove, (String)evt.getNewValue(), GlobalVariables.getUserName()};
+        	String [] dataArray = {Constants.EdgeRemove, (String)evt.getNewValue(), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeTranslateX) || propertyName.equals(Constants.changeNodeTranslateY)) { //NodeX/Y not needed
             AbstractNode node = (AbstractNode) evt.getSource();
             String[] dataArray = {propertyName, node.getId(), Double.toString(node.getTranslateX()),
-            		Double.toString(node.getTranslateY()), GlobalVariables.getUserName()};
+            		Double.toString(node.getTranslateY()), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeWidth) || propertyName.equals(Constants.changeNodeHeight)){
             AbstractNode node = (AbstractNode) evt.getSource();
             String[] dataArray = {propertyName, node.getId(), Double.toString(node.getWidth()),
-            		Double.toString(node.getHeight()), GlobalVariables.getUserName()};
+            		Double.toString(node.getHeight()), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeTitle)) {
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getTitle(), GlobalVariables.getUserName()};
+            String[] dataArray = {propertyName, node.getId(), node.getTitle(), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeClassNodeAttribute)){
         	AbstractNode node = (AbstractNode) evt.getSource();
             String newValueStr = (String) evt.getNewValue();
-            String[] dataArray = {propertyName, node.getId(), newValueStr, GlobalVariables.getUserName()};
+            String[] dataArray = {propertyName, node.getId(), newValueStr, diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeClassNodeOperation)){
         	AbstractNode node = (AbstractNode) evt.getSource();
             String newValueStr = (String) evt.getNewValue();
-            String[] dataArray = {propertyName, node.getId(), newValueStr, GlobalVariables.getUserName()};
+            String[] dataArray = {propertyName, node.getId(), newValueStr, diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){
             AbstractEdge edge = (AbstractEdge) evt.getSource();
             String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(),
-            		edge.getEndMultiplicity(), GlobalVariables.getUserName()};
+            		edge.getEndMultiplicity(), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeLabel)){
                 AbstractEdge edge = (AbstractEdge) evt.getSource();
-                String[] dataArray = {propertyName, edge.getId(), edge.getLabel(), GlobalVariables.getUserName()};
+                String[] dataArray = {propertyName, edge.getId(), edge.getLabel(), diagramController.getUserName()};
                 server.sendToAllTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateX)) {
             Sketch sketch = (Sketch) evt.getSource();
-            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX()), GlobalVariables.getUserName()};
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX()), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateY)) {
             Sketch sketch = (Sketch) evt.getSource();
-            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY()), GlobalVariables.getUserName()};
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY()), diagramController.getUserName()};
             server.sendToAllTCP(dataArray);
         } else if (propertyName.equals(Constants.changeCollaborationType)) {
         	Object[] dataArray = {diagramController.getGraphModel(),
-        			GlobalVariables.getCollaborationType(),
-        			GlobalVariables.getUserName()}; 
+        			diagramController.getCollaborationType(),
+        			diagramController.getUserName()}; 
             server.sendToAllTCP(dataArray);
         }
     }

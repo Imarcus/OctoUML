@@ -39,7 +39,7 @@ public abstract class AbstractNode implements Node, Serializable
     protected String aTitle;
     protected double x, y, width, height, translateX, translateY, scaleX, scaleY;
     protected boolean aIsChild;
-
+    
     public AbstractNode(double x, double y, double width, double height){
     	logger.debug("AbstractNode()");
         this.x = x;
@@ -54,7 +54,7 @@ public abstract class AbstractNode implements Node, Serializable
 
         id = UUID.randomUUID().toString();
     }
-
+    
     public void setIsChild(boolean pIsChild){
     	logger.debug("setIsChild()");
         aIsChild = pIsChild;
@@ -107,13 +107,14 @@ public abstract class AbstractNode implements Node, Serializable
         this.aTitle = pTitle;
     }    
     
-    public void setTitle(String pTitle, boolean transmit) {
+    public void setTitle(String pTitle, boolean transmit, String collaborationType) {
     	logger.debug("setTitle()");
     	if (aTitle == null) {
            	aTitle = pTitle;
     	}
         changes.firePropertyChange(Constants.changeNodeTitle, null, pTitle);
-        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)
+        if ( ( collaborationType != null
+        		&& collaborationType.equals(Constants.collaborationTypeSynchronous) )
         		|| transmit) {
             remoteChanges.firePropertyChange(Constants.changeNodeTitle, null, pTitle);
         }
@@ -172,11 +173,9 @@ public abstract class AbstractNode implements Node, Serializable
         changes.firePropertyChange(Constants.changeNodeWidth, null, this.width);
     }
 
-    public void remoteSetTitle(String[] dataArray) {
+    public void remoteSetTitle(String[] dataArray, String collaborationType) {
         logger.debug("remoteSetTitle()");
-        logger.info(GlobalVariables.getUserName() + " reveived from " + dataArray[3] + ":\n" +
-    			"title '" + dataArray[2] + "'\n");
-        if (GlobalVariables.getCollaborationType().equals(Constants.collaborationTypeSynchronous)) {
+        if (collaborationType.equals(Constants.collaborationTypeSynchronous)) {
            	aTitle = dataArray[2];
         }
         changes.firePropertyChange(Constants.changeNodeTitle, null, dataArray);

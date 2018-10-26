@@ -37,12 +37,15 @@ public class TabController {
     @FXML
     private TabPane tabPane;
     private Stage stage;
-    private Map<Tab, AbstractDiagramController> tabMap = new HashMap<>();
+    private static Map<Tab, AbstractDiagramController> tabMap = new HashMap<>();
 
     public static final String CLASS_DIAGRAM_VIEW_PATH = "view/fxml/classDiagramView.fxml";
     public static final String SEQUENCE_DIAGRAM_VIEW_PATH = "view/fxml/sequenceDiagramView.fxml";
 
-
+    public static Map<Tab, AbstractDiagramController> getTabMap() {
+    	return tabMap;
+    }
+    
     @FXML
     public void initialize() {
     }

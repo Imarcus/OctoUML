@@ -9,17 +9,22 @@ import com.esotericsoftware.kryonet.Listener;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Tab;
 import model.*;
 import model.edges.*;
 import model.nodes.AbstractNode;
+import model.nodes.Attribute;
 import model.nodes.ClassNode;
+import model.nodes.Operation;
 import model.nodes.PackageNode;
+import model.nodes.Title;
 import util.Constants;
 import util.GlobalVariables;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +68,15 @@ public class ClientController implements PropertyChangeListener {
                         graph.addRemotePropertyChangeListener(ClientController.this);
                         Platform.runLater(() -> diagramController.load(graph, true));
                         diagramController.setCollaborationType((String)dataArray[1]);
+                        // Update tab name
+                		Set<Tab> keys = TabController.getTabMap().keySet();
+                		for (Tab tab: keys)
+                		{
+                			AbstractDiagramController value = TabController.getTabMap().get(tab);
+                	        if (value == diagramController) {
+                	        	Platform.runLater(() -> tab.setText(graph.getName()));
+                	        }
+                		}                        
                     	logger.info("Collaboration type setted to " + dataArray[1]);
                         Platform.runLater(() -> diagramController.setServerLabel(
                         		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +

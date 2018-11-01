@@ -1,6 +1,7 @@
 package view.nodes;
 
 import java.beans.PropertyChangeEvent;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,6 +47,7 @@ import model.nodes.Operation;
 import model.nodes.Title;
 import util.Constants;
 import util.GlobalVariables;
+import util.Change;
 
 /**
  * Visual representation of ClassNode class.
@@ -56,6 +58,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	
 	private Map<String, Object> localChangedValues = new HashMap<String, Object>();
 	private Map<String, Object> localRemovedValues = new HashMap<String, Object>();
+	private Map<String, List<Change>> remoteChangedValues = new HashMap<String, List<Change>>();
 	
     private Rectangle rectangle;
 
@@ -498,8 +501,38 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         return dateTimeUserSuffixString;
     }
     
+    private String replaceAttributeOperationSubElement(Object obj, int index, String subElement) {
+    	List<String> list;
+    	String value;
+    	if (obj instanceof Attribute) {
+    		list = split((Attribute) obj);
+    	} else {
+    		list = split((Operation) obj);
+    	}
+		list.remove(index);
+		list.add(index, subElement);
+		
+		// Adding visibility and name
+    	value = list.get(0) + " " + list.get(1);
+    	if (obj instanceof Attribute) {
+    		// Adding type
+    		if (!list.get(2).equals("")) {
+        		value = value + " : " + list.get(2);
+    		}
+    	} else {
+    		// Adding arguments
+    		value = value + "(" + list.get(2) + ")";
+    		// Adding type
+    		if (!list.get(3).equals("")) {
+        		value = value + " : " + list.get(3);
+    		}
+    	}
+    	return value;
+    }
+    
     private List<String> split(Attribute element) {
-     	String aux = element.getText().replace(" ","");
+     	String aux = element.getText().trim();
+     	
         String visibility, name, returnType;
         List<String> list = new ArrayList<>();
 
@@ -523,13 +556,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	name = aux;
         	returnType = "";
     	}
-    	list.add(name);
-		list.add(returnType);
+    	list.add(name.replace(" ",""));
+		list.add(returnType.replace(" ",""));
     	return list;
     }
     
     private List<String> split(Operation element) {
-     	String aux = element.getText().replace(" ","");
+     	String aux = element.getText().trim();
         String visibility, name, arguments, returnType;
         List<String> list = new ArrayList<>();
 
@@ -548,22 +581,22 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         //Get name
     	if (aux.contains("(")) {
         	name = aux.substring(0, aux.indexOf("("));
-    	} if (aux.contains(":")) {
+    	} else if (aux.contains(":")) {
         	name = aux.substring(0, aux.indexOf(":"));
     	} else {
     		name = aux;
     	}
-    	list.add(name);
+    	list.add(name.replace(" ",""));
     	
         //Get arguments
     	if ( aux.contains("(") && aux.contains(")")
-    			&& ( (aux.indexOf(")")-aux.indexOf(")")) > 1 )
+    			&& ( (aux.indexOf(")")-aux.indexOf("(")) > 1 )
     			) {    		
         	arguments = aux.substring(aux.indexOf("(")+1, aux.indexOf(")"));
     	} else {
     		arguments = "";
     	}
-    	list.add(arguments);    	
+    	list.add(arguments.trim());    	
 
         //Get return type
     	if (aux.contains(":")) {
@@ -573,7 +606,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	} else {
     		returnType = "";
     	}
-		list.add(returnType);
+		list.add(returnType.replace(" ",""));
     	return list;
     }
     
@@ -647,31 +680,38 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		}
     	}
     	return false;
-    }    
+    }
     
-    public String getUpdateTypeString(PropertyChangeEvent evt, int index, Object oldValue, Object newValue) {
+    public String getUpdateTypeString(PropertyChangeEvent evt, int index,
+    		Object oldValue, Object newValue, String id, String remoteUserName) {
     	logger.debug("elementUpdated()");
     	List<String> updateTypeStringList = new ArrayList<String>();
+		ArrayList<Change> remoteChangeList = new ArrayList<>();
     	String updateTypeString = "";
     	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
     		if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText()) ) {
     			updateTypeStringList.add(GlobalVariables.getString("updatedTo") +
     					" '" + ((TextField)newValue).getText() + "'");
+    			remoteChangeList.add(new Change(Change.name, ((TextField)newValue).getText())); 
     		}
     	} else {
         	// It is a deleted value
         	if (index == -1) {
         		updateTypeStringList.add(GlobalVariables.getString("elementDeleted"));
+    			remoteChangeList.add(new Change(Change.delete, null)); 
         	}
         	// Special case when received a attribute or operation that was deleted locally
         	 else if (index == -2) {
         		 updateTypeStringList.add(GlobalVariables.getString("remoteUpdateConfictsWithLocalDelete"));
+     			 remoteChangeList.add(new Change(Change.remoteUpdateWithLocalDelete, newValue)); 
         	}
     		// It is a new or updated value
     		else {
             	// It is a new value
         		if (oldValue == null) {
         			updateTypeStringList.add(GlobalVariables.getString("newElement"));
+                    Object[] dataArray = {index, newValue};
+        			remoteChangeList.add(new Change(Change.newElement, dataArray)); 
         		}
             	// It is a updated value
             	else {
@@ -689,24 +729,29 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         				if ( !oldValueList.get(0).equals(newValueList.get(0)) ) {
         					updateTypeStringList.add( GlobalVariables.getString("visibilityModifiedTo") +
         							" '" + newValueList.get(0) + "'" );
+                			remoteChangeList.add(new Change(Change.visibility, newValueList.get(0))); 
         				}
         				if ( !oldValueList.get(1).equals(newValueList.get(1)) ) {
         					updateTypeStringList.add( GlobalVariables.getString("nameModifiedTo") +
         							" '" + newValueList.get(1) + "'" );
+                			remoteChangeList.add(new Change(Change.name, newValueList.get(1))); 
         				}
         				if (oldValue instanceof Attribute) {
             				if ( !oldValueList.get(2).equals(newValueList.get(2)) ) {
-            					updateTypeStringList.add( GlobalVariables.getString("returnTypeModifiedTo") +
+            					updateTypeStringList.add( GlobalVariables.getString("typeModifiedTo") +
             							" '" + newValueList.get(2) + "'" );
+                    			remoteChangeList.add(new Change(Change.type, newValueList.get(2))); 
             				}
         				} else {
             				if ( !oldValueList.get(2).equals(newValueList.get(2)) ) {
             					updateTypeStringList.add( GlobalVariables.getString("argumentsModifiedTo") +
             							" '" + newValueList.get(2) + "'" );
+                    			remoteChangeList.add(new Change(Change.arguments, newValueList.get(2))); 
             				}
             				if ( !oldValueList.get(3).equals(newValueList.get(3)) ) {
             					updateTypeStringList.add( GlobalVariables.getString("returnTypeModifiedTo") +
             							" '" + newValueList.get(3) + "'" );
+                    			remoteChangeList.add(new Change(Change.type, newValueList.get(3))); 
             				}
         				}
         			}
@@ -716,10 +761,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             				updateTypeStringList.add(GlobalVariables.getString("movedDown") +
                 					" " + (index-indexOf(((IdentifiedTextField)oldValue))) +
                 					" " + GlobalVariables.getString("positions") );
+                			remoteChangeList.add(new Change(Change.moved, index)); 
             			} else if (indexOf(((IdentifiedTextField)oldValue)) > index) {
             				updateTypeStringList.add( GlobalVariables.getString("movedUp") +
                 					" " + (indexOf(((IdentifiedTextField)oldValue))-index) +
                 					" " + GlobalVariables.getString("positions") );
+                            Object[] dataArray = {index, newValue};
+                			remoteChangeList.add(new Change(Change.moved, index)); 
             			}
         			}
             	}
@@ -735,11 +783,11 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	updateTypeString = updateTypeString + " " + GlobalVariables.getString("and") + " " +
             			updateTypeStringList.get(updateTypeStringList.size()-1);
         	}
+			remoteChangedValues.put(id + "|" + remoteUserName, remoteChangeList);
     	}
     	return updateTypeString;
     }
-    
-    
+
     public boolean updateTextField(PropertyChangeEvent evt, int index, Object oldValue, Object newValue) {
     	logger.debug("updateAttributeOperation()");
     	boolean updated = false;
@@ -794,6 +842,78 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	    	logger.debug("old value moved up or down");
     			}
     		}
+    	}
+    	return updated;
+    }
+    
+    public boolean updateTextField(PropertyChangeEvent evt, TextField oldValue, String id, String remoteUserName) {
+    	logger.debug("updateAttributeOperation()");
+    	boolean updated = false;
+    	List<Change> remoteChangesList = remoteChangedValues.get(id + "|" + remoteUserName);
+    	if (remoteChangesList != null || remoteChangesList.size() > 0) {
+        	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
+        			oldValue.setText((String)remoteChangesList.get(0).getChange());
+        			updated = true;
+        	} else {
+            	// It is a deleted value
+        		if (remoteChangesList.get(0).getChangeType().equals(Change.delete)) {
+                    vbox.getChildren().remove(oldValue);
+        			updated = true;
+        		}
+            	// Special case when received a attribute or operation that was deleted locally and now rejected
+            	else if (remoteChangesList.get(0).getChangeType().equals(Change.remoteUpdateWithLocalDelete)) {
+                    vbox.getChildren().remove(remoteChangesList.get(0).getChange());
+        			updated = true;
+        	    	logger.debug("new value removed");
+            	}
+            	// It is a new value
+                else if (remoteChangesList.get(0).getChangeType().equals(Change.newElement)) {
+                	Object[] dataArray = (Object[]) remoteChangesList.get(0).getChange(); 
+            		createHandlesAttributesOperations((IdentifiedTextField) dataArray[1]);
+    				addAttributeOperationToVbox((int) dataArray[0], (IdentifiedTextField) dataArray[1]);
+        			updated = true;
+        	    	logger.debug("new value created");
+        		}
+            	// It is a updated value
+        		else {
+        			for(Change change: remoteChangesList) {
+            			// Update text if it was altered
+            			if ( change.getChangeType().equals(Change.visibility) ) {
+            				((TextField)oldValue).setText( replaceAttributeOperationSubElement(oldValue, 0, (String)change.getChange()) );
+                			updated = true;
+            			}
+            			else if ( change.getChangeType().equals(Change.name) ) {
+            				((TextField)oldValue).setText( replaceAttributeOperationSubElement(oldValue, 1, (String)change.getChange()) );
+                			updated = true;
+            			}
+            			else if ( change.getChangeType().equals(Change.arguments) ) {
+            				((TextField)oldValue).setText( replaceAttributeOperationSubElement(oldValue, 2, (String)change.getChange()) );
+                			updated = true;
+            			}
+            			else if ( change.getChangeType().equals(Change.type) ) {
+            				if (evt.getPropertyName().equals(Constants.changeClassNodeAttribute)) {
+                				((TextField)oldValue).setText( replaceAttributeOperationSubElement(oldValue, 2, (String)change.getChange()) );
+            				} else {
+                				((TextField)oldValue).setText( replaceAttributeOperationSubElement(oldValue, 3, (String)change.getChange()) );
+            				}
+                			updated = true;
+            			}
+            			else if ( change.getChangeType().equals(Change.moved) &&
+            					(indexOf(((IdentifiedTextField)oldValue)) != ((int)change.getChange())) ) {
+            				vbox.getChildren().remove(oldValue);
+            				addAttributeOperationToVbox((int)change.getChange(),(IdentifiedTextField)oldValue);
+                			updated = true;
+            			}
+        			}
+        		}
+            	if (evt.getPropertyName().equals(Constants.changeClassNodeOperation)) {
+                    if (operationsSize() > 0) {
+                        secondLine.setVisible(true);
+                    } else {
+                        secondLine.setVisible(false);
+                    }
+            	}
+        	}
     	}
     	return updated;
     }
@@ -889,13 +1009,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	
     
     private void RemoteChangeToLocalChangeConflict(PropertyChangeEvent evt, TextField oldValue, TextField newValue,
-    		int index, String userName) {
+    		int index, String id, String remoteUserName) {
     	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
-    	removeRemoteChangesFromSameUser(oldValue, userName);
+    	removeRemoteChangesFromSameUser(oldValue, remoteUserName);
     	// Get conflict string
         Menu cmChange = new Menu(GlobalVariables.getString("conflict") + ": " +
-        		getUpdateTypeString(evt, index, oldValue, newValue) + " " +
-        		getDateTimeUserSuffixString(userName));
+        		getUpdateTypeString(evt, index, oldValue, newValue, id, remoteUserName) + " " +
+        		getDateTimeUserSuffixString(remoteUserName));
     
 		// Create conflict record
         if (newValue instanceof Title) {
@@ -908,7 +1028,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         cmItemActionAprove.setUserData(index);
     	cmItemActionAprove.setOnAction(event -> {
 	    	// Update old value
-    		updateTextField(evt, (int)cmItemActionAprove.getUserData(), oldValue, newValue);
+    		updateTextField(evt, oldValue, id, remoteUserName);
     		// Update model
     		updateModel(evt, (int)cmItemActionAprove.getUserData(), oldValue, newValue);
     		// Clear pending evaluation dispatch queue
@@ -953,7 +1073,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     public void umlCollab(PropertyChangeEvent evt) {
     	// *** Get new value ***
     	int index = 0;
-		String newValueStr, userName = null;
+		String newValueStr, remoteUserName = null;
     	String[] dataArray = null;
     	Object newValue;
 		if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
@@ -972,7 +1092,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		dataArray = (String[]) evt.getNewValue();
     		newValueStr = (String) dataArray[2];
     		// Get remote user name
-    		userName = dataArray[3];
+    		remoteUserName = dataArray[3];
     	}
 		if (newValue instanceof Title) {
 			((TextField)newValue).setText(newValueStr);
@@ -1029,13 +1149,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		// *** NO CHANGES, REMOTE ELEMENT EQUALS LOCAL ELEMENT ***
         		if (!elementUpdated(evt, index, oldValue, newValue)) {
     	    		logger.info(abstractDiagramController.getUserName() +
-    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
+    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
     	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nNo changes, remote element equals local element.");
 		        	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
 	        		if (oldValue != null) {
 			        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
-		        			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(userName)) {
+		        			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(remoteUserName)) {
 		        	    		logger.debug("New remote change frow same user, removing old value from pending evaluation dispatch queue");
 		    	        		// Record conflict decision to history
 		    	      			Menu cmHistory = getHistoryMenu(((TextField)oldValue));
@@ -1073,7 +1193,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             			(oldValue instanceof Attribute || oldValue instanceof Operation)  &&
             			(!((IdentifiedTextField)oldValue).getXmiId().equals(((IdentifiedTextField)newValue).getXmiId())) ) {
     	    		logger.info(abstractDiagramController.getUserName() +
-    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
+    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
     	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nConflict, remote new element name matchs local element name with changes.");
 		        	String oldId = ((IdentifiedTextField)oldValue).getXmiId();
@@ -1084,20 +1204,20 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             		} else {
                     	recordChange(oldValue, false, oldId);
             		}
-            		RemoteChangeToLocalChangeConflict(evt, (TextField) oldValue, (TextField) newValue, index, userName);
+            		RemoteChangeToLocalChangeConflict(evt, (TextField) oldValue, (TextField) newValue, index, id, remoteUserName);
 	        		return;
             	}
             	
         		// SIMPLE MERGE, REMOTE CHANGE WITHOUT LOCAL CHANGES
         		if (localChangedValues.get(id) == null && localRemovedValues.get(id) == null  && index != -1) {
     	    		logger.info(abstractDiagramController.getUserName() +
-    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
+    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
     	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nSimple merge, remote change without local change");
 	    	    	// Get merge string
 	            	MenuItem cmChange = new MenuItem(GlobalVariables.getString("merged") + ": " +
-		            		getUpdateTypeString(evt, index, oldValue, newValue) + " " +
-		            		getDateTimeUserSuffixString(userName));
+		            		getUpdateTypeString(evt, index, oldValue, newValue, id, remoteUserName) + " " +
+		            		getDateTimeUserSuffixString(remoteUserName));
             		// Update old value
         			updateTextField(evt, index, oldValue, newValue);
         			// Update model
@@ -1123,7 +1243,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		// CONFLICT, REMOTE CHANGE WITH LOCAL DELETE
 	        	else if (localRemovedValues.get(id) != null && index != -1) {
     	    		logger.info(abstractDiagramController.getUserName() +
-    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
+    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
     	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nConflict, remote change with local delete");
 		            // We need to recreate removed element again
@@ -1135,8 +1255,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		        	}
 	    	    	// Get conflict string
 		            Menu cmChange = new Menu(GlobalVariables.getString("conflict") + ": " +
-		            		getUpdateTypeString(evt, -2, oldValue, newValue) + " " +
-		            		getDateTimeUserSuffixString(userName));
+		            		getUpdateTypeString(evt, -2, oldValue, newValue, id, remoteUserName) + " " +
+		            		getDateTimeUserSuffixString(remoteUserName));
 	        		// Create conflict record
 		            if (newValue instanceof Title) {
 			    		((TextField)newValue).getContextMenu().getItems().add(2,cmChange);
@@ -1175,7 +1295,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	        	else if (localChangedValues.get(id) != null
 	        			|| index == -1) {
 	        		String logMessage = abstractDiagramController.getUserName() +
-    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + userName +
+    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
     	    				"\nOld value: '" + oldValue + "'";
 	        		if (index != -1) {
 	    	    		logger.info(logMessage + "\nRemote change with Local change, recording conflict");
@@ -1186,7 +1306,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		    	    		logger.info(logMessage + "\nRemote delete without local change, recording conflict");
 	        			}
 	        		}
-	        		RemoteChangeToLocalChangeConflict(evt, (TextField) oldValue, (TextField) newValue, index, userName);
+	        		RemoteChangeToLocalChangeConflict(evt, (TextField) oldValue, (TextField) newValue, index, id, remoteUserName);
 	        	}
         	}
     	}

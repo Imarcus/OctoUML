@@ -1145,31 +1145,37 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	} else {
             		id = ((IdentifiedTextField)newValue).getXmiId();
             	}
-        		
+
+            	            	
         		// *** NO CHANGES, REMOTE ELEMENT EQUALS LOCAL ELEMENT ***
-        		if (!elementUpdated(evt, index, oldValue, newValue)) {
+	        	if (!elementUpdated(evt, index, oldValue, newValue)) {
     	    		logger.info(abstractDiagramController.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
     	    				"\nOld value: '" + oldValue + "'" +
     	    				"\nNo changes, remote element equals local element.");
-		        	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
-	        		if (oldValue != null) {
-			        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
-		        			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(remoteUserName)) {
-		        	    		logger.debug("New remote change frow same user, removing old value from pending evaluation dispatch queue");
-		    	        		// Record conflict decision to history
-		    	      			Menu cmHistory = getHistoryMenu(((TextField)oldValue));
-		    	      			MenuItem cmChange = new MenuItem(((TextField)oldValue).getContextMenu().getItems().get(i).getText() +
-		    	      					". " + GlobalVariables.getString("discardedRemoteVersionMatchsLocalVersion") + ".");
-		    	      	  	  	cmHistory.getItems().add(1, cmChange);
-		    		        	// Removing old value from pending evaluation dispatch queue
-		    	      	  	  	((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(i));
-		        			}
-		        		}
-	        		}
-	    			// Remove conflict indication
-	        		// TODO: When it is green, should not be removed the conflict indication
-	        		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue((TextField)oldValue);	        		
+    	    		
+    	    		// Only remove conflicts if it is not case of a remote change with a local delete
+    	    		if (localRemovedValues.get(id) == null && index == -1) {
+    		        	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
+    	        		if (oldValue != null) {
+    			        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
+    		        			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(remoteUserName)) {
+    		        	    		logger.debug("New remote change frow same user, removing old value from pending evaluation dispatch queue");
+    		    	        		// Record conflict decision to history
+    		    	      			Menu cmHistory = getHistoryMenu(((TextField)oldValue));
+    		    	      			MenuItem cmChange = new MenuItem(((TextField)oldValue).getContextMenu().getItems().get(i).getText() +
+    		    	      					". " + GlobalVariables.getString("discardedRemoteVersionMatchsLocalVersion") + ".");
+    		    	      	  	  	cmHistory.getItems().add(1, cmChange);
+    		    		        	// Removing old value from pending evaluation dispatch queue
+    		    	      	  	  	((TextField)oldValue).getContextMenu().getItems().remove(((TextField)oldValue).getContextMenu().getItems().get(i));
+    		        			}
+    		        		}
+    	        		}
+    	    			// Remove conflict indication
+    	        		// TODO: When it is green, should not be removed the conflict indication
+    	        		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue((TextField)oldValue);	        		
+    	    		}
+    	    		
 	            	// If old value id differ from newValue id then the new value have the same
 	            	// name of old value. In this case only a id update is needed
 	            	if (oldValue != null &&
@@ -1185,11 +1191,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	                    	recordChange(oldValue, false, oldId);
 	            		}
 	            	}	        		
-        			return;
         		}
         		
             	// CONFLICT, REMOTE NEW ELEMENT NAME MATCHS LOCAL ELEMENT NAME WITH CHANGES
-            	if (oldValue != null &&
+        		else if (oldValue != null &&
             			(oldValue instanceof Attribute || oldValue instanceof Operation)  &&
             			(!((IdentifiedTextField)oldValue).getXmiId().equals(((IdentifiedTextField)newValue).getXmiId())) ) {
     	    		logger.info(abstractDiagramController.getUserName() +
@@ -1205,43 +1210,10 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                     	recordChange(oldValue, false, oldId);
             		}
             		RemoteChangeToLocalChangeConflict(evt, (TextField) oldValue, (TextField) newValue, index, id, remoteUserName);
-	        		return;
             	}
-            	
-        		// SIMPLE MERGE, REMOTE CHANGE WITHOUT LOCAL CHANGES
-        		if (localChangedValues.get(id) == null && localRemovedValues.get(id) == null  && index != -1) {
-    	    		logger.info(abstractDiagramController.getUserName() +
-    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
-    	    				"\nOld value: '" + oldValue + "'" +
-    	    				"\nSimple merge, remote change without local change");
-	    	    	// Get merge string
-	            	MenuItem cmChange = new MenuItem(GlobalVariables.getString("merged") + ": " +
-		            		getUpdateTypeString(evt, index, oldValue, newValue, id, remoteUserName) + " " +
-		            		getDateTimeUserSuffixString(remoteUserName));
-            		// Update old value
-        			updateTextField(evt, index, oldValue, newValue);
-        			// Update model
-            		updateModel(evt, index, oldValue, newValue);
-	    	    	// Add new merge history
-	            	Menu cmHistory = null;
-  	    	  	  	if (oldValue != null) {
-  		  	  			cmHistory = getHistoryMenu((TextField)oldValue);
-  	    	  	  	} else if (newValue != null) {
-  		  	  			cmHistory = getHistoryMenu((TextField)newValue);
-  	    	  	  	}
-  	    	  	  	if (cmHistory != null) {
-  		  	  			cmHistory.getItems().add(1, cmChange);
-  	    	  	  	}
-  	    	  	  	// Indicates the automatic merge
-  	    	  	  	if (oldValue != null) {
-  	  	    	  	  	((TextField)oldValue).setStyle("-fx-text-inner-color: green;");
-  	    	  	  	} else if (newValue != null) {
-  	  	    	  	  	((TextField)newValue).setStyle("-fx-text-inner-color: green;");
-  	    	  	  	}
-        		}
-        		
+
         		// CONFLICT, REMOTE CHANGE WITH LOCAL DELETE
-	        	else if (localRemovedValues.get(id) != null && index != -1) {
+        		else if (localRemovedValues.get(id) != null && index != -1) {
     	    		logger.info(abstractDiagramController.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
     	    				"\nOld value: '" + oldValue + "'" +
@@ -1251,7 +1223,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                 		createHandlesAttributesOperations(((IdentifiedTextField)newValue));
         				addAttributeOperationToVbox(index,((IdentifiedTextField)newValue));
 	  	        		// Records the change
-	                	recordChange(newValue, false, null);
+	                	recordChange(newValue, true, null);
 		        	}
 	    	    	// Get conflict string
 		            Menu cmChange = new Menu(GlobalVariables.getString("conflict") + ": " +
@@ -1290,22 +1262,61 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		    		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
 		    		((TextField)newValue).setStyle("-fx-text-inner-color: red;");
 	        	}
+	        	
+        		// SIMPLE MERGE, REMOTE CHANGE WITHOUT LOCAL CHANGES
+        		else if (localChangedValues.get(id) == null && localRemovedValues.get(id) == null  && index != -1) {
+    	    		logger.info(abstractDiagramController.getUserName() +
+    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
+    	    				"\nOld value: '" + oldValue + "'" +
+    	    				"\nSimple merge, remote change without local change");
+	    	    	// Get merge string
+	            	MenuItem cmChange = new MenuItem(GlobalVariables.getString("merged") + ": " +
+		            		getUpdateTypeString(evt, index, oldValue, newValue, id, remoteUserName) + " " +
+		            		getDateTimeUserSuffixString(remoteUserName));
+            		// Update old value
+        			updateTextField(evt, index, oldValue, newValue);
+        			// Update model
+            		updateModel(evt, index, oldValue, newValue);
+	    	    	// Add new merge history
+	            	Menu cmHistory = null;
+  	    	  	  	if (oldValue != null) {
+  		  	  			cmHistory = getHistoryMenu((TextField)oldValue);
+  	    	  	  	} else if (newValue != null) {
+  		  	  			cmHistory = getHistoryMenu((TextField)newValue);
+  	    	  	  	}
+  	    	  	  	if (cmHistory != null) {
+  		  	  			cmHistory.getItems().add(1, cmChange);
+  	    	  	  	}
+  	    	  	  	// Indicates the automatic merge
+  	    	  	  	if (oldValue != null) {
+  	  	    	  	  	((TextField)oldValue).setStyle("-fx-text-inner-color: green;");
+  	    	  	  	} else if (newValue != null) {
+  	  	    	  	  	((TextField)newValue).setStyle("-fx-text-inner-color: green;");
+  	    	  	  	}
+        		}
         		
-        		// CONFLICT, REMOTE CHANGE WITH LOCAL CHANGE OR REMOTE DELETE WITH/WITHOUT LOCAL CHANGE
-	        	else if (localChangedValues.get(id) != null
-	        			|| index == -1) {
+        		// CONFLICT, REMOTE DELETE WITH/WITHOUT LOCAL CHANGE
+	        	else if (index == -1) {
 	        		String logMessage = abstractDiagramController.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
     	    				"\nOld value: '" + oldValue + "'";
-	        		if (index != -1) {
-	    	    		logger.info(logMessage + "\nRemote change with Local change, recording conflict");
-	        		} else {
-	        			if (localChangedValues.get(id) != null) {
-		    	    		logger.info(logMessage + "\nRemote delete with local change, recording conflict");
-	        			} else {
-		    	    		logger.info(logMessage + "\nRemote delete without local change, recording conflict");
-	        			}
+        			if (localChangedValues.get(id) != null) {
+	    	    		logger.info(logMessage + "\nRemote delete with local change, recording conflict");
+        			} else {
+	    	    		logger.info(logMessage + "\nRemote delete without local change, recording conflict");
+        			}
+	        		// Old value will be null if the a previous conflict was accepted
+	        		if (oldValue != null) {
+		        		RemoteChangeToLocalChangeConflict(evt, (TextField) oldValue, (TextField) newValue, index, id, remoteUserName);
 	        		}
+	        	}
+
+        		// CONFLICT, REMOTE CHANGE WITH LOCAL CHANGE
+	        	else if (localChangedValues.get(id) != null) {
+	        		String logMessage = abstractDiagramController.getUserName() +
+    	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
+    	    				"\nOld value: '" + oldValue + "'";
+    	    		logger.info(logMessage + "\nRemote change with Local change, recording conflict");
 	        		RemoteChangeToLocalChangeConflict(evt, (TextField) oldValue, (TextField) newValue, index, id, remoteUserName);
 	        	}
         	}

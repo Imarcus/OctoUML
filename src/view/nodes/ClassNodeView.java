@@ -28,6 +28,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -513,38 +514,46 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		list.add(index, subElement);
 		
 		// Adding visibility and name
-    	value = list.get(0) + " " + list.get(1);
+    	value = list.get(0) + list.get(1);
     	if (obj instanceof Attribute) {
     		// Adding type
     		if (!list.get(2).equals("")) {
-        		value = value + " : " + list.get(2);
+        		value = value + ":" + list.get(2);
     		}
     	} else {
     		// Adding arguments
     		value = value + "(" + list.get(2) + ")";
     		// Adding type
     		if (!list.get(3).equals("")) {
-        		value = value + " : " + list.get(3);
+        		value = value + ":" + list.get(3);
     		}
     	}
     	return value;
     }
     
     private List<String> split(Attribute element) {
-     	String aux = element.getText().trim();
+     	String aux = element.getText();
      	
-        String visibility, name, returnType;
+        String visibility = "", name, returnType;
         List<String> list = new ArrayList<>();
 
         //Get visibility;
     	if (aux.contains("-")) {
-    		visibility = "-";
-        	aux = aux.substring(aux.indexOf("-")+1);
+    		for(int i = aux.indexOf("-")+1; i < aux.length(); i++) {
+    			if (!aux.substring(i, i+1).equals(" ")) {
+    				visibility = aux.substring(0,i);
+    				aux = aux.substring(i);
+    				break;
+    			}
+    		}
     	} else if (aux.contains("+")) {
-    		visibility = "+";
-        	aux = aux.substring(aux.indexOf("+")+1);
-    	} else {
-        	visibility = "-";
+    		for(int i = aux.indexOf("+")+1; i < aux.length(); i++) {
+    			if (!aux.substring(i, i+1).equals(" ")) {
+    				visibility = aux.substring(0,i);		
+    				aux = aux.substring(i);
+    				break;
+    			}
+    		}
     	}
     	list.add(visibility);
     	
@@ -556,25 +565,33 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         	name = aux;
         	returnType = "";
     	}
-    	list.add(name.replace(" ",""));
-		list.add(returnType.replace(" ",""));
+    	list.add(name);
+		list.add(returnType);
     	return list;
     }
     
     private List<String> split(Operation element) {
-     	String aux = element.getText().trim();
-        String visibility, name, arguments, returnType;
+     	String aux = element.getText();
+        String visibility = "", name, arguments, returnType;
         List<String> list = new ArrayList<>();
 
         //Get visibility;
     	if (aux.contains("-")) {
-    		visibility = "-";
-        	aux = aux.substring(aux.indexOf("-")+1);
+    		for(int i = aux.indexOf("-")+1; i < aux.length(); i++) {
+    			if (!aux.substring(i, i+1).equals(" ")) {
+    				visibility = aux.substring(0,i);
+    				aux = aux.substring(i);
+    				break;
+    			}
+    		}
     	} else if (aux.contains("+")) {
-    		visibility = "+";
-        	aux = aux.substring(aux.indexOf("+")+1);
-    	} else {
-        	visibility = "-";
+    		for(int i = aux.indexOf("+")+1; i < aux.length(); i++) {
+    			if (!aux.substring(i, i+1).equals(" ")) {
+    				visibility = aux.substring(0,i);		
+    				aux = aux.substring(i);
+    				break;
+    			}
+    		}
     	}
     	list.add(visibility);
     	
@@ -586,7 +603,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	} else {
     		name = aux;
     	}
-    	list.add(name.replace(" ",""));
+    	list.add(name);
     	
         //Get arguments
     	if ( aux.contains("(") && aux.contains(")")
@@ -596,7 +613,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	} else {
     		arguments = "";
     	}
-    	list.add(arguments.trim());    	
+    	list.add(arguments);    	
 
         //Get return type
     	if (aux.contains(":")) {
@@ -606,7 +623,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	} else {
     		returnType = "";
     	}
-		list.add(returnType.replace(" ",""));
+		list.add(returnType);
     	return list;
     }
     
@@ -617,7 +634,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	} else {
         	list = split((Operation)element);
     	}
-    	return list.get(1);
+    	return list.get(1).trim();
     }
   	  	
     private IdentifiedTextField getAttributeOperation(IdentifiedTextField oldValue) {
@@ -784,6 +801,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             			updateTypeStringList.get(updateTypeStringList.size()-1);
         	}
 			remoteChangedValues.put(id + "|" + remoteUserName, remoteChangeList);
+    	} else {
+        	logger.warn("No update string found.");
     	}
     	return updateTypeString;
     }
@@ -950,23 +969,15 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         }
         
     	if (newValue instanceof Title) {
-	        change = new Title();
-	        ((TextField)change).setText(((Title) newValue).getText());
 	        id = ((ClassNode)getRefNode()).getId();
     	} else {
-			if (newValue instanceof Attribute) {
-				change = new Attribute("");
-			} else {
-				change = new Operation("");
-			}
-			((IdentifiedTextField)change).toString(((IdentifiedTextField)newValue).toString());
 			id = ((IdentifiedTextField)newValue).getXmiId();
     	}
     	if (removed) {
     		localChangedValues.remove(id);
-    		localRemovedValues.put(id, change);
+    		localRemovedValues.put(id, newValue);
     	} else {
-        	localChangedValues.put(id, change);
+        	localChangedValues.put(id, newValue);
     		localRemovedValues.remove(id);
     	}
     }
@@ -1040,9 +1051,17 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
   	  	  	cmHistory.getItems().add(1, cmChangeAproved);
       		// Records the change
     		if ((int)cmItemActionAprove.getUserData() == -1) {
-            	recordChange(newValue, true, null);
+    			if (oldValue != null) {
+                	recordChange(oldValue, true, null);
+    			} else {
+                	recordChange(newValue, true, null);
+    			}
     		} else {
-            	recordChange(newValue, false, null);
+    			if (oldValue != null) {
+                	recordChange(oldValue, false, null);
+    			} else {
+                	recordChange(newValue, false, null);
+    			}
     		}		      	  	  	
 			// Remove conflict indication
     		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue(oldValue);
@@ -1129,9 +1148,17 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		updateModel(evt, index, oldValue, newValue);
         		// Records the change
         		if (index == -1) {
-                	recordChange(newValue, true, null);
+        			if (oldValue != null) {
+                    	recordChange(oldValue, true, null);
+        			} else {
+                    	recordChange(newValue, true, null);
+        			}
         		} else {
-                	recordChange(newValue, false, null);
+        			if (oldValue != null) {
+                    	recordChange(oldValue, false, null);
+        			} else {
+                    	recordChange(newValue, false, null);
+        			}
         		}
         	}
         	
@@ -1346,6 +1373,19 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     // Transmit all changes made by local user or from a remote change but accepted by local user
 	public void commitChanges(){
     	logger.debug("handleMenuActionCommit()");
+    	// Removed duplicate spaces and trim()
+    	title.setText(title.getText().trim().replace("  ", " "));
+    	for (int i = 0; i <  vbox.getChildren().size(); i++) {
+    		Node node = vbox.getChildren().get(i);
+    		if (node instanceof Attribute || node instanceof Operation) {
+        		TextInputControl textInputControl = (TextInputControl) node;
+    			textInputControl.setText(textInputControl.getText().trim());
+        		while (textInputControl.getText().contains("  ")) {
+        			textInputControl.setText(textInputControl.getText().replace("  ", " "));
+        		}
+    		}
+    	}
+    	// Send changed values
 		Set<String> ids = localChangedValues.keySet();
 		for (String id : ids)
 		{
@@ -1362,6 +1402,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true, abstractDiagramController.getCollaborationType());
 	        }
 		}
+    	// Send removed values
 		ids = localRemovedValues.keySet();
 		for (String id : ids)
 		{

@@ -532,11 +532,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
     
     private List<String> split(Attribute element) {
-     	String aux = element.getText();
-     	
+     	String aux = element.getText().trim();
         String visibility = "", name, returnType;
         List<String> list = new ArrayList<>();
 
+        // Remove duplicate spaces before compare.
+		while (aux.contains("  ")) {
+			aux = aux.replace("  ", " ");
+		}
         //Get visibility;
     	if (aux.contains("-")) {
     		for(int i = aux.indexOf("-")+1; i < aux.length(); i++) {
@@ -571,10 +574,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
     
     private List<String> split(Operation element) {
-     	String aux = element.getText();
+     	String aux = element.getText().trim();
         String visibility = "", name, arguments, returnType;
         List<String> list = new ArrayList<>();
 
+        // Remove duplicate spaces before compare.
+		while (aux.contains("  ")) {
+			aux = aux.replace("  ", " ");
+		}
         //Get visibility;
     	if (aux.contains("-")) {
     		for(int i = aux.indexOf("-")+1; i < aux.length(); i++) {
@@ -662,13 +669,25 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	return null;
     }
 
-    public boolean elementUpdated(PropertyChangeEvent evt, int index, Object oldValue, Object newValue) {
+    public boolean elementUpdated(PropertyChangeEvent evt, int index, TextField oldValue, TextField newValue) {
     	logger.debug("elementUpdated()");
-    	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
-    		if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText()) ) {
+    	// Remove duplicate spaces and trim() before compare.
+    	String oldValueStr = "";
+    	if (oldValue != null) {
+    		oldValueStr = oldValue.getText().trim();
+    		while (oldValueStr.contains("  ")) {
+    			oldValueStr = oldValueStr.replace("  ", " ");
+    		}
+    	}
+    	// If it is a title    	
+    	if (newValue instanceof Title) {
+            // Compare old value with new value
+    		if ( oldValueStr.equals(newValue.getText()) ) {
     			return true;
     		}
-    	} else {
+    	}
+    	// It is a attribute or operation
+    	else {
         	// It is a deleted value
         	if (index == -1) {
     			return true;
@@ -683,14 +702,14 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         		if (oldValue == null) {
         			return true;
         		}
-            	// It is a updated value
+            	// Is it a updated value?
             	else {
         			// Update text if it was altered
-        			if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText())) {
+        			if ( !oldValueStr.equals(newValue.getText()) ) {
             			return true;
         			}
         			// If moved upper or down
-        			if (indexOf(((IdentifiedTextField)oldValue)) != index) {
+        			if ( indexOf(((IdentifiedTextField)oldValue)) != index ) {
             			return true;
         			}
             	}
@@ -705,13 +724,24 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	List<String> updateTypeStringList = new ArrayList<String>();
 		ArrayList<Change> remoteChangeList = new ArrayList<>();
     	String updateTypeString = "";
+    	// Remove duplicate spaces and trim() before compare.
+    	String oldValueStr = "";
+    	if (oldValue != null) {
+    		oldValueStr = ((TextField)oldValue).getText().trim();
+    		while (oldValueStr.contains("  ")) {
+    			oldValueStr = oldValueStr.replace("  ", " ");
+    		}
+    	}
+    	// If it is a title    	
     	if (evt.getPropertyName().equals(Constants.changeNodeTitle)) {
-    		if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText()) ) {
+    		if (!oldValueStr.equals(((TextField)newValue).getText()) ) {
     			updateTypeStringList.add(GlobalVariables.getString("updatedTo") +
     					" '" + ((TextField)newValue).getText() + "'");
     			remoteChangeList.add(new Change(Change.name, ((TextField)newValue).getText())); 
     		}
-    	} else {
+    	}
+    	// It is a attribute or operation
+    	else {
         	// It is a deleted value
         	if (index == -1) {
         		updateTypeStringList.add(GlobalVariables.getString("elementDeleted"));
@@ -733,7 +763,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	// It is a updated value
             	else {
         			// Update text if it was altered
-        			if (!((TextField)oldValue).getText().equals(((TextField)newValue).getText())) {
+        			if (!oldValueStr.equals(((TextField)newValue).getText())) {
         				List<String> oldValueList;
         				List<String> newValueList;
         				if (oldValue instanceof Attribute) {
@@ -1175,7 +1205,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
             	            	
         		// *** NO CHANGES, REMOTE ELEMENT EQUALS LOCAL ELEMENT ***
-	        	if (!elementUpdated(evt, index, oldValue, newValue)) {
+	        	if (!elementUpdated(evt, index, (TextField)oldValue, (TextField)newValue)) {
     	    		logger.info(abstractDiagramController.getUserName() +
     	    				":\nReceived new value: '" + ((TextField)newValue).getText() + 	"' from " + remoteUserName +
     	    				"\nOld value: '" + oldValue + "'" +
@@ -1373,15 +1403,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     // Transmit all changes made by local user or from a remote change but accepted by local user
 	public void commitChanges(){
     	logger.debug("handleMenuActionCommit()");
-    	// Removed duplicate spaces and trim()
-    	title.setText(title.getText().trim().replace("  ", " "));
+    	// Removed duplicate spaces and trim() before send changes
     	for (int i = 0; i <  vbox.getChildren().size(); i++) {
     		Node node = vbox.getChildren().get(i);
-    		if (node instanceof Attribute || node instanceof Operation) {
-        		TextInputControl textInputControl = (TextInputControl) node;
-    			textInputControl.setText(textInputControl.getText().trim());
-        		while (textInputControl.getText().contains("  ")) {
-        			textInputControl.setText(textInputControl.getText().replace("  ", " "));
+    		if (node instanceof Title
+    				|| node instanceof Attribute
+    				|| node instanceof Operation) {
+        		TextField tf = (TextField) node;
+        		tf.setText(tf.getText().trim());
+        		while (tf.getText().contains("  ")) {
+        			tf.setText(tf.getText().replace("  ", " "));
         		}
     		}
     	}

@@ -38,7 +38,7 @@ public class Launcher extends Application {
         tabController.setStage(stage);
 
         stage.setScene(scene);
-        stage.setTitle("OctoUML v0.10.1 build 001");
+        stage.setTitle("OctoUML v0.10.1 build 002");
         stage.setFullScreen(true);
         stage.getIcons().add(new Image("icons/appIcon.png"));
         stage.show();

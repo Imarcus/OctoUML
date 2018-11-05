@@ -37,6 +37,7 @@ public class IdentifiedTextField extends TextField {
     	setPadding(new Insets(0));
     	setBackground(background);
     	setFont(Font.font("Verdana", 10));
+		setStyle("-fx-prompt-text-fill: white");    	
 	}
 
 	public String getXmiId() {

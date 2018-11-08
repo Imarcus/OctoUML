@@ -513,49 +513,51 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		list.remove(index);
 		list.add(index, subElement);
 		
-		// Adding visibility and name
-    	value = list.get(0) + list.get(1);
-    	if (obj instanceof Attribute) {
-    		// Adding type
-    		if (!list.get(2).equals("")) {
-        		value = value + ":" + list.get(2);
-    		}
-    	} else {
-    		// Adding arguments
-    		value = value + "(" + list.get(2) + ")";
-    		// Adding type
-    		if (!list.get(3).equals("")) {
-        		value = value + ":" + list.get(3);
-    		}
+		// Adding visibility, name and arguments/type
+    	value = list.get(0) + list.get(1) + list.get(2);
+		// Adding return type
+    	if (obj instanceof Operation) {
+    		value = value + list.get(3);
     	}
     	return value;
     }
     
     private List<String> split(Attribute element) {
      	String aux = element.getText().trim();
-        String visibility = "", name, returnType;
+        String visibility = "", name = "", returnType = "";
         List<String> list = new ArrayList<>();
 
         // Remove duplicate spaces before compare.
 		while (aux.contains("  ")) {
 			aux = aux.replace("  ", " ");
 		}
+		
         //Get visibility;
     	if (aux.contains("-")) {
-    		for(int i = aux.indexOf("-")+1; i < aux.length(); i++) {
-    			if (!aux.substring(i, i+1).equals(" ")) {
-    				visibility = aux.substring(0,i);
-    				aux = aux.substring(i);
-    				break;
-    			}
+    		if ( (aux.indexOf("-")+1) < aux.length() ) {
+        		for(int i = aux.indexOf("-")+1; i < aux.length(); i++) {
+        			if (!aux.substring(i, i+1).equals(" ")) {
+        				visibility = aux.substring(0,i);
+        				aux = aux.substring(i);
+        				break;
+        			}
+        		}
+    		} else {
+				visibility = aux;
+				aux = "";
     		}
     	} else if (aux.contains("+")) {
-    		for(int i = aux.indexOf("+")+1; i < aux.length(); i++) {
-    			if (!aux.substring(i, i+1).equals(" ")) {
-    				visibility = aux.substring(0,i);		
-    				aux = aux.substring(i);
-    				break;
-    			}
+    		if ( (aux.indexOf("+")+1) < aux.length() ) {
+        		for(int i = aux.indexOf("+")+1; i < aux.length(); i++) {
+        			if (!aux.substring(i, i+1).equals(" ")) {
+        				visibility = aux.substring(0,i);
+        				aux = aux.substring(i);
+        				break;
+        			}
+        		}
+    		} else {
+				visibility = aux;
+				aux = "";
     		}
     	}
     	list.add(visibility);
@@ -563,7 +565,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         //Get name and return type;
     	if (aux.contains(":")) {
         	name = aux.substring(0, aux.indexOf(":"));
-        	returnType = aux.substring(aux.indexOf(":")+1);
+        	returnType = aux.substring(aux.indexOf(":"));
     	} else {
         	name = aux;
         	returnType = "";
@@ -575,29 +577,39 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     
     private List<String> split(Operation element) {
      	String aux = element.getText().trim();
-        String visibility = "", name, arguments, returnType;
+        String visibility = "", name = "", arguments = "", returnType = "";
         List<String> list = new ArrayList<>();
 
         // Remove duplicate spaces before compare.
 		while (aux.contains("  ")) {
 			aux = aux.replace("  ", " ");
 		}
-        //Get visibility;
+        //Get visibility
     	if (aux.contains("-")) {
-    		for(int i = aux.indexOf("-")+1; i < aux.length(); i++) {
-    			if (!aux.substring(i, i+1).equals(" ")) {
-    				visibility = aux.substring(0,i);
-    				aux = aux.substring(i);
-    				break;
-    			}
+    		if ( (aux.indexOf("-")+1) < aux.length() ) {
+        		for(int i = aux.indexOf("-")+1; i < aux.length(); i++) {
+        			if (!aux.substring(i, i+1).equals(" ")) {
+        				visibility = aux.substring(0,i);
+        				aux = aux.substring(i);
+        				break;
+        			}
+        		}
+    		} else {
+				visibility = aux;
+				aux = "";
     		}
     	} else if (aux.contains("+")) {
-    		for(int i = aux.indexOf("+")+1; i < aux.length(); i++) {
-    			if (!aux.substring(i, i+1).equals(" ")) {
-    				visibility = aux.substring(0,i);		
-    				aux = aux.substring(i);
-    				break;
-    			}
+    		if ( (aux.indexOf("+")+1) < aux.length() ) {
+        		for(int i = aux.indexOf("+")+1; i < aux.length(); i++) {
+        			if (!aux.substring(i, i+1).equals(" ")) {
+        				visibility = aux.substring(0,i);
+        				aux = aux.substring(i);
+        				break;
+        			}
+        		}
+    		} else {
+				visibility = aux;
+				aux = "";
     		}
     	}
     	list.add(visibility);
@@ -605,31 +617,31 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         //Get name
     	if (aux.contains("(")) {
         	name = aux.substring(0, aux.indexOf("("));
+           	aux = aux.substring(aux.indexOf("("));
     	} else if (aux.contains(":")) {
         	name = aux.substring(0, aux.indexOf(":"));
+           	aux = aux.substring(aux.indexOf(":"));
     	} else {
     		name = aux;
+    		aux = "";
     	}
     	list.add(name);
     	
         //Get arguments
-    	if ( aux.contains("(") && aux.contains(")")
-    			&& ( (aux.indexOf(")")-aux.indexOf("(")) > 1 )
-    			) {    		
-        	arguments = aux.substring(aux.indexOf("(")+1, aux.indexOf(")"));
+    	if ( aux.contains("(") ) {
+    		if ( aux.contains(")") ) {
+   	        	arguments = aux.substring(aux.indexOf("("), aux.indexOf(")")+1);
+   	    		if ( (aux.indexOf(")")+1) < aux.length() ) {
+   	    			returnType = aux.substring(aux.indexOf(")")+1);
+   	    		}
+    		} else {
+   	        	arguments = aux.substring(aux.indexOf("("));
+    		}
     	} else {
     		arguments = "";
+    		returnType = aux;
     	}
     	list.add(arguments);    	
-
-        //Get return type
-    	if (aux.contains(":")) {
-        	returnType = aux.substring(aux.indexOf(":")+1);
-    	} else if (aux.contains(")")) {
-    		returnType = aux.substring(aux.indexOf(")")+1);
-    	} else {
-    		returnType = "";
-    	}
 		list.add(returnType);
     	return list;
     }
@@ -672,17 +684,21 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     public boolean elementUpdated(PropertyChangeEvent evt, int index, TextField oldValue, TextField newValue) {
     	logger.debug("elementUpdated()");
     	// Remove duplicate spaces and trim() before compare.
-    	String oldValueStr = "";
+    	String oldValueStr = "", newValueStr = "";
     	if (oldValue != null) {
     		oldValueStr = oldValue.getText().trim();
     		while (oldValueStr.contains("  ")) {
     			oldValueStr = oldValueStr.replace("  ", " ");
     		}
     	}
+    	// Get new value text
+    	if (newValue != null) {
+    		newValueStr = newValue.getText();
+    	}
     	// If it is a title    	
     	if (newValue instanceof Title) {
             // Compare old value with new value
-    		if ( oldValueStr.equals(newValue.getText()) ) {
+    		if ( !oldValueStr.equals(newValueStr) ) {
     			return true;
     		}
     	}
@@ -705,7 +721,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             	// Is it a updated value?
             	else {
         			// Update text if it was altered
-        			if ( !oldValueStr.equals(newValue.getText()) ) {
+        			if ( !oldValueStr.equals(newValueStr) ) {
             			return true;
         			}
         			// If moved upper or down
@@ -1212,7 +1228,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    				"\nNo changes, remote element equals local element.");
     	    		
     	    		// Only remove conflicts if it is not case of a remote change with a local delete
-    	    		if (localRemovedValues.get(id) == null && index == -1) {
+    	    		if (localRemovedValues.get(id) == null) {
     		        	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
     	        		if (oldValue != null) {
     			        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {

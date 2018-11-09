@@ -333,6 +333,10 @@ public class ClassDiagramController extends AbstractDiagramController {
         voiceBtn.setGraphic(new ImageView(image));
         voiceBtn.setText("");
 
+        image = new Image("/icons/commit.png");
+        commitBtn.setGraphic(new ImageView(image));
+        commitBtn.setText("");
+        
         buttonInUse = createBtn;
         buttonInUse.getStyleClass().add("button-in-use");
 
@@ -391,5 +395,7 @@ public class ClassDiagramController extends AbstractDiagramController {
             voiceController.onVoiceButtonClick();
 
         });
+        
+        commitBtn.setOnAction(event -> handleMenuActionCommit() );
     }
 }

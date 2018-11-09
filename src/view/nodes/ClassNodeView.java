@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import controller.AbstractDiagramController;
+import controller.TabController;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -27,6 +29,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyEvent;
@@ -680,6 +683,23 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	}  
     	return null;
     }
+    
+    private void commited(boolean salvo) {
+        // Update tab name
+		Set<Tab> keys = TabController.getTabMap().keySet();
+		for (Tab tab: keys)
+		{
+			AbstractDiagramController value = TabController.getTabMap().get(tab);
+	        if (value == abstractDiagramController) {
+	        	String graphName = abstractDiagramController.getGraphModel().getName();
+        		if (salvo) {
+    	        	Platform.runLater(() -> tab.setText(graphName));
+        		} else {
+    	        	Platform.runLater(() -> tab.setText(graphName +  " (" + GlobalVariables.getString("localChangesNotSented") + ")" ));
+        		}
+	        }
+		} 
+    }
 
     public boolean elementUpdated(PropertyChangeEvent evt, int index, TextField oldValue, TextField newValue) {
     	logger.debug("elementUpdated()");
@@ -1111,6 +1131,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		}		      	  	  	
 			// Remove conflict indication
     		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue(oldValue);
+    		commited(false);
         });            
         // Create reject option
     	MenuItem cmItemActionReject = new MenuItem(GlobalVariables.getString("reject"));
@@ -1206,6 +1227,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                     	recordChange(newValue, false, null);
         			}
         		}
+        		commited(false);
         	}
         	
     		// *** Remote change ***
@@ -1323,6 +1345,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	                	recordChange(newValue, false, null);
 		    			// Remove conflict indication
 		        		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue((TextField)newValue);
+		        		commited(false);
 		            });            
 		            // Create reject option
 		        	MenuItem cmItemActionReject = new MenuItem(GlobalVariables.getString("reject"));
@@ -1463,6 +1486,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    	((ClassNode)getRefNode()).setOperation(-1, operation, true, abstractDiagramController.getCollaborationType());
 	        }
 		}
+		commited(true);
     }
 
 	private void dismissAutomaticMerge(MenuItem cmItemChange) {

@@ -349,18 +349,16 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     private void addAttributeOperationToVbox(int index, IdentifiedTextField newValue) {
     	if (newValue instanceof Attribute) {
     		index = index + 2;
-    		try {
-        		vbox.getChildren().add(index,newValue);
-    		} catch(Exception e) {
-        		vbox.getChildren().add(newValue);
-    		}    		
+    		if (index > 2 + attributesSize() || index < 2) {
+    			index = 2 + attributesSize();
+    		}
+    		vbox.getChildren().add(index,newValue);
     	} else if (newValue instanceof Operation) {
     		index = index + 3 + attributesSize();
-    		try {
-        		vbox.getChildren().add(index,newValue);
-    		} catch(Exception e) {
-        		vbox.getChildren().add(newValue);
-    		}    		
+    		if (index > 3 + attributesSize() + operationsSize() || index < 3 + attributesSize() ) {
+    			index = 3 + attributesSize() + operationsSize();
+    		}
+    		vbox.getChildren().add(index,newValue);
     	}
     }    
     
@@ -844,14 +842,12 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             				updateTypeStringList.add(GlobalVariables.getString("movedDown") +
                 					" " + (index-indexOf(((IdentifiedTextField)oldValue))) +
                 					" " + GlobalVariables.getString("positions") );
-                			remoteChangeList.add(new Change(Change.moved, index)); 
             			} else if (indexOf(((IdentifiedTextField)oldValue)) > index) {
             				updateTypeStringList.add( GlobalVariables.getString("movedUp") +
                 					" " + (indexOf(((IdentifiedTextField)oldValue))-index) +
                 					" " + GlobalVariables.getString("positions") );
-                            Object[] dataArray = {index, newValue};
-                			remoteChangeList.add(new Change(Change.moved, index)); 
             			}
+            			remoteChangeList.add(new Change(Change.moved, index)); 
         			}
             	}
     		}

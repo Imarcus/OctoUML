@@ -1247,11 +1247,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	    		
     	    		// Only remove conflicts if it is not case of a remote change with a local delete
     	    		if (localRemovedValues.get(id) == null) {
+    	    			boolean oldConflictsRemoved = false;
     		        	// Remove remote changes from same user from conflicting pending evaluation dispatch queue
     	        		if (oldValue != null) {
     			        	for (int i = 0; i < ((TextField)oldValue).getContextMenu().getItems().size(); i++) {
     		        			if (((TextField)oldValue).getContextMenu().getItems().get(i).getText().contains(remoteUserName)) {
     		        	    		logger.debug("New remote change frow same user, removing old value from pending evaluation dispatch queue");
+    		        	    		oldConflictsRemoved = true;
     		    	        		// Record conflict decision to history
     		    	      			Menu cmHistory = getHistoryMenu(((TextField)oldValue));
     		    	      			MenuItem cmChange = new MenuItem(((TextField)oldValue).getContextMenu().getItems().get(i).getText() +
@@ -1264,7 +1266,9 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	        		}
     	    			// Remove conflict indication
     	        		// TODO: When it is green, should not be removed the conflict indication
-    	        		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue((TextField)oldValue);	        		
+    	        		if (oldConflictsRemoved) {
+        	        		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue((TextField)oldValue);	        		
+    	        		}
     	    		}
     	    		
 	            	// If old value id differ from newValue id then the new value have the same

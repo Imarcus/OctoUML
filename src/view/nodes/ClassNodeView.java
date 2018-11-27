@@ -80,6 +80,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     private Title title;
     
     private AbstractDiagramController abstractDiagramController;
+    
+    private boolean commited = true;
 
     public ClassNodeView(ClassNode node, AbstractDiagramController abstractDiagramController) {
     	super(node);
@@ -682,8 +684,13 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	return null;
     }
     
-    private void commited(boolean salvo) {
+    public boolean isCommited() {
+		return commited;
+	}
+
+	private void setCommited(boolean salvo) {
         // Update tab name
+		commited = salvo;
 		Set<Tab> keys = TabController.getTabMap().keySet();
 		for (Tab tab: keys)
 		{
@@ -1127,7 +1134,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     		}		      	  	  	
 			// Remove conflict indication
     		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue(oldValue);
-    		commited(false);
+    		setCommited(false);
         });            
         // Create reject option
     	MenuItem cmItemActionReject = new MenuItem(GlobalVariables.getString("reject"));
@@ -1223,7 +1230,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
                     	recordChange(newValue, false, null);
         			}
         		}
-        		commited(false);
+        		setCommited(false);
         	}
         	
     		// *** Remote change ***
@@ -1345,7 +1352,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 	                	recordChange(newValue, false, null);
 		    			// Remove conflict indication
 		        		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue((TextField)newValue);
-		        		commited(false);
+		        		setCommited(false);
 		            });            
 		            // Create reject option
 		        	MenuItem cmItemActionReject = new MenuItem(GlobalVariables.getString("reject"));
@@ -1440,53 +1447,58 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     }
     
     // Transmit all changes made by local user or from a remote change but accepted by local user
-	public void commitChanges(){
+	public boolean commitChanges(){
     	logger.debug("handleMenuActionCommit()");
-    	// Removed duplicate spaces and trim() before send changes
-    	for (int i = 0; i <  vbox.getChildren().size(); i++) {
-    		Node node = vbox.getChildren().get(i);
-    		if (node instanceof Title
-    				|| node instanceof Attribute
-    				|| node instanceof Operation) {
-        		TextField tf = (TextField) node;
-        		tf.setText(tf.getText().trim());
-        		while (tf.getText().contains("  ")) {
-        			tf.setText(tf.getText().replace("  ", " "));
+    	boolean success = false;
+    	if (!commited) {
+        	// Removed duplicate spaces and trim() before send changes
+        	for (int i = 0; i <  vbox.getChildren().size(); i++) {
+        		Node node = vbox.getChildren().get(i);
+        		if (node instanceof Title
+        				|| node instanceof Attribute
+        				|| node instanceof Operation) {
+            		TextField tf = (TextField) node;
+            		tf.setText(tf.getText().trim());
+            		while (tf.getText().contains("  ")) {
+            			tf.setText(tf.getText().replace("  ", " "));
+            		}
         		}
+        	}
+        	// Send changed values
+    		Set<String> ids = localChangedValues.keySet();
+    		for (String id : ids)
+    		{
+    			Object newValue = localChangedValues.get(id);
+    	        if (newValue instanceof Title) {
+        	    	((ClassNode)getRefNode()).setTitle(((Title)newValue).getText(),true, abstractDiagramController.getCollaborationType());
+    	        }
+    	        else if (newValue instanceof Attribute){
+    	        	Attribute attribute = (Attribute) getAttributeOperation((Attribute)newValue);
+        	    	((ClassNode)getRefNode()).setAttribute(indexOf(attribute), attribute, true, abstractDiagramController.getCollaborationType());
+    	        }
+    	        else if (newValue instanceof Operation){
+    	        	Operation operation = (Operation) getAttributeOperation((Operation)newValue);
+        	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true, abstractDiagramController.getCollaborationType());
+    	        }
     		}
+        	// Send removed values
+    		ids = localRemovedValues.keySet();
+    		for (String id : ids)
+    		{
+    			Object newValue = localRemovedValues.get(id);
+    	        if (newValue instanceof Attribute){
+    	        	Attribute attribute = (Attribute) newValue;
+        	    	((ClassNode)getRefNode()).setAttribute(-1, attribute, true, abstractDiagramController.getCollaborationType());
+    	        }
+    	        else if (newValue instanceof Operation){
+    	        	Operation operation = (Operation) newValue;
+        	    	((ClassNode)getRefNode()).setOperation(-1, operation, true, abstractDiagramController.getCollaborationType());
+    	        }
+    		}
+    		setCommited(true);
+    		success = true;
     	}
-    	// Send changed values
-		Set<String> ids = localChangedValues.keySet();
-		for (String id : ids)
-		{
-			Object newValue = localChangedValues.get(id);
-	        if (newValue instanceof Title) {
-    	    	((ClassNode)getRefNode()).setTitle(((Title)newValue).getText(),true, abstractDiagramController.getCollaborationType());
-	        }
-	        else if (newValue instanceof Attribute){
-	        	Attribute attribute = (Attribute) getAttributeOperation((Attribute)newValue);
-    	    	((ClassNode)getRefNode()).setAttribute(indexOf(attribute), attribute, true, abstractDiagramController.getCollaborationType());
-	        }
-	        else if (newValue instanceof Operation){
-	        	Operation operation = (Operation) getAttributeOperation((Operation)newValue);
-    	    	((ClassNode)getRefNode()).setOperation(indexOf(operation), operation, true, abstractDiagramController.getCollaborationType());
-	        }
-		}
-    	// Send removed values
-		ids = localRemovedValues.keySet();
-		for (String id : ids)
-		{
-			Object newValue = localRemovedValues.get(id);
-	        if (newValue instanceof Attribute){
-	        	Attribute attribute = (Attribute) newValue;
-    	    	((ClassNode)getRefNode()).setAttribute(-1, attribute, true, abstractDiagramController.getCollaborationType());
-	        }
-	        else if (newValue instanceof Operation){
-	        	Operation operation = (Operation) newValue;
-    	    	((ClassNode)getRefNode()).setOperation(-1, operation, true, abstractDiagramController.getCollaborationType());
-	        }
-		}
-		commited(true);
+		return success;
     }
 
 	private void dismissAutomaticMerge(MenuItem cmItemChange) {

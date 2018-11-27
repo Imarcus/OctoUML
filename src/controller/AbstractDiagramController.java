@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.File;
 
+import org.controlsfx.control.Notifications;
 import org.slf4j.Logger;
 
 
@@ -601,10 +602,24 @@ public abstract class AbstractDiagramController {
 
     public boolean handleMenuActionCommit(){
     	logger.debug("handleMenuActionCommit()");
+    	boolean success = false;
         for (AbstractNodeView nodeView : allNodeViews) {
         	if (nodeView instanceof ClassNodeView) {
-        		((ClassNodeView)nodeView).commitChanges();
+        		if (((ClassNodeView)nodeView).commitChanges()) {
+        			success = true;
+        		}
         	}
+        }
+        if (success) {
+            Notifications.create()
+            .title(GlobalVariables.getString("sentedSuccessfully"))
+            .text(GlobalVariables.getString("localChangesSented"))
+            .showInformation();
+        } else {
+            Notifications.create()
+            .title(GlobalVariables.getString("sendFailed"))
+            .text(GlobalVariables.getString("withoutLocalChanges"))
+            .showInformation();
         }
     	return true;
     }

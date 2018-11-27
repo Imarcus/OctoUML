@@ -335,7 +335,7 @@ public class ClassDiagramController extends AbstractDiagramController {
         voiceBtn.setGraphic(new ImageView(image));
         voiceBtn.setText("");
 
-        image = new Image("/icons/commit.png");
+        image = new Image("/icons/commitw.png");
         commitBtn.setGraphic(new ImageView(image));
         commitBtn.setText("");
         

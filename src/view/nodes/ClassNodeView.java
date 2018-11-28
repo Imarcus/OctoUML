@@ -1149,6 +1149,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
   	  	  	cmHistory.getItems().add(1, cmChangeRejected);
 			// Remove conflict indication
     		removeConflictIndicationWhenEmptyPendingEvaluationDispatchQueue(oldValue);
+    		setCommited(false);
         });        
 		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
 		// Indicates the conflict
@@ -1361,6 +1362,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 		        		updateTextField(evt, -2, oldValue, newValue);
 	  	        		// Records the change
 	                	recordChange(newValue, true, null);
+		        		setCommited(false);
 		            });        
 		    		cmChange.getItems().addAll(cmItemActionAprove,cmItemActionReject);
 		    		((TextField)newValue).setStyle("-fx-text-inner-color: red;");

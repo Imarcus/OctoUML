@@ -12,8 +12,8 @@ public class Constants {
 
     public static int GRID_DISTANCE = 20;
 
-    public static String collaborationTypeSynchronous = "Synchronous";
-    public static String collaborationTypeUMLCollab = "UMLCollab";
+    public static String collaborationTypeSynchronous = "synchronous";
+    public static String collaborationTypeUMLCollab = "umlcollab";
 
     //--------------------- Network Constants -----------------------------------
     public static String requestGraph = "RequestGraph";

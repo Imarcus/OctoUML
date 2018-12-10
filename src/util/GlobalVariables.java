@@ -1,5 +1,6 @@
 package util;
 
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -19,4 +20,17 @@ public class GlobalVariables {
 	public static String getString(String key) {
 		return bundle.getString(key);
 	}
+	
+	public static String getKey(String value) {
+		String result = "";
+		Enumeration<String> keys = bundle.getKeys();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			String aux = bundle.getString(key);
+			if (aux.equals(value)) {
+				result = key;
+			}
+		}
+		return result;
+	}	
 }

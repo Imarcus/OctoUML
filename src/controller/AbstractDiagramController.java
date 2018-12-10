@@ -560,7 +560,7 @@ public abstract class AbstractDiagramController {
         String[] result = NetworkUtils.ServerConfigDialog();
 
         if (result != null) {
-        	this.setCollaborationType(result[1]);
+        	this.setCollaborationType(GlobalVariables.getKey(result[1]));
         	this.setUserName(result[2]);
             ServerController server = new ServerController(graph, this, Integer.parseInt(result[0]));
             serverControllers.add(server);

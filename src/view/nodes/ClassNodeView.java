@@ -216,7 +216,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
        	ContextMenu contextMenu = new ContextMenu();
     	contextMenu.getItems().addAll(cmItemAddAttribute,cmItemAddOperation);
     	// Add context menu for collaboration type UMLCollab
-    	Menu cmHistory = new Menu (GlobalVariables.getString("history"));
+    	Menu cmHistory = new Menu (GlobalVariables.getString("historic"));
     	// Add context menu item "Clear all" 
   		MenuItem cmItemClearAll = new MenuItem(GlobalVariables.getString("clearAll"));
   		cmItemClearAll.setOnAction(event -> {
@@ -450,7 +450,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
        	ContextMenu contextMenu = new ContextMenu();
     	contextMenu.getItems().addAll(cmItemMoveUp,cmItemMoveDown,cmItemDelete);
     	// Add context menu for collaboration type UMLCollab
-    	Menu cmHistory = new Menu (GlobalVariables.getString("history"));
+    	Menu cmHistory = new Menu (GlobalVariables.getString("historic"));
     	// Add context menu item "Clear all" 
   		MenuItem cmItemClearAll = new MenuItem(GlobalVariables.getString("clearAll"));
   		cmItemClearAll.setOnAction(event -> {
@@ -490,7 +490,7 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
     	if (textField.getContextMenu() != null) {
         	ObservableList<MenuItem> list = textField.getContextMenu().getItems();
     		for (int i = 0; i < list.size(); i++) {
-    			if (list.get(i).getText().equals(GlobalVariables.getString("history"))) {
+    			if (list.get(i).getText().equals(GlobalVariables.getString("historic"))) {
     				return (Menu) list.get(i);
     			}
     		}

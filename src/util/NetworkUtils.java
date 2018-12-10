@@ -95,9 +95,9 @@ public class NetworkUtils {
         TextField port = new TextField();
         port.setText("54555");
         ChoiceBox<String> collaborationType = new ChoiceBox<String>(FXCollections.observableArrayList(
-        	    "Synchronous", "UMLCollab")
+        	    GlobalVariables.getString("synchronous"), "UMLCollab")
         );
-        collaborationType.setValue("Synchronous");
+        collaborationType.setValue(GlobalVariables.getString("synchronous"));
         
         TextField userName = new TextField();
         userName.setText(GlobalVariables.getString("server"));

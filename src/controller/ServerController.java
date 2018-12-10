@@ -54,7 +54,7 @@ public class ServerController implements PropertyChangeListener {
 
         Platform.runLater(() -> diagramController.setServerLabel(
         		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +
-        		"\n" + GlobalVariables.getString("collaborationType") + ": " + diagramController.getCollaborationType() +
+        		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getString(diagramController.getCollaborationType()) +
         		"\n" + GlobalVariables.getString("serverMode") +
         		" (" + GlobalVariables.getString("port") + ": " + port + ", " +
         		GlobalVariables.getString("clients") + ": " + Integer.toString(nrClients) + ")") );
@@ -96,7 +96,7 @@ public class ServerController implements PropertyChangeListener {
                 nrClients++;
                 Platform.runLater(() -> diagramController.setServerLabel(
                 		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +
-                		"\n" + GlobalVariables.getString("collaborationType") + ": " + diagramController.getCollaborationType() +
+                		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getString(diagramController.getCollaborationType()) +
                 		"\n" + GlobalVariables.getString("serverMode") +
                 		" (" + GlobalVariables.getString("port") + ": " + port + ", " +
                 		GlobalVariables.getString("clients") + ": " + Integer.toString(nrClients) + ")") );
@@ -106,7 +106,7 @@ public class ServerController implements PropertyChangeListener {
                 nrClients--;
                 Platform.runLater(() -> diagramController.setServerLabel(
                 		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +
-                		"\n" + GlobalVariables.getString("collaborationType") + ": " + diagramController.getCollaborationType() +
+                		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getString(diagramController.getCollaborationType()) +
                 		"\n" + GlobalVariables.getString("serverMode") +
                 		" (" + GlobalVariables.getString("port") + ": " + port + ", " +
                 		GlobalVariables.getString("clients") + ": " + Integer.toString(nrClients) + ")") );

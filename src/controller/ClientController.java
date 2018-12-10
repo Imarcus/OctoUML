@@ -80,7 +80,7 @@ public class ClientController implements PropertyChangeListener {
                     	logger.info("Collaboration type setted to " + dataArray[1]);
                         Platform.runLater(() -> diagramController.setServerLabel(
                         		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +
-                        		"\n" + GlobalVariables.getString("collaborationType") + ": " + diagramController.getCollaborationType() +
+                        		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getString(diagramController.getCollaborationType()) +
                         		"\n" + GlobalVariables.getString("clientMode") + " (" +
                         		serverIp + ":" + port + ")" ));
                     }
@@ -91,7 +91,7 @@ public class ClientController implements PropertyChangeListener {
                         	logger.info("Collaboration type changed to " + dataArray[1]);
                             Platform.runLater(() -> diagramController.setServerLabel(
                             		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +
-                            		"\n" + GlobalVariables.getString("collaborationType") + ": " + diagramController.getCollaborationType() +
+                            		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getString(diagramController.getCollaborationType()) +
                             		"\n" + GlobalVariables.getString("clientMode") + " (" +
                             		serverIp + ":" + port + ")" ));
                             Graph graph = (Graph) dataArray[2];

@@ -18,6 +18,8 @@ public class AssociationEdgeView extends AbstractEdgeView {
     private AbstractNodeView startNode;
     private AbstractNodeView endNode;
     private ArrayList<Line> arrowHeadLines = new ArrayList<>();
+    private String startMultplicity;
+    private String endMultplicity;
 
 
     
@@ -28,11 +30,29 @@ public class AssociationEdgeView extends AbstractEdgeView {
         this.endNode = endNode;
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
+        this.setStartMultplicity(edge.getStartMultiplicity());
+        this.setEndMultplicity(edge.getEndMultiplicity());
         setPosition();
         draw();
     }
 
-    protected void draw() {
+    public String getStartMultplicity() {
+		return startMultplicity;
+	}
+
+	public void setStartMultplicity(String startMultplicity) {
+		this.startMultplicity = startMultplicity;
+	}
+
+	public String getEndMultplicity() {
+		return endMultplicity;
+	}
+
+	public void setEndMultplicity(String endMultplicity) {
+		this.endMultplicity = endMultplicity;
+	}
+
+	protected void draw() {
         AbstractEdge.Direction direction = refEdge.getDirection();
         getChildren().clear();
         getChildren().add(getStartLine());

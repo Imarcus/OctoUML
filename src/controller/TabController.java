@@ -102,10 +102,11 @@ public class TabController {
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSave();
     }
     public void handleMenuActionLoad() {
-        Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
-        tabPane.getSelectionModel().select(tab);
-        tabMap.get(tab).handleMenuActionLoad();
-        tab.setText(tabMap.get(tab).getGraphModel().getName());
+        // Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
+        Tab newTab = tabPane.getSelectionModel().getSelectedItem();
+        tabPane.getSelectionModel().select(newTab);
+        tabMap.get(newTab).handleMenuActionLoad();
+        newTab.setText(tabMap.get(newTab).getGraphModel().getName());
     }
     public void handleMenuActionNewClassDiagram() {
         Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
@@ -117,8 +118,8 @@ public class TabController {
     }
 
     public void handleMenuActionServer(){
-        Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
-        tabPane.getSelectionModel().select(tab);
+    //    Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
+    //    tabPane.getSelectionModel().select(tab);
         tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionServer();
     }
 

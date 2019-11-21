@@ -7,6 +7,7 @@ import model.nodes.AbstractNode;
 import model.nodes.Node;
 import model.nodes.PackageNode;
 import util.Constants;
+import view.nodes.AbstractNodeView;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -14,6 +15,8 @@ import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import controller.AbstractDiagramController;
 
 /**
  * Model-representation of a Graph.
@@ -28,6 +31,8 @@ public class Graph implements Serializable, PropertyChangeListener {
     private List<AbstractNode> allNodes = new ArrayList<>();
     private List<Edge> allEdges = new ArrayList<>();
     private transient List<Sketch> allSketches = new ArrayList<>();
+    
+    private AbstractDiagramController  abstractDiagramController ;
 
     private String name = "";
 
@@ -43,6 +48,8 @@ public class Graph implements Serializable, PropertyChangeListener {
         return name;
     }
 
+    
+    
     /**
      * Adds a Node to the Graph. If the node is added inside a package, the node is also added as a child to
      * that package. 

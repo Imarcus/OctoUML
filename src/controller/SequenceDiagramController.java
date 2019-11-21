@@ -22,6 +22,7 @@ import view.nodes.SequenceObjectView;
 import view.nodes.PackageNodeView;
 
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
 
 /**
  * Created by chalmers on 2016-08-31.
@@ -484,4 +485,5 @@ public class SequenceDiagramController extends AbstractDiagramController {
             voiceController.onVoiceButtonClick();
         });
     }
+
 }

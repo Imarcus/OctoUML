@@ -53,6 +53,8 @@ public class AssociationEdge extends AbstractEdge {
     public double getScaleY() {
         return 0;
     }
+    
+      
 
     /**
      * No-arg constructor for JavaBean convention

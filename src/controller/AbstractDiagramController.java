@@ -32,6 +32,7 @@ import view.nodes.*;
 
 import java.util.*;
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeSupport;
 
 import javax.imageio.ImageIO;
 import javax.xml.transform.Transformer;
@@ -82,6 +83,9 @@ public abstract class AbstractDiagramController {
 
     ArrayList<ServerController> serverControllers = new ArrayList<>();
     ArrayList<ClientController> clientControllers = new ArrayList<>();
+    
+    private transient PropertyChangeSupport remoteChanges = new PropertyChangeSupport(this);
+
 
     boolean selected = false; //A node is currently selected
 
@@ -482,6 +486,10 @@ public abstract class AbstractDiagramController {
             graph = PersistenceManager.importXMIFromPath(file.getAbsolutePath());
         }
         load(graph, false);
+      //  boolean remote = load(graph, false);
+      //  if(remote){
+      // remoteChanges.firePropertyChange(Constants.changeGraph, null, graph);
+      //  }        
     }
 
     public void createXMI(String path) {
@@ -824,7 +832,9 @@ public abstract class AbstractDiagramController {
                 }
             }
         }
-        
+        else if (dataArray[0].equals(Constants.changeGraph)){
+        	load(graph, false);
+        }
     }
 
     /**
@@ -957,7 +967,7 @@ public abstract class AbstractDiagramController {
      * @param remote True if graph comes from a remote server
      */
     public void load(Graph pGraph, boolean remote) {
-        reset();
+       //reset();
 
         if (pGraph != null) {
             this.graph = pGraph;
@@ -970,6 +980,7 @@ public abstract class AbstractDiagramController {
             for (Edge edge : graph.getAllEdges()) {
                 AbstractEdge.incrementObjectCount();
                 addEdgeView((AbstractEdge) edge, remote);
+                graph.listenToElement(edge);
             }
 
             for(Sketch sketch : graph.getAllSketches()){
@@ -978,8 +989,9 @@ public abstract class AbstractDiagramController {
                 graph.listenToElement(sketch);
             }
         }
+       
     }
-
+    
 
     //------------------------ Zoom-feature -------------------------------------
 

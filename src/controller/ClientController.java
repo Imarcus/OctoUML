@@ -49,7 +49,13 @@ public class ClientController implements PropertyChangeListener {
         client.addListener(new Listener() {
             public void received (Connection connection, Object object) {
             	           	
-            	if (object instanceof AbstractNode) {
+            	if (object instanceof String) {
+                     String request = (String)object;
+                     if(request.equals(Constants.requestGraph)){
+                    	 client.sendTCP(diagramController.getGraphModel());
+                     }
+                 }
+            	else if (object instanceof AbstractNode) {
                     Platform.runLater(() -> diagramController.createNodeView((AbstractNode)object, true));
                 }
 //                else if (object instanceof MessageEdge) {
@@ -59,9 +65,9 @@ public class ClientController implements PropertyChangeListener {
                     Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)object, true));
                 }
                 else if (object instanceof Graph){
-                    Graph graph = (Graph) object;
-                    graph.addRemotePropertyChangeListener(ClientController.this);
-                    Platform.runLater(() -> diagramController.load(graph, true));
+                   Graph graph = (Graph) object;
+                   graph.addRemotePropertyChangeListener(ClientController.this);
+                   Platform.runLater(() -> diagramController.load(graph, true));
                 }
                 else if (object instanceof String[]){
                     Platform.runLater(() -> diagramController.remoteCommand((String[])object));
@@ -218,6 +224,8 @@ public class ClientController implements PropertyChangeListener {
         kryo.register(PictureNode.class);
         kryo.register(WritableImage.class);
         kryo.register(Animation.class);
+        kryo.register(AbstractDiagramController.class);
+        kryo.register(TabController.class);
     }
 
     public void closeClient(){

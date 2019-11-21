@@ -77,6 +77,7 @@ public class ServerController implements PropertyChangeListener {
                     server.sendToAllExceptTCP(connection.getID(), object);
                     Platform.runLater(() -> diagramController.remoteCommand((String[])object));
                 }
+
             }
 
             public void connected(Connection c){
@@ -195,6 +196,10 @@ public class ServerController implements PropertyChangeListener {
             String[] dataArray = {propertyName, mEdge.getId(), mTypeEdge.toString()};
             server.sendToAllTCP(dataArray);
         }
+        if(propertyName.equals(Constants.changeGraph)){
+        	Graph graph = (Graph) evt.getSource();
+        	server.sendToAllTCP(graph);
+        }
     }
 
     private void initKryo(Kryo kryo){
@@ -217,6 +222,8 @@ public class ServerController implements PropertyChangeListener {
         kryo.register(PictureNode.class);
         kryo.register(WritableImage.class);
         kryo.register(Animation.class);
+        kryo.register(AbstractDiagramController.class);
+        kryo.register(TabController.class);
     }
 
     public void closeServer(){

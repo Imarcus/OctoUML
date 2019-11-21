@@ -145,6 +145,9 @@ public class PersistenceManager {
             umlAssociation.setAttribute("xmi.id", edge.getId());
             umlAssociation.setAttribute("relation", edge.getType());
             umlAssociation.setAttribute("direction", ((AbstractEdge) edge).getDirection().toString());
+            umlAssociation.setAttribute("startMultiplicity", ((AbstractEdge) edge).getStartMultiplicity());
+            umlAssociation.setAttribute("endMultiplicity", ((AbstractEdge) edge).getEndMultiplicity());
+            umlAssociation.setAttribute("edgeLable", ((AbstractEdge) edge).getLabel());
 
 
             Element associationConnection = doc.createElement("UML:Association.connection");
@@ -314,9 +317,16 @@ public class PersistenceManager {
             AbstractEdge edge;
             String relation = associationElement.getAttribute("relation");
             String direction = associationElement.getAttribute("direction");
+            String startMultiplicity = associationElement.getAttribute("startMultiplicity");
+            String endMultiplicity = associationElement.getAttribute("endMultiplicity");
+            String edgeLabel = associationElement.getAttribute("edgeLable");
+            
             if (relation.equals("Association")){
                 edge = new AssociationEdge(idMap.get(startNodeId), idMap.get(endNodeId));
                 edge.setDirection(AbstractEdge.Direction.valueOf(direction));
+                edge.remoteSetStartMultiplicity(startMultiplicity);
+                edge.remoteSetEndMultiplicity(endMultiplicity);
+                edge.remoteSetLabel(edgeLabel);
             } else if (relation.equals("Inheritance")){
                 edge = new InheritanceEdge(idMap.get(startNodeId), idMap.get(endNodeId));
                 edge.setDirection(AbstractEdge.Direction.valueOf(direction));

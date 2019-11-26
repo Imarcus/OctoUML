@@ -42,7 +42,7 @@ public class ClientController implements PropertyChangeListener {
         serverIp = pServerIp;
         port = pPort;
 
-        client = new Client();
+        client = new Client(1000000,1000000);
 
         initKryo(client.getKryo());
 

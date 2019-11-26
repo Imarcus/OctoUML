@@ -38,6 +38,7 @@ public class SelectController {
     }
 
     public void onMousePressed(MouseEvent event){
+    	boolean selectedEdge = true;
         if (diagramController.getTool() == AbstractDiagramController.ToolEnum.EDGE)
         {
             for(AbstractEdgeView edgeView : diagramController.allEdgeViews){
@@ -66,25 +67,24 @@ public class SelectController {
         }
         else if (diagramController.getTool() == ToolEnum.SELECT)
         {
-            for(AbstractEdgeView edgeView : diagramController.allEdgeViews){
-                if (!(edgeView instanceof MessageEdgeView) && (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 ||
-                        distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 ||
-                        distanceToLine(edgeView.getEndLine(), event.getX(), event.getY()) < 15)){
+        	for(AbstractEdgeView edgeView : diagramController.allEdgeViews){
+                if (!(edgeView instanceof MessageEdgeView) && (distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15 
+                		|| distanceToLine(edgeView.getMiddleLine(), event.getX(), event.getY()) < 15 
+                		|| distanceToLine(edgeView.getEndLine(), event.getX(), event.getY()) < 15)){
                     if(!diagramController.selectedEdges.contains(edgeView)){
                         diagramController.selectedEdges.add(edgeView);
                     }
-                    if(event.getClickCount() == 1){
-                    	diagramController.selectedEdges.add(edgeView);
-                    	diagramController.setTool(ToolEnum.SELECT);
-                        diagramController.setButtonClicked(diagramController.selectBtn);
-                        //diagramController.edgeController.onMousePressDragEdge(event);
-                        
-                    } else{
-                        diagramController.edgeController.showEdgeEditDialog(edgeView.getRefEdge());
+                    if(event.getClickCount() > 1){
+                    	diagramController.edgeController.showEdgeEditDialog(edgeView.getRefEdge());
                         diagramController.setTool(ToolEnum.SELECT);
                         diagramController.setButtonClicked(diagramController.selectBtn);
+                    } else{
+                         edgeView.setSelected(true);
+                        diagramController.setTool(ToolEnum.SELECT);
+                    	diagramController.setButtonClicked(diagramController.selectBtn);
+                    	selectedEdge = false;
                     }
-                    
+                    diagramController.drawSelected();                                   
                 } else if((edgeView instanceof MessageEdgeView) && distanceToLine(edgeView.getStartLine(), event.getX(), event.getY()) < 15){
                     if(!diagramController.selectedEdges.contains(edgeView)){
                         diagramController.selectedEdges.add(edgeView);
@@ -100,10 +100,14 @@ public class SelectController {
                         diagramController.edgeController.onMousePressDragEdge(event);
                     }
                     diagramController.drawSelected();
-                }
+                    } 
             }
+        
             if(diagramController.mode != Mode.DRAGGING_EDGE){
+            	// if the edge is selected, then go in NO_MODE
+            	if(selectedEdge) {
             	diagramController.setMode(Mode.SELECTING);
+            	} else diagramController.setMode(Mode.NO_MODE);
             	//TODO This should not be needed, should be in nodeView.initActions().
                 for(AbstractNodeView nodeView : diagramController.allNodeViews){
                     if (nodeView.getBoundsInParent().contains(event.getX(), event.getY()))

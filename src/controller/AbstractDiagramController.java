@@ -897,7 +897,7 @@ public abstract class AbstractDiagramController {
                 endNodeView = nodeView;
             }
         }
-        AbstractEdgeView edgeView;
+        AbstractEdgeView edgeView = null;
         if (edge instanceof AggregationEdge){
             edgeView = new AggregationEdgeView(edge, startNodeView, endNodeView);
         } else if (edge instanceof CompositionEdge) {
@@ -907,15 +907,19 @@ public abstract class AbstractDiagramController {
             edgeView = new MessageEdgeView((MessageEdge)edge, mEdge.getStartX(), mEdge.getStartY(), startNodeView, endNodeView);
         } else if (edge instanceof InheritanceEdge) {
             edgeView = new InheritanceEdgeView(edge, startNodeView, endNodeView);
-        } else { //Association
-            edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
+        } else{ //Association
+        	if (startNodeView !=null && endNodeView != null)
+        	edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
         }
+        if (edgeView != null) {
         allEdgeViews.add(edgeView);
         drawPane.getChildren().add(edgeView);
-        if(!graph.getAllEdges().contains(edge)){
-            graph.addEdge(edge, remote);
+        	if(!graph.getAllEdges().contains(edge)){
+        		graph.addEdge(edge, remote);
+        	}
         }
         return edgeView;
+        
     }
 
 //    /**

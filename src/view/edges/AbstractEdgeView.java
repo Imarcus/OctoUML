@@ -59,7 +59,9 @@ public abstract class AbstractEdgeView extends Group implements EdgeView, Proper
         if(startNode != null){
             startNode.getRefNode().addPropertyChangeListener(this);
         }
+        if(endNode != null){
         endNode.getRefNode().addPropertyChangeListener(this);
+        }
     }
 
     protected void draw() {

@@ -889,6 +889,7 @@ public abstract class AbstractDiagramController {
         AbstractNode tempNode;
         for (AbstractNodeView nodeView : allNodeViews) {
             tempNode = nodeMap.get(nodeView);
+            if (edge.getStartNode() !=null && edge.getEndNode() != null) {
             if (edge.getStartNode().getId().equals(tempNode.getId())) {
                 edge.setStartNode(tempNode);
                 startNodeView = nodeView;
@@ -896,8 +897,11 @@ public abstract class AbstractDiagramController {
                 edge.setEndNode(tempNode);
                 endNodeView = nodeView;
             }
+        
+        }
         }
         AbstractEdgeView edgeView = null;
+        if (edge.getStartNode() !=null && edge.getEndNode() != null) {
         if (edge instanceof AggregationEdge){
             edgeView = new AggregationEdgeView(edge, startNodeView, endNodeView);
         } else if (edge instanceof CompositionEdge) {
@@ -908,8 +912,8 @@ public abstract class AbstractDiagramController {
         } else if (edge instanceof InheritanceEdge) {
             edgeView = new InheritanceEdgeView(edge, startNodeView, endNodeView);
         } else{ //Association
-        	if (startNodeView !=null && endNodeView != null)
         	edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
+        }
         }
         if (edgeView != null) {
         allEdgeViews.add(edgeView);
@@ -918,6 +922,7 @@ public abstract class AbstractDiagramController {
         		graph.addEdge(edge, remote);
         	}
         }
+        
         return edgeView;
         
     }

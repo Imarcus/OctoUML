@@ -901,7 +901,7 @@ public abstract class AbstractDiagramController {
         }
         }
         AbstractEdgeView edgeView = null;
-        if (edge.getStartNode() !=null && edge.getEndNode() != null) {
+        if (startNodeView !=null && endNodeView != null) {
         if (edge instanceof AggregationEdge){
             edgeView = new AggregationEdgeView(edge, startNodeView, endNodeView);
         } else if (edge instanceof CompositionEdge) {

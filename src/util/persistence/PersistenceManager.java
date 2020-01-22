@@ -1,30 +1,44 @@
 package util.persistence;
 
 import javafx.scene.shape.LineTo;
+
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import model.*;
 import model.edges.*;
 import model.nodes.AbstractNode;
+import model.nodes.Attribute;
 import model.nodes.ClassNode;
+import model.nodes.IdentifiedTextField;
+import model.nodes.Operation;
 import model.nodes.PackageNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Class with static methods for importing and exporting xmi models.
@@ -39,9 +53,11 @@ public class PersistenceManager {
             DOMSource source = new DOMSource(createXmi(pGraph));
 
             StreamResult result = new StreamResult(new File(path));
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.transform(source, result);
         } catch (TransformerException tfe) {
-            tfe.printStackTrace();
+            tfe.printStackTrace();	
         }
 
     }
@@ -149,9 +165,10 @@ public class PersistenceManager {
 
             Element associationConnection = doc.createElement("UML:Association.connection");
             umlAssociation.appendChild(associationConnection);
-
-            addAssociatonEnd(edge.getStartNode().getId(), associationConnection, doc, "true");
-            addAssociatonEnd(edge.getEndNode().getId(), associationConnection, doc, "false");
+            
+            AbstractEdge abstractEdge = (AbstractEdge) edge;
+            addAssociatonEnd(edge.getStartNode().getId(), abstractEdge.getStartMultiplicity(), associationConnection, doc, "true");
+            addAssociatonEnd(edge.getEndNode().getId(), abstractEdge.getEndMultiplicity(), associationConnection, doc, "false");
 
             umlNamespace.appendChild(umlAssociation);
 
@@ -194,6 +211,7 @@ public class PersistenceManager {
     }
 
     private static void addClassNode(Document doc, ClassNode node, Element parent, Graph pGraph, boolean isChild){
+    	IdentifiedTextField textField;
         Element umlClass = doc.createElement("UML:Class");
         if(isChild){
             umlClass.setAttribute("namespace", ((Element)parent.getParentNode()).getAttribute("xmi.id"));
@@ -205,30 +223,44 @@ public class PersistenceManager {
         Element classifierFeature = doc.createElement("UML:Classifier.feature");
         umlClass.appendChild(classifierFeature);
 
-        int attIdCount = 0;
-        int opIdCount = 0;
         if(node.getAttributes() != null){
-            String attributes[] = node.getAttributes().split("\\r?\\n");
-            for(String att : attributes){
-                Element attribute = doc.createElement("UML:Attribute");
-                attribute.setAttribute("name", att);
-                attribute.setAttribute("xmi.id", "att" + ++attIdCount + "_" + node.getId());
-                classifierFeature.appendChild(attribute);
+            for(Attribute tf : node.getAttributes()){
+                Element element = doc.createElement("UML:Attribute");
+                element.setAttribute("name", tf.getText());
+                if (tf.getXmiId().contains("-")) {
+                	if (tf.getXmiId().contains("_")) {
+                		// Remove old id node suffix
+                		element.setAttribute("xmi.id", tf.getXmiId().substring(0,tf.getXmiId().indexOf("_")));
+                	} else {
+                		element.setAttribute("xmi.id", tf.getXmiId());
+                	}
+                } else {
+                	element.setAttribute("xmi.id", "att" + UUID.randomUUID().toString());
+                }
+                classifierFeature.appendChild(element);
             }
         }
         if(node.getOperations() != null){
-            String operations[] = node.getOperations().split("\\r?\\n");
-            for(String op : operations) {
-                Element operation = doc.createElement("UML:Operation");
-                operation.setAttribute("name", op);
-                operation.setAttribute("xmi.id", "oper" + ++opIdCount + "_" + node.getId());
-                classifierFeature.appendChild(operation);
+            for(Operation tf : node.getOperations()){
+                Element element = doc.createElement("UML:Operation");
+                element.setAttribute("name", tf.getText());
+                if (tf.getXmiId().contains("-")) {
+                	if (tf.getXmiId().contains("_")) {
+                		// Remove old id node suffix
+                		element.setAttribute("xmi.id", tf.getXmiId().substring(0,tf.getXmiId().indexOf("_")));
+                	} else {
+                		element.setAttribute("xmi.id", tf.getXmiId());
+                	}
+                } else {
+                	element.setAttribute("xmi.id", "oper" + UUID.randomUUID().toString());
+                }
+                classifierFeature.appendChild(element);
             }
         }
         parent.appendChild(umlClass);
     }
-
-    private static void addAssociatonEnd(String nodeId, Element association, Document doc, String isStart){
+    
+    private static void addAssociatonEnd(String nodeId, String multiplicityRange, Element association, Document doc, String isStart){
         Element associationEnd = doc.createElement("UML:AssociationEnd");
         associationEnd.setAttribute("xmi.id", "end0");
         associationEnd.setAttribute("type", nodeId);
@@ -241,8 +273,19 @@ public class PersistenceManager {
         Element multiplicityRange1 = doc.createElement("UML:Multiplicity.range");
         multiplicity1.appendChild(multiplicityRange1);
         Element multiplicityRange11 = doc.createElement("UML:MultiplicityRange");
-        multiplicityRange11.setAttribute("upper", ""); //TODO
-        multiplicityRange11.setAttribute("lower", "");
+        // Split multiplicityRange string into upper and lower attributes and add to element.
+        if (multiplicityRange != null) {
+            if (multiplicityRange.contains(".")) {
+            	multiplicityRange11.setAttribute("lower", multiplicityRange.substring(0, multiplicityRange.indexOf(".")));
+            	multiplicityRange11.setAttribute("upper", multiplicityRange.substring(multiplicityRange.lastIndexOf(".")+1));
+        	} else {
+        		multiplicityRange11.setAttribute("lower", multiplicityRange); // TODO: Is correct set to lower? 
+            	multiplicityRange11.setAttribute("upper", "");
+        	}
+        } else {
+    		multiplicityRange11.setAttribute("lower", ""); 
+        	multiplicityRange11.setAttribute("upper", "");
+        }
         multiplicityRange1.appendChild(multiplicityRange11);
         association.appendChild(associationEnd);
     }
@@ -259,6 +302,20 @@ public class PersistenceManager {
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
+        // Remove indentation to avoid errors.
+        XPathFactory xfact = XPathFactory.newInstance();
+        XPath xpath = xfact.newXPath();
+        try {
+			NodeList empty =
+					(NodeList)xpath.evaluate("//text()[normalize-space(.) = '']",
+							doc, XPathConstants.NODESET);
+			for (int i = 0; i < empty.getLength(); i++) {
+			    Node node = empty.item(i);
+			    node.getParentNode().removeChild(node);
+			}
+        } catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}        
         return importXMI(doc);
     }
     public static Graph importXMI(Document doc){
@@ -271,6 +328,7 @@ public class PersistenceManager {
         Element umlModel = ((Element)nList.item(0));
         graph.setName(umlModel.getAttribute("name"));
         String modelNamespace = umlModel.getAttribute("xmi.id");
+        graph.setId(Integer.parseInt(modelNamespace.substring(modelNamespace.indexOf("_")+1)));
 
         //Import packages
         nList = doc.getElementsByTagName("UML:Package");
@@ -282,6 +340,15 @@ public class PersistenceManager {
                 if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                     Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
                     AbstractNode node = createAbstractNode(viewElement, modelElement, isChild, true);
+                    String id;
+                    try {
+                    	// If id is a int type (for old files), replace for UUID
+                    	Integer.parseInt(modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1));
+                    	id = UUID.randomUUID().toString();
+                    } catch (Exception e) {
+                    	id = modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1);
+                    }
+                    node.setId(id);
                     idMap.put(modelElement.getAttribute("xmi.id"), node);
                     graph.addNode(node, false);
                 }
@@ -298,6 +365,15 @@ public class PersistenceManager {
                 if(viewElement.getAttribute("subject").equals(modelElement.getAttribute("xmi.id"))){
                     Boolean isChild = !modelElement.getAttribute("namespace").equals(modelNamespace);
                     AbstractNode node = createAbstractNode(viewElement, modelElement, isChild, false);
+                    String id;
+                    try {
+                    	// If id is a int type (for old files), replace for UUID
+                    	Integer.parseInt(modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1));
+                    	id = UUID.randomUUID().toString();
+                    } catch (Exception e) {
+                    	id = modelElement.getAttribute("xmi.id").substring(modelElement.getAttribute("xmi.id").indexOf("_")+1);
+                    }
+                    node.setId(id);
                     idMap.put(modelElement.getAttribute("xmi.id"), node);
                     graph.addNode(node, false);
                 }
@@ -329,11 +405,34 @@ public class PersistenceManager {
             } else { //Standard is Assocation
                 edge = new AssociationEdge(idMap.get(startNodeId), idMap.get(endNodeId));
             }
+            // Recovering lower and upper multiplicity
+            NodeList nList2 = associationElement.getElementsByTagName("UML:AssociationEnd");
+            for(int i2 = 0; i2 < nList2.getLength(); i2++) {
+                Element associationEndElement = (Element) nList2.item(i2);
+                NodeList nList3 = associationEndElement.getElementsByTagName("UML:MultiplicityRange");
+                Element multiplicityRangeElement = (Element) nList3.item(0);
+            	String multiplicityRange = multiplicityRangeElement.getAttribute("lower");
+            	if (!multiplicityRangeElement.getAttribute("upper").isEmpty()) {
+            		multiplicityRange = multiplicityRange + ".." + multiplicityRangeElement.getAttribute("upper");
+            	}
+                String isStart = associationEndElement.getAttribute("isStart");
+                if (isStart.equals("true")){
+                	edge.setStartMultiplicity(multiplicityRange);
+                } else {
+                	edge.setEndMultiplicity(multiplicityRange);
+                }
+            }            
             graph.addEdge(edge, false);
+            String id;
+            try {
+            	// If id is a int type (for old files), replace for UUID
+            	Integer.parseInt(associationElement.getAttribute("xmi.id").substring(associationElement.getAttribute("xmi.id").indexOf("_")+1));
+            	id = UUID.randomUUID().toString();
+            } catch (Exception e) {
+            	id = associationElement.getAttribute("xmi.id").substring(associationElement.getAttribute("xmi.id").indexOf("_")+1);
+            }
+            edge.setId(id);
         }
-
-
-
 
         //Import sketches
         nList = doc.getElementsByTagName("Sketch");
@@ -365,29 +464,48 @@ public class PersistenceManager {
         double y = Double.parseDouble(geometry[1]);
         double width = Double.parseDouble(geometry[2]) - x;
         double height = Double.parseDouble(geometry[3]) - y;
+        int attributesCont, operationsCont;
 
         AbstractNode abstractNode;
         if(!isPackage){
             abstractNode = new ClassNode(x, y, width, height);
             NodeList attsOps = model.getChildNodes().item(0).getChildNodes();
-            String attributes = "";
-            String operations = "";
+            List<Attribute> attributes = new ArrayList<>();
+            attributesCont = 0;
             for(int i = 0; i < attsOps.getLength(); i++){
                 Element item = ((Element)attsOps.item(i));
+                String name = item.getAttribute("name");
+                String xmiId = item.getAttribute("xmi.id");
                 if(item.getNodeName().equals("UML:Attribute")){
-                    String att = item.getAttribute("name");
-                    attributes = attributes + att + System.getProperty("line.separator");
-                } else if(item.getNodeName().equals("UML:Operation")){
-                    String op = item.getAttribute("name");
-                    operations = operations + op + System.getProperty("line.separator");
+                	Attribute tf = new Attribute(name);
+                	tf.setXmiId(xmiId);
+                	attributes.add(tf);
+                    attributesCont++;
                 }
             }
-            ((ClassNode)abstractNode).setAttributes(attributes);
-            ((ClassNode)abstractNode).setOperations(operations);
+            if (attributesCont > 0) {
+                ((ClassNode)abstractNode).setAttributes(attributes);
+            }
+            List<Operation> operations = new ArrayList<>();
+            operationsCont = 0;
+            for(int i = 0; i < attsOps.getLength(); i++){
+                Element item = ((Element)attsOps.item(i));
+                String name = item.getAttribute("name");
+                String xmiId = item.getAttribute("xmi.id");
+                if(item.getNodeName().equals("UML:Operation")){
+                	Operation tf = new Operation(name);
+                	tf.setXmiId(xmiId);
+                	operations.add(tf);
+                    operationsCont++;
+                }
+            }
+            if (operationsCont > 0) {
+                ((ClassNode)abstractNode).setOperations(operations);
+            }
         } else {
             abstractNode = new PackageNode(x, y, width, height);
         }
-        abstractNode.setTitle(model.getAttribute("name"));
+        abstractNode.setTitle(model.getAttribute("name"),false, null);
         abstractNode.setIsChild(isChild);
 
         return abstractNode;

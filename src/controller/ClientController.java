@@ -1,24 +1,33 @@
 package controller;
 
 import com.esotericsoftware.kryo.Kryo;
+
+
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Tab;
 import model.*;
 import model.edges.*;
 import model.nodes.AbstractNode;
+import model.nodes.Attribute;
 import model.nodes.ClassNode;
+import model.nodes.Operation;
 import model.nodes.PackageNode;
+import model.nodes.Title;
 import util.Constants;
-
+import util.GlobalVariables;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Communicates changes in the graph to and from the host.
@@ -26,42 +35,80 @@ import java.util.ArrayList;
  */
 public class ClientController implements PropertyChangeListener {
 
+	private static Logger logger = LoggerFactory.getLogger(ClientController.class);
     private AbstractDiagramController diagramController;
     private Client client;
     private String serverIp;
     private int port;
 
-
     public ClientController(AbstractDiagramController pDiagramController, String pServerIp, int pPort) {
+    	logger.debug("ClientController()");
         diagramController = pDiagramController;
         serverIp = pServerIp;
         port = pPort;
-
-        client = new Client();
+        
+        // Increase of buffers size to avoid overflow. Defaults: 8192, 2048
+        client = new Client(16384,16384);
 
         initKryo(client.getKryo());
 
         client.addListener(new Listener() {
             public void received (Connection connection, Object object) {
-                if (object instanceof AbstractNode) {
-                    Platform.runLater(() -> diagramController.createNodeView((AbstractNode)object, true));
-                }
-                else if (object instanceof AbstractEdge) {
-                    Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)object, true));
-                }
-                else if (object instanceof Graph){
-                    Graph graph = (Graph) object;
-                    graph.addRemotePropertyChangeListener(ClientController.this);
-                    Platform.runLater(() -> diagramController.load(graph, true));
-                }
-                else if (object instanceof String[]){
-                    Platform.runLater(() -> diagramController.remoteCommand((String[])object));
-                }
+            	if ( object instanceof Object[]) {
+                	logger.debug("received()");
+                	Object[] dataArray = (Object[]) object; 
+                    if ( dataArray[0] instanceof AbstractNode) {
+                        Platform.runLater(() -> diagramController.createNodeView((AbstractNode)dataArray[0], true));
+                    } 
+                    else if (dataArray[0] instanceof AbstractEdge) {
+                        Platform.runLater(() -> diagramController.addEdgeView((AbstractEdge)dataArray[0], true));
+                    }
+                    else if (dataArray[0] instanceof Graph){
+                        Graph graph = (Graph) dataArray[0];
+                        graph.addRemotePropertyChangeListener(ClientController.this);
+                        Platform.runLater(() -> diagramController.load(graph, true));
+                        diagramController.setCollaborationType((String)dataArray[1]);
+                        // Update tab name
+                		Set<Tab> keys = TabController.getTabMap().keySet();
+                		for (Tab tab: keys)
+                		{
+                			AbstractDiagramController value = TabController.getTabMap().get(tab);
+                	        if (value == diagramController) {
+                	        	Platform.runLater(() -> tab.setText(graph.getName()));
+                	        }
+                		}                        
+                    	logger.info("Collaboration type setted to " + dataArray[1]);
+                        Platform.runLater(() -> diagramController.setServerLabel(
+                        		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +
+                        		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getString(diagramController.getCollaborationType()) +
+                        		"\n" + GlobalVariables.getString("clientMode") + " (" +
+                        		serverIp + ":" + port + ")" ));
+                    }
+                    else if (dataArray[0] instanceof String){
+                    	String request = (String) dataArray[0];
+                        if(request.equals(Constants.changeCollaborationType)){
+                        	diagramController.setCollaborationType((String)dataArray[1]);
+                        	logger.info("Collaboration type changed to " + dataArray[1]);
+                            Platform.runLater(() -> diagramController.setServerLabel(
+                            		GlobalVariables.getString("user") + ": " + diagramController.getUserName() +
+                            		"\n" + GlobalVariables.getString("collaborationType") + ": " + GlobalVariables.getString(diagramController.getCollaborationType()) +
+                            		"\n" + GlobalVariables.getString("clientMode") + " (" +
+                            		serverIp + ":" + port + ")" ));
+                            Graph graph = (Graph) dataArray[2];
+                            graph.addRemotePropertyChangeListener(ClientController.this);
+                            Platform.runLater(() -> diagramController.load(graph, true));
+                        }
+                    	else if (object instanceof String[]){
+                            Platform.runLater(() -> diagramController.remoteCommand((String[])object));
+                    	}
+                    }
+            	}
             }
         });
     }
 
     public boolean connect(){
+    	logger.debug("connect()");
         client.start();
         try {
             client.connect(5000, serverIp, port, port);
@@ -75,12 +122,13 @@ public class ClientController implements PropertyChangeListener {
             client.close();
             return false;
         }
-
-        client.sendTCP(Constants.requestGraph);
+        Object[] dataArray = {Constants.requestGraph, diagramController.getUserName()};
+        client.sendTCP(dataArray);
         return true;
     }
 
     public void close(){
+    	logger.debug("close()");
         client.close();
     }
 
@@ -89,86 +137,102 @@ public class ClientController implements PropertyChangeListener {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        String propertyName = evt.getPropertyName();
+    	logger.debug("propertyChange()");
+
+    	String propertyName = evt.getPropertyName();
         if(propertyName.equals(Constants.sketchAdd)){
-            String[] dataArray = {Constants.sketchAdd}; //Because serializing Sketch was tricky
+        	String[] dataArray = { Constants.sketchAdd, diagramController.getUserName()}; //Because serializing Sketch was tricky
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchPoint)){
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchPoint, sketch.getId(),
-                    Double.toString(point.getX()), Double.toString(point.getY())};
+                    Double.toString(point.getX()), Double.toString(point.getY()), diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeSketchStart)) {
             Sketch sketch = (Sketch) evt.getSource();
             Point2D point = (Point2D) evt.getNewValue();
             String[] dataArray = {Constants.changeSketchStart, sketch.getId(),
-                    Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString()};
+                    Double.toString(point.getX()), Double.toString(point.getY()), sketch.getColor().toString(), diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.sketchRemove)){
-            String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue()};
+        	String[] dataArray = {Constants.sketchRemove, (String)evt.getNewValue(), diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
         else if(propertyName.equals(Constants.NodeAdd)) {
             AbstractNode node = (AbstractNode) evt.getNewValue();
-            client.sendTCP(node);
+            Object[] dataArray = {node, diagramController.getUserName()};
+            client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.NodeRemove)){
-            String[] dataArray = {Constants.NodeRemove, (String)evt.getNewValue()};
+        	String[] dataArray = {Constants.NodeRemove, (String)evt.getNewValue(), diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.EdgeAdd)){
             AbstractEdge edge = (AbstractEdge) evt.getNewValue();
-            client.sendTCP(edge);
+            Object[] dataArray = {edge, diagramController.getUserName()};
+            client.sendTCP(dataArray);
         }
         else if(propertyName.equals(Constants.EdgeRemove)) {
-            String [] dataArray = {Constants.EdgeRemove, (String)evt.getNewValue()};
+        	String [] dataArray = {Constants.EdgeRemove, (String)evt.getNewValue(), diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeTranslateX) || propertyName.equals(Constants.changeNodeTranslateY)) { //NodeX/Y not needed
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), Double.toString(node.getTranslateX()), Double.toString(node.getTranslateY())};
+            String[] dataArray = {propertyName, node.getId(),
+            		Double.toString(node.getTranslateX()),
+            		Double.toString(node.getTranslateY()), diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeWidth) || propertyName.equals(Constants.changeNodeHeight)){
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), Double.toString(node.getWidth()), Double.toString(node.getHeight())};
+            String[] dataArray = {propertyName, node.getId(),
+            		Double.toString(node.getWidth()), 
+            		Double.toString(node.getHeight()), diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
         else if (propertyName.equals(Constants.changeNodeTitle)) {
             AbstractNode node = (AbstractNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getTitle()};
+            String[] dataArray = {propertyName, node.getId(), node.getTitle(), diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
-        else if (propertyName.equals(Constants.changeClassNodeAttributes) || propertyName.equals(Constants.changeClassNodeOperations)){
-            ClassNode node = (ClassNode) evt.getSource();
-            String[] dataArray = {propertyName, node.getId(), node.getAttributes(), node.getOperations()};
+        else if (propertyName.equals(Constants.changeClassNodeAttribute)){
+        	AbstractNode node = (AbstractNode) evt.getSource();
+        	String newValueStr = (String) evt.getNewValue();
+        	String[] dataArray = {propertyName, node.getId(), newValueStr, diagramController.getUserName()};
+            client.sendTCP(dataArray);
+        }
+        else if (propertyName.equals(Constants.changeClassNodeOperation)){
+        	AbstractNode node = (AbstractNode) evt.getSource();
+            String newValueStr = (String) evt.getNewValue();
+            String[] dataArray = {propertyName, node.getId(), newValueStr, diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeEdgeStartMultiplicity) || propertyName.equals(Constants.changeEdgeEndMultiplicity)){
             AbstractEdge edge = (AbstractEdge) evt.getSource();
-            String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(), edge.getEndMultiplicity()};
+            String[] dataArray = {propertyName, edge.getId(), edge.getStartMultiplicity(), edge.getEndMultiplicity(), diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
         else if(propertyName.equals(Constants.changeLabel)){
             AbstractEdge edge = (AbstractEdge) evt.getSource();
-            String[] dataArray = {propertyName, edge.getId(), edge.getLabel()};
+            String[] dataArray = {propertyName, edge.getId(), edge.getLabel(), diagramController.getUserName()};
             client.sendTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateX)) {
             Sketch sketch = (Sketch) evt.getSource();
-            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX())};
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateX()), diagramController.getUserName()};
             client.sendTCP(dataArray);
         } else if (propertyName.equals(Constants.changeSketchTranslateY)) {
             Sketch sketch = (Sketch) evt.getSource();
-            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY())};
+            String[] dataArray = {propertyName, sketch.getId(), Double.toString(sketch.getTranslateY()), diagramController.getUserName()};
             client.sendTCP(dataArray);
         }
     }
 
     private void initKryo(Kryo kryo){
+    	logger.debug("initKryo()");
         kryo.register(ClassNode.class);
         kryo.register(AbstractNode.class);
         kryo.register(PackageNode.class);
@@ -181,9 +245,11 @@ public class ClientController implements PropertyChangeListener {
         kryo.register(ArrayList.class);
         kryo.register(AbstractEdge.Direction.class);
         kryo.register(String[].class);
+        kryo.register(Object[].class);
     }
 
     public void closeClient(){
+    	logger.debug("closeClient()");
         client.close();
     }
 }

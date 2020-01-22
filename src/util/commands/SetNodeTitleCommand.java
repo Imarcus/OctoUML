@@ -19,12 +19,12 @@ public class SetNodeTitleCommand implements Command {
 
     @Override
     public void undo() {
-        node.setTitle(oldTitle);
+        node.setTitle(oldTitle,false, null);
     }
 
     @Override
     public void execute() {
-        node.setTitle(newTitle);
+        node.setTitle(newTitle,false,null);
     }
 
     public Node getNode() {

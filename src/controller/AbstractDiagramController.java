@@ -1,6 +1,7 @@
 package controller;
 
 import javafx.application.Platform;
+
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
@@ -20,6 +21,7 @@ import model.*;
 import model.edges.*;
 import model.nodes.*;
 import util.Constants;
+import util.GlobalVariables;
 import util.NetworkUtils;
 import util.commands.*;
 import util.insertIMG.*;
@@ -40,16 +42,20 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.controlsfx.control.Notifications;
+import org.slf4j.Logger;
 
 
 /**
  * Controls all user inputs and delegates work to other controllers.
  */
 public abstract class AbstractDiagramController {
+	private static Logger logger = LoggerFactory.getLogger(AbstractDiagramController.class);
     protected Graph graph;
     protected Stage aStage;
 
@@ -110,13 +116,16 @@ public abstract class AbstractDiagramController {
     @FXML CheckMenuItem mouseMenuItem;
 
     @FXML
-    protected Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn, voiceBtn;
+    protected Button createBtn, packageBtn, edgeBtn, selectBtn, drawBtn, undoBtn, redoBtn, moveBtn, deleteBtn, recognizeBtn, voiceBtn, commitBtn;
 
     ContextMenu aContextMenu;
     private AbstractDiagramController instance = this;
 
+	private String userName;
+	private String collaborationType = Constants.collaborationTypeSynchronous;
 
     public void initialize() {
+    	logger.debug("initialize()");
         initDrawPaneActions();
         initContextMenu();
         initZoomSlider();
@@ -140,6 +149,7 @@ public abstract class AbstractDiagramController {
     }
 
     private void initDrawPaneActions() {
+    	logger.debug("initDrawPaneActions()");
         //Makes sure the pane doesn't scroll when using a touch screen.
         drawPane.setOnScroll(event -> event.consume());
 
@@ -152,12 +162,29 @@ public abstract class AbstractDiagramController {
 
     abstract void initNodeActions(AbstractNodeView nodeView);
 
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String newValue) {
+		userName = newValue;
+	}
+
+	public String getCollaborationType() {
+		return collaborationType;
+	}
+
+	public void setCollaborationType(String newValue) {
+		collaborationType = newValue;
+	}
+
     //----------------- DELETING ----------------------------------------
 
     /**
      * Deletes all selected nodes, edges and sketches.
      */
     void deleteSelected() {
+    	logger.debug("deleteSelected()");
         CompoundCommand command = new CompoundCommand();
         for (AbstractNodeView nodeView : selectedNodes) {
             deleteNode(nodeView, command, false, false);
@@ -189,6 +216,7 @@ public abstract class AbstractDiagramController {
      * @param remote, If true this command was received from a remote server.
      */
     public void deleteNode(AbstractNodeView nodeView, CompoundCommand pCommand, boolean undo, boolean remote) {
+    	logger.debug("deleteNode()");
         CompoundCommand command = null;
         if (pCommand == null && !undo) {
             command = new CompoundCommand();
@@ -220,6 +248,7 @@ public abstract class AbstractDiagramController {
      * @param undo      If true this is an undo and no command should be created
      */
     public void deleteEdgeView(AbstractEdgeView edgeView, CompoundCommand pCommand, boolean undo, boolean remote) {
+    	logger.debug("deleteEdgeView()");
         CompoundCommand command = null;
         if (pCommand == null && !undo) { //If this is not part of a compoundcommand
             command = new CompoundCommand();
@@ -243,6 +272,7 @@ public abstract class AbstractDiagramController {
     }
 
     public void addSketch(Sketch sketch, boolean isImport, boolean remote){
+    	logger.debug("addSketch()");
         initSketchActions(sketch);
         drawPane.getChildren().add(sketch.getPath());
         if(!isImport){
@@ -252,6 +282,7 @@ public abstract class AbstractDiagramController {
     }
 
     public void deleteSketch(Sketch sketch, CompoundCommand pCommand, boolean remote) {
+    	logger.debug("deleteSketch()");
         CompoundCommand command;
         if (pCommand == null) {
             command = new CompoundCommand();
@@ -272,6 +303,7 @@ public abstract class AbstractDiagramController {
      * @param remote, true if change comes from a remote server
      */
     public void deleteNodeEdges(AbstractNode node, CompoundCommand command, boolean undo, boolean remote) {
+    	logger.debug("deleteNodeEdges()");
         AbstractEdge edge;
         ArrayList<AbstractEdgeView> edgeViewsToBeDeleted = new ArrayList<>();
         for (AbstractEdgeView edgeView : allEdgeViews) {
@@ -295,6 +327,7 @@ public abstract class AbstractDiagramController {
      * @param sketch
      */
     private void initSketchActions(Sketch sketch) {
+    	logger.debug("initSketchActions()");
         sketch.getPath().setOnMousePressed(event -> {
             if (mouseCreationActivated) {
                 handleOnSketchPressedEvents(sketch);
@@ -353,6 +386,7 @@ public abstract class AbstractDiagramController {
     }
 
     private void handleOnSketchPressedEvents(Sketch sketch) {
+    	logger.debug("handleOnSketchPressedEvents()");
         if (sketch.isSelected()) {
             selectedSketches.remove(sketch);
             sketch.setSelected(false);
@@ -373,6 +407,7 @@ public abstract class AbstractDiagramController {
     //---------------------- MENU HANDLERS ---------------------------------
 
     public void handleMenuActionUML() {
+    	logger.debug("handleMenuActionUML()");
         List<Button> umlButtons = Arrays.asList(createBtn, packageBtn, edgeBtn);
 
         if (umlVisible) {
@@ -398,6 +433,7 @@ public abstract class AbstractDiagramController {
     }
 
     public void handleMenuActionSketches() {
+    	logger.debug("handleMenuActionSketches()");
         if (sketchesVisible) {
             for (Sketch sketch : graph.getAllSketches()) {
                 drawPane.getChildren().remove(sketch.getPath());
@@ -415,6 +451,7 @@ public abstract class AbstractDiagramController {
     }
 
     public void handleMenuActionGrid() {
+    	logger.debug("handleMenuActionGrid()");
         if (graphController.isGridVisible()) {
             graphController.setGridVisible(false);
         } else {
@@ -423,10 +460,12 @@ public abstract class AbstractDiagramController {
     }
 
     public void handleMenuActionSnapToGrid(boolean b) {
+    	logger.debug("handleMenuActionSnapToGrid()");
         nodeController.setSnapToGrid(b);
     }
 
     public void handleMenuActionSnapIndicators(boolean b) {
+    	logger.debug("handleMenuActionSnapIndicators()");
         nodeController.setSnapIndicators(b);
     }
 
@@ -437,6 +476,7 @@ public abstract class AbstractDiagramController {
      * @param buttons
      */
     private void setButtons(boolean disable, List<Button> buttons) {
+    	logger.debug("setButtons()");
         for (Button button : buttons) {
             button.setDisable(disable);
         }
@@ -446,14 +486,17 @@ public abstract class AbstractDiagramController {
     //------------------------- SAVE-LOAD FEATURE ---------------------------
 
     public void handleMenuActionMouse() {
+    	logger.debug("handleMenuActionMouse()");
         mouseCreationActivated = !mouseCreationActivated;
     }
 
     public void handleMenuActionExit() {
+    	logger.debug("handleMenuActionExit()");
         Platform.exit();
     }
 
     public void handleMenuActionSave() {
+    	logger.debug("handleMenuActionSave()");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Diagram");
         if (!graph.getName().equals("")) {
@@ -468,6 +511,7 @@ public abstract class AbstractDiagramController {
     }
 
     public void handleMenuActionLoad() {
+    	logger.debug("handleMenuActionLoad()");
         final FileChooser fileChooser = new FileChooser();
         File file = fileChooser.showOpenDialog(getStage());
         fileChooser.setTitle("Choose XML-file");
@@ -481,6 +525,7 @@ public abstract class AbstractDiagramController {
     }
 
     public void createXMI(String path) {
+    	logger.debug("createXMI()");
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -498,33 +543,37 @@ public abstract class AbstractDiagramController {
     }
 
     public void handleMenuActionInsert (){
+    	logger.debug("handleMenuActionInsert()");
         InsertIMG insertIMG = new InsertIMG(aStage, drawPane);
         insertIMG.openFileChooser(this, new Point2D.Double(0,0));
     }
 
     public void handleMenuActionNew() {
+    	logger.debug("handleMenuActionNew()");
         reset();
     }
 
     //---------------------------- Remote Collaboration features ---------------------------------
 
     public void handleMenuActionServer(){
-        TextInputDialog portDialog = new TextInputDialog("54555");
-        portDialog.setTitle("Server Port");
-        portDialog.setHeaderText("Please enter port number");
-        portDialog.setContentText("Port:");
+    	logger.debug("handleMenuActionServer()");
+        String[] result = NetworkUtils.ServerConfigDialog();
 
-        Optional<String> port = portDialog.showAndWait();
-
-        ServerController server = new ServerController(graph, this, Integer.parseInt(port.get()));
-        serverControllers.add(server);
+        if (result != null) {
+        	this.setCollaborationType(GlobalVariables.getKey(result[1]));
+        	this.setUserName(result[2]);
+            ServerController server = new ServerController(graph, this, Integer.parseInt(result[0]));
+            serverControllers.add(server);
+        }
     }
 
     public boolean handleMenuActionClient(){
+    	logger.debug("handleMenuActionClient()");
 
-        String[] result = NetworkUtils.queryServerPort();
+        String[] result = NetworkUtils.clientConfigDialog();
 
         if (result != null) {
+        	this.setUserName(result[2]);
             ClientController client = new ClientController(this, result[0], Integer.parseInt(result[1]));
             if(!client.connect()){
                 client.close();
@@ -538,23 +587,64 @@ public abstract class AbstractDiagramController {
         }
     }
 
+    public boolean handleMenuActionChangeCollaborationType(){
+    	logger.debug("handleMenuActionChangeCollaborationType()");
+
+        String[] result = NetworkUtils.clientConfigDialog();
+
+        if (result != null) {
+    		// TODO: Implement method
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean handleMenuActionCommit(){
+    	logger.debug("handleMenuActionCommit()");
+    	boolean success = false;
+        for (AbstractNodeView nodeView : allNodeViews) {
+        	if (nodeView instanceof ClassNodeView) {
+        		if (((ClassNodeView)nodeView).commitChanges()) {
+        			success = true;
+        		}
+        	}
+        }
+        if (success) {
+            Notifications.create()
+            .title(GlobalVariables.getString("sentedSuccessfully"))
+            .text(GlobalVariables.getString("localChangesSented"))
+            .showInformation();
+        } else {
+            Notifications.create()
+            .title(GlobalVariables.getString("sendFailed"))
+            .text(GlobalVariables.getString("withoutLocalChanges"))
+            .showInformation();
+        }
+    	return true;
+    }
+    
     public void setServerLabel(String s){
+    	logger.debug("setServerLabel()");
         serverLabel.setText(s);
     }
 
     public void closeServers(){
+    	logger.debug("closeServers()");
         for (ServerController server : serverControllers) {
             server.closeServer();
         }
     }
 
     public void closeClients(){
+    	logger.debug("closeClients()");
         for(ClientController client : clientControllers){
             client.closeClient();
         }
     }
 
     public void handleMenuActionImage(){
+    	logger.debug("handleMenuActionImage()");
         try{
             WritableImage image = getSnapShot();
             FileChooser fileChooser = new FileChooser();
@@ -562,11 +652,12 @@ public abstract class AbstractDiagramController {
             File output = fileChooser.showSaveDialog(getStage());
             ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", output);
         } catch (IOException ex) {
-            Logger.getLogger(AbstractDiagramController.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex.toString());
         }
     }
 
     public WritableImage getSnapShot(){
+    	logger.debug("getSnapShot()");
         SnapshotParameters sp = new SnapshotParameters();
         Bounds bounds = scrollPane.getViewportBounds();
         //Not sure why abs is needed, the minX/Y values are negative.
@@ -577,15 +668,19 @@ public abstract class AbstractDiagramController {
 
     //------------------------- Context Menu ---------------------------------
     private void initContextMenu() {
+    	logger.debug("initContextMenu()");
         aContextMenu = new ContextMenu();
 
         MenuItem cmItemDelete = new MenuItem("Delete");
         cmItemDelete.setOnAction(event -> {
             //TODO Is this really needed? Why just not delete all selected?
-            if (aContextMenu.getOwnerNode() instanceof AbstractNodeView) {
-                deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false, false);
-            }
-            deleteSelected();
+        	//TODO: Reactivate code when UMLCollab class delete support is implemented
+        	if (!this.getCollaborationType().equals(Constants.collaborationTypeUMLCollab)) {
+	            if (aContextMenu.getOwnerNode() instanceof AbstractNodeView) {
+	                deleteNode((AbstractNodeView) aContextMenu.getOwnerNode(), null, false, false);
+	            }
+	            deleteSelected();
+        	}
         });
 
         MenuItem cmItemCopy = new MenuItem("Copy");
@@ -606,7 +701,7 @@ public abstract class AbstractDiagramController {
             InsertIMG insertImg = new InsertIMG(aStage, drawPane);
             insertImg.openFileChooser(AbstractDiagramController.this, point);
         });
-
+        
         aContextMenu.getItems().addAll(cmItemCopy, cmItemPaste, cmItemDelete, cmItemInsertImg);
     }
 
@@ -617,9 +712,10 @@ public abstract class AbstractDiagramController {
      * @return the created AbstractNodeView
      */
     public AbstractNodeView createNodeView(AbstractNode node, boolean remote) {
+    	logger.debug("createNodeView()");
         AbstractNodeView newView;
         if (node instanceof ClassNode) {
-            newView = new ClassNodeView((ClassNode) node);
+            newView = new ClassNodeView((ClassNode) node, this);
         } else if (node instanceof PackageNode) {
             newView = new PackageNodeView((PackageNode) node);
         } else {
@@ -642,6 +738,7 @@ public abstract class AbstractDiagramController {
      * @return
      */
     public AbstractNodeView addNodeView(AbstractNodeView nodeView, AbstractNode node) {
+    	logger.debug("addNodeView()");
         drawPane.getChildren().add(nodeView);
         initNodeActions(nodeView);
         nodeMap.put(nodeView, node);
@@ -663,6 +760,7 @@ public abstract class AbstractDiagramController {
      * @return
      */
     public PictureNodeView createPictureView (ImageView view, Image image, Point2D.Double point){
+    	logger.debug("createPictureView()");
         PictureNode picNode = new PictureNode(image, point.getX(), point.getY(), view.getImage().getWidth(), view.getImage().getHeight());
         PictureNodeView picView = new PictureNodeView(view, picNode);
         picNode.setTranslateX(point.getX());
@@ -687,6 +785,7 @@ public abstract class AbstractDiagramController {
      * [2+] = Optional new values
      */
     public void remoteCommand(String[] dataArray){
+    	logger.debug("remoteCommand()");
         if(dataArray[0].equals(Constants.changeSketchPoint)){
             for(Sketch sketch : graph.getAllSketches()){
                 if(dataArray[1].equals(sketch.getId())){
@@ -736,7 +835,7 @@ public abstract class AbstractDiagramController {
         } else if (dataArray[0].equals(Constants.changeNodeTitle)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    node.remoteSetTitle(dataArray[2]);
+                    node.remoteSetTitle(dataArray, getCollaborationType());
                     break;
                 }
             }
@@ -758,11 +857,17 @@ public abstract class AbstractDiagramController {
                 }
             }
             deleteEdgeView(edgeToBeDeleted, null, false, true);
-        } else if (dataArray[0].equals(Constants.changeClassNodeAttributes) ||dataArray[0].equals(Constants.changeClassNodeOperations)){
+        } else if (dataArray[0].equals(Constants.changeClassNodeAttribute)){
             for(AbstractNode node : graph.getAllNodes()){
                 if(dataArray[1].equals(node.getId())){
-                    ((ClassNode)node).remoteSetAttributes(dataArray[2]);
-                    ((ClassNode)node).remoteSetOperations(dataArray[3]);
+                    ((ClassNode)node).remoteSetAttribute(dataArray, getCollaborationType());
+                    break;
+                }
+            }
+        } else if (dataArray[0].equals(Constants.changeClassNodeOperation)){
+            for(AbstractNode node : graph.getAllNodes()){
+                if(dataArray[1].equals(node.getId())){
+                    ((ClassNode)node).remoteSetOperation(dataArray, getCollaborationType());
                     break;
                 }
             }
@@ -804,6 +909,7 @@ public abstract class AbstractDiagramController {
      */
     public AbstractEdgeView createEdgeView(AbstractEdge edge, AbstractNodeView startNodeView,
                                            AbstractNodeView endNodeView) {
+    	logger.debug("createEdgeView()");
         AbstractEdgeView edgeView;
         if (edge instanceof AssociationEdge) {
             edgeView = new AssociationEdgeView(edge, startNodeView, endNodeView);
@@ -826,6 +932,7 @@ public abstract class AbstractDiagramController {
      * @return
      */
     public AbstractEdgeView addEdgeView(AbstractEdgeView edgeView) {
+    	logger.debug("addEdgeView()");
         if (edgeView != null) {
             drawPane.getChildren().add(edgeView);
             graph.addEdge(edgeView.getRefEdge(), false);
@@ -841,6 +948,7 @@ public abstract class AbstractDiagramController {
      * @return null if graph already hasEdge or start/endnodeview is null. Otherwise the created AbstractEdgeView.
      */
     public AbstractEdgeView addEdgeView(AbstractEdge edge, boolean remote) {
+    	logger.debug("addEdgeView()");
         AbstractNodeView startNodeView = null;
         AbstractNodeView endNodeView = null;
         AbstractNode tempNode;
@@ -876,6 +984,7 @@ public abstract class AbstractDiagramController {
      * Resets the program, removes everything on the canvas
      */
     private void reset() {
+    	logger.debug("reset()");
         graph = new Graph();
         drawPane.getChildren().clear();
         nodeMap.clear();
@@ -891,6 +1000,7 @@ public abstract class AbstractDiagramController {
      * @param remote True if graph comes from a remote server
      */
     public void load(Graph pGraph, boolean remote) {
+    	logger.debug("load()");
         reset();
 
         if (pGraph != null) {
@@ -918,6 +1028,7 @@ public abstract class AbstractDiagramController {
     //------------------------ Zoom-feature -------------------------------------
 
     private void initZoomSlider() {
+    	logger.debug("initZoomSlider()");
 
         zoomSlider.valueProperty().addListener((ov, old_val, new_val) -> {
             if (zoomSlider.isValueChanging()) {
@@ -932,6 +1043,7 @@ public abstract class AbstractDiagramController {
      * Visualises which graph elements are selected and which are not.
      */
     void drawSelected() {
+    	logger.debug("drawSelected()");
         for (AbstractNodeView nodeView : allNodeViews) {
             if (selectedNodes.contains(nodeView)) {
                 nodeView.setSelected(true);
@@ -960,10 +1072,12 @@ public abstract class AbstractDiagramController {
     Button buttonInUse;
 
     private void initColorPicker(){
+    	logger.debug("initColorPicker()");
         colorPicker.setValue(Color.BLACK);
         colorPicker.setOnAction(t -> sketchController.color = colorPicker.getValue());
     }
     void setButtonClicked(Button b) {
+    	logger.debug("setButtonClicked()");
         buttonInUse.getStyleClass().remove("button-in-use");
         buttonInUse = b;
         buttonInUse.getStyleClass().add("button-in-use");
@@ -976,6 +1090,7 @@ public abstract class AbstractDiagramController {
     }
 
     void setStage(Stage pStage) {
+    	logger.debug("setStage()");
         this.aStage = pStage;
     }
 
@@ -1004,6 +1119,7 @@ public abstract class AbstractDiagramController {
     }
 
     void setMode(Mode pMode) {
+    	logger.debug("setMode()");
         mode = pMode;
     }
 
@@ -1016,23 +1132,28 @@ public abstract class AbstractDiagramController {
     }
 
     void setTool(ToolEnum pTool) {
+    	logger.debug("setTool()");
         tool = pTool;
     }
 
     void addDialog(AnchorPane dialog) {
+    	logger.debug("addDialog()");
         allDialogs.add(dialog);
     }
 
     boolean removeDialog(AnchorPane dialog) {
+    	logger.debug("removeDialog()");
         mode = Mode.NO_MODE;
         return allDialogs.remove(dialog);
     }
 
     void closeLog(){
+    	logger.debug("closeLog()");
         undoManager.closeLog();
     }
 
     public GraphController getGraphController(){
+    	logger.debug("getGraphController()");
         return graphController;
     }
 }

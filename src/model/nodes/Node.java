@@ -26,7 +26,7 @@ public interface Node extends GraphElement {
 
     String getTitle();
 
-    void setTitle(String title);
+    void setTitle(String title, boolean transmit, String collaborationType);
 
     String getType();
 }

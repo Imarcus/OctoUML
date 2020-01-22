@@ -19,10 +19,6 @@
                     <MenuItem text="Save as XMI" onAction="#handleMenuActionSave"/>
                     <MenuItem text="Save as Image" onAction="#handleMenuActionImage"/>
                     <SeparatorMenuItem/>
-                    <MenuItem text="Launch Server" onAction="#handleMenuActionServer"/>
-                    <MenuItem text="Join as Client" onAction="#handleMenuActionClient"/>
-                    <MenuItem text="Upload to GitHub" onAction="#handleMenuActionGit"/>
-                    <SeparatorMenuItem/>
                     <CheckMenuItem fx:id="mouseMenuItem" text="Mouse activated" onAction="#handleMenuActionMouse" selected="false"/>
                     <SeparatorMenuItem/>
                     <MenuItem text="Exit" onAction="#handleMenuActionExit"/>
@@ -43,6 +39,19 @@
                     <SeparatorMenuItem/>
                     <CheckMenuItem fx:id="snapToGridMenuItem" text="Snap to grid" onAction="#handleMenuActionSnapToGrid" selected="true"/>
                     <CheckMenuItem fx:id="snapIndicatorsMenuItem" text="Snap Indicators" onAction="#handleMenuActionSnapIndicators" selected="false"/>
+                </items>
+            </Menu>
+            <Menu text="Server">
+                <items>
+                    <MenuItem text="Launch Server" onAction="#handleMenuActionServer"/>
+                    <MenuItem text="Change collaboration type" onAction="#handleMenuActionChangeCollaborationType"/>
+                    <MenuItem text="Upload to GitHub" onAction="#handleMenuActionGit"/>
+                </items>
+            </Menu>
+            <Menu text="Client">
+                <items>
+                    <MenuItem text="Join server" onAction="#handleMenuActionClient"/>
+                    <MenuItem text="Commit changes" onAction="#handleMenuActionCommit"/>
                 </items>
             </Menu>
         </menus>

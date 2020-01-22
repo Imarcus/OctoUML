@@ -1,6 +1,7 @@
 package model;
 
 import javafx.geometry.Point2D;
+
 import model.edges.AbstractEdge;
 import model.edges.Edge;
 import model.nodes.AbstractNode;
@@ -15,10 +16,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Model-representation of a Graph.
  */
 public class Graph implements Serializable, PropertyChangeListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(Graph.class);
 
     private static int objectCount = 0;
     private int id;
@@ -32,10 +38,12 @@ public class Graph implements Serializable, PropertyChangeListener {
     private String name = "";
 
     public Graph() {
+    	logger.debug("Graph()");
         id = ++ objectCount;
     }
 
     public void setName(String name){
+    	logger.debug("setName()");
         this.name = name;
     }
 
@@ -50,6 +58,7 @@ public class Graph implements Serializable, PropertyChangeListener {
      * @param remote, true if change comes from a remote server
      */
     public void addNode(AbstractNode n, boolean remote){
+    	logger.debug("addNode()");
         assert n != null;
         for (AbstractNode node : allNodes) {
             if (node instanceof PackageNode) {
@@ -74,6 +83,7 @@ public class Graph implements Serializable, PropertyChangeListener {
      * @param e, cannot be null.
      */
     public boolean addEdge(Edge e, boolean remote){
+    	logger.debug("addEdge()");
         assert e != null;
         boolean success = allEdges.add(e);
         if(!remote){
@@ -89,6 +99,7 @@ public class Graph implements Serializable, PropertyChangeListener {
      * @param s, cannot be null.
      */
     public void addSketch(Sketch s, boolean remote) {
+    	logger.debug("addSketch()");
         assert s != null;
         if(!remote){
             remoteChanges.firePropertyChange(Constants.sketchAdd, null, s);
@@ -105,6 +116,7 @@ public class Graph implements Serializable, PropertyChangeListener {
      * @return true if the Node is removed, otherwise false.
      */
     public boolean removeNode(Node n, boolean remote) {
+    	logger.debug("removeNode()");
         assert n != null;
         if(!remote) {
             remoteChanges.firePropertyChange(Constants.NodeRemove, null, n.getId());
@@ -120,6 +132,7 @@ public class Graph implements Serializable, PropertyChangeListener {
      * @return true if the Edge is successfully removed.
      */
     public boolean removeEdge(Edge e, boolean remote) {
+    	logger.debug("removeEdge()");
         assert e != null;
         if(!remote){
             remoteChanges.firePropertyChange(Constants.EdgeRemove, null, e.getId());
@@ -128,6 +141,7 @@ public class Graph implements Serializable, PropertyChangeListener {
     }
 
     public boolean removeSketch(Sketch s, boolean remote) {
+    	logger.debug("removeSketch()");
         assert s != null;
         if(!remote){
             remoteChanges.firePropertyChange(Constants.sketchRemove, null, s.getId());
@@ -199,16 +213,19 @@ public class Graph implements Serializable, PropertyChangeListener {
     //------------------------------- Implemented for serializable ----------------------------------------------------
 
     public void setAllNodes(List<AbstractNode> allNodes) {
+    	logger.debug("setAllNodes()");
         this.allNodes.clear();
         this.allNodes.addAll(allNodes);
     }
 
     public void setAllEdges(List<Edge> allEdges) {
+    	logger.debug("setAllEdges()");
         this.allEdges.clear();
         this.allEdges.addAll(allEdges);
     }
 
     public void setAllSketches(List<Sketch> allSketches) {
+    	logger.debug("setAllSketches()");
         this.allSketches.clear();
         this.allSketches.addAll(allSketches);
     }
@@ -216,16 +233,24 @@ public class Graph implements Serializable, PropertyChangeListener {
     public String getId(){
         return "GRAPH_" + id;
     }
+    
+    public void setId(int id) {
+    	logger.debug("setId()");
+		this.id = id;
+	}
 
-    public void addRemotePropertyChangeListener(PropertyChangeListener l) {
+	public void addRemotePropertyChangeListener(PropertyChangeListener l) {
+    	logger.debug("addRemotePropertyChangeListener()");
         remoteChanges.addPropertyChangeListener(l);
     }
 
     public void removeRemotePropertyChangeListener(PropertyChangeListener l) {
+    	logger.debug("removeRemotePropertyChangeListener()");
         remoteChanges.removePropertyChangeListener(l);
     }
 
     public void listenToElement(Object e){
+    	logger.debug("listenToElement()");
         if(e instanceof AbstractNode){
             ((AbstractNode)e).addRemotePropertyChangeListener(this);
         } else if (e instanceof Sketch){
@@ -240,6 +265,7 @@ public class Graph implements Serializable, PropertyChangeListener {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+    	logger.debug("propertyChange()");
         remoteChanges.firePropertyChange(evt);
     }
 }

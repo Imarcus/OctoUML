@@ -6,6 +6,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import model.Sketch;
 import org.controlsfx.control.Notifications;
+
+import util.GlobalVariables;
 import util.commands.CompoundCommand;
 import util.commands.MoveGraphElementCommand;
 import view.nodes.AbstractNodeView;
@@ -333,6 +335,10 @@ public class ClassDiagramController extends AbstractDiagramController {
         voiceBtn.setGraphic(new ImageView(image));
         voiceBtn.setText("");
 
+        image = new Image("/icons/commitw.png");
+        commitBtn.setGraphic(new ImageView(image));
+        commitBtn.setText("");
+        
         buttonInUse = createBtn;
         buttonInUse.getStyleClass().add("button-in-use");
 
@@ -389,7 +395,10 @@ public class ClassDiagramController extends AbstractDiagramController {
                         .showInformation();
             }
             voiceController.onVoiceButtonClick();
-
+        });
+        
+        commitBtn.setOnAction(event -> {
+        	handleMenuActionCommit();
         });
     }
 }

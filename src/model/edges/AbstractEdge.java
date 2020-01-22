@@ -3,6 +3,7 @@ package model.edges;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
+import java.util.UUID;
 
 import model.nodes.Node;
 import util.Constants;
@@ -13,7 +14,7 @@ import util.Constants;
 public abstract class AbstractEdge implements Edge, Serializable {
 
     private static int objectCount = 0;  //Used to ID instance
-    private int id = 0;
+    private String id;
     private static final long serialVersionUID = 1L;
 
     //Listened to by the view, is always fired.
@@ -38,7 +39,7 @@ public abstract class AbstractEdge implements Edge, Serializable {
         this.endNode = endNode;
         direction = Direction.NO_DIRECTION;
 
-        id = ++objectCount;
+        id = UUID.randomUUID().toString();
     }
 
     public void setDirection(Direction pDirection) {
@@ -163,7 +164,11 @@ public abstract class AbstractEdge implements Edge, Serializable {
         return "EDGE_" + id;
     }
 
-    public static void incrementObjectCount(){
+    public void setId(String id) {
+		this.id = id;
+	}
+
+	public static void incrementObjectCount(){
         objectCount++;
     }
 

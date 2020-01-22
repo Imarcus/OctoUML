@@ -12,9 +12,12 @@ public class Constants {
 
     public static int GRID_DISTANCE = 20;
 
+    public static String collaborationTypeSynchronous = "synchronous";
+    public static String collaborationTypeUMLCollab = "umlcollab";
 
     //--------------------- Network Constants -----------------------------------
     public static String requestGraph = "RequestGraph";
+    public static String changeCollaborationType = "ChangeCollaborationType";
     public static String NodeAdd = "NodeAdd";
     public static String NodeRemove = "NodeRemove";
     public static String EdgeAdd = "EdgeAdd";
@@ -31,8 +34,8 @@ public class Constants {
     public static String changeNodeScaleX = "NodeScaleX";
     public static String changeNodeScaleY = "NodeScaleY";
     public static String changeNodeTitle = "NodeTitle";
-    public static String changeClassNodeAttributes = "ClassNodeAttributes";
-    public static String changeClassNodeOperations = "ClassNodeOperations";
+    public static String changeClassNodeAttribute = "ClassNodeAttributes";
+    public static String changeClassNodeOperation = "ClassNodeOperations";
     public static String changeNodeIsChild = "ClassNodeIsChild";
     public static String changeLifelineLength = "LifelineLength";
 

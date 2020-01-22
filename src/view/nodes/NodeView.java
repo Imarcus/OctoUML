@@ -1,5 +1,7 @@
 package view.nodes;
 
+import com.sun.javafx.geom.Rectangle;
+
 import javafx.scene.paint.Paint;
 
 /**
@@ -27,4 +29,7 @@ public interface NodeView
     double getHeight();
 
     void setSelected(boolean selected);
+    
+    boolean isSelected();
+    
 }

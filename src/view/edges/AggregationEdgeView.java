@@ -46,10 +46,26 @@ public class AggregationEdgeView extends AbstractEdgeView {
                 //Do nothing.
                 break;
             case START_TO_END:
-                this.getChildren().add(drawDiamond(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+            	if(!endNode.isSelected() && startNode.isSelected() ) {
+            		this.getChildren().add(drawDiamond(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+            	} else if(endNode.isSelected() && !startNode.isSelected() )  {
+            		this.getChildren().add(drawDiamond(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));	
+            	} else if (!endNode.isSelected() && !startNode.isSelected()) {
+            		this.getChildren().add(drawDiamond(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+            	} else {
+            		this.getChildren().add(drawDiamond(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));	
+            	}
                 break;
             case END_TO_START:
-                this.getChildren().add(drawDiamond(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+            	if(!endNode.isSelected() && startNode.isSelected() ) {
+            		this.getChildren().add(drawDiamond(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+            	} else if(endNode.isSelected() && !startNode.isSelected() )  {
+            		this.getChildren().add(drawDiamond(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));	
+            	} else if (!endNode.isSelected() && !startNode.isSelected()) {
+            		this.getChildren().add(drawDiamond(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+            	} else {
+            		this.getChildren().add(drawDiamond(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));	
+            	}
                 break;
             case BIDIRECTIONAL:
                 this.getChildren().add(drawDiamond(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));

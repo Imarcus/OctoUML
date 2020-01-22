@@ -3,7 +3,9 @@ package view.edges;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import model.edges.AbstractEdge;
+import model.edges.AbstractEdge.Direction;
 import util.Constants;
 import view.nodes.AbstractNodeView;
 
@@ -18,8 +20,8 @@ public class AssociationEdgeView extends AbstractEdgeView {
     private AbstractNodeView startNode;
     private AbstractNodeView endNode;
     private ArrayList<Line> arrowHeadLines = new ArrayList<>();
-    private String startMultplicity;
-    private String endMultplicity;
+    private Text startMultplicity;
+    private Text endMultplicity;
 
 
     
@@ -30,37 +32,39 @@ public class AssociationEdgeView extends AbstractEdgeView {
         this.endNode = endNode;
         this.setStrokeWidth(super.STROKE_WIDTH);
         this.setStroke(Color.BLACK);
-        this.setStartMultplicity(edge.getStartMultiplicity());
-        this.setEndMultplicity(edge.getEndMultiplicity());
+        startMultplicity = new Text(edge.getStartMultiplicity());
+        endMultplicity = new Text(edge.getEndMultiplicity());
         setPosition();
         draw();
     }
 
-    public String getStartMultplicity() {
+    public Text getStartMultplicity() {
 		return startMultplicity;
 	}
 
-	public void setStartMultplicity(String startMultplicity) {
+	public void setStartMultplicity(Text startMultplicity) {
 		this.startMultplicity = startMultplicity;
 	}
 
-	public String getEndMultplicity() {
+	public Text getEndMultplicity() {
 		return endMultplicity;
 	}
 
-	public void setEndMultplicity(String endMultplicity) {
+	public void setEndMultplicity(Text endMultplicity) {
 		this.endMultplicity = endMultplicity;
 	}
 
 	protected void draw() {
+		Text aux = new Text();
         AbstractEdge.Direction direction = refEdge.getDirection();
         getChildren().clear();
         getChildren().add(getStartLine());
         getChildren().add(getMiddleLine());
         getChildren().add(getEndLine());
         super.draw();
-        this.getChildren().add(super.getEndMultiplicity());
         this.getChildren().add(super.getStartMultiplicity());
+        this.getChildren().add(super.getEndMultiplicity());
+        
 
         //Draw arrows.
         switch(direction) {
@@ -68,16 +72,35 @@ public class AssociationEdgeView extends AbstractEdgeView {
                 //Do nothing.
                 break;
             case START_TO_END:
-                this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+            	if(!endNode.isSelected() && startNode.isSelected()) {
+            		this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+            		
+              	} else if(endNode.isSelected() && !startNode.isSelected() )  {
+            		this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+          		
+               	} else if (!endNode.isSelected() && !startNode.isSelected()) {
+            		this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+
+            	} else {
+            		this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));	             		
+            	}
                 break;
             case END_TO_START:
-                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+            	if(!endNode.isSelected() && startNode.isSelected() ) {
+            		this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+            	} else if(endNode.isSelected() && !startNode.isSelected() )  {
+            		this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));	
+            	} else if (!endNode.isSelected() && !startNode.isSelected()) {
+            		this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+            	} else {
+            		this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));	
+            	}
                 break;
             case BIDIRECTIONAL:
                 this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
                 this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
-                break;
-        }
+                break;       
+        }       	
     }
 
     public void setSelected(boolean selected){
@@ -131,6 +154,12 @@ public class AssociationEdgeView extends AbstractEdgeView {
         if(evt.getPropertyName().equals(Constants.changeNodeTranslateX) || evt.getPropertyName().equals(Constants.changeNodeTranslateY) ||
                 evt.getPropertyName().equals(Constants.changeEdgeDirection)) {
             draw();
-        }
+        }   else if(evt.getPropertyName().equals(Constants.changeEdgeStartMultiplicity)) {
+            startMultplicity.setText((String)evt.getNewValue());
+            draw();
+        } else if(evt.getPropertyName().equals(Constants.changeEdgeEndMultiplicity)){
+            endMultplicity.setText((String)evt.getNewValue());
+            draw();
     }
+        }
 }

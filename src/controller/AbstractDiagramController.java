@@ -461,13 +461,14 @@ public abstract class AbstractDiagramController {
         Platform.exit();
     }
 
-    public void handleMenuActionSave() {
+    public void handleMenuActionSave(Tab tab) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Diagram");
         if (!graph.getName().equals("")) {
             fileChooser.setInitialFileName(graph.getName() + ".xml");
         } else {
-            fileChooser.setInitialFileName("mydiagram.xml");
+          //fileChooser.setInitialFileName("mydiagram.xml");
+            fileChooser.setInitialFileName(tab.getText() + ".xml");
         }
         File file = fileChooser.showSaveDialog(getStage());
         String graphName = file.getName().subSequence(0, file.getName().indexOf('.')).toString();
@@ -566,11 +567,12 @@ public abstract class AbstractDiagramController {
         }
     }
 
-    public void handleMenuActionImage(){
+    public void handleMenuActionImage(Tab tab){
         try{
             WritableImage image = getSnapShot();
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save Image");
+            fileChooser.setInitialFileName(tab.getText() + ".png");
             File output = fileChooser.showSaveDialog(getStage());
             ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", output);
         } catch (IOException ex) {

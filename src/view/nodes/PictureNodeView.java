@@ -23,6 +23,8 @@ public class PictureNodeView extends AbstractNodeView {
 
     private Line shortHandleLine;
     private Line longHandleLine;
+    
+    private boolean selected;
 
     public PictureNodeView(ImageView v, PictureNode picnode) {
         super(picnode);
@@ -114,7 +116,9 @@ public class PictureNodeView extends AbstractNodeView {
     public void setSelected(boolean selected) {
         if(selected){
             imageView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(255,109,112,0.8), 10, 0, 0, 0);");
+            this.selected = selected;
         } else {
+        	this.selected = selected;
             imageView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);");
 
         }
@@ -132,5 +136,11 @@ public class PictureNodeView extends AbstractNodeView {
             changeHeight((double) evt.getNewValue());
         }
     }
+
+	@Override
+	public boolean isSelected() {
+		// TODO Auto-generated method stub
+		return this.selected;
+	}
 
 }

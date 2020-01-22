@@ -27,6 +27,7 @@ public class SequenceObjectView extends AbstractNodeView implements NodeView {
     private Line longHandleLine;
     private Line lifeline;
     private Rectangle rectangleHandle;
+    private boolean selected;
 
     private final int STROKE_WIDTH = 1;
 
@@ -137,7 +138,9 @@ public class SequenceObjectView extends AbstractNodeView implements NodeView {
             setStroke(Constants.selected_color);
             lifeline.setStroke(Constants.selected_color);
             rectangleHandle.setFill(Constants.selected_color);
+            this.selected = selected;
         } else {
+        	this.selected = selected;
             rectangle.setStrokeWidth(1);
             setStroke(Color.BLACK);
             lifeline.setStroke(Color.BLACK);
@@ -196,4 +199,10 @@ public class SequenceObjectView extends AbstractNodeView implements NodeView {
             lifeline.endYProperty().bind(rectangle.heightProperty().add(((SequenceObject)getRefNode()).getLifelineLength()));
         }
     }
+
+	@Override
+	public boolean isSelected() {
+		// TODO Auto-generated method stub
+		return this.selected;
+	}
 }

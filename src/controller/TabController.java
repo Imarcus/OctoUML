@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The class controlling the top menu and the tabs.
@@ -71,12 +72,44 @@ public class TabController {
 
         tab.setContent(canvasView);
         tabMap.put(tab, diagramController);
+        
+        TextInputDialog diagramDialog = new TextInputDialog("your diagram name");
+        diagramDialog.setTitle("Diagram name");
+        diagramDialog.setHeaderText("Please enter your diagram name");
+        diagramDialog.setContentText("Name:");
 
+        Optional<String> diagramName = diagramDialog.showAndWait();
         if(diagramController instanceof ClassDiagramController){
-            tab.setText("Class Diagram " + tabMap.size());
-        } else {
-            tab.setText("Sequence Diagram " + tabMap.size());
+          //tab.setText("Class Diagram " + tabMap.size());
+            tab.setText(diagramName.get());
+         } else {
+          //tab.setText("Sequence Diagram " + tabMap.size());
+        	tab.setText(diagramName.get());
         }
+        
+        tabPane.getTabs().add(tab);
+        diagramController.setStage(stage);
+        return tab;
+    }
+    
+    
+    public Tab addOpenTab(String pathToDiagram){
+        BorderPane canvasView = null;
+        AbstractDiagramController diagramController = null;
+        FXMLLoader loader;
+        try {
+            loader = new FXMLLoader(getClass().getClassLoader().getResource(pathToDiagram));
+            canvasView = loader.load();
+            diagramController = loader.getController();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        Tab tab = new Tab();
+
+        tab.setContent(canvasView);
+        tabMap.put(tab, diagramController);
+        
         tabPane.getTabs().add(tab);
         diagramController.setStage(stage);
         return tab;
@@ -99,12 +132,16 @@ public class TabController {
     }
 
     public void handleMenuActionSave() {
-        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSave();
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionSave(tabPane.getSelectionModel().getSelectedItem());
     }
     public void handleMenuActionLoad() {
-        // Tab tab = addTab(CLASS_DIAGRAM_VIEW_PATH);
+        Tab tab = addOpenTab(CLASS_DIAGRAM_VIEW_PATH);
         Tab newTab = tabPane.getSelectionModel().getSelectedItem();
         tabPane.getSelectionModel().select(newTab);
+        if (newTab == null) {
+        	tabMap.get(tab).handleMenuActionLoad();
+        	tab.setText(tabMap.get(tab).getGraphModel().getName());
+        } else
         tabMap.get(newTab).handleMenuActionLoad();
         newTab.setText(tabMap.get(newTab).getGraphModel().getName());
     }
@@ -132,7 +169,7 @@ public class TabController {
     }
 
     public void handleMenuActionImage(){
-        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionImage();
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).handleMenuActionImage(tabPane.getSelectionModel().getSelectedItem());
     }
 
     public void handleMenuActionSnapToGrid() {

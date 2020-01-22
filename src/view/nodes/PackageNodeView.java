@@ -33,6 +33,7 @@ public class PackageNodeView extends AbstractNodeView {
     private final double TOP_WIDTH_RATIO = 0.4;
     private final double TOP_MAX_HEIGHT = 30;
     private final double TOP_MAX_WIDTH = 150;
+    private boolean selected;
 
     Line shortHandleLine;
     Line longHandleLine;
@@ -132,7 +133,9 @@ public class PackageNodeView extends AbstractNodeView {
         if(selected){
             setStroke(Constants.selected_color);
             setStrokeWidth(2);
+            this.selected = selected;
         } else {
+        	this.selected = selected;
             setStroke(Color.BLACK);
             setStrokeWidth(1);
         }
@@ -171,4 +174,10 @@ public class PackageNodeView extends AbstractNodeView {
 
         }
     }
+
+	@Override
+	public boolean isSelected() {
+		// TODO Auto-generated method stub
+		return this.selected;
+	}
 }

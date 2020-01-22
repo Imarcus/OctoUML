@@ -38,6 +38,8 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
 
     private Line shortHandleLine;
     private Line longHandleLine;
+    
+    private boolean selected = false;
 
     private final int STROKE_WIDTH = 1;
 
@@ -168,12 +170,19 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
         if(selected){
             rectangle.setStrokeWidth(2);
             setStroke(Constants.selected_color);
+            this.selected = selected;
         } else {
+        	this.selected = selected;
             rectangle.setStrokeWidth(1);
             setStroke(Color.BLACK);
         }
     }
-
+    
+    public boolean isSelected() {
+    	return selected;
+    }
+    
+  
     public void setStrokeWidth(double scale){
         rectangle.setStrokeWidth(scale);
     }
@@ -221,4 +230,6 @@ public class ClassNodeView extends AbstractNodeView implements NodeView {
             }
         }
     }
+
+	
 }

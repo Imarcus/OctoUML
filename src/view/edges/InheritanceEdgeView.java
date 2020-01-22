@@ -42,12 +42,28 @@ public class InheritanceEdgeView extends AbstractEdgeView{
         switch(direction) {
             case NO_DIRECTION:
                 //Do nothing.
-                break;
+                break; 
             case START_TO_END:
-                this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+            	if(!endNode.isSelected() && startNode.isSelected() ) {
+            		this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+            	} else if(endNode.isSelected() && !startNode.isSelected() )  {
+            		this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));	
+            	} else if (!endNode.isSelected() && !startNode.isSelected()) {
+            		this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+            	} else {
+            		this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));	
+            	}
                 break;
             case END_TO_START:
-                this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));
+            	if(!endNode.isSelected() && startNode.isSelected() ) {
+            		this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+            	} else if(endNode.isSelected() && !startNode.isSelected() )  {
+            		this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));	
+            	} else if (!endNode.isSelected() && !startNode.isSelected()) {
+            		this.getChildren().add(drawArrowHead(getEndLine().getEndX(), getEndLine().getEndY(), getEndLine().getStartX(), getEndLine().getStartY()));
+            	} else {
+            		this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));	
+            	}
                 break;
             case BIDIRECTIONAL:
                 this.getChildren().add(drawArrowHead(getStartLine().getStartX(), getStartLine().getStartY(), getStartLine().getEndX(), getStartLine().getEndY()));

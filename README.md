@@ -29,6 +29,12 @@ To enable voice commands you first need go to VoiceController and change
 configuration.setGrammarPath("<location of project>")
 ```
 
+**Fixing JavaFX issue**
+JavaFx is now a seperate module and you need to add the JavaFX SDK as follows:
+1.	Download the JavaFX JDK from here: https://gluonhq.com/products/javafx/ 
+2.	If you use eclipse, follow the instructions step by step: https://openjfx.io/openjfx-docs/#install-javafx  
+
+
 ## Contributors
 
 If you want to contribute or have any questions regarding the project contact **marcus.i@live.se**

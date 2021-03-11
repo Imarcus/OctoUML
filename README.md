@@ -1,6 +1,6 @@
 # OctoUML
 
-![](https://media.giphy.com/media/l0HlPT6pjpTBLxBVm/giphy.gif)
+<!-- ![](https://media.giphy.com/media/l0HlPT6pjpTBLxBVm/giphy.gif) -->
 
 OctoUML is a **UML diagram creation tool**, designed with the intention of combining formal UML notations with informal notations, specifically drawings. The user can create diagram elements either by using the formal tools or by transforming drawings to UML. 
 
@@ -12,7 +12,7 @@ The software is built using the MVC architecture in Java, utilizing JavaFX graph
 
 The library used for recognizing drawings is [Paleo Sketch](http://srl-mechanix.appspot.com/).
 
-![](http://i68.tinypic.com/2ryt0kw.jpg "Screenshot")
+<!-- ![](http://i68.tinypic.com/2ryt0kw.jpg "Screenshot") -->
 
 ## Documentation
 A overview of classes can be found [here](https://i.imgsafe.org/1a2c18332d.png).
@@ -28,6 +28,12 @@ To enable voice commands you first need go to VoiceController and change
 ```java
 configuration.setGrammarPath("<location of project>")
 ```
+
+**Fixing JavaFX issue**
+For the recnet versions of JDKs, JavaFx is now a seperate module and you need to add the JavaFX SDK as follows:
+1.	Download the JavaFX JDK from here: https://gluonhq.com/products/javafx/ 
+2.	If you use eclipse, follow the instructions step by step: https://openjfx.io/openjfx-docs/#install-javafx  
+
 
 ## Contributors
 

@@ -1,6 +1,6 @@
 package view.nodes;
 
-import com.sun.javafx.geom.Rectangle;
+//import com.sun.javafx.geom.Rectangle;
 
 import javafx.scene.paint.Paint;
 

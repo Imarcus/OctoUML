@@ -60,8 +60,8 @@ public class VoiceController {
             configuration
                     .setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
             //set the path to the file "octo.gram"
-            configuration.setGrammarPath("file:C:/Users/Marcus/Documents/mthubrepo/PenguinUML"); //Home PC
-            configuration.setGrammarName("hello");
+            configuration.setGrammarPath("file:C:/Users/.../git/OctoUML"); //Home PC
+            configuration.setGrammarName("octo");
             configuration.setUseGrammar(true);
             config = 1;
         }

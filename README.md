@@ -30,7 +30,7 @@ configuration.setGrammarPath("<location of project>")
 ```
 
 **Fixing JavaFX issue**
-For the recnet versions of JDKs, JavaFx is now a seperate module and you need to add the JavaFX SDK as follows:
+JavaFx is now a seperate module and you need to add the JavaFX SDK as follows:
 1.	Download the JavaFX JDK from here: https://gluonhq.com/products/javafx/ 
 2.	If you use eclipse, follow the instructions step by step: https://openjfx.io/openjfx-docs/#install-javafx  
 

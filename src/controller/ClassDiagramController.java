@@ -5,13 +5,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import model.Sketch;
-import org.controlsfx.control.Notifications;
+
 import util.commands.CompoundCommand;
 import util.commands.MoveGraphElementCommand;
 import view.nodes.AbstractNodeView;
 import view.nodes.PackageNodeView;
 
 import java.awt.geom.Point2D;
+
+import org.controlsfx.control.Notifications;
 
 /**
  * Created by chalmers on 2016-08-31.
